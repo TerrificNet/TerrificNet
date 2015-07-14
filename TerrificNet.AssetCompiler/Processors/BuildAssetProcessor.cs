@@ -25,7 +25,7 @@ namespace TerrificNet.AssetCompiler.Processors
 				var factory = _container.Resolve<IAssetCompilerFactory>();
 				var compiler = factory.GetCompiler(name);
 
-				result = await compiler.CompileAsync(result);
+				result = await compiler.CompileAsync(result, true);
 			}
 
 			return result;

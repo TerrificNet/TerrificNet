@@ -62,7 +62,7 @@ namespace TerrificNet.AssetCompiler.Test
 			var helper = _container.Resolve<IAssetHelper>();
 			var components = helper.GetGlobComponentsForAsset(_terrificConfig.Assets["app.js"], "");
 			var bundle = await new DefaultAssetBundler().BundleAsync(components).ConfigureAwait(false);
-			var compile = await compiler.CompileAsync(bundle).ConfigureAwait(false);
+			var compile = await compiler.CompileAsync(bundle, true).ConfigureAwait(false);
 			Assert.False(compile.Contains("TestLongParamName"));
 		}
 
@@ -75,7 +75,7 @@ namespace TerrificNet.AssetCompiler.Test
 			var helper = _container.Resolve<IAssetHelper>();
 			var components = helper.GetGlobComponentsForAsset(_terrificConfig.Assets["app.css"], "");
 			var bundle = await new DefaultAssetBundler().BundleAsync(components).ConfigureAwait(false);
-			var compile = await compiler.CompileAsync(bundle).ConfigureAwait(false);
+			var compile = await compiler.CompileAsync(bundle, true).ConfigureAwait(false);
 			Assert.True(compile.Contains(".mod-example{background:#000}"));
 		}
 
