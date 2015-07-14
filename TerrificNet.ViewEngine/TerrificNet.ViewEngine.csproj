@@ -36,13 +36,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json.Schema, Version=1.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.Schema.1.0.8\lib\net45\Newtonsoft.Json.Schema.dll</HintPath>
+    <Reference Include="Newtonsoft.Json.Schema">
+      <HintPath>..\packages\Newtonsoft.Json.Schema.1.0.9\lib\net45\Newtonsoft.Json.Schema.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,6 +61,7 @@
     <Compile Include="Config\ConfigurationLoader.cs" />
     <Compile Include="Config\ITerrificNetConfig.cs" />
     <Compile Include="Config\TerrificNetConfig.cs" />
+    <Compile Include="CoreModule.cs" />
     <Compile Include="DefaultModuleRepository.cs" />
     <Compile Include="IO\EmbeddedResourceFileSystem.cs" />
     <Compile Include="IO\FileSystem.cs" />
@@ -69,6 +69,7 @@
     <Compile Include="Globalization\ILabelService.cs" />
     <Compile Include="Globalization\JsonLabelService.cs" />
     <Compile Include="IO\Glob.cs" />
+    <Compile Include="IO\IFileInfo.cs" />
     <Compile Include="IO\IFileSystem.cs" />
     <Compile Include="IModelTypeProvider.cs" />
     <Compile Include="IModuleRepository.cs" />
@@ -85,7 +86,7 @@
     <Compile Include="SchemaProviders\DefaultModelTypeRepository.cs" />
     <Compile Include="SchemaProviders\DefaultModuleSchemaProvider.cs" />
     <Compile Include="SchemaProviders\IModelTypeRepository.cs" />
-    <Compile Include="SchemaProviders\PhysicalSchemaProvider.cs" />
+    <Compile Include="SchemaProviders\FileSystemSchemaProvider.cs" />
     <Compile Include="SchemaProviders\SchemaMergeProvider.cs" />
     <Compile Include="SchemaProviders\TypeSchemaProvider.cs" />
     <Compile Include="StaticModelTypeProvider.cs" />
@@ -105,6 +106,10 @@
     <Compile Include="IO\ZipFileSystem.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TerrificNet.Composition\TerrificNet.Composition.csproj">
+      <Project>{61997E46-9030-4690-9190-D46394ED04F2}</Project>
+      <Name>TerrificNet.Composition</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TerrificNet.ViewEngine.Schema\TerrificNet.ViewEngine.Schema.csproj">
       <Project>{29F13A40-21B8-4FEA-8A30-D5BAA24622B2}</Project>
       <Name>TerrificNet.ViewEngine.Schema</Name>
@@ -119,6 +124,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="TerrificNet.ViewEngine.nuspec" />
   </ItemGroup>

@@ -33,6 +33,11 @@ namespace TerrificNet.ViewEngine.IO
             get { return new PathInfo(GetEnumerateReverse().Skip(1)); }
         }
 
+        public PathInfo Name
+        {
+            get { return new PathInfo(GetEnumerateReverse().Take(1)); }
+        }
+
         public static PathInfo Create(string path)
         {
             return new PathInfo(path);

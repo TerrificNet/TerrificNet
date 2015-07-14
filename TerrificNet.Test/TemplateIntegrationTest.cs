@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using TerrificNet.Generator;
+using TerrificNet.Test.Common;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Cache;
 using TerrificNet.ViewEngine.Client;
@@ -20,64 +21,53 @@ using TerrificNet.ViewEngine.SchemaProviders;
 using TerrificNet.ViewEngine.ViewEngines;
 using Veil;
 using Veil.Helper;
+using Xunit;
 
 namespace TerrificNet.Test
 {
-    [TestClass]
     public class TemplateIntegrationTest
     {
-        private string _testName;
-        private string _dataFile;
-        private string _templateFile;
-        private string _resultFile;
-        private string _result;
-
-        public TestContext TestContext { get; set; }
-
-        [TestInitialize]
-        public void TestSetup()
+        [Theory]
+        [MemberData("TestData")]
+        public async Task TestServerSideRendering(string testName, string templateFile, string dataFile, string resultFile)
         {
-            _dataFile = (string)TestContext.DataRow["data"];
-            _templateFile = (string)TestContext.DataRow["template"];
-            _resultFile = Path.Combine(this.TestContext.DeploymentDirectory, (string)TestContext.DataRow["result"]);
-            _testName = Path.GetFileName(Path.GetDirectoryName(_resultFile));
-
-            _result = GetFileContent(_resultFile);
+            var resultString = await ExecuteServerSide(testName, templateFile, dataFile).ConfigureAwait(false);
+            Assert.Equal(GetFileContent(resultFile), resultString);
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [Theory]
+        [MemberData("TestData")]
+        public async Task TestServerSideRenderingWithStronglyTypedModel(string testName, string templateFile, string dataFile, string resultFile)
         {
+            var resultString = await ExecuteServerSideStrongModel(testName, templateFile, dataFile).ConfigureAwait(false);
+            Assert.Equal(GetFileContent(resultFile), resultString);
         }
 
-        [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "|DataDirectory|\\test_cases.csv", "test_cases#csv", DataAccessMethod.Sequential)]
-        public async Task TestServerSideRendering()
+        [Theory]
+        [MemberData("TestData")]
+        public void TestClientSideRenderingWithJavascript(string testName, string templateFile, string dataFile, string resultFile)
         {
-            var resultString = await ExecuteServerSide(_testName, _templateFile, _dataFile).ConfigureAwait(false);
-            Assert.AreEqual(_result, resultString);
+            var resultString = ExecuteClientSide(testName, templateFile, dataFile);
+            Assert.Equal(GetFileContent(resultFile), resultString);
         }
 
-        [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "|DataDirectory|\\test_cases.csv", "test_cases#csv", DataAccessMethod.Sequential)]
-        public async Task TestServerSideRenderingWithStronglyTypedModel()
+        public static IEnumerable<object[]> TestData
         {
-            var resultString = await ExecuteServerSideStrongModel(_testName, _templateFile, _dataFile).ConfigureAwait(false);
-            Assert.AreEqual(_result, resultString);
-        }
-
-        [TestMethod]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.CSV", "|DataDirectory|\\test_cases.csv", "test_cases#csv", DataAccessMethod.Sequential)]
-        public void TestClientSideRenderingWithJavascript()
-        {
-            var resultString = ExecuteClientSide(_testName, _templateFile, _dataFile);
-            Assert.AreEqual(_result, resultString);
+            get
+            {
+                string content = GetFileContent("TestCases/test_cases.csv");
+                return content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None).Select(l =>
+                {
+                    var objs = l.Split(',').Select(s => Path.Combine("TestCases", s)).ToArray();
+                    return new[] {Path.GetFileName(Path.GetDirectoryName(objs[2]))}.Union(objs).ToArray();
+                });
+            }
         }
 
         private static string GetFileContent(string resultFile)
         {
             string result;
-            using (var reader = new StreamReader(resultFile))
+            using (var reader = new StreamReader(PathUtility.GetFullFilename(resultFile)))
             {
                 result = reader.ReadToEnd();
             }
@@ -103,10 +93,7 @@ namespace TerrificNet.Test
 
             CleanupModel(model);
 
-            this.TestContext.BeginTimer("JS Rendering");
             var result = JavascriptClientTest.ExecuteJavascript(view, model, testName);
-            this.TestContext.EndTimer("JS Rendering");
-
             return result;
         }
 
@@ -198,7 +185,7 @@ namespace TerrificNet.Test
             var viewEngine = new VeilViewEngine(cacheProvider, handlerFactory, namingRule);
             var view = await viewEngine.CreateViewAsync(templateInfo, modelType).ConfigureAwait(false);
             if (view == null)
-                Assert.Fail("Could not create view from file '{0}'.", templateFile);
+                Assert.True(false, string.Format("Could not create view from file '{0}'.", templateFile));
 
             object model;
             using (var reader = new JsonTextReader(new StreamReader(dataFile)))
@@ -206,14 +193,12 @@ namespace TerrificNet.Test
                 model = JsonSerializer.Create().Deserialize(reader, modelType);
             }
 
-            this.TestContext.BeginTimer("ServerStrong");
             var builder = new StringBuilder();
             using (var writer = new StringWriterDelayed(builder))
             {
                 view.Render(model, new RenderingContext(writer));
             }
             var resultString = builder.ToString();
-            this.TestContext.EndTimer("ServerStrong");
             return resultString;
         }
 
@@ -228,7 +213,7 @@ namespace TerrificNet.Test
             var viewEngine = new VeilViewEngine(cacheProvider, handlerFactory, namingRule);
             IView view = await viewEngine.CreateViewAsync(templateInfo).ConfigureAwait(false);
             if (view == null)
-                Assert.Fail("Could not create view from file'{0}'.", templateFile);
+                Assert.True(false, string.Format("Could not create view from file'{0}'.", templateFile));
 
             object model;
             using (var reader = new StreamReader(dataFile))
@@ -236,14 +221,12 @@ namespace TerrificNet.Test
                 model = new JsonSerializer().Deserialize(reader, typeof(Dictionary<string, object>));
             }
 
-            this.TestContext.BeginTimer("Server");
             var builder = new StringBuilder();
             using (var writer = new StringWriterDelayed(builder))
             {
                 view.Render(model, new RenderingContext(writer));
             }
             var resultString = builder.ToString();
-            this.TestContext.EndTimer("Server");
             return resultString;
         }
 

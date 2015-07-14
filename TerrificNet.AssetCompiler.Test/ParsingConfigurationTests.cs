@@ -1,53 +1,47 @@
 ﻿using System;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Reflection;
 using Newtonsoft.Json;
-using TerrificNet.ViewEngine;
+using TerrificNet.Test.Common;
 using TerrificNet.ViewEngine.Config;
 using TerrificNet.ViewEngine.IO;
+using Xunit;
 
 namespace TerrificNet.AssetCompiler.Test
 {
-    [TestClass]
+    
     public class ParsingConfigurationTests
     {
-        public TestContext TestContext { get; set; }
-
-        [TestMethod]
-        [DeploymentItem("configs/valid.json", "configs")]
+        [Fact]
         public void ParseValidJson()
         {
             const string file = "valid.json";
-            var config = ConfigurationLoader.LoadTerrificConfiguration(string.Empty, file, new FileSystem(Path.Combine(TestContext.DeploymentDirectory, "configs")));
-            Assert.IsNotNull(config);
-            Assert.IsTrue(config.Assets.ContainsKey("app.css"));
-            Assert.IsTrue(config.Assets.ContainsKey("app.js"));
+            var config = ConfigurationLoader.LoadTerrificConfiguration(string.Empty, file, new FileSystem(Path.Combine(PathUtility.GetDirectory(), "configs")));
+            Assert.NotNull(config);
+            Assert.True(config.Assets.ContainsKey("app.css"));
+            Assert.True(config.Assets.ContainsKey("app.js"));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(JsonReaderException))]
-        [DeploymentItem("configs/invalid.json", "configs")]
+        [Fact]
         public void ParseInvalidJson()
         {
             const string fileName = "invalid.json";
-            var config = ConfigurationLoader.LoadTerrificConfiguration(string.Empty, fileName, new FileSystem(Path.Combine(TestContext.DeploymentDirectory, "configs")));
+            Assert.Throws<JsonReaderException>(() => ConfigurationLoader.LoadTerrificConfiguration(string.Empty, fileName, new FileSystem(Path.Combine(PathUtility.GetDirectory(), "configs"))));
         }
 
-        [TestMethod]
-        [DeploymentItem("configs/config.json")]
+        [Fact]
         public void ParseDefaultConfig()
         {
-            var config = ConfigurationLoader.LoadTerrificConfiguration(string.Empty, new FileSystem(TestContext.DeploymentDirectory));
-            Assert.IsNotNull(config);
-            Assert.IsTrue(config.Assets.ContainsKey("app.css"));
-            Assert.IsTrue(config.Assets.ContainsKey("app.js"));
+            var config = ConfigurationLoader.LoadTerrificConfiguration(string.Empty, new FileSystem(PathUtility.GetFullFilename("configs")));
+            Assert.NotNull(config);
+            Assert.True(config.Assets.ContainsKey("app.css"));
+            Assert.True(config.Assets.ContainsKey("app.js"));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void ParseNullConfig()
         {
-            var config = ConfigurationLoader.LoadTerrificConfiguration(null, new FileSystem());
+            Assert.Throws<ArgumentNullException>(() => ConfigurationLoader.LoadTerrificConfiguration(null, new FileSystem()));
         }
     }
 }

@@ -19,15 +19,9 @@ namespace TerrificNet.ViewEngine.IO
 		Stream OpenReadOrCreate(PathInfo filePath);
 		IPathHelper Path { get; }
 		bool SupportsSubscribe { get; }
-		Task<IDisposable> SubscribeAsync(string pattern, Action<IFileInfo> handler);
+		Task<IDisposable> SubscribeAsync(Action<IFileInfo> handler);
 		Task<IDisposable> SubscribeDirectoryGetFilesAsync(PathInfo prefix, string extension,
 			Action<IEnumerable<IFileInfo>> handler);
 		IFileInfo GetFileInfo(PathInfo filePath);
-	}
-
-	public interface IFileInfo
-	{
-		PathInfo FilePath { get; }
-		string Etag { get; }
 	}
 }

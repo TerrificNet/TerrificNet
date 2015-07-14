@@ -75,7 +75,7 @@ namespace TerrificNet.ViewEngine.IO
 		    get { return false; }
 	    }
 
-	    public Task<IDisposable> SubscribeAsync(string pattern, Action<IFileInfo> handler)
+	    public Task<IDisposable> SubscribeAsync(Action<IFileInfo> handler)
 	    {
 			throw new NotSupportedException();
 	    }

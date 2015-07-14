@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Newtonsoft.Json.Schema;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Schema.Test
 {
-	[TestClass]
+	
 	public class SchemaCombinerTest
 	{
-		[TestMethod]
+		[Fact]
 		public void TestTitleUsedFromAvailableSchema()
 		{
 			const string expectedResult = "title";
@@ -22,11 +23,11 @@ namespace TerrificNet.ViewEngine.Schema.Test
 			var underTest = new SchemaCombiner();
 			var result = underTest.Apply(schema1, schema2, null);
 
-			Assert.IsNotNull(result);
-			Assert.AreEqual(expectedResult, result.Title);
+			Assert.NotNull(result);
+			Assert.Equal(expectedResult, result.Title);
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestReportTitleConflictWhenBothHaveTitle()
 		{
 			var schema1 = new JSchema
@@ -44,18 +45,18 @@ namespace TerrificNet.ViewEngine.Schema.Test
 
 			var failures = report.GetFailures().ToList();
 
-			Assert.AreEqual(1, failures.Count, "One failure expected");
-			Assert.IsInstanceOfType(failures[0], typeof(ValueConflict));
+			Assert.Equal(1, failures.Count);
+            Assert.IsType(typeof(ValueConflict), failures[0]);
 
 			var valueConflict = (ValueConflict)failures[0];
-			Assert.AreEqual("title", valueConflict.PropertyName);
-			Assert.AreEqual(schema1, valueConflict.SchemaPart);
-			Assert.AreEqual(schema2, valueConflict.SchemaBasePart);
-			Assert.AreEqual("s1", valueConflict.Value1);
-			Assert.AreEqual("s2", valueConflict.Value2);
+			Assert.Equal("title", valueConflict.PropertyName);
+			Assert.Equal(schema1, valueConflict.SchemaPart);
+			Assert.Equal(schema2, valueConflict.SchemaBasePart);
+			Assert.Equal("s1", valueConflict.Value1);
+			Assert.Equal("s2", valueConflict.Value2);
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestCombineSchemaProperties()
 		{
 			var schema1 = new JSchema();
@@ -67,14 +68,14 @@ namespace TerrificNet.ViewEngine.Schema.Test
 			var underTest = new SchemaCombiner();
 			var result = underTest.Apply(schema1, schema2, null);
 
-			Assert.IsNotNull(result);
-			Assert.IsNotNull(result.Properties);
-			Assert.AreEqual(2, result.Properties.Count);
-			Assert.IsTrue(result.Properties.ContainsKey("prop1"), "Expect the property from the first schema.");
-			Assert.IsTrue(result.Properties.ContainsKey("prop2"), "Expect the property from the second schema.");
+			Assert.NotNull(result);
+			Assert.NotNull(result.Properties);
+			Assert.Equal(2, result.Properties.Count);
+			Assert.True(result.Properties.ContainsKey("prop1"), "Expect the property from the first schema.");
+			Assert.True(result.Properties.ContainsKey("prop2"), "Expect the property from the second schema.");
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestCombineSubSchemaProperties()
         {
             var schema1 = new JSchema();
@@ -90,15 +91,15 @@ namespace TerrificNet.ViewEngine.Schema.Test
             var underTest = new SchemaCombiner();
             var result = underTest.Apply(schema1, schema2, null);
 
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Properties);
-            Assert.AreEqual(1, result.Properties.Count);
-            Assert.IsTrue(result.Properties.ContainsKey("prop1"), "Expect the property from both schema.");
+            Assert.NotNull(result);
+            Assert.NotNull(result.Properties);
+            Assert.Equal(1, result.Properties.Count);
+            Assert.True(result.Properties.ContainsKey("prop1"), "Expect the property from both schema.");
 
             var innerProperties = result.Properties["prop1"].Properties;
-            Assert.AreEqual(2, innerProperties.Count);
-            Assert.IsTrue(innerProperties.ContainsKey("sub_prop1"), "Expect the property from the first schema.");
-            Assert.IsTrue(innerProperties.ContainsKey("sub_prop2"), "Expect the property from the second schema.");
+            Assert.Equal(2, innerProperties.Count);
+            Assert.True(innerProperties.ContainsKey("sub_prop1"), "Expect the property from the first schema.");
+            Assert.True(innerProperties.ContainsKey("sub_prop2"), "Expect the property from the second schema.");
         }
 	}
 }

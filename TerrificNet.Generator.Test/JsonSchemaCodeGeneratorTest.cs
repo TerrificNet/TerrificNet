@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Schema;
 using Roslyn.Compilers.CSharp;
+using TerrificNet.Test.Common;
 using TerrificNet.ViewEngine;
+using Xunit;
 
 namespace TerrificNet.Generator.Test
 {
-	[TestClass]
+	
 	public class JsonSchemaCodeGeneratorTest
 	{
-		public TestContext TestContext { get; set; }
-
-		[TestMethod]
+		[Fact]
 		public void TestClassNameNormalization()
 		{
 			var inputs = new List<Tuple<string, string>>
@@ -31,81 +31,80 @@ namespace TerrificNet.Generator.Test
 			foreach (var input in inputs)
 			{
 				var result = new NamingRule().GetPropertyName(input.Item1);
-				Assert.AreEqual(input.Item2, result);
+				Assert.Equal(input.Item2, result);
 			}
 		}
 
-		[TestMethod]
-        [ExpectedException(typeof(Exception))]
+		[Fact]
 		public void TestNoTitleSet()
 		{
-		    GenerateCode("Schemas/simpleObjectNoTitle.json");
+		    Assert.Throws<Exception>(() => GenerateCode("Mocks/Schemas/simpleObjectNoTitle.json"));
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestSimpleObject()
 		{
 			const string reference = "namespace SimpleClass { public class SimpleClass{public string Name{get;set;}}}";
-			Assert.IsTrue(CompareCode(reference, GenerateCode("Schemas/simpleObject.json")));
+			Assert.True(CompareCode(reference, GenerateCode("Mocks/Schemas/simpleObject.json")));
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestSimpleObjectAllType()
 		{
             const string reference = "namespace SimpleClass { public class SimpleClass{public string Name{get;set;} public int Age{get;set;} public bool Male{get;set;}}}";
-			Assert.IsTrue(CompareCode(reference, GenerateCode("Schemas/simpleObjectAllType.json")));
+			Assert.True(CompareCode(reference, GenerateCode("Mocks/Schemas/simpleObjectAllType.json")));
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestSimpleObjectComplex()
 		{
             const string reference = "namespace SimpleClass {public class Person{ public string Name{get;set;}}public class SimpleClass{public Person Person{get;set;}}} ";
-			Assert.IsTrue(CompareCode(reference, GenerateCode("Schemas/simpleObjectComplex.json")));
+			Assert.True(CompareCode(reference, GenerateCode("Mocks/Schemas/simpleObjectComplex.json")));
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestListSimple()
 		{
             const string reference = "namespace Person {public class Person{ public System.Collections.Generic.IList<string> Names{get;set;}}}";
-			Assert.IsTrue(CompareCode(reference, GenerateCode("Schemas/listSimple.json")));
+			Assert.True(CompareCode(reference, GenerateCode("Mocks/Schemas/listSimple.json")));
 		}
 
-        [TestMethod]
+        [Fact]
         public void TestListSimpleWithComplexTitle()
         {
 			const string reference = "namespace TestOuter {public class Person{ public System.Collections.Generic.IList<string> Names{get;set;}}}";
 
-            var schema = GetSchema(Path.Combine(TestContext.DeploymentDirectory, "Schemas/listSimple.json"));
+            var schema = GetSchema(PathUtility.GetFullFilename("Mocks/Schemas/listSimple.json"));
 			schema.Title = "TestOuter/Person";
-            Assert.IsTrue(CompareCode(reference, GenerateCode(schema)));
+            Assert.True(CompareCode(reference, GenerateCode(schema)));
         }
 
-		[TestMethod]
+		[Fact]
 		public void TestListSimpleWithComplexTitleCasesinsitive()
 		{
 			const string reference = "namespace TestOuter {public class Person{ public System.Collections.Generic.IList<string> Names{get;set;}}}";
 
-			var schema = GetSchema(Path.Combine(TestContext.DeploymentDirectory, "Schemas/listSimple.json"));
+            var schema = GetSchema(PathUtility.GetFullFilename("Mocks/Schemas/listSimple.json"));
 			schema.Title = "testOuter/person";
-			Assert.IsTrue(CompareCode(reference, GenerateCode(schema)));
+			Assert.True(CompareCode(reference, GenerateCode(schema)));
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestListComplex()
 		{
             const string reference = "namespace Person {public class Name{public string Firstname{get;set;}} public class Person{ public System.Collections.Generic.IList<Name> Names{get;set;}}}";
-			Assert.IsTrue(CompareCode(reference, GenerateCode("Schemas/listComplex.json")));
+			Assert.True(CompareCode(reference, GenerateCode("Mocks/Schemas/listComplex.json")));
 		}
 
-        [TestMethod]
+        [Fact]
 	    public void TestCompileComplexType()
         {
-            var path = "Schemas/listComplex.json";
+            var path = "Mocks/Schemas/listComplex.json";
             var generator = new JsonSchemaCodeGenerator();
-            var schema = GetSchema(Path.Combine(TestContext.DeploymentDirectory, path));
+            var schema = GetSchema(path);
 
             var type = generator.Compile(schema);
-            Assert.IsNotNull(type);
+            Assert.NotNull(type);
         }
 
 		private static bool CompareCode(string original, string generated)
@@ -129,7 +128,7 @@ namespace TerrificNet.Generator.Test
 
 		private string GenerateCode(string path)
 		{
-		    var schema = GetSchema(Path.Combine(TestContext.DeploymentDirectory, path));
+            var schema = GetSchema(PathUtility.GetFullFilename(path));
 		    return GenerateCode(schema);
 		}
 

@@ -1,23 +1,19 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TerrificNet.ViewEngine.Config;
-using TerrificNet.ViewEngine.Globalization;
+﻿using TerrificNet.ViewEngine.Globalization;
 using TerrificNet.ViewEngine.IO;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Test
 {
-	[TestClass]
+	
 	public class GlobalizationTest
 	{
 		private const string TestKey = "name";
 		private const string TestPathKey = "person/male";
 
-		private JsonLabelService _service;
-		private FileSystem _fileSystem;
+		private readonly JsonLabelService _service;
+		private readonly FileSystem _fileSystem;
 
-	    public TestContext TestContext { get; set; }
-
-		[TestInitialize]
-		public void Init()
+		public GlobalizationTest()
 		{
 			_fileSystem = new FileSystem();
 			_service = new JsonLabelService(_fileSystem);
@@ -25,19 +21,19 @@ namespace TerrificNet.ViewEngine.Test
 			_service.Remove(TestPathKey);
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestRoot()
 		{
 			_service.Get(TestKey);
 			_service.Set(TestKey, "xyz");
 
 			var name = _service.Get(TestKey);
-			Assert.AreEqual("xyz", name);
+			Assert.Equal("xyz", name);
 
 			_service.Remove(TestKey);
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestPath()
 		{
 			_service.Get(TestPathKey);
@@ -45,19 +41,19 @@ namespace TerrificNet.ViewEngine.Test
 			_service.Set(TestPathKey, "xyz");
 
 			var name = _service.Get(TestPathKey);
-			Assert.AreEqual("xyz", name);
+			Assert.Equal("xyz", name);
 
 			_service.Remove(TestPathKey);
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestReload()
 		{
 			_service.Set(TestPathKey, "xyz");
 
 			var service2 = new JsonLabelService(_fileSystem);
 			var name = service2.Get(TestPathKey);
-			Assert.AreEqual("xyz", name);
+			Assert.Equal("xyz", name);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 using Noesis.Javascript;
 using TerrificNet.ViewEngine.Client.Javascript;
@@ -9,20 +9,21 @@ using TerrificNet.ViewEngine.IO;
 using TerrificNet.ViewEngine.ViewEngines;
 using Veil.Compiler;
 using Veil.Helper;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Client.Test
 {
-    [TestClass]
+    
     public class JavascriptClientTest
     {
-        [TestMethod]
+        [Fact]
         public void TestJavascriptSimpleModel()
         {
             var generator = new JavascriptClientTemplateGenerator("repo", CreateClientTemplateGenerator());
 
             var view = generator.Generate(new StringTemplateInfo("test", "hallo {{value}}"));
 
-            Assert.IsNotNull(view);
+            Assert.NotNull(view);
 
             var model = new Dictionary<string, object>
                 {
@@ -30,7 +31,7 @@ namespace TerrificNet.ViewEngine.Client.Test
                 };
 
             var result = ExecuteJavascript(view, model, "test");
-            Assert.AreEqual("hallo test", result);
+            Assert.Equal("hallo test", result);
         }
 
         public static string ExecuteJavascript(string view, object model, string viewName)

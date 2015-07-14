@@ -7,13 +7,13 @@ using TerrificNet.ViewEngine.IO;
 
 namespace TerrificNet.ViewEngine.SchemaProviders
 {
-    public class PhysicalSchemaProvider : ISchemaProvider
+    public class FileSystemSchemaProvider : ISchemaProvider
     {
         private readonly IFileSystem _fileSystem;
         private static readonly PathInfo SchemasPathInfo = PathInfo.Create("schemas");
         private readonly PathInfo _viewPathInfo;
 
-        public PhysicalSchemaProvider(ITerrificNetConfig config, IFileSystem fileSystem)
+        public FileSystemSchemaProvider(ITerrificNetConfig config, IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
             _viewPathInfo = config.ViewPath;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Cache;
@@ -11,13 +11,14 @@ using TerrificNet.ViewEngine.ViewEngines;
 using Veil;
 using Veil.Helper;
 using Veil.Parser;
+using Xunit;
 
 namespace TerrificNet.Test
 {
-	[TestClass]
+	
 	public class ErrorHandlingTest
 	{
-		[TestMethod]
+		[Fact]
 		public async Task TestPropertyNotBindable_ThrowsExpection()
 		{
 		    const string templateId = "views/test";
@@ -32,10 +33,10 @@ namespace TerrificNet.Test
                 AssertException(ex, input, templateId, "name", 8);
                 return;
             }
-            Assert.Fail("Expected a VeilCompilerException");
+            Assert.True(false, "Expected a VeilCompilerException");
 		}
 
-        [TestMethod]
+        [Fact]
         public async Task TestParseInvalidBlockStatementMissingEnd_ThrowsException()
         {
             const string templateId = "views/test";
@@ -50,10 +51,10 @@ namespace TerrificNet.Test
                 AssertException(ex, input, templateId, "</p>", 15);
                 return;
             }
-            Assert.Fail("Expected a VeilCompilerException");
+            Assert.True(false, "Expected a VeilCompilerException");
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestNullCollection_ThrowsException()
         {
             const string templateId = "views/test";
@@ -68,10 +69,10 @@ namespace TerrificNet.Test
                 AssertException(ex, input, templateId, "items", 11);
                 return;
             }
-            Assert.Fail("Expected a VeilCompilerException");
+            Assert.True(false, "Expected a VeilCompilerException");
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestNullObject_ThrowsException()
         {
             const string templateId = "views/test";
@@ -86,30 +87,30 @@ namespace TerrificNet.Test
                 AssertException(ex, input, templateId, "inner", 21);
                 return;
             }
-            Assert.Fail("Expected a VeilCompilerException");
+            Assert.True(false, "Expected a VeilCompilerException");
         }
 
         private static void AssertException(VeilParserException ex, string input, string templateId, string enclosedText, int index)
         {
-            Assert.IsNotNull(ex.Message);
-            Assert.IsNotNull(ex.Location);
+            Assert.NotNull(ex.Message);
+            Assert.NotNull(ex.Location);
             AssertLocation(input, templateId, ex.Location, enclosedText, index);
         }
 
 	    private static void AssertException(VeilCompilerException ex, string input, string templateId, string enclosedText, int index)
 	    {
-	        Assert.IsNotNull(ex.Message);
-	        Assert.IsNotNull(ex.Node);
-	        Assert.IsNotNull(ex.Node.Location);
+	        Assert.NotNull(ex.Message);
+	        Assert.NotNull(ex.Node);
+	        Assert.NotNull(ex.Node.Location);
 	        AssertLocation(input, templateId, ex.Node.Location, enclosedText, index);
 	    }
 
 	    private static void AssertLocation(string input, string templateId, SourceLocation location, string enclosedText, int index)
 	    {
-	        Assert.AreEqual(enclosedText, input.Substring(location.Index, location.Length));
-	        Assert.AreEqual(index, location.Index);
-	        Assert.AreEqual(enclosedText.Length, location.Length);
-	        Assert.AreEqual(templateId, location.TemplateId);
+	        Assert.Equal(enclosedText, input.Substring(location.Index, location.Length));
+	        Assert.Equal(index, location.Index);
+	        Assert.Equal(enclosedText.Length, location.Length);
+	        Assert.Equal(templateId, location.TemplateId);
 	    }
 
 	    private static async Task<string> Execute(string input, string templateId, object model, Type modelType)

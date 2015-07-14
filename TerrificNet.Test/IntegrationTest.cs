@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 using TerrificNet.Generator;
 using TerrificNet.ViewEngine;
@@ -11,13 +11,14 @@ using TerrificNet.ViewEngine.SchemaProviders;
 using TerrificNet.ViewEngine.ViewEngines;
 using Veil;
 using Veil.Helper;
+using Xunit;
 
 namespace TerrificNet.Test
 {
-	[TestClass]
+	
 	public class IntegrationTest
 	{
-		[TestMethod]
+		[Fact]
 		public async Task TemplateEngineShouldUseSameNamingConventionForBinding()
 		{
 			var cacheProvider = new MemoryCacheProvider();
@@ -47,10 +48,10 @@ namespace TerrificNet.Test
 			view.Render(model, new RenderingContext(writer));
 			var stringResult = writer.ToString();
 
-			Assert.AreEqual(input, stringResult);
+			Assert.Equal(input, stringResult);
 		}
 
-		[TestMethod]
+		[Fact]
 		public async Task EscapeNullString()
 		{
 			var cacheProvider = new MemoryCacheProvider();
@@ -72,10 +73,10 @@ namespace TerrificNet.Test
 			view.Render(model, new RenderingContext(writer));
 			var stringResult = writer.ToString();
 
-			Assert.AreEqual("<p></p>", stringResult);
+			Assert.Equal("<p></p>", stringResult);
 		}
 
-		[TestMethod]
+		[Fact]
 		public async Task EscapeNullStringLateBinding()
 		{
 			var cacheProvider = new MemoryCacheProvider();
@@ -97,7 +98,7 @@ namespace TerrificNet.Test
 			view.Render(model, new RenderingContext(writer));
 			var stringResult = writer.ToString();
 
-			Assert.AreEqual("<p></p>", stringResult);
+			Assert.Equal("<p></p>", stringResult);
 		}
 
 		private class TestModel

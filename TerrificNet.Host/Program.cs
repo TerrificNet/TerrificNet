@@ -11,7 +11,7 @@ namespace TerrificNet.Host
 	{
 		static void Main(string[] args)
 		{
-			var rootDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var rootDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 			var configuration = ReadConfiguration(rootDirectory);
 
 			var logger = new ConsoleLogger();

@@ -1,4 +1,3 @@
-template,data,result
 Basic/PropertyBinding/template.html,Basic/PropertyBinding/data.json,Basic/PropertyBinding/result.html
 Basic/ConditionalBinding/template_string.html,Basic/ConditionalBinding/data_string.json,Basic/ConditionalBinding/result_string.html
 Basic/ConditionalBinding/template.html,Basic/ConditionalBinding/data_noproperty.json,Basic/ConditionalBinding/result_false.html

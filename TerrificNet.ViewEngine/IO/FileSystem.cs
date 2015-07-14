@@ -20,6 +20,8 @@ namespace TerrificNet.ViewEngine.IO
 		private FileSystemWatcher _watcher;
 		private readonly string _basePathConverted;
 
+	    private object _lock = new object();
+
 		public FileSystem()
 			: this(string.Empty)
 		{
@@ -39,15 +41,18 @@ namespace TerrificNet.ViewEngine.IO
 
 		private void Initialize()
 		{
-			_fileInfo = new HashSet<PathInfo>(
-				Directory.EnumerateFiles(_basePathConverted, "*", SearchOption.AllDirectories)
-					.Select(fileName => PathInfo.GetSubPath(_basePath, fileName)));
+		    lock (_lock)
+		    {
+		        _fileInfo = new HashSet<PathInfo>(
+		            Directory.EnumerateFiles(_basePathConverted, "*", SearchOption.AllDirectories)
+		                .Select(fileName => PathInfo.GetSubPath(_basePath, fileName)));
 
-			_fileInfoCache = _fileInfo.ToDictionary(i => GetRootPath(i), i => FileInfo.Create(GetRootPath(i)));
+		        _fileInfoCache = _fileInfo.ToDictionary(GetRootPath, i => FileInfo.Create(GetRootPath(i)));
 
-			_directoryInfo = new HashSet<PathInfo>(
-				Directory.EnumerateDirectories(_basePathConverted, "*", SearchOption.AllDirectories)
-					.Select(fileName => PathInfo.GetSubPath(_basePath, fileName)));
+		        _directoryInfo = new HashSet<PathInfo>(
+		            Directory.EnumerateDirectories(_basePathConverted, "*", SearchOption.AllDirectories)
+		                .Select(fileName => PathInfo.GetSubPath(_basePath, fileName)));
+		    }
 		}
 
 		private void InitializeWatcher()
@@ -69,18 +74,18 @@ namespace TerrificNet.ViewEngine.IO
 			Initialize();
 
 			var fileInfo = FileInfo.Create(GetRootPath(PathInfo.GetSubPath(_basePath, a.FullPath)));
-			if (fileInfo != null)
+			if (fileInfo != null || a.ChangeType == WatcherChangeTypes.Deleted)
 				NotifySubscriptions(fileInfo);
 		}
 
 		private void NotifySubscriptions(IFileInfo file)
 		{
-			foreach (var subscription in _subscriptions)
+			foreach (var subscription in _subscriptions.ToList())
 			{
 				subscription.Notify(file);
 			}
 
-			foreach (var subscription in _directorySubscriptions)
+			foreach (var subscription in _directorySubscriptions.ToList())
 			{
 				if (!subscription.IsMatch(file.FilePath))
 					continue;
@@ -139,7 +144,7 @@ namespace TerrificNet.ViewEngine.IO
 			_directorySubscriptions.Remove(subscription);
 		}
 
-		public Task<IDisposable> SubscribeAsync(string pattern, Action<IFileInfo> handler)
+		public Task<IDisposable> SubscribeAsync(Action<IFileInfo> handler)
 		{
 			var subscription = new LookupFileSystemSubscription(this, handler);
 			_subscriptions.Add(subscription);
@@ -163,7 +168,6 @@ namespace TerrificNet.ViewEngine.IO
 				return result;
 
 			return null;
-			return FileInfo.Create(GetRootPath(filePath));
 		}
 
 		public Stream OpenWrite(PathInfo filePath)
@@ -181,6 +185,7 @@ namespace TerrificNet.ViewEngine.IO
 		public void RemoveFile(PathInfo filePath)
 		{
 			File.Delete(GetRootPath(filePath).ToString());
+		    _fileInfo.Remove(filePath);
 		}
 
 		public void CreateDirectory(PathInfo directory)
@@ -279,7 +284,7 @@ namespace TerrificNet.ViewEngine.IO
 
 			public bool IsMatch(PathInfo path)
 			{
-				return path.StartsWith(_prefix) && (path.HasExtension(_extension) || string.IsNullOrEmpty(_extension));
+				return path.StartsWith(_prefix) && (string.IsNullOrEmpty(_extension) || path.HasExtension(_extension));
 			}
 		}
 

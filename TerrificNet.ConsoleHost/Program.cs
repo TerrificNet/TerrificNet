@@ -49,7 +49,7 @@ namespace TerrificNet.ConsoleHost
 		{
 			public Task<Type> GetModelTypeFromTemplateAsync(TemplateInfo templateInfo)
 			{
-				return Task.FromResult<Type>(typeof(object));
+				return Task.FromResult(typeof(object));
 			}
 		}
 	}

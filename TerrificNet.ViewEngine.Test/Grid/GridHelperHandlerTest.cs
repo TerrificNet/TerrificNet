@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using TerrificNet.ViewEngine.TemplateHandler.Grid;
 using Veil;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Test.Grid
 {
-	[TestClass]
+	
 	public class GridHelperHandlerTest
 	{
-		[TestMethod]
+		[Fact]
 		public void TestCalculation1_3()
 		{
 			var underTest = new GridHelperHandler();
@@ -24,7 +25,7 @@ namespace TerrificNet.ViewEngine.Test.Grid
 			});
 
 			var result = gridStack.Current;
-			Assert.AreEqual(320, result.Width);
+			Assert.Equal(320, result.Width);
 		}
 	}
 }

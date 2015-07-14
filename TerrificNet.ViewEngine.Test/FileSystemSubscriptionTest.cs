@@ -1,31 +1,34 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TerrificNet.Test.Common;
 using TerrificNet.ViewEngine.IO;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Test
 {
-	[TestClass]
+	
 	public class FileSystemSubscriptionTest
 	{
-		protected PathInfo TestFileName = PathInfo.Create("test.txt");
-		protected const string TestFilePattern = "*.txt";
+		protected PathInfo TestFileName;
+		protected const string TestFilePattern = "*.*";
 
-		public TestContext TestContext { get; set; }
+        public FileSystemSubscriptionTest()
+	    {
+	        TestFileName = PathInfo.Create(Path.GetRandomFileName());
+	    }
 
-		[TestMethod]
+		[Fact]
 		public async Task TestSubscription()
 		{
-			var fileSystem = new FileSystem(TestContext.TestRunDirectory);
+			var fileSystem = new FileSystem(PathUtility.GetDirectory());
 			fileSystem.RemoveFile(TestFileName);
 
-			Assert.AreEqual(false, fileSystem.FileExists(TestFileName));
+			Assert.Equal(false, fileSystem.FileExists(TestFileName));
 
 			var c = new TaskCompletionSource<IFileInfo>();
-			using (await fileSystem.SubscribeAsync(TestFilePattern, s => c.TrySetResult(s)).ConfigureAwait(false))
+			using (await fileSystem.SubscribeAsync(s => c.TrySetResult(s)).ConfigureAwait(false))
 			{
 				using (var writer = new StreamWriter(fileSystem.OpenWrite(TestFileName)))
 				{
@@ -34,20 +37,20 @@ namespace TerrificNet.ViewEngine.Test
 				}
 
 				var result = await c.Task.ConfigureAwait(false);
-				Assert.AreEqual(TestFileName.ToString(), Path.GetFileName(result.FilePath.ToString()));
+				Assert.Equal(TestFileName.ToString(), Path.GetFileName(result.FilePath.ToString()));
 			}
 		}
 
-		[TestMethod]
+		[Fact]
 		public async Task TestDirectorySubscription()
 		{
-			IFileSystem fileSystem = new FileSystem(TestContext.TestRunDirectory);
+            IFileSystem fileSystem = new FileSystem(PathUtility.GetDirectory());
 			fileSystem.RemoveFile(TestFileName);
 
-			Assert.AreEqual(false, fileSystem.FileExists(TestFileName));
+			Assert.Equal(false, fileSystem.FileExists(TestFileName));
 
 			var c = new TaskCompletionSource<IEnumerable<IFileInfo>>();
-			using (await fileSystem.SubscribeDirectoryGetFilesAsync(PathInfo.Create(""), "txt", infos =>
+            using (await fileSystem.SubscribeDirectoryGetFilesAsync(PathInfo.Create(""), null, infos =>
 				{
 					c.SetResult(infos);
 				}).ConfigureAwait(false))
@@ -59,7 +62,7 @@ namespace TerrificNet.ViewEngine.Test
 				}
 
 				var result = await c.Task.ConfigureAwait(false);
-				CollectionAssert.AreEquivalent(new[] { TestFileName }, result.Select(i => i.FilePath).ToList());
+				Assert.Equal(new[] { TestFileName }, result.Select(i => i.FilePath.Name).ToList());
 			}
 		}
 	}

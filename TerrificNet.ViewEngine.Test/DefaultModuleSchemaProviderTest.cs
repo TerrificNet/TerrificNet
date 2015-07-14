@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 using Newtonsoft.Json.Schema;
 using TerrificNet.Test;
 using TerrificNet.ViewEngine.Schema;
 using TerrificNet.ViewEngine.SchemaProviders;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Test
 {
-	[TestClass]
+	
 	public class DefaultModuleSchemaProviderTest
 	{
-		[TestMethod]
+		[Fact]
 		public async Task TestUseSchemaFromDefaultTemplateIfNoSkins()
 		{
 			var templateInfo = new StringTemplateInfo("test", "");
@@ -26,10 +27,10 @@ namespace TerrificNet.ViewEngine.Test
 			var underTest = new DefaultModuleSchemaProvider(templateSchemaProvider.Object);
 
 			var result = await underTest.GetSchemaFromModuleAsync(moduleDefintion);
-			Assert.AreEqual(schema, result);
+			Assert.Equal(schema, result);
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestUseCombinedSkinsSchemaWhenNoDefaultTemplate()
 		{
 			var templateInfo = new StringTemplateInfo("test", "");
@@ -56,7 +57,7 @@ namespace TerrificNet.ViewEngine.Test
 
 			var result = underTest.GetSchemaFromModuleAsync(moduleDefintion);
 
-			Assert.IsNotNull(result);
+			Assert.NotNull(result);
 
 			combiner.Verify();
 		}

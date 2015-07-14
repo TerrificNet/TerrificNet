@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-using Microsoft.Practices.Unity;
+﻿using Microsoft.Practices.Unity;
 using TerrificNet.Generator;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Cache;
@@ -63,7 +61,7 @@ namespace TerrificNet.UnityModules
 
             container.RegisterType<ISchemaProvider, SchemaMergeProvider>(
                 new InjectionConstructor(new ResolvedParameter<HandlebarsViewSchemaProvider>(),
-                    new ResolvedParameter<PhysicalSchemaProvider>()));
+                    new ResolvedParameter<FileSystemSchemaProvider>()));
             container.RegisterType<ISchemaProviderFactory, UnitySchemaProviderFactory>();
             container.RegisterType<IJsonSchemaCodeGenerator, JsonSchemaCodeGenerator>();
             container.RegisterType<IModuleRepository, DefaultModuleRepository>();
@@ -102,31 +100,6 @@ namespace TerrificNet.UnityModules
             {
                 return _container.Resolve<ISchemaProvider>();
             }
-        }
-    }
-
-    [Serializable]
-    public class InvalidApplicationException : Exception
-    {
-        public InvalidApplicationException()
-        {
-        }
-
-        public InvalidApplicationException(string message)
-            : base(message)
-        {
-        }
-
-        public InvalidApplicationException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-
-        protected InvalidApplicationException(
-            SerializationInfo info,
-            StreamingContext context)
-            : base(info, context)
-        {
         }
     }
 }

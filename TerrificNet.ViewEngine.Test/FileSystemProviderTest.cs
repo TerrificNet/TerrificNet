@@ -1,38 +1,37 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Moq;
 using TerrificNet.ViewEngine.IO;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Test
 {
-    [TestClass]
+    
     public class FileSystemProviderTest
     {
-        [TestMethod]
+        [Fact]
         public void TestZipRelativeUrl()
         {
             TestZip("C:\\test", "zip://web.zip/", "C:\\test\\web.zip", "");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestZipRelativeWithDotsUrl()
         {
             TestZip("C:\\test", "zip://../web.zip/", "C:\\web.zip", "");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestZipInlinePath()
         {
             TestZip("C:\\test", "zip://../web.zip/inlinezip", "C:\\web.zip", "inlinezip/");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestZipAbsolutePath()
         {
             TestZip("C:\\test", "zip://d:\\data\\web.zip\\", "d:\\data\\web.zip", "");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMacPath()
         {
             TestZip("C:\\test", "zip://../web.zip/", "C:\\web.zip", "");

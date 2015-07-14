@@ -1,10 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Schema;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json.Schema;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Schema.Test
 {
@@ -12,13 +7,13 @@ namespace TerrificNet.ViewEngine.Schema.Test
     {
         public static void AssertSingleProperty(JSchema schema, string propertyName, JSchemaType schemaType, bool required = true)
         {
-            Assert.IsNotNull(schema);
-            Assert.IsNotNull(schema.Properties);
-            Assert.IsTrue(schema.Properties.ContainsKey(propertyName), string.Format("property with name '{0}' expected.", propertyName));
-            Assert.IsNotNull(schema.Properties[propertyName].Type);
-            Assert.AreEqual(schemaType, schema.Properties[propertyName].Type.Value);
+            Assert.NotNull(schema);
+            Assert.NotNull(schema.Properties);
+            Assert.True(schema.Properties.ContainsKey(propertyName), string.Format("property with name '{0}' expected.", propertyName));
+            Assert.NotNull(schema.Properties[propertyName].Type);
+            Assert.Equal(schemaType, schema.Properties[propertyName].Type.Value);
             if (required)
-                Assert.IsTrue(schema.Required.Contains(propertyName), "Property {0} should be required", propertyName);
+                Assert.True(schema.Required.Contains(propertyName), string.Format("Property {0} should be required", propertyName));
         }
     }
 }

@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
 using TerrificNet.ViewEngine.Client.Javascript;
 using TerrificNet.ViewEngine.ViewEngines;
 using Veil.Compiler;
 using Veil.Helper;
+using Xunit;
 
 namespace TerrificNet.ViewEngine.Client.Test
 {
-	[TestClass]
+	
 	public class ClientTemplateGeneratorTest
 	{
-		[TestMethod]
+		[Fact]
 		public void TestClientTemplateWithoutHandlebars()
 		{
 			string input = "<html>gugus</html>";
@@ -26,7 +27,7 @@ namespace TerrificNet.ViewEngine.Client.Test
 			clientContext.VerifyAll();
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestClientTemplateWithExpression()
 		{
 			string input = "<html>{{test}}</html>";
@@ -42,7 +43,7 @@ namespace TerrificNet.ViewEngine.Client.Test
 			clientContext.VerifyAll();
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestClientTemplateWithComplexExpression()
 		{
 			string input = "<html>{{test.prop1}}</html>";
@@ -58,7 +59,7 @@ namespace TerrificNet.ViewEngine.Client.Test
 			clientContext.VerifyAll();
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestClientTemplateWithServeralExpression()
 		{
 			string input = "<html>{{prop1}}{{prop2}}</html>";
@@ -75,7 +76,7 @@ namespace TerrificNet.ViewEngine.Client.Test
 			clientContext.VerifyAll();
 		}
 
-		[TestMethod]
+		[Fact]
 		public void TestClientTemplateWithBlockExpression()
 		{
 			string input = "<html>{{anyother}}{{#each test.prop1}}<li>{{name}}</li>{{/each}}{{anyafter}}</html>";
@@ -97,7 +98,7 @@ namespace TerrificNet.ViewEngine.Client.Test
 			clientContext.VerifyAll();
 		}
 
-        [TestMethod]
+        [Fact]
         public void TestClientTemplateWithBlockExpressionOuter()
         {
             string input = "<html>{{anyother}}{{#each test.prop1}}<li>{{../outer}}</li>{{/each}}{{anyafter}}</html>";
@@ -119,7 +120,7 @@ namespace TerrificNet.ViewEngine.Client.Test
             clientContext.VerifyAll();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestClientTemplateWithBlockExpressionThis()
         {
             string input = "<html>{{anyother}}{{#each test.prop1}}<li>{{this}}</li>{{/each}}{{anyafter}}</html>";
@@ -141,7 +142,7 @@ namespace TerrificNet.ViewEngine.Client.Test
             clientContext.VerifyAll();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestClientTemplateWithNestedIterationExpression()
         {
             string input = "<html>{{#each test.prop1}}<li>{{#each values}}{{name}}{{/each}}</li>{{/each}}</html>";
@@ -164,7 +165,7 @@ namespace TerrificNet.ViewEngine.Client.Test
         }
 
 
-		[TestMethod]
+		[Fact]
 		public void TestClientTemplateWithConditionalExpression()
 		{
 			string input = "<html>{{#if test.prop1}}output{{/if}}</html>";
@@ -182,7 +183,7 @@ namespace TerrificNet.ViewEngine.Client.Test
 			clientContext.VerifyAll();
 		}
 
-        [TestMethod]
+        [Fact]
         public void TestClientTemplateWithUnencodeExpression()
         {
             string input = "<html>{{{expression}}}</html>";
