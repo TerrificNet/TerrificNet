@@ -65,7 +65,7 @@ namespace TerrificNet.Mvc
                 if (modelType == null)
                     modelType = typeof (object);
 
-                var view = await _viewEngine.CreateViewAsync(templateInfo, modelType).ConfigureAwait(false);
+                var view = await _viewEngine.CreateViewAsync(templateInfo, modelType, StaticModelBinder.Create(modelType)).ConfigureAwait(false);
                 if (view != null)
 					return new ViewEngineResult(new TerrificViewAdapter(CreateAdapter(view), ResolveContext), this);
             }

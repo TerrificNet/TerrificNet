@@ -90,7 +90,7 @@ namespace TerrificNet.Controllers
             var templateInfo = new StringTemplateInfo("error", content);
 
             var view = await ((IViewEngine)Resolver.GetService(typeof(IViewEngine)))
-	            .CreateViewAsync(templateInfo, typeof(ErrorViewModel)).ConfigureAwait(false);
+                .CreateViewAsync(templateInfo, typeof(ErrorViewModel), StaticModelBinder.Create(typeof(ErrorViewModel))).ConfigureAwait(false);
 
             if (location == null)
             {

@@ -27,7 +27,7 @@ namespace TerrificNet.ViewEngine.ViewEngines
 			_memberLocator = new MemberLocatorFromNamingRule(namingRule);
 		}
 
-		public async Task<IView> CreateViewAsync(TemplateInfo templateInfo, Type modelType)
+		public async Task<IView> CreateViewAsync(TemplateInfo templateInfo, Type modelType, IModelBinder modelBinder)
 		{
 			if (templateInfo == null)
 				return null;

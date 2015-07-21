@@ -14,7 +14,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TerrificNet.Sample</RootNamespace>
     <AssemblyName>TerrificNet.Sample</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -23,6 +23,8 @@
     <TypeScriptToolsVersion>1.4</TypeScriptToolsVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,55 +44,115 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Reflection.Metadata, Version=1.0.21.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.Metadata.1.0.21\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\css\cssreset.css" />
+    <Content Include="assets\css\import\mixins.less" />
+    <Content Include="assets\css\import\variables.less" />
+    <Content Include="assets\css\normalize.css" />
+    <Content Include="assets\css\owl.carousel.css" />
+    <Content Include="assets\font\icons\sc8-tnet.svg" />
+    <Content Include="assets\img\content\loader.gif" />
+    <Content Include="assets\img\content\starwars-grayscale.jpg" />
+    <Content Include="assets\img\content\tnet-logo.png" />
+    <Content Include="assets\img\icon\apple-touch-icon-precomposed.png" />
+    <Content Include="assets\img\icon\apple-touch-icon.png" />
+    <Content Include="assets\img\icon\favicon.ico" />
     <Content Include="assets\img\icon\terrific-micro.png" />
     <Content Include="assets\img\icon\tile-icon.png" />
+    <Content Include="assets\img\svg\facebook-icon.svg" />
+    <Content Include="assets\img\svg\googleplus-icon.svg" />
+    <Content Include="assets\img\svg\twitter-icon.svg" />
+    <Content Include="assets\img\svg\youtube-icon.svg" />
+    <Content Include="assets\js\app\detectizr.min.js" />
+    <Content Include="assets\js\app\media.match.min.js" />
+    <Content Include="assets\js\app\modernizr.min.js" />
+    <Content Include="assets\js\enquire.min.js" />
+    <Content Include="assets\js\fluidvids.min.js" />
     <Content Include="assets\js\jquery-1.11.1.min.js" />
+    <Content Include="assets\js\jquery.blockUI.min.js" />
+    <Content Include="assets\js\jquery.popupoverlay.js" />
+    <Content Include="assets\js\jquery.scrollTo-1.4.14-min.js" />
+    <Content Include="assets\js\owl.carousel.min.js" />
+    <Content Include="assets\js\polyfill.min.js" />
+    <Content Include="assets\js\Tc.Utils.Helper.js" />
     <Content Include="assets\js\terrific-2.1.0.js" />
     <Content Include="components\modules\Accordion\accordion.html" />
+    <Content Include="components\modules\Accordion\css\accordion.less" />
     <Content Include="components\modules\Accordion\js\accordion.js" />
     <Content Include="components\modules\Breadcrumb\breadcrumb.html" />
+    <Content Include="components\modules\Breadcrumb\css\breadcrumb.less" />
+    <Content Include="components\modules\Breadcrumb\data\extended.json" />
+    <Content Include="components\modules\Breadcrumb\data\_default.json" />
     <Content Include="components\modules\Breadcrumb\js\breadcrumb.js" />
     <Content Include="components\modules\Carousel\carousel.html" />
+    <Content Include="components\modules\Carousel\css\carousel.less" />
+    <Content Include="components\modules\Carousel\data\_default.json" />
     <Content Include="components\modules\Carousel\img\stage-1.jpg" />
     <Content Include="components\modules\Carousel\img\stage-2.jpg" />
     <Content Include="components\modules\Carousel\img\stage-3.jpg" />
     <Content Include="components\modules\Carousel\img\stage-4.jpg" />
     <Content Include="components\modules\Carousel\img\stage-5.jpg" />
     <Content Include="components\modules\Carousel\js\carousel.js" />
+    <Content Include="components\modules\DownloadList\css\downloadlist.less" />
+    <Content Include="components\modules\DownloadList\data\download-list-1.json" />
+    <Content Include="components\modules\DownloadList\data\download-list-2.json" />
+    <Content Include="components\modules\DownloadList\data\_default.json" />
     <Content Include="components\modules\DownloadList\downloadlist.html" />
     <Content Include="components\modules\DownloadList\js\downloadlist.js" />
+    <Content Include="components\modules\Elements\css\elements.less" />
     <Content Include="components\modules\Elements\elements-button.html" />
     <Content Include="components\modules\Elements\elements-content.html" />
     <Content Include="components\modules\Elements\elements.html" />
     <Content Include="components\modules\Elements\js\elements.js" />
+    <Content Include="components\modules\Example\css\example.less" />
+    <Content Include="components\modules\Example\css\skins\example-blue.less" />
     <Content Include="components\modules\Example\example-blue.html" />
     <Content Include="components\modules\Example\example.html" />
     <Content Include="components\modules\Example\js\example.js" />
     <Content Include="components\modules\Example\js\skins\example-blue.js" />
+    <Content Include="components\modules\LanguageSwitch\css\languageswitch.less" />
+    <Content Include="components\modules\LanguageSwitch\data\_default.json" />
     <Content Include="components\modules\LanguageSwitch\languageswitch-mobile.html" />
     <Content Include="components\modules\LanguageSwitch\languageswitch.html" />
+    <Content Include="components\modules\Layout\css\layout.less" />
     <Content Include="components\modules\Layout\js\layout.js" />
     <Content Include="components\modules\Layout\layout.html" />
+    <Content Include="components\modules\Linklist\css\linklist.less" />
+    <Content Include="components\modules\Linklist\css\skins\linklist-centric.less" />
+    <Content Include="components\modules\Linklist\css\skins\linklist-horizontal.less" />
+    <Content Include="components\modules\Linklist\css\skins\linklist-vertical.less" />
+    <Content Include="components\modules\Linklist\data\footer_copy.json" />
+    <Content Include="components\modules\Linklist\data\social_media.json" />
+    <Content Include="components\modules\Linklist\data\_default.json" />
     <Content Include="components\modules\Linklist\img\bill-logo.png" />
     <Content Include="components\modules\Linklist\img\good-privacy-logo.png" />
     <Content Include="components\modules\Linklist\img\mastercard-logo.png" />
@@ -109,17 +171,27 @@
     <Content Include="components\modules\Linklist\linklist-horizontal.html" />
     <Content Include="components\modules\Linklist\linklist-vertical.html" />
     <Content Include="components\modules\Linklist\linklist.html" />
+    <Content Include="components\modules\Login\css\login.less" />
     <Content Include="components\modules\Login\login-mobile.html" />
     <Content Include="components\modules\Login\login.html" />
+    <Content Include="components\modules\Logo\css\logo.less" />
+    <Content Include="components\modules\Logo\data\_default.json" />
     <Content Include="components\modules\Logo\logo.html" />
+    <Content Include="components\modules\MetaFoot\data\_default.json" />
     <Content Include="components\modules\MetaFoot\metafoot.html" />
+    <Content Include="components\modules\MetaHead\data\_default.json" />
     <Content Include="components\modules\MetaHead\metahead.html" />
+    <Content Include="components\modules\Nav\css\nav.less" />
+    <Content Include="components\modules\Nav\data\_default.json" />
     <Content Include="components\modules\Nav\js\nav.js" />
     <Content Include="components\modules\Nav\nav-mobile.html" />
     <Content Include="components\modules\Nav\nav.html" />
+    <Content Include="components\modules\Search\css\search.less" />
     <Content Include="components\modules\Search\js\search.js" />
     <Content Include="components\modules\Search\search-mobile.html" />
     <Content Include="components\modules\Search\search.html" />
+    <Content Include="components\modules\Slider\css\slider.less" />
+    <Content Include="components\modules\Slider\data\_default.json" />
     <Content Include="components\modules\Slider\img\owl1.jpg" />
     <Content Include="components\modules\Slider\img\owl2.jpg" />
     <Content Include="components\modules\Slider\img\owl3.jpg" />
@@ -130,23 +202,50 @@
     <Content Include="components\modules\Slider\img\owl8.jpg" />
     <Content Include="components\modules\Slider\js\slider.js" />
     <Content Include="components\modules\Slider\slider.html" />
+    <Content Include="components\modules\SubPlaceholder\data\_default.json" />
     <Content Include="components\modules\SubPlaceholder\subplaceholder.html" />
+    <Content Include="components\modules\Tab\css\tab.less" />
     <Content Include="components\modules\Tab\js\tab.js" />
     <Content Include="components\modules\Tab\tab.html" />
+    <Content Include="components\modules\Teaser\css\teaser.less" />
+    <Content Include="components\modules\Teaser\img\teaser-cont-1.jpg" />
+    <Content Include="components\modules\Teaser\img\teaser-cont-2.jpg" />
+    <Content Include="components\modules\Teaser\img\teaser-cont-3.jpg" />
+    <Content Include="components\modules\Teaser\img\teaser-cont-4.jpg" />
+    <Content Include="components\modules\Teaser\img\teaser-cont-5.jpg" />
+    <Content Include="components\modules\Teaser\img\teaser-cont-6.jpg" />
     <Content Include="components\modules\Teaser\js\teaser.js" />
     <Content Include="components\modules\Teaser\teaser.html" />
+    <Content Include="components\modules\TextImage\css\textimage-full.less" />
+    <Content Include="components\modules\TextImage\css\textimage-left.less" />
+    <Content Include="components\modules\TextImage\css\textimage.less" />
+    <Content Include="components\modules\TextImage\data\img-txt.json" />
+    <Content Include="components\modules\TextImage\data\table.json" />
+    <Content Include="components\modules\TextImage\data\video.json" />
+    <Content Include="components\modules\TextImage\data\_default.json" />
+    <Content Include="components\modules\TextImage\img\img-1.jpg" />
     <Content Include="components\modules\TextImage\textimage-full.html" />
     <Content Include="components\modules\TextImage\textimage-left.html" />
     <Content Include="components\modules\TextImage\textimage-youtube.html" />
     <Content Include="components\modules\TextImage\textimage.html" />
-    <Content Include="views\_layouts\nestedplaceholder.html" />
+    <Content Include="project\resources\iconfont\style.css" />
+    <Content Include="project\resources\logo\tnet-logo.png" />
+    <Content Include="views\index.html.json" />
+    <Content Include="views\_layouts\grid\g-1.html" />
+    <Content Include="views\_layouts\grid\g-2.html" />
+    <Content Include="views\_layouts\grid\g-3.html" />
+    <Content Include="views\_layouts\grid\g-3__s-1of3--s-2of3.html" />
+    <Content Include="views\_layouts\grid\g-3__s-2of3--s-1of3.html" />
+    <Content Include="views\_layouts\grid\g-4.html" />
+    <Content Include="views\_layouts\grid\g-4__s-1of4--s-1of2--s-1of4.html" />
+    <Content Include="views\_layouts\grid\g-4__s-1of4--s-3of4.html" />
+    <Content Include="views\_layouts\grid\g-4__s-3of4--s-1of4.html" />
+    <Content Include="views\_layouts\grid\g-5.html" />
     <Content Include="views\_layouts\_layout.html" />
+    <Content Include="views\_partials\title.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="views\empty.html.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.json" />
@@ -155,79 +254,66 @@
     <Content Include="labels.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="components\modules\Breadcrumb\css\breadcrumb.less" />
-    <Content Include="components\modules\Example\css\example.less" />
-    <Content Include="components\modules\Example\css\skins\example-blue.less" />
-    <Content Include="components\modules\Teaser\css\teaser.less" />
+    <Content Include="views\content.html.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="components\modules\MetaHead\data\_default.json" />
+    <Folder Include="components\modules\Foot\data\" />
+    <Folder Include="components\modules\SidebarTeaser\data\" />
+    <Folder Include="project\templates\" />
+    <Folder Include="views\data\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="components\modules\Logo\css\logo.less" />
-    <Content Include="components\modules\Logo\data\_default.json" />
+    <Content Include="server.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="components\modules\MetaFoot\data\_default.json" />
+    <Content Include="project\resources\iconfont\selection.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="views\index.html.json" />
+    <Content Include="assets\css\e-base.less" />
+    <Content Include="assets\css\e-box.less" />
+    <Content Include="assets\css\e-btn.less" />
+    <Content Include="assets\css\e-global.less" />
+    <Content Include="assets\css\e-text.less" />
+    <Content Include="assets\css\fonts.less" />
+    <Content Include="assets\css\grid.less" />
+    <Content Include="assets\css\icon.less" />
+    <Content Include="assets\css\owl.theme.less" />
+    <Content Include="assets\css\owl.transitions.less" />
+    <Content Include="assets\font\icons\sc8-tnet.eot" />
+    <Content Include="assets\font\icons\sc8-tnet.ttf" />
+    <Content Include="assets\font\icons\sc8-tnet.woff" />
+    <Content Include="assets\js\app\detectizr.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="views\detail.html.json" />
+    <Content Include="components\modules\Accordion\data\_default.json" />
+    <Content Include="components\modules\Breadcrumb\data\content.json" />
+    <Content Include="components\modules\Tab\data\_default.json" />
+    <Content Include="components\modules\Teaser\data\teaser-1.json" />
+    <Content Include="components\modules\Teaser\data\teaser-2.json" />
+    <Content Include="components\modules\Teaser\data\teaser-3.json" />
+    <Content Include="components\modules\Teaser\data\teaser-4.json" />
+    <Content Include="components\modules\Teaser\data\teaser-5.json" />
+    <Content Include="components\modules\Teaser\data\teaser-6.json" />
+    <Content Include="components\modules\Teaser\data\_default.json" />
+    <Content Include="components\modules\TextImage\css\skins\textimage-full.less" />
+    <Content Include="components\modules\TextImage\css\skins\textimage-left.less" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="components\modules\Breadcrumb\data\_default.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="assets\css\import\mixins.less" />
-    <Content Include="assets\css\import\variables.less" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="components\modules\Breadcrumb\data\extended.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="components\modules\SubPlaceholder\data\_default.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="components\modules\Accordion\css\accordion.less" />
-    <Content Include="components\modules\Carousel\css\carousel.less" />
-    <Content Include="components\modules\Carousel\data\_default.json" />
-    <Content Include="components\modules\DownloadList\css\downloadlist.less" />
-    <Content Include="components\modules\DownloadList\data\download-list-1.json" />
-    <Content Include="components\modules\DownloadList\data\download-list-2.json" />
-    <Content Include="components\modules\DownloadList\data\_default.json" />
-    <Content Include="components\modules\Elements\css\elements.less" />
-    <Content Include="components\modules\LanguageSwitch\css\languageswitch.less" />
-    <Content Include="components\modules\LanguageSwitch\data\_default.json" />
-    <Content Include="components\modules\Layout\css\layout.less" />
-    <Content Include="components\modules\Linklist\css\linklist.less" />
-    <Content Include="components\modules\Linklist\css\skins\linklist-centric.less" />
-    <Content Include="components\modules\Linklist\css\skins\linklist-horizontal.less" />
-    <Content Include="components\modules\Linklist\css\skins\linklist-vertical.less" />
-    <Content Include="components\modules\Linklist\data\footer_copy.json" />
-    <Content Include="components\modules\Linklist\data\social_media.json" />
-    <Content Include="components\modules\Linklist\data\_default.json" />
-    <Content Include="components\modules\Login\css\login.less" />
-    <Content Include="components\modules\Nav\css\nav.less" />
-    <Content Include="components\modules\Nav\data\_default.json" />
-    <Content Include="components\modules\Search\css\search.less" />
-    <Content Include="components\modules\Slider\css\slider.less" />
-    <Content Include="components\modules\Slider\data\_default.json" />
-    <Content Include="components\modules\Tab\css\tab.less" />
-    <Content Include="components\modules\TextImage\css\textimage-full.less" />
-    <Content Include="components\modules\TextImage\css\textimage-left.less" />
-    <Content Include="components\modules\TextImage\css\textimage.less" />
-    <Content Include="components\modules\TextImage\data\img-txt.json" />
-    <Content Include="components\modules\TextImage\data\table.json" />
-    <Content Include="components\modules\TextImage\data\video.json" />
-    <Content Include="components\modules\TextImage\data\_default.json" />
+    <Content Include="web.config" />
+    <Content Include="packages.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

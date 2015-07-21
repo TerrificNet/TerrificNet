@@ -123,7 +123,7 @@ namespace TerrificNet.Test
 
 	        var viewEngine = new VeilViewEngine(cacheProvider, handlerFactory.Object, namingRule);
 
-	        var view = await viewEngine.CreateViewAsync(templateInfo, modelType)
+            var view = await viewEngine.CreateViewAsync(templateInfo, modelType, StaticModelBinder.Create(modelType))
 	            .ConfigureAwait(false);
 
 	        var builder = new StringBuilder();

@@ -37,7 +37,7 @@ namespace TerrificNet.Test
 
 			var viewEngine = new VeilViewEngine(cacheProvider, handlerFactory.Object, namingRule);
 
-			var view = await viewEngine.CreateViewAsync(templateInfo, modelType).ConfigureAwait(false);
+			var view = await viewEngine.CreateViewAsync(templateInfo, modelType, StaticModelBinder.Create(modelType)).ConfigureAwait(false);
 
 			var model = Activator.CreateInstance(modelType);
 
@@ -65,7 +65,7 @@ namespace TerrificNet.Test
 
 			var viewEngine = new VeilViewEngine(cacheProvider, handlerFactory.Object, namingRule);
 
-			var view = await viewEngine.CreateViewAsync(templateInfo, typeof(TestModel)).ConfigureAwait(false);
+			var view = await viewEngine.CreateViewAsync(templateInfo, typeof(TestModel), StaticModelBinder.Create(typeof(TestModel))).ConfigureAwait(false);
 
 			var model = new TestModel();
 
@@ -90,7 +90,7 @@ namespace TerrificNet.Test
 
 			var viewEngine = new VeilViewEngine(cacheProvider, handlerFactory.Object, namingRule);
 
-			var view = await viewEngine.CreateViewAsync(templateInfo, typeof(object)).ConfigureAwait(false);
+			var view = await viewEngine.CreateViewAsync(templateInfo, typeof(object), StaticModelBinder.Create(typeof(object))).ConfigureAwait(false);
 
 			var model = new TestModel();
 

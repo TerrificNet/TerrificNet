@@ -183,7 +183,7 @@ namespace TerrificNet.Test
             var modelType = generator.Compile(schema);
 
             var viewEngine = new VeilViewEngine(cacheProvider, handlerFactory, namingRule);
-            var view = await viewEngine.CreateViewAsync(templateInfo, modelType).ConfigureAwait(false);
+            var view = await viewEngine.CreateViewAsync(templateInfo, modelType, StaticModelBinder.Create(modelType)).ConfigureAwait(false);
             if (view == null)
                 Assert.True(false, string.Format("Could not create view from file '{0}'.", templateFile));
 

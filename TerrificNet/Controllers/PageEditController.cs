@@ -118,7 +118,7 @@ namespace TerrificNet.Controllers
 				return new ElementEditorDefinition
 				{
 					Html = htmlBuilder.ToString(),
-					Placeholder = moduleViewDefinition != null ? moduleViewDefinition.Placeholder : null
+					Placeholder = moduleViewDefinition?.Placeholder
 				};
 			}
 		}
