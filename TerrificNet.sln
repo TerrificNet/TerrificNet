@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrificNet", "TerrificNet\TerrificNet.csproj", "{68B78678-5EB5-4E5B-A181-1A2FFA804B3E}"
 EndProject
@@ -89,6 +89,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrificNet.Composition.Test", "TerrificNet.Composition.Test\TerrificNet.Composition.Test.csproj", "{8580CCC4-FC22-4594-9263-86FACF68FB74}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrificNet.Test.Common", "TerrificNet.Test.Common\TerrificNet.Test.Common.csproj", "{1A302EF7-6C6E-40E3-8F16-47AD199E7B83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrificNet.Environment", "TerrificNet.Environment\TerrificNet.Environment.csproj", "{F753217E-8756-45F0-8063-1793FB9527DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrificNet.Environment.Test", "TerrificNet.Environment.Test\TerrificNet.Environment.Test.csproj", "{E84DDCDE-ADDE-477D-B82E-76D26219F361}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -428,6 +432,30 @@ Global
 		{1A302EF7-6C6E-40E3-8F16-47AD199E7B83}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{1A302EF7-6C6E-40E3-8F16-47AD199E7B83}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1A302EF7-6C6E-40E3-8F16-47AD199E7B83}.Release|x86.ActiveCfg = Release|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Debug|x86.Build.0 = Debug|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Release|x86.ActiveCfg = Release|Any CPU
+		{F753217E-8756-45F0-8063-1793FB9527DD}.Release|x86.Build.0 = Release|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Debug|x86.Build.0 = Debug|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Release|x86.ActiveCfg = Release|Any CPU
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -449,5 +477,6 @@ Global
 		{83417BE5-6A9D-4DD0-AD88-43537E4031EA} = {41AFD36B-5AC0-4CA0-BEBC-9A7179CF644F}
 		{8580CCC4-FC22-4594-9263-86FACF68FB74} = {41AFD36B-5AC0-4CA0-BEBC-9A7179CF644F}
 		{1A302EF7-6C6E-40E3-8F16-47AD199E7B83} = {41AFD36B-5AC0-4CA0-BEBC-9A7179CF644F}
+		{E84DDCDE-ADDE-477D-B82E-76D26219F361} = {41AFD36B-5AC0-4CA0-BEBC-9A7179CF644F}
 	EndGlobalSection
 EndGlobal

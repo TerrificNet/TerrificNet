@@ -1,4 +1,6 @@
-﻿using Microsoft.Practices.Unity;
+﻿using System.IO;
+using Microsoft.Practices.Unity;
+using TerrificNet.Environment;
 using TerrificNet.Generator;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Cache;
@@ -34,6 +36,13 @@ namespace TerrificNet.UnityModules
 
                 var config = ConfigurationLoader.LoadTerrificConfiguration(basePath, fileSystem);
                 var application = new TerrificNetApplication(applicationName, section, config, childContainer);
+
+                var projectPath = PathInfo.Create("terrific.json");
+                if (fileSystem.FileExists(projectPath))
+                {
+                    var project = Project.FromFile(new StreamReader(fileSystem.OpenRead(projectPath)).ReadToEnd(), fileSystem);
+                    childContainer.RegisterInstance(project);
+                }
 
                 childContainer.RegisterInstance(application);
                 RegisterForConfiguration(childContainer, config);

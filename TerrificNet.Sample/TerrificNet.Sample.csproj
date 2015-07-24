@@ -301,6 +301,7 @@
   <ItemGroup>
     <Content Include="web.config" />
     <Content Include="packages.config" />
+    <Content Include="terrific.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

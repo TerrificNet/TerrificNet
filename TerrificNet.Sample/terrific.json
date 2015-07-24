@@ -1,0 +1,7 @@
+﻿{
+  "template": [ "components/modules/**.html", "views/_layouts/**.html", "views/_partials/**.html" ],
+  "views": [ "views/**.html.json" ],
+  "data": [ "components/modules/**.json" ],
+  "content": [ "**.jpg" ],
+  "serverConfiguration":  "server.json"
+}

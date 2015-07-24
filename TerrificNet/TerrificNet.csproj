@@ -166,6 +166,7 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="project.json" />
     <None Include="server.json" />
     <None Include="Web\assets\pageEditor.less" />
     <None Include="Web\components\modules\ApplicationOverview\ApplicationOverview.html" />
@@ -185,6 +186,10 @@
     <ProjectReference Include="..\TerrificNet.AssetCompiler\TerrificNet.AssetCompiler.csproj">
       <Project>{832b0385-5327-4394-88b9-b2de96d8895f}</Project>
       <Name>TerrificNet.AssetCompiler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerrificNet.Environment\TerrificNet.Environment.csproj">
+      <Project>{F753217E-8756-45F0-8063-1793FB9527DD}</Project>
+      <Name>TerrificNet.Environment</Name>
     </ProjectReference>
     <ProjectReference Include="..\TerrificNet.Generator\TerrificNet.Generator.csproj">
       <Project>{7A0B68AB-F5EF-4BCE-ACE3-766C9EA06B82}</Project>
@@ -207,7 +212,7 @@
       <Name>TerrificNet.ViewEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\Veil\Src\Veil\Veil.csproj">
-      <Project>{97D96B66-EDFE-474B-BC72-D8439830FC76}</Project>
+      <Project>{97d96b66-edfe-474b-bc72-d8439830fc76}</Project>
       <Name>Veil</Name>
     </ProjectReference>
   </ItemGroup>

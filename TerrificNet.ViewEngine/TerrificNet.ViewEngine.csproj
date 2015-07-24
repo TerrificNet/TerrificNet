@@ -86,6 +86,7 @@
     <Compile Include="Globalization\ILabelService.cs" />
     <Compile Include="Globalization\JsonLabelService.cs" />
     <Compile Include="IO\Glob.cs" />
+    <Compile Include="IO\GlobPattern.cs" />
     <Compile Include="IO\IFileInfo.cs" />
     <Compile Include="IO\IFileSystem.cs" />
     <Compile Include="IModelTypeProvider.cs" />

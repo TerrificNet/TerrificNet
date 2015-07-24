@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net46": {
+      "wrappedProject": "TerrificNet.csproj",
+      "bin": {
+        "assembly": "obj/{configuration}/TerrificNet.dll",
+        "pdb": "obj/{configuration}/TerrificNet.pdb"
+      },
+      "dependencies": {
+        "jquery.TypeScript.DefinitelyTyped": "2.2.6",
+        "Microsoft.AspNet.WebApi.Client": "5.2.3",
+        "Microsoft.AspNet.WebApi.Core": "5.2.3",
+        "Microsoft.CodeAnalysis.Analyzers": "1.0.0",
+        "Microsoft.CodeAnalysis.Common": "1.0.0",
+        "MSBuildTasks": "1.4.0.88",
+        "Newtonsoft.Json": "7.0.1",
+        "Newtonsoft.Json.Schema": "1.0.9",
+        "System.Collections.Immutable": "1.1.36",
+        "System.Reflection.Metadata": "1.0.21",
+        "Unity": "3.5.1404.0",
+        "Unity.WebAPI": "5.1",
+        "TerrificNet.AssetCompiler": "1.0.0-*",
+        "TerrificNet.Generator": "1.0.0-*",
+        "TerrificNet.UnityModules": "1.0.0-*",
+        "TerrificNet.ViewEngine.Client": "1.0.0-*",
+        "TerrificNet.ViewEngine.TemplateHandler": "1.0.0-*",
+        "TerrificNet.ViewEngine": "1.0.0-*",
+        "Veil": "1.0.0-*"
+      }
+    }
+  }
+}

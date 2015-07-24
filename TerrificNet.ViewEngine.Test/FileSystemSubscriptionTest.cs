@@ -27,8 +27,8 @@ namespace TerrificNet.ViewEngine.Test
 
 			Assert.Equal(false, fileSystem.FileExists(TestFileName));
 
-			var c = new TaskCompletionSource<IFileInfo>();
-			using (await fileSystem.SubscribeAsync(s => c.TrySetResult(s)).ConfigureAwait(false))
+			var c = new TaskCompletionSource<FileChangeEventArgs>();
+			using (fileSystem.Subscribe(GlobPattern.All, s => c.TrySetResult(s)))
 			{
 				using (var writer = new StreamWriter(fileSystem.OpenWrite(TestFileName)))
 				{
@@ -37,7 +37,7 @@ namespace TerrificNet.ViewEngine.Test
 				}
 
 				var result = await c.Task.ConfigureAwait(false);
-				Assert.Equal(TestFileName.ToString(), Path.GetFileName(result.FilePath.ToString()));
+				Assert.Equal(TestFileName.ToString(), Path.GetFileName(result.FileInfo.FilePath.ToString()));
 			}
 		}
 
@@ -49,11 +49,11 @@ namespace TerrificNet.ViewEngine.Test
 
 			Assert.Equal(false, fileSystem.FileExists(TestFileName));
 
-			var c = new TaskCompletionSource<IEnumerable<IFileInfo>>();
-            using (await fileSystem.SubscribeDirectoryGetFilesAsync(PathInfo.Create(""), null, infos =>
-				{
-					c.SetResult(infos);
-				}).ConfigureAwait(false))
+			var c = new TaskCompletionSource<FileChangeEventArgs>();
+            using (fileSystem.Subscribe(GlobPattern.All, infos =>
+            {
+                c.SetResult(infos);
+            }))
 			{
 				using (var writer = new StreamWriter(fileSystem.OpenWrite(TestFileName)))
 				{
@@ -62,7 +62,7 @@ namespace TerrificNet.ViewEngine.Test
 				}
 
 				var result = await c.Task.ConfigureAwait(false);
-				Assert.Equal(new[] { TestFileName }, result.Select(i => i.FilePath.Name).ToList());
+				Assert.Equal(TestFileName, result.FileInfo.FilePath.Name);
 			}
 		}
 	}

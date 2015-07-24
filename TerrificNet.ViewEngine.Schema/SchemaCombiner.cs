@@ -10,10 +10,10 @@ namespace TerrificNet.ViewEngine.Schema
             string propertyName = null)
         {
             if (schema1 == null)
-                throw new ArgumentNullException("schema1");
+                throw new ArgumentNullException(nameof(schema1));
 
             if (schema2 == null)
-                throw new ArgumentNullException("schema2");
+                throw new ArgumentNullException(nameof(schema2));
 
             if (report == null)
                 report = new SchemaComparisionReport();
@@ -119,7 +119,7 @@ namespace TerrificNet.ViewEngine.Schema
 
         private static string Use(JSchema schema1, JSchema schema2, string propertyName, Func<JSchema, string> propertyAccess, SchemaComparisionReport report)
         {
-            return Use<string>(schema1, schema2, propertyName, propertyAccess, report, f => !string.IsNullOrEmpty(f));
+            return Use(schema1, schema2, propertyName, propertyAccess, report, f => !string.IsNullOrEmpty(f));
         }
     }
 }

@@ -21,7 +21,7 @@ namespace TerrificNet.ViewEngine
 			if (!_fileSystem.SupportsSubscribe)
 				return;
 
-			_fileSystem.SubscribeDirectoryGetFilesAsync(PathInfo.Create(""), "html", files => InitCache());
+			_fileSystem.Subscribe(GlobPattern.AllWithExtension("html"), files => InitCache());
 		}
 
 		private void InitCache()

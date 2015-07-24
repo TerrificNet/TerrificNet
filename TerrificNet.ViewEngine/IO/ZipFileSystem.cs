@@ -40,7 +40,7 @@ namespace TerrificNet.ViewEngine.IO
 
 		public Stream OpenRead(PathInfo filePath)
         {
-            var file = _file.GetEntry(GetFullPath(filePath).ToString());
+            var file = _file.GetEntry(GetFullPath(filePath));
             return _file.GetInputStream(file);
         }
 
@@ -75,12 +75,7 @@ namespace TerrificNet.ViewEngine.IO
 		    get { return false; }
 	    }
 
-	    public Task<IDisposable> SubscribeAsync(Action<IFileInfo> handler)
-	    {
-			throw new NotSupportedException();
-	    }
-
-		public Task<IDisposable> SubscribeDirectoryGetFilesAsync(PathInfo prefix, string extension, Action<IEnumerable<IFileInfo>> handler)
+        public IDisposable Subscribe(GlobPattern pattern, Action<FileChangeEventArgs> handler)
 		{
 			throw new NotSupportedException();
 	    }
@@ -90,7 +85,12 @@ namespace TerrificNet.ViewEngine.IO
 		    return new ZipFileInfo(filePath, _etag);
 	    }
 
-	    public void CreateDirectory(PathInfo directory)
+        public IEnumerable<IFileInfo> GetFiles(GlobPattern pattern)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateDirectory(PathInfo directory)
         {
             throw new NotSupportedException();
         }

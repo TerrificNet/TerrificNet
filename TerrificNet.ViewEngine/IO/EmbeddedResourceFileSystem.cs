@@ -81,12 +81,7 @@ namespace TerrificNet.ViewEngine.IO
 			get { return false; }
 		}
 
-		public Task<IDisposable> SubscribeAsync(Action<IFileInfo> handler)
-		{
-			throw new NotSupportedException();
-		}
-
-		public Task<IDisposable> SubscribeDirectoryGetFilesAsync(PathInfo prefix, string extension, Action<IEnumerable<IFileInfo>> handler)
+	    public IDisposable Subscribe(GlobPattern pattern, Action<FileChangeEventArgs> handler)
 		{
 			throw new NotImplementedException();
 		}
@@ -96,7 +91,12 @@ namespace TerrificNet.ViewEngine.IO
 			return new EmbeddedFileInfo(filePath, _etag);
 		}
 
-		private class EmbeddedFileInfo : IFileInfo
+	    public IEnumerable<IFileInfo> GetFiles(GlobPattern pattern)
+	    {
+	        return _names.Where(n => pattern.IsMatch(n.Key)).Select(n => GetFileInfo(n.Key));
+	    }
+
+	    private class EmbeddedFileInfo : IFileInfo
 		{
 			public PathInfo FilePath { get; private set; }
 			public string Etag { get; private set; }

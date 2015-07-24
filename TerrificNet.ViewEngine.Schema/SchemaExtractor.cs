@@ -38,7 +38,7 @@ namespace TerrificNet.ViewEngine.Schema
                 _schemas.Push(new JSchema());
             }
 
-            public JSchema Schema { get { return _schemas.Peek(); } }
+            public JSchema Schema => _schemas.Peek();
 
             protected override JSchema VisitIterateNode(IterateNode iterateNode)
             {

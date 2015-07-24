@@ -11,7 +11,7 @@ namespace TerrificNet.Composition
         public void RegisterModule(IModule module)
         {
             if (_modules.Contains(module))
-                throw new ArgumentException("The given module is already registred", "module");
+                throw new ArgumentException("The given module is already registred", nameof(module));
 
             _modules.Add(module);
         }

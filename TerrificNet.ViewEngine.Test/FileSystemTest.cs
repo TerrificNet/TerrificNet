@@ -23,8 +23,8 @@ namespace TerrificNet.ViewEngine.Test
 		    var testFileName = PathInfo.Create(Path.GetRandomFileName());
 		    Assert.Equal(false, FileSystem.FileExists(testFileName));
 
-			var completion = new TaskCompletionSource<IFileInfo>();
-			await FileSystem.SubscribeAsync(info => completion.SetResult(info)).ConfigureAwait(false);
+			var completion = new TaskCompletionSource<FileChangeEventArgs>();
+			FileSystem.Subscribe(GlobPattern.All, info => completion.SetResult(info));
 
 			using (var stream = new StreamWriter(FileSystem.OpenWrite(testFileName)))
 			{
@@ -40,8 +40,8 @@ namespace TerrificNet.ViewEngine.Test
 		[Fact]
 		public async Task TestReWrite()
 		{
-			var completion = new TaskCompletionSource<IFileInfo>();
-			await FileSystem.SubscribeAsync(info => completion.SetResult(info)).ConfigureAwait(false);
+			var completion = new TaskCompletionSource<FileChangeEventArgs>();
+			FileSystem.Subscribe(GlobPattern.All, info => completion.SetResult(info));
 
             var testFileName = PathInfo.Create(Path.GetRandomFileName());
 		    Assert.Equal(false, FileSystem.FileExists(testFileName));
@@ -53,7 +53,7 @@ namespace TerrificNet.ViewEngine.Test
 
 			await completion.Task.ConfigureAwait(false);
 			Assert.Equal(true, FileSystem.FileExists(testFileName));
-			completion = new TaskCompletionSource<IFileInfo>();
+			completion = new TaskCompletionSource<FileChangeEventArgs>();
 
 			using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
 			{
@@ -67,7 +67,7 @@ namespace TerrificNet.ViewEngine.Test
 
 			await completion.Task.ConfigureAwait(false);
 			Assert.Equal(true, FileSystem.FileExists(testFileName));
-			completion = new TaskCompletionSource<IFileInfo>();
+			completion = new TaskCompletionSource<FileChangeEventArgs>();
 
 			using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
 			{

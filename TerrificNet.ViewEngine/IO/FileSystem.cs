@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace TerrificNet.ViewEngine.IO
 {
@@ -11,7 +10,6 @@ namespace TerrificNet.ViewEngine.IO
 		private static readonly IPathHelper PathHelper = new FilePathHelper();
 
 		private readonly PathInfo _basePath;
-		private readonly List<LookupFileSystemSubscription> _subscriptions = new List<LookupFileSystemSubscription>();
 		private readonly HashSet<LookupDirectoryFileSystemSubscription> _directorySubscriptions = new HashSet<LookupDirectoryFileSystemSubscription>();
 
 		private HashSet<PathInfo> _fileInfo;
@@ -20,7 +18,7 @@ namespace TerrificNet.ViewEngine.IO
 		private FileSystemWatcher _watcher;
 		private readonly string _basePathConverted;
 
-	    private object _lock = new object();
+	    private readonly object _lock = new object();
 
 		public FileSystem()
 			: this(string.Empty)
@@ -66,8 +64,19 @@ namespace TerrificNet.ViewEngine.IO
 			_watcher.Changed += (sender, a) => HandleFileSystemEvent(a);
 			_watcher.Created += (sender, a) => HandleFileSystemEvent(a);
 			_watcher.Deleted += (sender, a) => HandleFileSystemEvent(a);
-			_watcher.Renamed += (sender, a) => HandleFileSystemEvent(a);
+			_watcher.Renamed += (sender, a) => HandleRenameFileSystemEvent(a);
 		}
+
+	    private void HandleRenameFileSystemEvent(RenamedEventArgs a)
+	    {
+	        Initialize();
+
+            var fileInfoOld = FileInfo.Create(GetRootPath(PathInfo.GetSubPath(_basePath, a.OldFullPath)));
+            var fileInfo = FileInfo.Create(GetRootPath(PathInfo.GetSubPath(_basePath, a.FullPath)));
+
+            NotifySubscriptions(new FileChangeEventArgs(fileInfoOld, FileChangeType.Deleted));
+            NotifySubscriptions(new FileChangeEventArgs(fileInfo, FileChangeType.Created));
+        }
 
 		private void HandleFileSystemEvent(FileSystemEventArgs a)
 		{
@@ -75,22 +84,31 @@ namespace TerrificNet.ViewEngine.IO
 
 			var fileInfo = FileInfo.Create(GetRootPath(PathInfo.GetSubPath(_basePath, a.FullPath)));
 			if (fileInfo != null || a.ChangeType == WatcherChangeTypes.Deleted)
-				NotifySubscriptions(fileInfo);
+				NotifySubscriptions(new FileChangeEventArgs(fileInfo, GetChangeType(a.ChangeType)));
 		}
 
-		private void NotifySubscriptions(IFileInfo file)
-		{
-			foreach (var subscription in _subscriptions.ToList())
-			{
-				subscription.Notify(file);
-			}
+	    private FileChangeType GetChangeType(WatcherChangeTypes changeType)
+	    {
+	        if (changeType == WatcherChangeTypes.Changed)
+	            return FileChangeType.Changed;
 
+            if (changeType == WatcherChangeTypes.Created)
+                return FileChangeType.Created;
+
+            if (changeType == WatcherChangeTypes.Deleted)
+                return FileChangeType.Deleted;
+
+	        throw new ArgumentException("Unknown changeType.", nameof(changeType));
+	    }
+
+        private void NotifySubscriptions(FileChangeEventArgs args)
+		{
 			foreach (var subscription in _directorySubscriptions.ToList())
 			{
-				if (!subscription.IsMatch(file.FilePath))
+				if (!subscription.IsMatch(args.FileInfo.FilePath))
 					continue;
 
-				subscription.Notify(new[] { file });
+				subscription.Notify(args);
 			}
 		}
 
@@ -129,36 +147,20 @@ namespace TerrificNet.ViewEngine.IO
 			get { return PathHelper; }
 		}
 
-		public bool SupportsSubscribe
-		{
-			get { return true; }
-		}
-
-		private void Unsubscribe(LookupFileSystemSubscription subscription)
-		{
-			_subscriptions.Remove(subscription);
-		}
+		public bool SupportsSubscribe => true;
 
 		private void Unsubscribe(LookupDirectoryFileSystemSubscription subscription)
 		{
 			_directorySubscriptions.Remove(subscription);
 		}
 
-		public Task<IDisposable> SubscribeAsync(Action<IFileInfo> handler)
+	    public IDisposable Subscribe(GlobPattern pattern, Action<FileChangeEventArgs> handler)
 		{
-			var subscription = new LookupFileSystemSubscription(this, handler);
-			_subscriptions.Add(subscription);
-
-			return Task.FromResult<IDisposable>(subscription);
-		}
-
-		public Task<IDisposable> SubscribeDirectoryGetFilesAsync(PathInfo prefix, string extension, Action<IEnumerable<IFileInfo>> handler)
-		{
-			var subscription = new LookupDirectoryFileSystemSubscription(this, prefix, extension, handler);
+			var subscription = new LookupDirectoryFileSystemSubscription(this, pattern, handler);
 
 			_directorySubscriptions.Add(subscription);
 
-			return Task.FromResult<IDisposable>(subscription);
+			return subscription;
 		}
 
 		public IFileInfo GetFileInfo(PathInfo filePath)
@@ -170,7 +172,12 @@ namespace TerrificNet.ViewEngine.IO
 			return null;
 		}
 
-		public Stream OpenWrite(PathInfo filePath)
+	    public IEnumerable<IFileInfo> GetFiles(GlobPattern pattern)
+	    {
+	        return _fileInfo.Where(pattern.IsMatch).Select(GetFileInfo);
+	    }
+
+	    public Stream OpenWrite(PathInfo filePath)
 		{
 			var stream = new FileStream(GetRootPath(filePath).ToString(), FileMode.OpenOrCreate, FileAccess.Write);
 			stream.SetLength(0);
@@ -207,7 +214,6 @@ namespace TerrificNet.ViewEngine.IO
 			public PathInfo Combine(params PathInfo[] parts)
 			{
 				return PathInfo.Combine(parts);
-				//return PathInfo.Create(PathUtility.Combine(parts.Select(s => s == null ? null : s.ToString()).ToArray()));
 			}
 
 			public PathInfo GetDirectoryName(PathInfo filePath)
@@ -231,46 +237,20 @@ namespace TerrificNet.ViewEngine.IO
 			}
 		}
 
-		private class LookupFileSystemSubscription : IDisposable
-		{
-			private FileSystem _parent;
-			private Action<IFileInfo> _handler;
-
-			public LookupFileSystemSubscription(FileSystem parent, Action<IFileInfo> handler)
-			{
-				_parent = parent;
-				_handler = handler;
-			}
-
-			internal void Notify(IFileInfo file)
-			{
-				_handler(file);
-			}
-
-			public void Dispose()
-			{
-				_parent.Unsubscribe(this);
-				_handler = null;
-				_parent = null;
-			}
-		}
-
 		private class LookupDirectoryFileSystemSubscription : IDisposable
 		{
 			private FileSystem _parent;
-			private Action<IEnumerable<IFileInfo>> _handler;
-			private readonly PathInfo _prefix;
-			private readonly string _extension;
+		    private readonly GlobPattern _pattern;
+		    private Action<FileChangeEventArgs> _handler;
 
-			public LookupDirectoryFileSystemSubscription(FileSystem parent, PathInfo prefix, string extension, Action<IEnumerable<IFileInfo>> handler)
+		    public LookupDirectoryFileSystemSubscription(FileSystem parent, GlobPattern pattern, Action<FileChangeEventArgs> handler)
 			{
 				_parent = parent;
-				_handler = handler;
-				_prefix = prefix;
-				_extension = extension;
+			    _pattern = pattern;
+			    _handler = handler;
 			}
 
-			internal void Notify(IEnumerable<IFileInfo> files)
+			internal void Notify(FileChangeEventArgs files)
 			{
 				_handler(files);
 			}
@@ -284,15 +264,15 @@ namespace TerrificNet.ViewEngine.IO
 
 			public bool IsMatch(PathInfo path)
 			{
-				return path.StartsWith(_prefix) && (string.IsNullOrEmpty(_extension) || path.HasExtension(_extension));
+				return _pattern.IsMatch(path);
 			}
 		}
 
 		private class FileInfo : IFileInfo
 		{
-			public PathInfo FilePath { get; private set; }
+			public PathInfo FilePath { get; }
 
-			public string Etag { get; private set; }
+			public string Etag { get; }
 
 			private FileInfo(PathInfo filePath, System.IO.FileInfo fileInfo)
 			{

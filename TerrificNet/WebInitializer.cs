@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Microsoft.Practices.Unity;
 using TerrificNet.Configuration;
+using TerrificNet.Environment;
 using TerrificNet.UnityModules;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.IO;
@@ -33,12 +34,13 @@ namespace TerrificNet
 			new DefaultUnityModule().Configure(container);
 
 #if DEBUG
-            container.RegisterInstance<IFileSystem>(new FileSystem(path));
+		    var fileSystem = new FileSystem(path);
+		    container.RegisterInstance<IFileSystem>(fileSystem);
 #else
 			container.RegisterInstance<IFileSystem>(new EmbeddedResourceFileSystem(typeof(WebInitializer).Assembly));
 #endif
 
-			foreach (var item in configuration.Applications.Values)
+            foreach (var item in configuration.Applications.Values)
 			{
 				var childContainer = container.CreateChildContainer();
 

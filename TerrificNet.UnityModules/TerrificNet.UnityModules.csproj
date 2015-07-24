@@ -81,6 +81,10 @@
       <Project>{832b0385-5327-4394-88b9-b2de96d8895f}</Project>
       <Name>TerrificNet.AssetCompiler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TerrificNet.Environment\TerrificNet.Environment.csproj">
+      <Project>{F753217E-8756-45F0-8063-1793FB9527DD}</Project>
+      <Name>TerrificNet.Environment</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TerrificNet.Generator\TerrificNet.Generator.csproj">
       <Project>{7a0b68ab-f5ef-4bce-ace3-766c9ea06b82}</Project>
       <Name>TerrificNet.Generator</Name>

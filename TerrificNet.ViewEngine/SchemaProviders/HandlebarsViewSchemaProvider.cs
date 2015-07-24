@@ -23,7 +23,7 @@ namespace TerrificNet.ViewEngine.SchemaProviders
         public Task<JSchema> GetSchemaFromTemplateAsync(TemplateInfo template)
         {
             var extractor = new SchemaExtractor(new HandlebarsParser());
-            var helperHandlers = _helperHandlerFactory != null ? _helperHandlerFactory.Create().ToArray() : null;
+            var helperHandlers = _helperHandlerFactory?.Create().ToArray();
 
             // TODO: Use async
             var schema = extractor.Run(template.Id, new StreamReader(template.Open()), _memberLocator, helperHandlers);
