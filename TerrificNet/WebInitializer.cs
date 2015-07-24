@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Microsoft.Practices.Unity;
 using TerrificNet.Configuration;
-using TerrificNet.Environment;
 using TerrificNet.UnityModules;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.IO;

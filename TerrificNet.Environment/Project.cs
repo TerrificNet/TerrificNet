@@ -82,6 +82,7 @@ namespace TerrificNet.Environment
                             project.AddItem(new FileProjectItem(kindObj, file));
                         }
 
+                        // TODO: Handle disposable
                         fileSystem.Subscribe(globPattern, a =>
                         {
                             HandleChange(a, project, kindObj);
@@ -91,6 +92,7 @@ namespace TerrificNet.Environment
                     {
                         project.AddItem(new FileProjectItem(kindObj, info));
 
+                        // TODO: Handle disposable
                         fileSystem.Subscribe(GlobPattern.Exact(item), a =>
                         {
                             HandleChange(a, project, kindObj);
@@ -121,5 +123,21 @@ namespace TerrificNet.Environment
                 }
             }
         }
+
+        public void AddLink(ProjectItem item1, ProjectItemLinkDescription linkDescription, ProjectItem item2)
+        {
+            item1.AddLinkedItem(linkDescription, item2);
+            item2.AddLinkedItem(linkDescription, item1);
+        }
+
+        public void RemoveLink(ProjectItem item1, ProjectItemLinkDescription link, ProjectItem item2)
+        {
+            item1.RemoveLinkedItem(link, item2);
+            item2.RemoveLinkedItem(link, item1);
+        }
+    }
+
+    public class ProjectItemLinkDescription
+    {
     }
 }

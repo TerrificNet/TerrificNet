@@ -98,5 +98,62 @@ namespace TerrificNet.Environment.Test
 
             processor.VerifyAll();
         }
+
+        [Fact]
+        public void TestAddLink()
+        {
+            var underTest = new Project();
+            var itemKind = new ProjectItemKind("test");
+
+            var item1 = new ProjectItem(itemKind);
+            var item2 = new ProjectItem(itemKind);
+
+            underTest.AddItem(item1);
+            underTest.AddItem(item2);
+
+            var link = new ProjectItemLinkDescription();
+            underTest.AddLink(item1, link, item2);
+
+            AssertLinkedItem(item1, item2, link);
+            AssertLinkedItem(item2, item1, link);
+        }
+
+        [Fact]
+        public void TestRemoveLink()
+        {
+            var underTest = new Project();
+            var itemKind = new ProjectItemKind("test");
+
+            var item1 = new ProjectItem(itemKind);
+            var item2 = new ProjectItem(itemKind);
+
+            underTest.AddItem(item1);
+            underTest.AddItem(item2);
+
+            var link = new ProjectItemLinkDescription();
+            underTest.AddLink(item1, link, item2);
+
+            underTest.RemoveLink(item1, link, item2);
+
+            AssertEmptyLinkList(item1);
+            AssertEmptyLinkList(item2);
+        }
+
+        private static void AssertEmptyLinkList(ProjectItem item1)
+        {
+            var result = item1.GetLinkedItems();
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        private static void AssertLinkedItem(ProjectItem item1, ProjectItem item2, ProjectItemLinkDescription description)
+        {
+            var result = item1.GetLinkedItems();
+            Assert.NotNull(result);
+            var resultList = result.ToList();
+            Assert.Equal(1, resultList.Count);
+            Assert.Equal(item2, resultList[0].ProjectItem);
+            Assert.Equal(description, resultList[0].Description);
+        }
     }
 }
