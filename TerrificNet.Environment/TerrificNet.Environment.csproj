@@ -45,12 +45,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Build\Builder.cs" />
+    <Compile Include="Build\IBuildTarget.cs" />
     <Compile Include="FileProjectItem.cs" />
     <Compile Include="InvalidProjectFileException.cs" />
     <Compile Include="IProjectItemProcessor.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectItem.cs" />
+    <Compile Include="ProjectItemIdentifier.cs" />
     <Compile Include="ProjectItemKind.cs" />
+    <Compile Include="ProjectItemLinkDescription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +67,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

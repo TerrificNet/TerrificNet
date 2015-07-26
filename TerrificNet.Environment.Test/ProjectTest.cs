@@ -11,7 +11,7 @@ namespace TerrificNet.Environment.Test
         public void TestAddItem_ReturnsItemInList()
         {
             var underTest = new Project();
-            var projectItem = new ProjectItem();
+            var projectItem = new ProjectItem("p1");
             underTest.AddItem(projectItem);
 
             var items = underTest.GetItems();
@@ -26,7 +26,7 @@ namespace TerrificNet.Environment.Test
         public void TestAddExistingItem_Fails()
         {
             var underTest = new Project();
-            var projectItem = new ProjectItem();
+            var projectItem = new ProjectItem("p1");
             underTest.AddItem(projectItem);
 
             Assert.Throws<ArgumentException>(() => underTest.AddItem(projectItem));
@@ -36,7 +36,7 @@ namespace TerrificNet.Environment.Test
         public void TestRemove_ItemNotInList()
         {
             var underTest = new Project();
-            var projectItem = new ProjectItem();
+            var projectItem = new ProjectItem("p1");
             underTest.AddItem(projectItem);
 
             underTest.RemoveItem(projectItem);
@@ -51,7 +51,7 @@ namespace TerrificNet.Environment.Test
         {
             var underTest = new Project();
             var itemKind = new ProjectItemKind("test");
-            var item = new ProjectItem(itemKind);
+            var item = new ProjectItem("p1", itemKind);
 
             var processor = new Mock<IProjectItemProcessor>();
             processor.Setup(s => s.NotifyItemAdded(underTest, item));
@@ -68,7 +68,7 @@ namespace TerrificNet.Environment.Test
         {
             var underTest = new Project();
             var itemKind = new ProjectItemKind("test");
-            var item = new ProjectItem(itemKind);
+            var item = new ProjectItem("p1", itemKind);
             underTest.AddItem(item);
 
             var processor = new Mock<IProjectItemProcessor>();
@@ -86,7 +86,7 @@ namespace TerrificNet.Environment.Test
         {
             var underTest = new Project();
             var itemKind = new ProjectItemKind("test");
-            var item = new ProjectItem(itemKind);
+            var item = new ProjectItem("p1", itemKind);
             underTest.AddItem(item);
 
             var processor = new Mock<IProjectItemProcessor>();
@@ -100,13 +100,27 @@ namespace TerrificNet.Environment.Test
         }
 
         [Fact]
+        public void TestAddProjectItemWithSameIdentifier_ThrowsException()
+        {
+            var underTest = new Project();
+            var itemKind = new ProjectItemKind("test");
+
+            var item1 = new ProjectItem("p1", itemKind);
+            var item2 = new ProjectItem("p1", itemKind);
+
+            underTest.AddItem(item1);
+
+            Assert.Throws<ArgumentException>(() => underTest.AddItem(item2));
+        }
+
+        [Fact]
         public void TestAddLink()
         {
             var underTest = new Project();
             var itemKind = new ProjectItemKind("test");
 
-            var item1 = new ProjectItem(itemKind);
-            var item2 = new ProjectItem(itemKind);
+            var item1 = new ProjectItem("p1", itemKind);
+            var item2 = new ProjectItem("p2", itemKind);
 
             underTest.AddItem(item1);
             underTest.AddItem(item2);
@@ -124,8 +138,8 @@ namespace TerrificNet.Environment.Test
             var underTest = new Project();
             var itemKind = new ProjectItemKind("test");
 
-            var item1 = new ProjectItem(itemKind);
-            var item2 = new ProjectItem(itemKind);
+            var item1 = new ProjectItem("p1", itemKind);
+            var item2 = new ProjectItem("p2", itemKind);
 
             underTest.AddItem(item1);
             underTest.AddItem(item2);

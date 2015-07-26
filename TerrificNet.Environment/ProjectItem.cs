@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,16 +8,25 @@ namespace TerrificNet.Environment
     {
         private readonly List<ProjectItemLink> _links = new List<ProjectItemLink>();
 
-        public ProjectItem() : this(ProjectItemKind.Unknown)
+        public ProjectItem(string identifier) : this(identifier, ProjectItemKind.Unknown)
         {
         }
 
-        public ProjectItem(ProjectItemKind kind)
+        public ProjectItem(string identifier, ProjectItemKind kind)
         {
+            if (string.IsNullOrEmpty(identifier))
+                throw new ArgumentNullException(nameof(identifier));
+
+            if (kind == null)
+                throw new ArgumentNullException(nameof(kind));
+
+            Identifier = new ProjectItemIdentifier(identifier, kind);
             Kind = kind;
         }
 
         public ProjectItemKind Kind { get; }
+
+        public ProjectItemIdentifier Identifier { get; }
 
         public IEnumerable<ProjectItemLink> GetLinkedItems()
         {

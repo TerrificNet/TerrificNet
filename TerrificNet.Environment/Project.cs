@@ -9,15 +9,15 @@ namespace TerrificNet.Environment
 {
     public class Project
     {
-        private readonly HashSet<ProjectItem> _items = new HashSet<ProjectItem>();
+        private readonly Dictionary<ProjectItemIdentifier, ProjectItem> _items = new Dictionary<ProjectItemIdentifier, ProjectItem>();
         private readonly List<IProjectItemProcessor> _processors = new List<IProjectItemProcessor>();
 
         public void AddItem(ProjectItem projectItem)
         {
-            if (_items.Contains(projectItem))
+            if (_items.ContainsKey(projectItem.Identifier))
                 throw new ArgumentException("Project already contains item.", nameof(projectItem));
 
-            _items.Add(projectItem);
+            _items.Add(projectItem.Identifier, projectItem);
 
             foreach (var processor in _processors)
             {
@@ -27,7 +27,7 @@ namespace TerrificNet.Environment
 
         public void RemoveItem(ProjectItem projectItem)
         {
-            _items.Remove(projectItem);
+            _items.Remove(projectItem.Identifier);
 
             foreach (var processor in _processors)
             {
@@ -35,9 +35,14 @@ namespace TerrificNet.Environment
             }
         }
 
+        public ProjectItem GetItemById(ProjectItemIdentifier identifier)
+        {
+            return _items[identifier];
+        }
+
         public IEnumerable<ProjectItem> GetItems()
         {
-            return _items;
+            return _items.Values;
         }
 
         public void AddProcessor(IProjectItemProcessor processor)
@@ -135,9 +140,5 @@ namespace TerrificNet.Environment
             item1.RemoveLinkedItem(link, item2);
             item2.RemoveLinkedItem(link, item1);
         }
-    }
-
-    public class ProjectItemLinkDescription
-    {
     }
 }

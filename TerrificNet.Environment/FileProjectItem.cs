@@ -7,7 +7,7 @@ namespace TerrificNet.Environment
         public IFileInfo FileInfo { get; set; }
 
         public FileProjectItem(ProjectItemKind kind, IFileInfo fileInfo) 
-            : base(kind)
+            : base(fileInfo.FilePath.Name.ToString(), kind)
         {
             FileInfo = fileInfo;
         }

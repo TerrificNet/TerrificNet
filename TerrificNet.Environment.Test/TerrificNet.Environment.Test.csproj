@@ -71,6 +71,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="BuilderTest.cs" />
     <Compile Include="FileProjectTest.cs" />
     <Compile Include="ProjectTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
