@@ -53,10 +53,10 @@ namespace TerrificNet.Environment.Test
             var itemKind = new ProjectItemKind("test");
             var item = new ProjectItem("p1", itemKind);
 
-            var processor = new Mock<IProjectItemProcessor>();
+            var processor = new Mock<IProjectObserver>();
             processor.Setup(s => s.NotifyItemAdded(underTest, item));
 
-            underTest.AddProcessor(processor.Object);
+            underTest.AddObserver(processor.Object);
 
             underTest.AddItem(item);
 
@@ -71,10 +71,10 @@ namespace TerrificNet.Environment.Test
             var item = new ProjectItem("p1", itemKind);
             underTest.AddItem(item);
 
-            var processor = new Mock<IProjectItemProcessor>();
+            var processor = new Mock<IProjectObserver>();
             processor.Setup(s => s.NotifyItemChanged(underTest, item));
 
-            underTest.AddProcessor(processor.Object);
+            underTest.AddObserver(processor.Object);
 
             underTest.Touch(item);
 
@@ -89,10 +89,10 @@ namespace TerrificNet.Environment.Test
             var item = new ProjectItem("p1", itemKind);
             underTest.AddItem(item);
 
-            var processor = new Mock<IProjectItemProcessor>();
+            var processor = new Mock<IProjectObserver>();
             processor.Setup(s => s.NotifyItemRemoved(underTest, item));
 
-            underTest.AddProcessor(processor.Object);
+            underTest.AddObserver(processor.Object);
 
             underTest.RemoveItem(item);
 
@@ -125,7 +125,7 @@ namespace TerrificNet.Environment.Test
             underTest.AddItem(item1);
             underTest.AddItem(item2);
 
-            var link = new ProjectItemLinkDescription();
+            var link = new ProjectItemLinkDescription("desc");
             underTest.AddLink(item1, link, item2);
 
             AssertLinkedItem(item1, item2, link);
@@ -144,7 +144,7 @@ namespace TerrificNet.Environment.Test
             underTest.AddItem(item1);
             underTest.AddItem(item2);
 
-            var link = new ProjectItemLinkDescription();
+            var link = new ProjectItemLinkDescription("desc");
             underTest.AddLink(item1, link, item2);
 
             underTest.RemoveLink(item1, link, item2);

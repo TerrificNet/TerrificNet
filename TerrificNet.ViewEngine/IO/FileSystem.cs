@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TerrificNet.ViewEngine.IO
 {
@@ -137,7 +138,7 @@ namespace TerrificNet.ViewEngine.IO
 			return new FileStream(GetRootPath(filePath).ToString(), FileMode.Open, FileAccess.Read);
 		}
 
-		public Stream OpenReadOrCreate(PathInfo filePath)
+        public Stream OpenReadOrCreate(PathInfo filePath)
 		{
 			return new FileStream(GetRootPath(filePath).ToString(), FileMode.OpenOrCreate, FileAccess.Read);
 		}

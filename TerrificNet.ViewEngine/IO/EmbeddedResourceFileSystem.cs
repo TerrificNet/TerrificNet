@@ -46,7 +46,7 @@ namespace TerrificNet.ViewEngine.IO
 			return _assembly.GetManifestResourceStream(resourceName);
 		}
 
-		public Stream OpenWrite(PathInfo filePath)
+        public Stream OpenWrite(PathInfo filePath)
 		{
 			throw new NotSupportedException();
 		}
@@ -95,6 +95,7 @@ namespace TerrificNet.ViewEngine.IO
 	    {
 	        return _names.Where(n => pattern.IsMatch(n.Key)).Select(n => GetFileInfo(n.Key));
 	    }
+
 
 	    private class EmbeddedFileInfo : IFileInfo
 		{

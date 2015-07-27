@@ -10,7 +10,7 @@ namespace TerrificNet.Environment
     public class Project
     {
         private readonly Dictionary<ProjectItemIdentifier, ProjectItem> _items = new Dictionary<ProjectItemIdentifier, ProjectItem>();
-        private readonly List<IProjectItemProcessor> _processors = new List<IProjectItemProcessor>();
+        private readonly List<IProjectObserver> _observers = new List<IProjectObserver>();
 
         public void AddItem(ProjectItem projectItem)
         {
@@ -19,7 +19,7 @@ namespace TerrificNet.Environment
 
             _items.Add(projectItem.Identifier, projectItem);
 
-            foreach (var processor in _processors)
+            foreach (var processor in _observers)
             {
                 processor.NotifyItemAdded(this, projectItem);
             }
@@ -29,7 +29,7 @@ namespace TerrificNet.Environment
         {
             _items.Remove(projectItem.Identifier);
 
-            foreach (var processor in _processors)
+            foreach (var processor in _observers)
             {
                 processor.NotifyItemRemoved(this, projectItem);
             }
@@ -40,19 +40,24 @@ namespace TerrificNet.Environment
             return _items[identifier];
         }
 
+        public bool TryGetItemById(ProjectItemIdentifier identifier, out ProjectItem item)
+        {
+            return _items.TryGetValue(identifier, out item);
+        }
+
         public IEnumerable<ProjectItem> GetItems()
         {
             return _items.Values;
         }
 
-        public void AddProcessor(IProjectItemProcessor processor)
+        public void AddObserver(IProjectObserver observer)
         {
-            _processors.Add(processor);
+            _observers.Add(observer);
         }
 
         public void Touch(ProjectItem item)
         {
-            foreach (var processor in _processors)
+            foreach (var processor in _observers)
             {
                 processor.NotifyItemChanged(this, item);
             }
@@ -84,23 +89,23 @@ namespace TerrificNet.Environment
                         var items = fileSystem.GetFiles(globPattern);
                         foreach (var file in items)
                         {
-                            project.AddItem(new FileProjectItem(kindObj, file));
+                            project.AddItem(new FileProjectItem(kindObj, file, fileSystem));
                         }
 
                         // TODO: Handle disposable
                         fileSystem.Subscribe(globPattern, a =>
                         {
-                            HandleChange(a, project, kindObj);
+                            HandleChange(a, project, kindObj, fileSystem);
                         });
                     }
                     else
                     {
-                        project.AddItem(new FileProjectItem(kindObj, info));
+                        project.AddItem(new FileProjectItem(kindObj, info, fileSystem));
 
                         // TODO: Handle disposable
                         fileSystem.Subscribe(GlobPattern.Exact(item), a =>
                         {
-                            HandleChange(a, project, kindObj);
+                            HandleChange(a, project, kindObj, fileSystem);
                         });
                     }
                 }
@@ -109,10 +114,10 @@ namespace TerrificNet.Environment
             return project;
         }
 
-        private static void HandleChange(FileChangeEventArgs a, Project project, ProjectItemKind kindObj)
+        private static void HandleChange(FileChangeEventArgs a, Project project, ProjectItemKind kindObj, IFileSystem fileSystem)
         {
             if (a.ChangeType == FileChangeType.Created)
-                project.AddItem(new FileProjectItem(kindObj, a.FileInfo));
+                project.AddItem(new FileProjectItem(kindObj, a.FileInfo, fileSystem));
             else
             {
                 var changedItem = project.GetItems()

@@ -100,10 +100,10 @@ namespace TerrificNet.Environment.Test
             var result = Project.FromFile(input, fileSystem);
             var item = result.GetItems().ToList()[index];
 
-            var processor = new Mock<IProjectItemProcessor>(MockBehavior.Strict);
+            var processor = new Mock<IProjectObserver>(MockBehavior.Strict);
             processor.Setup(f => f.NotifyItemChanged(result, item));
 
-            result.AddProcessor(processor.Object);
+            result.AddObserver(processor.Object);
 
             fileSystem.Touch(filePath);
 
@@ -128,7 +128,7 @@ namespace TerrificNet.Environment.Test
             const string filePath2 = "content.html";
             var result = Project.FromFile(input, fileSystem);
 
-            var processor = new Mock<IProjectItemProcessor>(MockBehavior.Strict);
+            var processor = new Mock<IProjectObserver>(MockBehavior.Strict);
             processor.Setup(f =>
                 f.NotifyItemAdded(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath && i.Kind.Identifier == "template")));
             processor.Setup(f =>
@@ -139,7 +139,7 @@ namespace TerrificNet.Environment.Test
             processor.Setup(f =>
                 f.NotifyItemRemoved(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath2 && i.Kind.Identifier == "content")));
 
-            result.AddProcessor(processor.Object);
+            result.AddObserver(processor.Object);
 
             fileSystem.Add(filePath);
             // Not included file

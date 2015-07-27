@@ -1,50 +1,69 @@
 using System;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace TerrificNet.Environment.Build
+namespace TerrificNet.Environment.Building
 {
     public interface IBuildTarget
     {
-        BuildQuery DependsOn { get; set; }
-   
-        ProjectItemKind Target { get; set; }
+        BuildQuery DependsOn { get; }
+        BuildOptions Options { get; }
+        string Name { get; }
 
-        ProjectItem Proceed(ProjectItem item);
+        ProjectItemSource Proceed(ProjectItem item);
     }
 
-    public enum BuildOptions
+    public class ProjectItemSource
     {
-        BuildOnRequest,
-        BuildInBackground,
-        RemoveWithSource
+        private readonly IProjectItemContent _content;
+        public ProjectItemIdentifier Identifier { get; }
+        public IProjectItemContent Content { get; }
+
+        public ProjectItemSource(ProjectItemIdentifier identifier, IProjectItemContent content)
+        {
+            _content = content;
+            if (identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            if (content == null)
+                throw new ArgumentNullException(nameof(content));
+
+            Identifier = identifier;
+            Content = content;
+        }
     }
 
-    public abstract class BuildQuery
+    public class NullProjectItemContent : IProjectItemContent
     {
-        public static BuildQuery AllFromKind(ProjectItemKind kind)
+        public static readonly IProjectItemContent Instance = new NullProjectItemContent();
+
+        private NullProjectItemContent()
         {
-            return new BuildQueryPredicate(i => i.Kind == kind);
         }
 
-        public static BuildQuery SingleFromKind(ProjectItemKind kind)
+        public Task<Stream> Transform(ProjectItem projectItem)
         {
-            return new BuildQueryPredicate(i => i.Kind == kind);
+            return null;
+        }
+    }
+
+    public class ProjectItemContentFromAction : IProjectItemContent
+    {
+        private readonly Func<ProjectItem, Task<Stream>> _proceedingAction;
+
+        public ProjectItemContentFromAction(Func<ProjectItem, Task<Stream>> proceedingAction)
+        {
+            _proceedingAction = proceedingAction;
         }
 
-        private class BuildQueryPredicate : BuildQuery
+        public Task<Stream> Transform(ProjectItem projectItem)
         {
-            private readonly Func<ProjectItem, bool> _predicate;
-
-            public BuildQueryPredicate(Func<ProjectItem, bool> predicate)
-            {
-                _predicate = predicate;
-            }
-
-            public override bool IsMatch(ProjectItem item)
-            {
-                return _predicate(item);
-            }
+            return _proceedingAction(projectItem);
         }
+    }
 
-        public abstract bool IsMatch(ProjectItem item);
+    public interface IProjectItemContent
+    {
+        Task<Stream> Transform(ProjectItem projectItem);
     }
 }

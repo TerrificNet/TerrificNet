@@ -46,10 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Building\Builder.cs" />
+    <Compile Include="Building\BuildOptions.cs" />
+    <Compile Include="Building\BuildQuery.cs" />
     <Compile Include="Building\IBuildTarget.cs" />
     <Compile Include="FileProjectItem.cs" />
     <Compile Include="InvalidProjectFileException.cs" />
-    <Compile Include="IProjectItemProcessor.cs" />
+    <Compile Include="IProjectObserver.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectItem.cs" />
     <Compile Include="ProjectItemIdentifier.cs" />

@@ -1,6 +1,6 @@
 ﻿namespace TerrificNet.Environment
 {
-    public interface IProjectItemProcessor
+    public interface IProjectObserver
     {
         void NotifyItemAdded(Project underTest, ProjectItem item);
         void NotifyItemChanged(Project underTest, ProjectItem item);
