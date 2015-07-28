@@ -10,7 +10,7 @@ namespace TerrificNet.Environment.Building
     public class Builder
     {
         private readonly Project _project;
-        private readonly List<IBuildTarget> _targets = new List<IBuildTarget>();
+        private readonly List<IBuildTask> _targets = new List<IBuildTask>();
         private readonly ConcurrentDictionary<int, Task> _runningTasks = new ConcurrentDictionary<int, Task>();
 
         public Builder(Project project)
@@ -21,21 +21,22 @@ namespace TerrificNet.Environment.Building
                 throw new ArgumentNullException(nameof(project));
         }
 
-        public void AddTarget(IBuildTarget target)
+        public void AddTask(IBuildTask task)
         {
-            _targets.Add(target);
+            _targets.Add(task);
             foreach (var item in _project.GetItems().ToList())
             {
-                PushTask(Proceed(target, item));
+                PushTask(Proceed(task, item));
             }
         }
 
-        private async Task Proceed(IBuildTarget target, ProjectItem item)
+        private async Task Proceed(IBuildTask task, ProjectItem item)
         {
-            if (!target.DependsOn.IsMatch(item))
+            if (!task.DependsOn.IsMatch(item))
                 return;
 
-            var source = target.Proceed(item);
+            var projectItems = task.DependsOn.Select(_project.GetItems(), item).ToList();
+            var source = task.Proceed(projectItems);
             if (source == null)
                 throw new InvalidOperationException("The proceed method has to return a value.");
 
@@ -43,38 +44,40 @@ namespace TerrificNet.Environment.Building
             if (_project.TryGetItemById(source.Identifier, out existing))
             {
                 var defferred = existing as DefferedProjectItem;
-                defferred?.SetDirty(source.Content, item);
+                defferred?.SetDirty(source.Content);
 
                 var inMemory = existing as InMemoryProjectItem;
-                inMemory?.SetContent(await CopyToStream(item, source));
+                inMemory?.SetContent(await CopyToStream(source));
 
                 _project.Touch(existing);
             }
             else
             {
                 ProjectItem item2;
-                if (target.Options == BuildOptions.BuildInBackground)
+                if (task.Options == BuildOptions.BuildInBackground)
                 {
-                    item2 = await BuildInMemoryItem(item, source);
+                    item2 = await BuildInMemoryItem(source);
                 }
                 else
-                    item2 = new DefferedProjectItem(source.Identifier, source.Content, item);
+                    item2 = new DefferedProjectItem(source.Identifier, source.Content);
 
                 _project.AddItem(item2);
-                _project.AddLink(item, new ProjectItemLinkDescription(target.Name), item2);
+
+                foreach (var linkedItem in projectItems)
+                    _project.AddLink(linkedItem, new ProjectItemLinkDescription(task.Name), item2);
             }
         }
 
-        private static async Task<ProjectItem> BuildInMemoryItem(ProjectItem item, ProjectItemSource source)
+        private static async Task<ProjectItem> BuildInMemoryItem(ProjectItemSource source)
         {
-            var memoryStream = await CopyToStream(item, source);
+            var memoryStream = await CopyToStream(source);
             return new InMemoryProjectItem(source.Identifier, memoryStream);
         }
 
-        private static async Task<MemoryStream> CopyToStream(ProjectItem item, ProjectItemSource source)
+        private static async Task<MemoryStream> CopyToStream(ProjectItemSource source)
         {
             var memoryStream = new MemoryStream();
-            var streamTask = source.Content.Transform(item);
+            var streamTask = source.Content.GetContent();
             if (streamTask != null)
             {
                 using (var stream = await streamTask.ConfigureAwait(false))
@@ -130,13 +133,11 @@ namespace TerrificNet.Environment.Building
     internal class DefferedProjectItem : ProjectItem
     {
         private IProjectItemContent _content;
-        private ProjectItem _projectItem;
         private MemoryStream _contentStream;
 
-        public DefferedProjectItem(ProjectItemIdentifier identifier, IProjectItemContent content, ProjectItem projectItem) : base(identifier)
+        public DefferedProjectItem(ProjectItemIdentifier identifier, IProjectItemContent content) : base(identifier)
         {
             _content = content;
-            _projectItem = projectItem;
         }
 
         public override Stream OpenRead()
@@ -144,24 +145,22 @@ namespace TerrificNet.Environment.Building
             if (_contentStream == null)
             {
                 // TODO: Verify async
-                using (var stream = _content.Transform(_projectItem).Result)
+                using (var stream = _content.GetContent().Result)
                 {
                     _contentStream = new MemoryStream();
                     stream.CopyTo(_contentStream);
                 }
 
                 _content = null;
-                _projectItem = null;
             }
 
             _contentStream.Seek(0, SeekOrigin.Begin);
             return _contentStream;
         }
 
-        public void SetDirty(IProjectItemContent content, ProjectItem projectItem)
+        public void SetDirty(IProjectItemContent content)
         {
             _content = content;
-            _projectItem = projectItem;
 
             _contentStream?.Dispose();
             _contentStream = null;

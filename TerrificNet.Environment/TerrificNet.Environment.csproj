@@ -48,7 +48,11 @@
     <Compile Include="Building\Builder.cs" />
     <Compile Include="Building\BuildOptions.cs" />
     <Compile Include="Building\BuildQuery.cs" />
-    <Compile Include="Building\IBuildTarget.cs" />
+    <Compile Include="Building\IBuildTask.cs" />
+    <Compile Include="Building\IProjectItemContent.cs" />
+    <Compile Include="Building\NullProjectItemContent.cs" />
+    <Compile Include="Building\ProjectItemContentFromAction.cs" />
+    <Compile Include="Building\ProjectItemSource.cs" />
     <Compile Include="FileProjectItem.cs" />
     <Compile Include="InvalidProjectFileException.cs" />
     <Compile Include="IProjectObserver.cs" />
