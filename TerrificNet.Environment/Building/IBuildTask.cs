@@ -8,6 +8,6 @@ namespace TerrificNet.Environment.Building
         BuildOptions Options { get; }
         string Name { get; }
 
-        ProjectItemSource Proceed(IEnumerable<ProjectItem> items);
+        IEnumerable<BuildTaskResult> Proceed(IEnumerable<ProjectItem> items);
     }
 }

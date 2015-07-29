@@ -82,6 +82,24 @@ namespace TerrificNet.Environment.Test
             Assert.Throws<InvalidProjectFileException>(() => Project.FromFile(input, fileSystem.Object));
         }
 
+        [Fact]
+        public void TestParseFileWithDuplicatedItem_IgnoresSecond()
+        {
+            const string input = @"{
+  ""file"": [ ""test2.html"", ""*.html"" ]
+    }
+";
+            var fileSystem = new InMemoryFileSystem(new[]
+            {
+                "test1.html", "test2.html", "test3.html", "test4.html"
+            });
+
+            var result = Project.FromFile(input, fileSystem);
+            var resultList = result.GetItems().ToList();
+            Assert.Equal(4, resultList.Count);
+            Assert.Equal("test2.html", resultList[0].Identifier.Identifier);
+        }
+
         [Theory]
         [InlineData(0, "test1.html")]
         [InlineData(2, "templates/tmpl1.html")]
@@ -130,14 +148,14 @@ namespace TerrificNet.Environment.Test
 
             var processor = new Mock<IProjectObserver>(MockBehavior.Strict);
             processor.Setup(f =>
-                f.NotifyItemAdded(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath && i.Kind.Identifier == "template")));
+                f.NotifyItemAdded(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath && i.Identifier.Kind == "template")));
             processor.Setup(f =>
-                f.NotifyItemAdded(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath && i.Kind.Identifier == "content")));
+                f.NotifyItemAdded(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath && i.Identifier.Kind == "content")));
             processor.Setup(f =>
-                f.NotifyItemAdded(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath2 && i.Kind.Identifier == "content")));
+                f.NotifyItemAdded(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath2 && i.Identifier.Kind == "content")));
 
             processor.Setup(f =>
-                f.NotifyItemRemoved(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath2 && i.Kind.Identifier == "content")));
+                f.NotifyItemRemoved(result, It.Is<FileProjectItem>(i => i.FileInfo.FilePath.ToString() == filePath2 && i.Identifier.Kind == "content")));
 
             result.AddObserver(processor.Object);
 
@@ -154,7 +172,7 @@ namespace TerrificNet.Environment.Test
 
         private static void AssertFileItem(ProjectItem item, string kind, string path)
         {
-            Assert.Equal(kind, item.Kind.Identifier);
+            Assert.Equal(kind, item.Identifier.Kind);
             var fItem = Assert.IsType<FileProjectItem>(item);
             Assert.NotNull(fItem.FileInfo);
             Assert.Equal(path, fItem.FileInfo.FilePath.ToString());

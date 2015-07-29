@@ -14,7 +14,7 @@ namespace TerrificNet.Environment.Test
         [Fact]
         public void TestAddTarget_InvokesOnExistingItemsWhenOnChange()
         {
-            var kind = new ProjectItemKind("test");
+            var kind = "test";
             var projectItem = new ProjectItem("p2", kind);
 
             var project = new Project();
@@ -23,7 +23,7 @@ namespace TerrificNet.Environment.Test
 
             var target = new Mock<IBuildTask>();
             target.SetupGet(t => t.DependsOn).Returns(BuildQuery.AllFromKind(kind));
-            SetupProceed(target, projectItem).Returns(new ProjectItemSource(new ProjectItemIdentifier("t1", ProjectItemKind.Unknown), NullProjectItemContent.Instance));
+            SetupProceed(target, projectItem).Returns(new [] { new BuildTaskResult(new ProjectItemIdentifier("t1", "test2"), NullProjectItemContent.Instance)});
 
             var underTest = new Builder(project);
             underTest.AddTask(target.Object);
@@ -31,7 +31,7 @@ namespace TerrificNet.Environment.Test
             target.VerifyAll();
         }
 
-        private static ISetup<IBuildTask, ProjectItemSource> SetupProceed(Mock<IBuildTask> target, ProjectItem projectItem)
+        private static ISetup<IBuildTask, IEnumerable<BuildTaskResult>> SetupProceed(Mock<IBuildTask> target, ProjectItem projectItem)
         {
             return target.Setup(t => t.Proceed(It.Is<IEnumerable<ProjectItem>>(list => list.SequenceEqual(new [] { projectItem }))));
         }
@@ -39,14 +39,14 @@ namespace TerrificNet.Environment.Test
         [Fact]
         public void TestProceed_InvokesOnItemsChange()
         {
-            var kind = new ProjectItemKind("test");
+            var kind = "test";
             var projectItem = new ProjectItem("p1", kind);
 
             var project = new Project();
 
             var target = new Mock<IBuildTask>();
             target.SetupGet(t => t.DependsOn).Returns(BuildQuery.AllFromKind(kind));
-            SetupProceed(target, projectItem).Returns(new ProjectItemSource(new ProjectItemIdentifier("t1", ProjectItemKind.Unknown), NullProjectItemContent.Instance));
+            SetupProceed(target, projectItem).Returns(new [] { new BuildTaskResult(new ProjectItemIdentifier("t1", "test2"), NullProjectItemContent.Instance)});
 
             var underTest = new Builder(project);
             underTest.AddTask(target.Object);
@@ -60,7 +60,7 @@ namespace TerrificNet.Environment.Test
         [Fact]
         public void TestBuilderSingleItemOnAddWithBuildInBackgroundOption()
         {
-            var kind = new ProjectItemKind("test");
+            var kind = "test";
             var projectItem = new ProjectItem("p1", kind);
 
             var project = new Project();
@@ -71,10 +71,10 @@ namespace TerrificNet.Environment.Test
             target.SetupGet(t => t.DependsOn).Returns(BuildQuery.SingleFromKind(kind));
             target.SetupGet(t => t.Options).Returns(BuildOptions.BuildInBackground);
 
-            var id = new ProjectItemIdentifier("gugus", new ProjectItemKind("created"));
+            var id = new ProjectItemIdentifier("gugus", "created");
             const string contentString = "test";
-            var source = new ProjectItemSource(id, new ProjectItemContentFromAction(() => GenerateStreamFromString(contentString)));
-            SetupProceed(target, projectItem).Returns(source);
+            var source = new BuildTaskResult(id, new ProjectItemContentFromAction(() => GenerateStreamFromString(contentString)));
+            SetupProceed(target, projectItem).Returns(new [] { source });
 
             var underTest = new Builder(project);
             underTest.AddTask(target.Object);
@@ -108,12 +108,12 @@ namespace TerrificNet.Environment.Test
         [Fact]
         public void TestBuilderSingleItemOnAddWithBuildOnRequestOption()
         {
-            var kind = new ProjectItemKind("test");
+            var kind = "test";
             var projectItem = new ProjectItem("p1", kind);
 
             var project = new Project();
 
-            var id = new ProjectItemIdentifier("gugus", new ProjectItemKind("created"));
+            var id = new ProjectItemIdentifier("gugus", "created");
 
             var content = new Mock<IProjectItemContent>();
             content.Setup(s => s.GetContent()).Returns(GenerateStreamFromString("test"));
@@ -123,7 +123,7 @@ namespace TerrificNet.Environment.Test
             target.SetupGet(t => t.Name).Returns(targetName);
             target.SetupGet(t => t.DependsOn).Returns(BuildQuery.SingleFromKind(kind));
             target.SetupGet(t => t.Options).Returns(BuildOptions.BuildOnRequest);
-            SetupProceed(target, projectItem).Returns(new ProjectItemSource(id, content.Object));
+            SetupProceed(target, projectItem).Returns(new [] { new BuildTaskResult(id, content.Object)});
 
             var underTest = new Builder(project);
             underTest.AddTask(target.Object);
@@ -147,7 +147,7 @@ namespace TerrificNet.Environment.Test
         [Fact]
         public void TestChangePropagation()
         {
-            var kind = new ProjectItemKind("test");
+            var kind = "test";
             var projectItem = new ProjectItem("p1", kind);
 
             var project = new Project();
@@ -156,8 +156,8 @@ namespace TerrificNet.Environment.Test
 
             var underTest = new Builder(project);
 
-            var kind2 = new ProjectItemKind("created");
-            var kind3 = new ProjectItemKind("created2");
+            var kind2 = "created";
+            var kind3 = "created2";
 
             var buildTarget = CreateBuildTarget(kind, kind2);
             var buildTarget2 = CreateBuildTarget(kind2, kind3);
@@ -169,15 +169,15 @@ namespace TerrificNet.Environment.Test
 
             project.Touch(projectItem);
 
-            observerMock.Verify(s => s.NotifyItemChanged(project, It.Is<ProjectItem>(i => i.Kind == kind)), Times.Once());
-            observerMock.Verify(s => s.NotifyItemChanged(project, It.Is<ProjectItem>(i => i.Kind == kind2)), Times.Once());
-            observerMock.Verify(s => s.NotifyItemChanged(project, It.Is<ProjectItem>(i => i.Kind == kind3)), Times.Once());
+            observerMock.Verify(s => s.NotifyItemChanged(project, It.Is<ProjectItem>(i => i.Identifier.Kind == kind)), Times.Once());
+            observerMock.Verify(s => s.NotifyItemChanged(project, It.Is<ProjectItem>(i => i.Identifier.Kind == kind2)), Times.Once());
+            observerMock.Verify(s => s.NotifyItemChanged(project, It.Is<ProjectItem>(i => i.Identifier.Kind == kind3)), Times.Once());
         }
 
         [Fact]
         public void TestManyToOne()
         {
-            var kind = new ProjectItemKind("test");
+            var kind = "test";
             var project = new Project();
 
             AddAndCreateItem(kind, project, "p1");
@@ -186,11 +186,14 @@ namespace TerrificNet.Environment.Test
 
             var task = new Mock<IBuildTask>();
             task.SetupGet(p => p.DependsOn).Returns(BuildQuery.AllFromKind(kind));
-            var id = new ProjectItemIdentifier("created", new ProjectItemKind("created"));
-            task.Setup(p => p.Proceed(It.Is<IEnumerable<ProjectItem>>(list => list.SequenceEqual(project.GetItems())))).Returns(new ProjectItemSource(id, NullProjectItemContent.Instance));
+            var id = new ProjectItemIdentifier("created", "created");
+            task.Setup(p => p.Proceed(It.Is<IEnumerable<ProjectItem>>(list => list.SequenceEqual(project.GetItems()))))
+                .Returns(new [] { new BuildTaskResult(id, NullProjectItemContent.Instance) });
 
             var builder = new Builder(project);
             builder.AddTask(task.Object);
+
+            task.Verify(p => p.Proceed(It.IsAny<IEnumerable<ProjectItem>>()), Times.Once());
 
             var result = project.GetItemById(id);
             Assert.NotNull(result);
@@ -202,13 +205,54 @@ namespace TerrificNet.Environment.Test
             Assert.Equal(3, linkedItemsList.Count);
         }
 
-        private static void AddAndCreateItem(ProjectItemKind kind, Project project, string name)
+        [Fact]
+        public void TestOneToMany()
+        {
+            var kind = "test";
+            var project = new Project();
+
+            var p1 = AddAndCreateItem(kind, project, "p1");
+            var p2 = AddAndCreateItem(kind, project, "p2");
+            var p3 = AddAndCreateItem(kind, project, "p3");
+
+            var task = new Mock<IBuildTask>();
+            task.SetupGet(p => p.DependsOn).Returns(BuildQuery.SingleFromKind(kind));
+            var id1 = new ProjectItemIdentifier("created", "created");
+            var id2 = new ProjectItemIdentifier("created2", "created");
+
+            var s1 = new BuildTaskResult(id1, NullProjectItemContent.Instance);
+            var s2 = new BuildTaskResult(id2, NullProjectItemContent.Instance);
+
+            SetupProceed(task, p1).Returns(new [] { s1, s2 });
+
+            var builder = new Builder(project);
+            builder.AddTask(task.Object);
+
+            var result = project.GetItemById(id1);
+            Assert.NotNull(result);
+
+            var linkedItems = result.GetLinkedItems();
+            Assert.NotNull(linkedItems);
+
+            var linkedItemsList = linkedItems.ToList();
+            Assert.Equal(1, linkedItemsList.Count);
+
+            var otherItem = linkedItemsList[0].ProjectItem.GetLinkedItems();
+            Assert.NotNull(otherItem);
+
+            var otherItemList = otherItem.ToList();
+            Assert.Equal(2, otherItemList.Count);
+        }
+
+        private static ProjectItem AddAndCreateItem(string kind, Project project, string name)
         {
             var projectItem = new ProjectItem(name, kind);
             project.AddItem(projectItem);
+
+            return projectItem;
         }
 
-        private static IBuildTask CreateBuildTarget(ProjectItemKind inKind, ProjectItemKind outKind)
+        private static IBuildTask CreateBuildTarget(string inKind, string outKind)
         {
             var id = new ProjectItemIdentifier("gugus", outKind);
             var target1 = new Mock<IBuildTask>();
@@ -216,7 +260,8 @@ namespace TerrificNet.Environment.Test
             target1.SetupGet(t => t.Name).Returns(targetName);
             target1.SetupGet(t => t.DependsOn).Returns(BuildQuery.SingleFromKind(inKind));
             target1.SetupGet(t => t.Options).Returns(BuildOptions.BuildOnRequest);
-            target1.Setup(t => t.Proceed(It.IsAny<IEnumerable<ProjectItem>>())).Returns(new ProjectItemSource(id, NullProjectItemContent.Instance));
+            target1.Setup(t => t.Proceed(It.IsAny<IEnumerable<ProjectItem>>()))
+                .Returns(new [] { new BuildTaskResult(id, NullProjectItemContent.Instance) });
 
             var buildTarget = target1.Object;
             return buildTarget;

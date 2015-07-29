@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace TerrificNet.Environment
 {
@@ -10,11 +9,11 @@ namespace TerrificNet.Environment
     {
         private readonly List<ProjectItemLink> _links = new List<ProjectItemLink>();
 
-        public ProjectItem(string identifier) : this(identifier, ProjectItemKind.Unknown)
+        public ProjectItem(string identifier) : this(identifier, string.Empty)
         {
         }
 
-        public ProjectItem(string identifier, ProjectItemKind kind)
+        public ProjectItem(string identifier, string kind)
         {
             if (string.IsNullOrEmpty(identifier))
                 throw new ArgumentNullException(nameof(identifier));
@@ -23,7 +22,6 @@ namespace TerrificNet.Environment
                 throw new ArgumentNullException(nameof(kind));
 
             Identifier = new ProjectItemIdentifier(identifier, kind);
-            Kind = kind;
         }
 
         public ProjectItem(ProjectItemIdentifier id)
@@ -32,10 +30,7 @@ namespace TerrificNet.Environment
                 throw new ArgumentNullException(nameof(id));
 
             Identifier = id;
-            Kind = id.Kind;
         }
-
-        public ProjectItemKind Kind { get; }
 
         public ProjectItemIdentifier Identifier { get; }
 
@@ -59,18 +54,6 @@ namespace TerrificNet.Environment
         public virtual Stream OpenRead()
         {
             throw new NotSupportedException();
-        }
-    }
-
-    public class ProjectItemLink
-    {
-        public ProjectItemLinkDescription Description { get; }
-        public ProjectItem ProjectItem { get; }
-
-        public ProjectItemLink(ProjectItemLinkDescription description, ProjectItem projectItem)
-        {
-            Description = description;
-            ProjectItem = projectItem;
         }
     }
 }

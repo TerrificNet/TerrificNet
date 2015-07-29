@@ -10,7 +10,7 @@ namespace TerrificNet.Environment.Building
     public class Builder
     {
         private readonly Project _project;
-        private readonly List<IBuildTask> _targets = new List<IBuildTask>();
+        private readonly List<IBuildTask> _tasks = new List<IBuildTask>();
         private readonly ConcurrentDictionary<int, Task> _runningTasks = new ConcurrentDictionary<int, Task>();
 
         public Builder(Project project)
@@ -23,58 +23,65 @@ namespace TerrificNet.Environment.Building
 
         public void AddTask(IBuildTask task)
         {
-            _targets.Add(task);
-            foreach (var item in _project.GetItems().ToList())
+            _tasks.Add(task);
+
+            //foreach (var item in _project.GetItems().ToList())
             {
-                PushTask(Proceed(task, item));
+                PushTask(Proceed(task, _project.GetItems().ToList()));
             }
         }
 
-        private async Task Proceed(IBuildTask task, ProjectItem item)
+        private async Task Proceed(IBuildTask task, IList<ProjectItem> items)
         {
-            if (!task.DependsOn.IsMatch(item))
+            if (!task.DependsOn.IsMatch(items))
                 return;
 
-            var projectItems = task.DependsOn.Select(_project.GetItems(), item).ToList();
-            var source = task.Proceed(projectItems);
-            if (source == null)
-                throw new InvalidOperationException("The proceed method has to return a value.");
-
-            ProjectItem existing;
-            if (_project.TryGetItemById(source.Identifier, out existing))
+            var querySets = task.DependsOn.Select(_project.GetItems(), items).ToList();
+            foreach (var querySet in querySets)
             {
-                var defferred = existing as DefferedProjectItem;
-                defferred?.SetDirty(source.Content);
+                var sources = task.Proceed(querySet.GetItems());
+                if (sources == null)
+                    throw new InvalidOperationException("The proceed method has to return a value.");
 
-                var inMemory = existing as InMemoryProjectItem;
-                inMemory?.SetContent(await CopyToStream(source));
-
-                _project.Touch(existing);
-            }
-            else
-            {
-                ProjectItem item2;
-                if (task.Options == BuildOptions.BuildInBackground)
+                foreach (var source in sources)
                 {
-                    item2 = await BuildInMemoryItem(source);
+                    ProjectItem existing;
+                    if (_project.TryGetItemById(source.Identifier, out existing))
+                    {
+                        var defferred = existing as DefferedProjectItem;
+                        defferred?.SetDirty(source.Content);
+
+                        var inMemory = existing as InMemoryProjectItem;
+                        inMemory?.SetContent(await CopyToStream(source));
+
+                        _project.Touch(existing);
+                    }
+                    else
+                    {
+                        ProjectItem item2;
+                        if (task.Options == BuildOptions.BuildInBackground)
+                        {
+                            item2 = await BuildInMemoryItem(source);
+                        }
+                        else
+                            item2 = new DefferedProjectItem(source.Identifier, source.Content);
+
+                        _project.AddItem(item2);
+
+                        foreach (var linkedItem in querySet.GetItems())
+                            _project.AddLink(linkedItem, new ProjectItemLinkDescription(task.Name), item2);
+                    }
                 }
-                else
-                    item2 = new DefferedProjectItem(source.Identifier, source.Content);
-
-                _project.AddItem(item2);
-
-                foreach (var linkedItem in projectItems)
-                    _project.AddLink(linkedItem, new ProjectItemLinkDescription(task.Name), item2);
             }
         }
 
-        private static async Task<ProjectItem> BuildInMemoryItem(ProjectItemSource source)
+        private static async Task<ProjectItem> BuildInMemoryItem(BuildTaskResult source)
         {
             var memoryStream = await CopyToStream(source);
             return new InMemoryProjectItem(source.Identifier, memoryStream);
         }
 
-        private static async Task<MemoryStream> CopyToStream(ProjectItemSource source)
+        private static async Task<MemoryStream> CopyToStream(BuildTaskResult source)
         {
             var memoryStream = new MemoryStream();
             var streamTask = source.Content.GetContent();
@@ -90,7 +97,7 @@ namespace TerrificNet.Environment.Building
 
         private void Proceed(ProjectItem item)
         {
-            var tasks = _targets.Select(target => Proceed(target, item));
+            var tasks = _tasks.Select(target => Proceed(target, new [] { item }));
             var task = Task.WhenAll(tasks);
             PushTask(task);
         }

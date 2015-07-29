@@ -1,6 +1,10 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using TerrificNet.Environment;
+using TerrificNet.Environment.Building;
 using TerrificNet.Generator;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Cache;
@@ -42,6 +46,9 @@ namespace TerrificNet.UnityModules
                 {
                     var project = Project.FromFile(new StreamReader(fileSystem.OpenRead(projectPath)).ReadToEnd(), fileSystem);
                     childContainer.RegisterInstance(project);
+
+                    var builder = new Builder(project);
+                    builder.AddTask(new AssetsCompilerTask());
                 }
 
                 childContainer.RegisterInstance(application);
@@ -52,6 +59,36 @@ namespace TerrificNet.UnityModules
             catch (ConfigurationException ex)
             {
                 throw new InvalidApplicationException(string.Format("Could not load the configuration for application '{0}'.", applicationName), ex);
+            }
+        }
+
+        private class AssetsCompilerTask : IBuildTask
+        {
+            public BuildQuery DependsOn => BuildQuery.AllFromKind("app.js");
+            public BuildOptions Options => BuildOptions.BuildOnRequest;
+            public string Name => "javascript_bundle";
+            public IEnumerable<BuildTaskResult> Proceed(IEnumerable<ProjectItem> items)
+            {
+                yield return
+                    new BuildTaskResult(
+                        new ProjectItemIdentifier("app.js", "javascript_bundle"),
+                        new BundleProjectContent(items.ToList()));
+                    ;
+            }
+
+            private class BundleProjectContent : IProjectItemContent
+            {
+                private readonly IList<ProjectItem> _items;
+
+                public BundleProjectContent(IList<ProjectItem> items)
+                {
+                    _items = items;
+                }
+
+                public Task<Stream> GetContent()
+                {
+                    return Task.FromResult<Stream>(null);
+                }
             }
         }
 

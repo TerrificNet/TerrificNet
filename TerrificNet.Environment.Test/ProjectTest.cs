@@ -50,7 +50,7 @@ namespace TerrificNet.Environment.Test
         public void TestAddedProcessor_CalledWhenNewProjectItem()
         {
             var underTest = new Project();
-            var itemKind = new ProjectItemKind("test");
+            var itemKind = "test";
             var item = new ProjectItem("p1", itemKind);
 
             var processor = new Mock<IProjectObserver>();
@@ -67,7 +67,7 @@ namespace TerrificNet.Environment.Test
         public void TestTouchProjectItem_CallsNotifiyItemChanged()
         {
             var underTest = new Project();
-            var itemKind = new ProjectItemKind("test");
+            var itemKind = "test";
             var item = new ProjectItem("p1", itemKind);
             underTest.AddItem(item);
 
@@ -85,7 +85,7 @@ namespace TerrificNet.Environment.Test
         public void TestRemoveProjectItem_CallsNotifiyItemRemoved()
         {
             var underTest = new Project();
-            var itemKind = new ProjectItemKind("test");
+            var itemKind = "test";
             var item = new ProjectItem("p1", itemKind);
             underTest.AddItem(item);
 
@@ -103,7 +103,7 @@ namespace TerrificNet.Environment.Test
         public void TestAddProjectItemWithSameIdentifier_ThrowsException()
         {
             var underTest = new Project();
-            var itemKind = new ProjectItemKind("test");
+            var itemKind = "test";
 
             var item1 = new ProjectItem("p1", itemKind);
             var item2 = new ProjectItem("p1", itemKind);
@@ -117,7 +117,7 @@ namespace TerrificNet.Environment.Test
         public void TestAddLink()
         {
             var underTest = new Project();
-            var itemKind = new ProjectItemKind("test");
+            var itemKind = "test";
 
             var item1 = new ProjectItem("p1", itemKind);
             var item2 = new ProjectItem("p2", itemKind);
@@ -136,7 +136,7 @@ namespace TerrificNet.Environment.Test
         public void TestRemoveLink()
         {
             var underTest = new Project();
-            var itemKind = new ProjectItemKind("test");
+            var itemKind = "test";
 
             var item1 = new ProjectItem("p1", itemKind);
             var item2 = new ProjectItem("p2", itemKind);

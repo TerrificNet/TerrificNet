@@ -70,7 +70,7 @@ namespace TerrificNet.Environment
 
             foreach (var entry in jObject)
             {
-                var kindObj = new ProjectItemKind(entry.Key);
+                var kindObj = entry.Key;
                 string[] list;
                 if (entry.Value is JArray)
                     list = entry.Value.ToObject<string[]>();
@@ -89,7 +89,10 @@ namespace TerrificNet.Environment
                         var items = fileSystem.GetFiles(globPattern);
                         foreach (var file in items)
                         {
-                            project.AddItem(new FileProjectItem(kindObj, file, fileSystem));
+                            var fileItem = new FileProjectItem(kindObj, file, fileSystem);
+                            ProjectItem existing;
+                            if (!project.TryGetItemById(fileItem.Identifier, out existing))
+                                project.AddItem(fileItem);
                         }
 
                         // TODO: Handle disposable
@@ -114,7 +117,7 @@ namespace TerrificNet.Environment
             return project;
         }
 
-        private static void HandleChange(FileChangeEventArgs a, Project project, ProjectItemKind kindObj, IFileSystem fileSystem)
+        private static void HandleChange(FileChangeEventArgs a, Project project, string kindObj, IFileSystem fileSystem)
         {
             if (a.ChangeType == FileChangeType.Created)
                 project.AddItem(new FileProjectItem(kindObj, a.FileInfo, fileSystem));

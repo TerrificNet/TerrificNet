@@ -1,5 +1,4 @@
 using System.IO;
-using System.Threading.Tasks;
 using TerrificNet.ViewEngine.IO;
 
 namespace TerrificNet.Environment
@@ -9,7 +8,7 @@ namespace TerrificNet.Environment
         private readonly IFileSystem _fileSystem;
         public IFileInfo FileInfo { get; }
 
-        public FileProjectItem(ProjectItemKind kind, IFileInfo fileInfo, IFileSystem fileSystem) 
+        public FileProjectItem(string kind, IFileInfo fileInfo, IFileSystem fileSystem) 
             : base(fileInfo.FilePath.ToString(), kind)
         {
             _fileSystem = fileSystem;

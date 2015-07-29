@@ -6,14 +6,14 @@ namespace TerrificNet.Environment.Building
 {
     public abstract class BuildQuery
     {
-        public static BuildQuery AllFromKind(ProjectItemKind kind)
+        public static BuildQuery AllFromKind(string kind)
         {
-            return new BuildQueryPredicate(i => i.Kind == kind, false);
+            return new BuildQueryPredicate(i => i.Identifier.Kind == kind, false);
         }
 
-        public static BuildQuery SingleFromKind(ProjectItemKind kind)
+        public static BuildQuery SingleFromKind(string kind)
         {
-            return new BuildQueryPredicate(i => i.Kind == kind, true);
+            return new BuildQueryPredicate(i => i.Identifier.Kind == kind, true);
         }
 
         private class BuildQueryPredicate : BuildQuery
@@ -32,22 +32,41 @@ namespace TerrificNet.Environment.Building
                 return _predicate(item);
             }
 
-            public override IEnumerable<ProjectItem> Select(IEnumerable<ProjectItem> getItems, ProjectItem changedItem)
+            public override bool IsMatch(IEnumerable<ProjectItem> items)
+            {
+                return items.Any(_predicate);
+            }
+
+            public override IEnumerable<BuildQuerySet> Select(IEnumerable<ProjectItem> getItems, IEnumerable<ProjectItem> changedItems)
             {
                 if (_changedOnly)
                 {
-                    if (IsMatch(changedItem))
-                        return new[] {changedItem};
-
-                    return Enumerable.Empty<ProjectItem>();
+                    return changedItems.Where(IsMatch).Select(s => new BuildQuerySet(new [] { s }));
                 }
 
-                return getItems.Where(_predicate);
+                return new [] { new BuildQuerySet(getItems.Where(IsMatch).ToList()) };
             }
         }
 
         public abstract bool IsMatch(ProjectItem item);
 
-        public abstract IEnumerable<ProjectItem> Select(IEnumerable<ProjectItem> getItems, ProjectItem changedItem);
+        public abstract bool IsMatch(IEnumerable<ProjectItem> items);
+
+        public abstract IEnumerable<BuildQuerySet> Select(IEnumerable<ProjectItem> getItems, IEnumerable<ProjectItem> changedItems);
+    }
+
+    public class BuildQuerySet
+    {
+        private readonly IList<ProjectItem> _items;
+
+        public BuildQuerySet(IList<ProjectItem> items)
+        {
+            _items = items;
+        }
+
+        public IEnumerable<ProjectItem> GetItems()
+        {
+            return _items;
+        }
     }
 }

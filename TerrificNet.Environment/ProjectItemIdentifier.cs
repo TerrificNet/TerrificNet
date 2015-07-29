@@ -17,14 +17,14 @@ namespace TerrificNet.Environment
             }
         }
 
-        public ProjectItemIdentifier(string identifier, ProjectItemKind kind)
+        public ProjectItemIdentifier(string identifier, string kind)
         {
             Identifier = identifier;
             Kind = kind;
         }
 
         public string Identifier { get; }
-        public ProjectItemKind Kind { get; }
+        public string Kind { get; }
 
         public override bool Equals(object obj)
         {

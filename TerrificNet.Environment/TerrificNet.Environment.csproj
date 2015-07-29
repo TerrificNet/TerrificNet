@@ -52,14 +52,14 @@
     <Compile Include="Building\IProjectItemContent.cs" />
     <Compile Include="Building\NullProjectItemContent.cs" />
     <Compile Include="Building\ProjectItemContentFromAction.cs" />
-    <Compile Include="Building\ProjectItemSource.cs" />
+    <Compile Include="Building\BuildTaskResult.cs" />
     <Compile Include="FileProjectItem.cs" />
     <Compile Include="InvalidProjectFileException.cs" />
     <Compile Include="IProjectObserver.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectItem.cs" />
     <Compile Include="ProjectItemIdentifier.cs" />
-    <Compile Include="ProjectItemKind.cs" />
+    <Compile Include="ProjectItemLink.cs" />
     <Compile Include="ProjectItemLinkDescription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
