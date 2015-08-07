@@ -198,6 +198,9 @@ namespace TerrificNet.ViewEngine.IO
 
         public static PathInfo GetSubPath(PathInfo basePath, string fullPath)
         {
+            if (basePath == null)
+                return Create(fullPath);
+
             return new PathInfo(EnumerateReverse(fullPath, basePath.GetParts().Length));
         }
     }
