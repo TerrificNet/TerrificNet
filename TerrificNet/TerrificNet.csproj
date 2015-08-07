@@ -121,6 +121,8 @@
     <Compile Include="Controllers\ClientTemplateController.cs" />
     <Compile Include="Controllers\DataEditController.cs" />
     <Compile Include="Controllers\DefaultLayout.cs" />
+    <Compile Include="Controllers\ProjectController.cs" />
+    <Compile Include="Controllers\ProjectItemController.cs" />
     <Compile Include="Models\ErrorHandling\ErrorRange.cs" />
     <Compile Include="Models\ErrorHandling\ErrorViewModel.cs" />
     <Compile Include="Controllers\HomeController.cs" />

@@ -48,6 +48,7 @@
     <Compile Include="Building\Builder.cs" />
     <Compile Include="Building\BuildOptions.cs" />
     <Compile Include="Building\BuildQuery.cs" />
+    <Compile Include="Building\BuildQuerySet.cs" />
     <Compile Include="Building\IBuildTask.cs" />
     <Compile Include="Building\IProjectItemContent.cs" />
     <Compile Include="Building\NullProjectItemContent.cs" />

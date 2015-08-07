@@ -48,7 +48,10 @@ namespace TerrificNet.UnityModules
                     childContainer.RegisterInstance(project);
 
                     var builder = new Builder(project);
-                    builder.AddTask(new AssetsCompilerTask());
+                    var pId = new ProjectItemIdentifier("app.js", "javascript_bundle");
+
+                    builder.AddTask(new BundleTask("app.js", pId));
+                    //builder.AddTask(new CompileJavascriptTask(pId, "app.min.js"));
                 }
 
                 childContainer.RegisterInstance(application);
@@ -58,22 +61,30 @@ namespace TerrificNet.UnityModules
             }
             catch (ConfigurationException ex)
             {
-                throw new InvalidApplicationException(string.Format("Could not load the configuration for application '{0}'.", applicationName), ex);
+                throw new InvalidApplicationException(
+                    $"Could not load the configuration for application '{applicationName}'.", ex);
             }
         }
 
-        private class AssetsCompilerTask : IBuildTask
+        private class BundleTask : IBuildTask
         {
-            public BuildQuery DependsOn => BuildQuery.AllFromKind("app.js");
+            private readonly ProjectItemIdentifier _outputItemId;
+
+            public BundleTask(string projectItemKind, ProjectItemIdentifier outputItemId)
+            {
+                this.DependsOn = BuildQuery.AllFromKind(projectItemKind);
+                _outputItemId = outputItemId;
+            }
+
+            public BuildQuery DependsOn { get; }
             public BuildOptions Options => BuildOptions.BuildOnRequest;
-            public string Name => "javascript_bundle";
+            public string Name => _outputItemId.Kind;
             public IEnumerable<BuildTaskResult> Proceed(IEnumerable<ProjectItem> items)
             {
                 yield return
                     new BuildTaskResult(
-                        new ProjectItemIdentifier("app.js", "javascript_bundle"),
+                        _outputItemId,
                         new BundleProjectContent(items.ToList()));
-                    ;
             }
 
             private class BundleProjectContent : IProjectItemContent
@@ -85,9 +96,20 @@ namespace TerrificNet.UnityModules
                     _items = items;
                 }
 
-                public Task<Stream> GetContent()
+                public async Task<Stream> GetContent()
                 {
-                    return Task.FromResult<Stream>(null);
+                    var memoryStream = new MemoryStream();
+                    var sb = new StreamWriter(memoryStream);
+                    foreach (var item in _items)
+                    {
+                        using (var reader = new StreamReader(item.OpenRead()))
+                        {
+                            sb.Write(await reader.ReadToEndAsync());
+                        }
+                    }
+
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    return memoryStream;
                 }
             }
         }
@@ -146,6 +168,22 @@ namespace TerrificNet.UnityModules
             {
                 return _container.Resolve<ISchemaProvider>();
             }
+        }
+    }
+
+    public class CompileJavascriptTask : IBuildTask
+    {
+        public CompileJavascriptTask(ProjectItemIdentifier inputItem, string output)
+        {
+            this.DependsOn = BuildQuery.Exact(inputItem);
+        }
+
+        public BuildQuery DependsOn { get; }
+        public BuildOptions Options => BuildOptions.BuildOnRequest;
+        public string Name => "compiled_js";
+        public IEnumerable<BuildTaskResult> Proceed(IEnumerable<ProjectItem> items)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

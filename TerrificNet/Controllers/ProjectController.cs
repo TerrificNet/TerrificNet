@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Http;
+using TerrificNet.Environment;
+using TerrificNet.UnityModules;
+
+namespace TerrificNet.Controllers
+{
+    public class ProjectController : AdministrationTemplateControllerBase
+    {
+        public ProjectController(TerrificNetApplication[] applications) : base(applications)
+        {
+        }
+
+        [HttpGet]
+        public IEnumerable<ProjectItemDto> Index(string app)
+        {
+            var project = this.ResolveForApp<Project>(string.Empty);
+            return project.GetItems().Select(s => new ProjectItemDto { Identifier = s.Identifier.Identifier, Kind = s.Identifier.Kind, Url = $"web/project/{app}/{s.Identifier.Kind}/{s.Identifier.Identifier}" });
+        }
+
+        public class ProjectItemDto
+        {
+            public string Identifier { get; set; }
+            public string Kind { get; set; }
+            public string Url { get; set; }
+        }
+    }
+}

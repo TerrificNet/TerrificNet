@@ -53,20 +53,10 @@ namespace TerrificNet.Environment.Building
         public abstract bool IsMatch(IEnumerable<ProjectItem> items);
 
         public abstract IEnumerable<BuildQuerySet> Select(IEnumerable<ProjectItem> getItems, IEnumerable<ProjectItem> changedItems);
-    }
 
-    public class BuildQuerySet
-    {
-        private readonly IList<ProjectItem> _items;
-
-        public BuildQuerySet(IList<ProjectItem> items)
+        public static BuildQuery Exact(ProjectItemIdentifier inputItem)
         {
-            _items = items;
-        }
-
-        public IEnumerable<ProjectItem> GetItems()
-        {
-            return _items;
+            return new BuildQueryPredicate(p => p.Identifier.Equals(inputItem), true);
         }
     }
 }
