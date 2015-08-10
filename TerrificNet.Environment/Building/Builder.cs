@@ -162,7 +162,12 @@ namespace TerrificNet.Environment.Building
             }
 
             _contentStream.Seek(0, SeekOrigin.Begin);
-            return _contentStream;
+
+            var copyStream = new MemoryStream(_contentStream.Capacity);
+            _contentStream.CopyTo(copyStream);
+            copyStream.Seek(0, SeekOrigin.Begin);
+
+            return copyStream;
         }
 
         public void SetDirty(IProjectItemContent content)
@@ -186,7 +191,12 @@ namespace TerrificNet.Environment.Building
         public override Stream OpenRead()
         {
             _content.Seek(0, SeekOrigin.Begin);
-            return _content;
+
+            var copyStream = new MemoryStream(_content.Capacity);
+            _content.CopyTo(copyStream);
+            copyStream.Seek(0, SeekOrigin.Begin);
+
+            return copyStream;
         }
 
         public void SetContent(MemoryStream memoryStream)

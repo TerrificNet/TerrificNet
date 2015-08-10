@@ -87,13 +87,11 @@ namespace TerrificNet.Environment.Test
             Assert.Equal(id, generatedItem.Identifier);
 
             var stream = generatedItem.OpenRead();
-            Assert.NotNull(stream);
+            //Second Stream
+            var stream2 = generatedItem.OpenRead();
 
-            using (var reader = new StreamReader(stream))
-            {
-                var content = reader.ReadToEnd();
-                Assert.Equal(contentString, content);
-            }
+            AssertStream(stream, contentString);
+            AssertStream(stream2, contentString);
 
             var links = projectItem.GetLinkedItems();
             Assert.NotNull(links);
@@ -103,6 +101,17 @@ namespace TerrificNet.Environment.Test
 
             Assert.Equal(generatedItem, linkList[0].ProjectItem);
             Assert.Equal(targetName, linkList[0].Description.Name);
+        }
+
+        private static void AssertStream(Stream stream, string contentString)
+        {
+            Assert.NotNull(stream);
+
+            using (var reader = new StreamReader(stream))
+            {
+                var content = reader.ReadToEnd();
+                Assert.Equal(contentString, content);
+            }
         }
 
         [Fact]
