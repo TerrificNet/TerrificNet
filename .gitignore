@@ -160,3 +160,4 @@ $RECYCLE.BIN/
 #NuGet
 packages
 !packages/repositories.config
+/.vs/config
