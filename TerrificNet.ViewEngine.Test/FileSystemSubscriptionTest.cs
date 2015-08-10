@@ -9,6 +9,7 @@ using Xunit;
 namespace TerrificNet.ViewEngine.Test
 {
 	
+    [Collection("File System")]
 	public class FileSystemSubscriptionTest
 	{
 		protected PathInfo TestFileName;

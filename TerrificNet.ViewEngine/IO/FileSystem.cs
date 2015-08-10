@@ -284,9 +284,6 @@ namespace TerrificNet.ViewEngine.IO
 			public static FileInfo Create(PathInfo filePath)
 			{
 				var fileInfo = new System.IO.FileInfo(filePath.ToString());
-				if (!fileInfo.Exists)
-					return null;
-
 				return new FileInfo(filePath, fileInfo);
 			}
 		}

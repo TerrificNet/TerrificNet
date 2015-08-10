@@ -167,7 +167,6 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="project.json" />
     <None Include="server.json" />
     <None Include="Web\assets\pageEditor.less" />
     <None Include="Web\components\modules\ApplicationOverview\ApplicationOverview.html" />

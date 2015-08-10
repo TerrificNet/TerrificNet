@@ -4,7 +4,7 @@ using Xunit;
 
 namespace TerrificNet.ViewEngine.Test
 {
-    
+    [Collection("File System")]
     public class FileSystemProviderTest
     {
         [Fact]
