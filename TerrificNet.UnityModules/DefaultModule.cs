@@ -51,7 +51,7 @@ namespace TerrificNet.UnityModules
                     var pId = new ProjectItemIdentifier("app.js", "javascript_bundle");
 
                     builder.AddTask(new BundleTask("app.js", pId));
-                    //builder.AddTask(new CompileJavascriptTask(pId, "app.min.js"));
+                    builder.AddTask(new CompileJavascriptTask(pId, "app.min.js"));
                 }
 
                 childContainer.RegisterInstance(application);
@@ -173,8 +173,11 @@ namespace TerrificNet.UnityModules
 
     public class CompileJavascriptTask : IBuildTask
     {
+        private readonly string _output;
+
         public CompileJavascriptTask(ProjectItemIdentifier inputItem, string output)
         {
+            _output = output;
             this.DependsOn = BuildQuery.Exact(inputItem);
         }
 
@@ -183,7 +186,16 @@ namespace TerrificNet.UnityModules
         public string Name => "compiled_js";
         public IEnumerable<BuildTaskResult> Proceed(IEnumerable<ProjectItem> items)
         {
-            throw new System.NotImplementedException();
+            return
+                items.Select(
+                    s =>
+                        new BuildTaskResult(new ProjectItemIdentifier(_output, "compiled_js"),
+                            new ProjectItemContentFromAction(() => Do(s))));
+        }
+
+        private Task<Stream> Do(ProjectItem projectItem)
+        {
+            return Task.FromResult(projectItem.OpenRead());
         }
     }
 }

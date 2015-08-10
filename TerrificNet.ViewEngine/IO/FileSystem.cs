@@ -104,9 +104,11 @@ namespace TerrificNet.ViewEngine.IO
 
         private void NotifySubscriptions(FileChangeEventArgs args)
 		{
-			foreach (var subscription in _directorySubscriptions.ToList())
+            var filePath = PathInfo.GetSubPath(_basePath, args.FileInfo.FilePath.ToString());
+
+            foreach (var subscription in _directorySubscriptions.ToList())
 			{
-				if (!subscription.IsMatch(args.FileInfo.FilePath))
+			    if (!subscription.IsMatch(filePath))
 					continue;
 
 				subscription.Notify(args);

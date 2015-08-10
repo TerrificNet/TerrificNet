@@ -253,6 +253,65 @@ namespace TerrificNet.Environment.Test
             Assert.Equal(2, otherItemList.Count);
         }
 
+        [Fact]
+        public void Test_OneToMany_RemoveItemRemovesGeneratedItems()
+        {
+            var kind = "test";
+            var project = new Project();
+
+            var p1 = AddAndCreateItem(kind, project, "p1");
+
+            var task = new Mock<IBuildTask>();
+            task.SetupGet(p => p.DependsOn).Returns(BuildQuery.SingleFromKind(kind));
+
+            var id1 = new ProjectItemIdentifier("created", "created");
+            var id2 = new ProjectItemIdentifier("created2", "created");
+
+            var s1 = new BuildTaskResult(id1, NullProjectItemContent.Instance);
+            var s2 = new BuildTaskResult(id2, NullProjectItemContent.Instance);
+
+            SetupProceed(task, p1).Returns(new[] { s1, s2 });
+
+            var builder = new Builder(project);
+            builder.AddTask(task.Object);
+
+            project.RemoveItem(p1);
+
+            var result = project.GetItems();
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void Test_Many_RemoveItemTouchesGeneratedItems()
+        {
+            var kind = "test";
+            var project = new Project();
+
+            var p1 = AddAndCreateItem(kind, project, "p1");
+            var p2 = AddAndCreateItem(kind, project, "p2");
+
+            var task = new Mock<IBuildTask>();
+            task.SetupGet(p => p.DependsOn).Returns(BuildQuery.AllFromKind(kind));
+
+            var id1 = new ProjectItemIdentifier("created", "created");
+
+            var s1 = new BuildTaskResult(id1, NullProjectItemContent.Instance);
+
+            task.Setup(p => p.Proceed(It.Is<IEnumerable<ProjectItem>>(list => list.SequenceEqual(new [] {p1, p2}))))
+                .Returns(new [] { s1 });
+
+            task.Setup(p => p.Proceed(It.Is<IEnumerable<ProjectItem>>(list => list.SequenceEqual(new [] { p2 }))))
+                .Returns(new[] { s1 });
+
+            var builder = new Builder(project);
+            builder.AddTask(task.Object);
+
+            project.RemoveItem(p1);
+
+            task.VerifyAll();
+        }
+
         private static ProjectItem AddAndCreateItem(string kind, Project project, string name)
         {
             var projectItem = new ProjectItem(name, kind);

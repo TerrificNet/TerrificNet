@@ -69,7 +69,7 @@ namespace TerrificNet.Environment.Building
                         _project.AddItem(item2);
 
                         foreach (var linkedItem in querySet.GetItems())
-                            _project.AddLink(linkedItem, new ProjectItemLinkDescription(task.Name), item2);
+                            _project.AddLink(linkedItem, new ProjectItemLinkDescriptionFromBuilder(task.Name, this, linkedItem), item2);
                     }
                 }
             }
@@ -112,6 +112,18 @@ namespace TerrificNet.Environment.Building
             _runningTasks.AddOrUpdate(task.Id, task, (o, n) => n);
         }
 
+        private class ProjectItemLinkDescriptionFromBuilder : ProjectItemLinkDescription
+        {
+            public Builder Builder { get; }
+            public ProjectItem ParentItem { get; set; }
+
+            public ProjectItemLinkDescriptionFromBuilder(string name, Builder builder, ProjectItem parentItem) : base(name)
+            {
+                Builder = builder;
+                ParentItem = parentItem;
+            }
+        }
+
         private class BuildObserver : IProjectObserver
         {
             private readonly Builder _builder;
@@ -133,6 +145,22 @@ namespace TerrificNet.Environment.Building
 
             public void NotifyItemRemoved(Project underTest, ProjectItem item)
             {
+                _builder.ProceedRemove(item);
+            }
+        }
+
+        private void ProceedRemove(ProjectItem item)
+        {
+            foreach (var linkedItemDescription in item.GetLinkedItems())
+            {
+                var builderDesc = linkedItemDescription.Description as ProjectItemLinkDescriptionFromBuilder;
+                if (builderDesc != null && builderDesc.Builder == this && builderDesc.ParentItem == item)
+                {
+                    if (linkedItemDescription.ProjectItem.GetLinkedItems().Count() == 1)
+                        _project.RemoveItem(linkedItemDescription.ProjectItem);
+                    else
+                        _project.Touch(item);
+                }
             }
         }
     }

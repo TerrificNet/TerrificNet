@@ -13,7 +13,7 @@ namespace TerrificNet.Environment.Building
 
         public Task<Stream> GetContent()
         {
-            return null;
+            return Task.FromResult<Stream>(null);
         }
     }
 }

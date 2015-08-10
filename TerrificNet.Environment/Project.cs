@@ -27,7 +27,8 @@ namespace TerrificNet.Environment
 
         public void RemoveItem(ProjectItem projectItem)
         {
-            _items.Remove(projectItem.Identifier);
+            if (!_items.Remove(projectItem.Identifier))
+                return;
 
             foreach (var processor in _observers)
             {
@@ -120,7 +121,11 @@ namespace TerrificNet.Environment
         private static void HandleChange(FileChangeEventArgs a, Project project, string kindObj, IFileSystem fileSystem)
         {
             if (a.ChangeType == FileChangeType.Created)
-                project.AddItem(new FileProjectItem(kindObj, a.FileInfo, fileSystem));
+            {
+                var item = new FileProjectItem(kindObj, a.FileInfo, fileSystem);
+                if (!project.Contains(item.Identifier))
+                    project.AddItem(item);
+            }
             else
             {
                 var changedItem = project.GetItems()
@@ -135,6 +140,11 @@ namespace TerrificNet.Environment
                         project.RemoveItem(changedItem);
                 }
             }
+        }
+
+        private bool Contains(ProjectItemIdentifier identifier)
+        {
+            return _items.ContainsKey(identifier);
         }
 
         public void AddLink(ProjectItem item1, ProjectItemLinkDescription linkDescription, ProjectItem item2)
