@@ -7,7 +7,6 @@ using System.Web.Http;
 using TerrificNet.Models;
 using TerrificNet.UnityModules;
 using TerrificNet.ViewEngine;
-using TerrificNet.ViewEngine.TemplateHandler;
 using TerrificNet.ViewEngine.TemplateHandler.UI;
 
 namespace TerrificNet.Controllers

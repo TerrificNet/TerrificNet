@@ -115,7 +115,7 @@ namespace TerrificNet.Environment.Building
         private class ProjectItemLinkDescriptionFromBuilder : ProjectItemLinkDescription
         {
             public Builder Builder { get; }
-            public ProjectItem ParentItem { get; set; }
+            public ProjectItem ParentItem { get; }
 
             public ProjectItemLinkDescriptionFromBuilder(string name, Builder builder, ProjectItem parentItem) : base(name)
             {

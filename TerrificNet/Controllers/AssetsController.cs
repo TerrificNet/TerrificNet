@@ -8,12 +8,10 @@ namespace TerrificNet.Controllers
 {
     public class AssetsController : StaticFileController
     {
-        private readonly PathInfo _filePath;
-
         public AssetsController(ITerrificNetConfig config, IFileSystem fileSystem, ServerConfiguration serverConfiguration) 
 			: base(fileSystem, serverConfiguration)
         {
-            _filePath = config.AssetPath;
+            FilePath = config.AssetPath;
         }
 
         [HttpGet]
@@ -22,9 +20,6 @@ namespace TerrificNet.Controllers
             return GetInternal(path);
         }
 
-        protected override PathInfo FilePath
-        {
-            get { return _filePath; }
-        }
+        protected override PathInfo FilePath { get; }
     }
 }

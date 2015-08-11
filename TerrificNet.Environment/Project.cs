@@ -7,10 +7,11 @@ using TerrificNet.ViewEngine.IO;
 
 namespace TerrificNet.Environment
 {
-    public class Project
+    public class Project : IDisposable
     {
         private readonly Dictionary<ProjectItemIdentifier, ProjectItem> _items = new Dictionary<ProjectItemIdentifier, ProjectItem>();
         private readonly List<IProjectObserver> _observers = new List<IProjectObserver>();
+        private readonly List<IDisposable> _subscriptions = new List<IDisposable>();
 
         public void AddItem(ProjectItem projectItem)
         {
@@ -96,21 +97,19 @@ namespace TerrificNet.Environment
                                 project.AddItem(fileItem);
                         }
 
-                        // TODO: Handle disposable
-                        fileSystem.Subscribe(globPattern, a =>
+                        project.AddSubscription(fileSystem.Subscribe(globPattern, a =>
                         {
                             HandleChange(a, project, kindObj, fileSystem);
-                        });
+                        }));
                     }
                     else
                     {
                         project.AddItem(new FileProjectItem(kindObj, info, fileSystem));
 
-                        // TODO: Handle disposable
-                        fileSystem.Subscribe(GlobPattern.Exact(item), a =>
+                        project.AddSubscription(fileSystem.Subscribe(GlobPattern.Exact(item), a =>
                         {
                             HandleChange(a, project, kindObj, fileSystem);
-                        });
+                        }));
                     }
                 }
             }
@@ -157,6 +156,31 @@ namespace TerrificNet.Environment
         {
             item1.RemoveLinkedItem(link, item2);
             item2.RemoveLinkedItem(link, item1);
+        }
+
+        private void AddSubscription(IDisposable disposable)
+        {
+            _subscriptions.Add(disposable);
+        }
+
+        ~Project()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                foreach (var disposable in _subscriptions)
+                    disposable.Dispose();
+            }
         }
     }
 }
