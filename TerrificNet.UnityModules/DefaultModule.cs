@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Microsoft.Practices.Unity;
+using TerrificNet.AssetCompiler;
 using TerrificNet.Environment;
 using TerrificNet.Environment.Building;
 using TerrificNet.Generator;
@@ -66,54 +64,6 @@ namespace TerrificNet.UnityModules
             }
         }
 
-        private class BundleTask : IBuildTask
-        {
-            private readonly ProjectItemIdentifier _outputItemId;
-
-            public BundleTask(string projectItemKind, ProjectItemIdentifier outputItemId)
-            {
-                this.DependsOn = BuildQuery.AllFromKind(projectItemKind);
-                _outputItemId = outputItemId;
-            }
-
-            public BuildQuery DependsOn { get; }
-            public BuildOptions Options => BuildOptions.BuildOnRequest;
-            public string Name => _outputItemId.Kind;
-            public IEnumerable<BuildTaskResult> Proceed(IEnumerable<ProjectItem> items)
-            {
-                yield return
-                    new BuildTaskResult(
-                        _outputItemId,
-                        new BundleProjectContent(items.ToList()));
-            }
-
-            private class BundleProjectContent : IProjectItemContent
-            {
-                private readonly IList<ProjectItem> _items;
-
-                public BundleProjectContent(IList<ProjectItem> items)
-                {
-                    _items = items;
-                }
-
-                public async Task<Stream> GetContent()
-                {
-                    var memoryStream = new MemoryStream();
-                    var sb = new StreamWriter(memoryStream);
-                    foreach (var item in _items)
-                    {
-                        using (var reader = new StreamReader(item.OpenRead()))
-                        {
-                            sb.Write(await reader.ReadToEndAsync());
-                        }
-                    }
-
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-                    return memoryStream;
-                }
-            }
-        }
-
         public static void RegisterForConfiguration(IUnityContainer container, ITerrificNetConfig item)
         {
             container.RegisterInstance(item);
@@ -168,34 +118,6 @@ namespace TerrificNet.UnityModules
             {
                 return _container.Resolve<ISchemaProvider>();
             }
-        }
-    }
-
-    public class CompileJavascriptTask : IBuildTask
-    {
-        private readonly string _output;
-
-        public CompileJavascriptTask(ProjectItemIdentifier inputItem, string output)
-        {
-            _output = output;
-            this.DependsOn = BuildQuery.Exact(inputItem);
-        }
-
-        public BuildQuery DependsOn { get; }
-        public BuildOptions Options => BuildOptions.BuildOnRequest;
-        public string Name => "compiled_js";
-        public IEnumerable<BuildTaskResult> Proceed(IEnumerable<ProjectItem> items)
-        {
-            return
-                items.Select(
-                    s =>
-                        new BuildTaskResult(new ProjectItemIdentifier(_output, "compiled_js"),
-                            new ProjectItemContentFromAction(() => Do(s))));
-        }
-
-        private Task<Stream> Do(ProjectItem projectItem)
-        {
-            return Task.FromResult(projectItem.OpenRead());
         }
     }
 }

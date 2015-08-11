@@ -79,6 +79,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BundleTask.cs" />
+    <Compile Include="CompileJavascriptTask.cs" />
     <Compile Include="Compiler\AssetCompilerFactory.cs" />
     <Compile Include="Compiler\CachedAssetCompiler.cs" />
     <Compile Include="Compiler\CachedAssetCompilerFactory.cs" />
@@ -104,6 +106,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TerrificNet.Environment\TerrificNet.Environment.csproj">
+      <Project>{F753217E-8756-45F0-8063-1793FB9527DD}</Project>
+      <Name>TerrificNet.Environment</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TerrificNet.ViewEngine\TerrificNet.ViewEngine.csproj">
       <Project>{a2395b2d-f69e-420f-9534-e640dfe86138}</Project>
       <Name>TerrificNet.ViewEngine</Name>
