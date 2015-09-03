@@ -52,7 +52,7 @@ namespace TerrificNet.Environment.Building
                         defferred?.SetDirty(source.Content);
 
                         var inMemory = existing as InMemoryProjectItem;
-                        inMemory?.SetContent(await CopyToStream(source));
+                        inMemory?.SetContent((await CopyToStream(source)).GetBuffer());
 
                         _project.Touch(existing);
                     }
@@ -78,13 +78,13 @@ namespace TerrificNet.Environment.Building
         private static async Task<ProjectItem> BuildInMemoryItem(BuildTaskResult source)
         {
             var memoryStream = await CopyToStream(source);
-            return new InMemoryProjectItem(source.Identifier, memoryStream);
+            return new InMemoryProjectItem(source.Identifier, memoryStream.ToArray());
         }
 
         private static async Task<MemoryStream> CopyToStream(BuildTaskResult source)
         {
             var memoryStream = new MemoryStream();
-            var streamTask = source.Content.GetContent();
+            var streamTask = source.Content.ReadAsync();
             if (streamTask != null)
             {
                 using (var stream = await streamTask.ConfigureAwait(false))
@@ -162,74 +162,6 @@ namespace TerrificNet.Environment.Building
                         _project.Touch(item);
                 }
             }
-        }
-    }
-
-    internal class DefferedProjectItem : ProjectItem
-    {
-        private IProjectItemContent _content;
-        private MemoryStream _contentStream;
-
-        public DefferedProjectItem(ProjectItemIdentifier identifier, IProjectItemContent content) : base(identifier)
-        {
-            _content = content;
-        }
-
-        public override Stream OpenRead()
-        {
-            if (_contentStream == null)
-            {
-                // TODO: Verify async
-                using (var stream = _content.GetContent().Result)
-                {
-                    _contentStream = new MemoryStream();
-                    stream.CopyTo(_contentStream);
-                }
-
-                _content = null;
-            }
-
-            _contentStream.Seek(0, SeekOrigin.Begin);
-
-            var copyStream = new MemoryStream(_contentStream.Capacity);
-            _contentStream.CopyTo(copyStream);
-            copyStream.Seek(0, SeekOrigin.Begin);
-
-            return copyStream;
-        }
-
-        public void SetDirty(IProjectItemContent content)
-        {
-            _content = content;
-
-            _contentStream?.Dispose();
-            _contentStream = null;
-        }
-    }
-
-    internal class InMemoryProjectItem : ProjectItem
-    {
-        private MemoryStream _content;
-
-        public InMemoryProjectItem(ProjectItemIdentifier identifier, MemoryStream content) : base(identifier)
-        {
-            _content = content;
-        }
-
-        public override Stream OpenRead()
-        {
-            _content.Seek(0, SeekOrigin.Begin);
-
-            var copyStream = new MemoryStream(_content.Capacity);
-            _content.CopyTo(copyStream);
-            copyStream.Seek(0, SeekOrigin.Begin);
-
-            return copyStream;
-        }
-
-        public void SetContent(MemoryStream memoryStream)
-        {
-            _content = memoryStream;
         }
     }
 }

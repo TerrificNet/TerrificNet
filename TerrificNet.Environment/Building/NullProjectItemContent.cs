@@ -11,7 +11,7 @@ namespace TerrificNet.Environment.Building
         {
         }
 
-        public Task<Stream> GetContent()
+        public Task<Stream> ReadAsync()
         {
             return Task.FromResult<Stream>(null);
         }

@@ -13,7 +13,7 @@ namespace TerrificNet.Environment.Building
             _proceedingAction = proceedingAction;
         }
 
-        public Task<Stream> GetContent()
+        public Task<Stream> ReadAsync()
         {
             return _proceedingAction();
         }

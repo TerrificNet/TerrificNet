@@ -125,7 +125,7 @@ namespace TerrificNet.Environment.Test
             var id = new ProjectItemIdentifier("gugus", "created");
 
             var content = new Mock<IProjectItemContent>();
-            content.Setup(s => s.GetContent()).Returns(GenerateStreamFromString("test"));
+            content.Setup(s => s.ReadAsync()).Returns(GenerateStreamFromString("test"));
 
             var target = new Mock<IBuildTask>();
             const string targetName = "test";
@@ -140,17 +140,17 @@ namespace TerrificNet.Environment.Test
             project.AddItem(new ProjectItem("p2"));
             project.AddItem(projectItem);
 
-            content.Verify(t => t.GetContent(), Times.Never());
+            content.Verify(t => t.ReadAsync(), Times.Never());
 
             var generatedItem = project.GetItemById(id);
             Assert.NotNull(generatedItem);
             Assert.Equal(id, generatedItem.Identifier);
 
             generatedItem.OpenRead();
-            content.Verify(t => t.GetContent(), Times.Once());
+            content.Verify(t => t.ReadAsync(), Times.Once());
 
             generatedItem.OpenRead();
-            content.Verify(t => t.GetContent(), Times.Once());
+            content.Verify(t => t.ReadAsync(), Times.Once());
         }
 
         [Fact]

@@ -49,7 +49,9 @@
     <Compile Include="Building\BuildOptions.cs" />
     <Compile Include="Building\BuildQuery.cs" />
     <Compile Include="Building\BuildQuerySet.cs" />
+    <Compile Include="Building\DefferedProjectItem.cs" />
     <Compile Include="Building\IBuildTask.cs" />
+    <Compile Include="Building\InMemoryProjectItem.cs" />
     <Compile Include="Building\IProjectItemContent.cs" />
     <Compile Include="Building\NullProjectItemContent.cs" />
     <Compile Include="Building\ProjectItemContentFromAction.cs" />

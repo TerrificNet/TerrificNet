@@ -37,7 +37,7 @@ namespace TerrificNet.AssetCompiler
                 _items = items;
             }
 
-            public async Task<Stream> GetContent()
+            public async Task<Stream> ReadAsync()
             {
                 var memoryStream = new MemoryStream();
                 var sb = new StreamWriter(memoryStream);

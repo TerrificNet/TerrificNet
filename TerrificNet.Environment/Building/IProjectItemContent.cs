@@ -5,6 +5,6 @@ namespace TerrificNet.Environment.Building
 {
     public interface IProjectItemContent
     {
-        Task<Stream> GetContent();
+        Task<Stream> ReadAsync();
     }
 }

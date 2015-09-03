@@ -104,17 +104,20 @@ namespace TerrificNet.Environment
                     }
                     else
                     {
-                        project.AddItem(new FileProjectItem(kindObj, info, fileSystem));
-
-                        project.AddSubscription(fileSystem.Subscribe(GlobPattern.Exact(item), a =>
-                        {
-                            HandleChange(a, project, kindObj, fileSystem);
-                        }));
+                        AddFile(fileSystem, project, kindObj, info, item);
                     }
                 }
             }
 
             return project;
+        }
+
+        private static void AddFile(IFileSystem fileSystem, Project project, string kindObj, IFileInfo info, string item)
+        {
+            project.AddItem(new FileProjectItem(kindObj, info, fileSystem));
+
+            project.AddSubscription(fileSystem.Subscribe(GlobPattern.Exact(item),
+                a => { HandleChange(a, project, kindObj, fileSystem); }));
         }
 
         private static void HandleChange(FileChangeEventArgs a, Project project, string kindObj, IFileSystem fileSystem)

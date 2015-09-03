@@ -16,6 +16,17 @@ namespace TerrificNet.Environment.Building
             return new BuildQueryPredicate(i => i.Identifier.Kind == kind, true);
         }
 
+        public static BuildQuery Exact(ProjectItemIdentifier inputItem)
+        {
+            return new BuildQueryPredicate(p => p.Identifier.Equals(inputItem), true);
+        }
+
+        public abstract bool IsMatch(ProjectItem item);
+
+        public abstract bool IsMatch(IEnumerable<ProjectItem> items);
+
+        public abstract IEnumerable<BuildQuerySet> Select(IEnumerable<ProjectItem> getItems, IEnumerable<ProjectItem> changedItems);
+
         private class BuildQueryPredicate : BuildQuery
         {
             private readonly Func<ProjectItem, bool> _predicate;
@@ -48,15 +59,5 @@ namespace TerrificNet.Environment.Building
             }
         }
 
-        public abstract bool IsMatch(ProjectItem item);
-
-        public abstract bool IsMatch(IEnumerable<ProjectItem> items);
-
-        public abstract IEnumerable<BuildQuerySet> Select(IEnumerable<ProjectItem> getItems, IEnumerable<ProjectItem> changedItems);
-
-        public static BuildQuery Exact(ProjectItemIdentifier inputItem)
-        {
-            return new BuildQueryPredicate(p => p.Identifier.Equals(inputItem), true);
-        }
     }
 }

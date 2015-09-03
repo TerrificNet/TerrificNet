@@ -6,7 +6,6 @@ using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dependencies;
 using System.Web.Http.Dispatcher;
-using System.Web.Http.Routing;
 using TerrificNet.UnityModules;
 using Unity.WebApi;
 
@@ -30,9 +29,9 @@ namespace TerrificNet.Dispatcher
                 return (IHttpController)_configuration.DependencyResolver.GetService(controllerType);
 
             IDependencyResolver container;
-            if (!this._containers.Value.TryGetValue(section, out container))
+            if (!_containers.Value.TryGetValue(section, out container))
             {
-                throw new InvalidOperationException(string.Format("Could not find a application for the section '{0}'.", section));
+                throw new InvalidOperationException($"Could not find a application for the section '{section}'.");
             }
 
             var controller = (IHttpController)container.GetService(controllerType);
@@ -65,7 +64,7 @@ namespace TerrificNet.Dispatcher
 
         private Dictionary<string, IDependencyResolver> GetContainers()
         {
-            return this._configuration.DependencyResolver.GetServices(typeof(TerrificNetApplication))
+            return _configuration.DependencyResolver.GetServices(typeof(TerrificNetApplication))
                 .OfType<TerrificNetApplication>()
                 .ToDictionary(r => r.Section, r => (IDependencyResolver)new UnityDependencyResolver(r.Container));
         }
