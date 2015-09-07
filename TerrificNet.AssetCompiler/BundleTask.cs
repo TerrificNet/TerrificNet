@@ -43,7 +43,7 @@ namespace TerrificNet.AssetCompiler
                 var sb = new StreamWriter(memoryStream);
                 foreach (var item in _items)
                 {
-                    using (var reader = new StreamReader(item.OpenRead()))
+                    using (var reader = new StreamReader(await item.OpenRead().ConfigureAwait(false)))
                     {
                         sb.Write(await reader.ReadToEndAsync());
                     }

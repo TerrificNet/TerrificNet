@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using TerrificNet.ViewEngine.IO;
 
 namespace TerrificNet.Environment
@@ -28,9 +29,9 @@ namespace TerrificNet.Environment
             return PathInfo.GetSubPath(fileSystem.BasePath, fileInfo.FilePath.ToString());
         }
 
-        public override Stream OpenRead()
+        public override Task<Stream> OpenRead()
         {
-            return _fileSystem.OpenRead(_subPath);
+            return Task.FromResult(_fileSystem.OpenRead(_subPath));
         }
     }
 }

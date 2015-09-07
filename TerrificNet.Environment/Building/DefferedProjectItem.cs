@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TerrificNet.Environment.Building
 {
@@ -12,15 +13,15 @@ namespace TerrificNet.Environment.Building
             _content = content;
         }
 
-        public override Stream OpenRead()
+        public override async Task<Stream> OpenRead()
         {
             if (_contentBuffer == null)
             {
                 // TODO: Verify async
-                using (var stream = _content.ReadAsync().Result)
+                using (var stream = await _content.ReadAsync().ConfigureAwait(false))
                 {
                     var contentStream = new MemoryStream();
-                    stream.CopyTo(contentStream);
+                    await stream.CopyToAsync(contentStream).ConfigureAwait(false);
 
                     _contentBuffer = contentStream.ToArray();
                 }

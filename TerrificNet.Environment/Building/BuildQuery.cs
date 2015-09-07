@@ -21,6 +21,38 @@ namespace TerrificNet.Environment.Building
             return new BuildQueryPredicate(p => p.Identifier.Equals(inputItem), true);
         }
 
+        public BuildQuery Or(BuildQuery query)
+        {
+            return new OrBuildQuery(this, query);
+        }
+
+        private class OrBuildQuery : BuildQuery
+        {
+            private readonly BuildQuery _query1;
+            private readonly BuildQuery _query2;
+
+            public OrBuildQuery(BuildQuery query1, BuildQuery query2)
+            {
+                _query1 = query1;
+                _query2 = query2;
+            }
+
+            public override bool IsMatch(ProjectItem item)
+            {
+                return _query1.IsMatch(item) || _query2.IsMatch(item);
+            }
+
+            public override bool IsMatch(IEnumerable<ProjectItem> items)
+            {
+                return _query1.IsMatch(items) || _query2.IsMatch(items);
+            }
+
+            public override IEnumerable<BuildQuerySet> Select(IEnumerable<ProjectItem> getItems, IEnumerable<ProjectItem> changedItems)
+            {
+                return _query1.Select(getItems, changedItems).Union(_query2.Select(getItems, changedItems));
+            }
+        }
+
         public abstract bool IsMatch(ProjectItem item);
 
         public abstract bool IsMatch(IEnumerable<ProjectItem> items);

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TerrificNet.Environment.Building
 {
@@ -11,9 +12,9 @@ namespace TerrificNet.Environment.Building
             _content = content;
         }
 
-        public override Stream OpenRead()
+        public override Task<Stream> OpenRead()
         {
-            return new MemoryStream(_content);
+            return Task.FromResult<Stream>(new MemoryStream(_content));
         }
 
         public void SetContent(byte[] buffer)

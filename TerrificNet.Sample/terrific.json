@@ -1,6 +1,6 @@
 ﻿{
   "template": [ "components/modules/**.html", "views/_layouts/**.html", "views/_partials/**.html" ],
-  "views": [ "views/**.html.json" ],
+  "view": [ "views/**.html.json" ],
   "data": [ "components/modules/**.json" ],
   "app.js": [
     "assets/js/jquery-1.11.1.min.js",

@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildViewTask.cs" />
     <Compile Include="DefaultModule.cs" />
     <Compile Include="GenericUnityTerrificTemplateHandlerFactory.cs" />
     <Compile Include="InvalidApplicationException.cs" />

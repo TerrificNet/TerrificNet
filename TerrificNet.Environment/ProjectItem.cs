@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TerrificNet.Environment
 {
@@ -51,7 +52,7 @@ namespace TerrificNet.Environment
                 _links.Remove(link);
         }
 
-        public virtual Stream OpenRead()
+        public virtual Task<Stream> OpenRead()
         {
             throw new NotSupportedException();
         }

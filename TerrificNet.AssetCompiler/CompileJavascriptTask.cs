@@ -33,9 +33,9 @@ namespace TerrificNet.AssetCompiler
         private static async Task<Stream> Do(ProjectItem projectItem)
         {
             string content;
-            using (var reader = new StreamReader(projectItem.OpenRead()))
+            using (var reader = new StreamReader(await projectItem.OpenRead().ConfigureAwait(false)))
             {
-                content = await reader.ReadToEndAsync();
+                content = await reader.ReadToEndAsync().ConfigureAwait(false);
             }
 
             var minifier = new Minifier();

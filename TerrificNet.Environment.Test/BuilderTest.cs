@@ -58,7 +58,7 @@ namespace TerrificNet.Environment.Test
         }
 
         [Fact]
-        public void TestBuilderSingleItemOnAddWithBuildInBackgroundOption()
+        public async Task TestBuilderSingleItemOnAddWithBuildInBackgroundOption()
         {
             var kind = "test";
             var projectItem = new ProjectItem("p1", kind);
@@ -86,9 +86,9 @@ namespace TerrificNet.Environment.Test
             Assert.NotNull(generatedItem);
             Assert.Equal(id, generatedItem.Identifier);
 
-            var stream = generatedItem.OpenRead();
+            var stream = await generatedItem.OpenRead();
             //Second Stream
-            var stream2 = generatedItem.OpenRead();
+            var stream2 = await generatedItem.OpenRead();
 
             AssertStream(stream, contentString);
             AssertStream(stream2, contentString);
@@ -103,6 +103,7 @@ namespace TerrificNet.Environment.Test
             Assert.Equal(targetName, linkList[0].Description.Name);
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private static void AssertStream(Stream stream, string contentString)
         {
             Assert.NotNull(stream);
@@ -221,8 +222,8 @@ namespace TerrificNet.Environment.Test
             var project = new Project();
 
             var p1 = AddAndCreateItem(kind, project, "p1");
-            var p2 = AddAndCreateItem(kind, project, "p2");
-            var p3 = AddAndCreateItem(kind, project, "p3");
+            AddAndCreateItem(kind, project, "p2");
+            AddAndCreateItem(kind, project, "p3");
 
             var task = new Mock<IBuildTask>();
             task.SetupGet(p => p.DependsOn).Returns(BuildQuery.SingleFromKind(kind));
@@ -310,6 +311,34 @@ namespace TerrificNet.Environment.Test
             project.RemoveItem(p1);
 
             task.VerifyAll();
+        }
+
+        //[Fact]
+        public void Test_BuilderAddedLinks_CalledOnChange()
+        {
+            var kind = "test";
+            var project = new Project();
+            var observerMock = new Mock<IProjectObserver>();
+            project.AddObserver(observerMock.Object);
+
+            var p1 = AddAndCreateItem(kind, project, "p1");
+            var p2 = AddAndCreateItem("related", project, "p2");
+
+            var id1 = new ProjectItemIdentifier("created", "created");
+
+            var task = new Mock<IBuildTask>();
+            task.SetupGet(p => p.DependsOn).Returns(BuildQuery.SingleFromKind(kind).Or(BuildQuery.Exact(p2.Identifier)));
+
+            var s1 = new BuildTaskResult(id1, NullProjectItemContent.Instance);
+
+            SetupProceed(task, p1).Returns(new[] { s1 });
+
+            var builder = new Builder(project);
+            builder.AddTask(task.Object);
+
+            project.Touch(p2);
+
+            observerMock.Verify(s => s.NotifyItemChanged(project, It.Is<ProjectItem>(i => i.Identifier.Kind == kind)), Times.Once());
         }
 
         private static ProjectItem AddAndCreateItem(string kind, Project project, string name)
