@@ -44,7 +44,13 @@ namespace TerrificNet.Thtml.Test
                 yield return new object[] { "</h1>", new[] { startToken, ElementEnd("</h1>", 0, 5), EndToken(5) } };
                 yield return new object[] { "</h1  >", new[] { startToken, ElementEnd("</h1  >", 0, 7), EndToken(7) } };
                 yield return new object[] { "<h1>content</h1>", new[] { startToken, ElementStart("<h1>", 0, 4), Content("content", 4), ElementEnd("</h1>", 11, 16), EndToken(16) } };
+                yield return new object[] { "<h1 attr />", new[] { startToken, EmptyElement("<h1 attr />", 0, 11), EndToken(11) } };
             }
+        }
+
+        private static Token EmptyElement(string lexem, int position, int end)
+        {
+            return new CompositeToken(TokenCategory.EmptyElement, lexem, position, end);
         }
 
         private static Token Content(string lexem, int start)

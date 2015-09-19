@@ -17,6 +17,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         AttributeContent,
         ElementEnd,
         Slash,
-        Content
+        Content,
+        EmptyElement
     }
 }

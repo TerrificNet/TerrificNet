@@ -56,7 +56,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
                 var tokenCategory = TokenCategory.ElementStart;
                 if (!ElementEnd(ref tokenCategory))
                 {
-                    ElementStart();
+                    tokenCategory = ElementStart();
                 }
 
                 _lexerState.Must('>', TokenCategory.BracketClose);
@@ -77,10 +77,15 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             return true;
         }
 
-        public void ElementStart()
+        public TokenCategory ElementStart()
         {
             _lexerState.Must(Name, TokenCategory.Name);
             AttributeList();
+
+            if (_lexerState.Can('/', TokenCategory.Slash))
+                return TokenCategory.EmptyElement;
+
+            return TokenCategory.ElementStart;
         }
 
         public void AttributeList()
