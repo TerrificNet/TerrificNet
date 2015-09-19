@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "name": "ASP.NET",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "html2hscript": "~1.1.0",
+    "virtual-dom": "~2.1.1"
+  }
+}

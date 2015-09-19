@@ -150,23 +150,6 @@ namespace TerrificNet.Test
             }
         }
 
-        private class MyResolver : JavaScriptTypeResolver
-        {
-            public MyResolver()
-            {
-            }
-
-            public override Type ResolveType(string id)
-            {
-                return typeof (Dictionary<string, object>);
-            }
-
-            public override string ResolveTypeId(Type type)
-            {
-                return type.Name;
-            }
-        }
-
         private async Task<string> ExecuteServerSideStrongModel(string testName, string templateFile, string dataFile)
         {
             var cacheProvider = new NullCacheProvider();
