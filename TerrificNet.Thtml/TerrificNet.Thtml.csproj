@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HtmlDocument.cs" />
+    <Compile Include="HtmlNode.cs" />
+    <Compile Include="HtmlTextNode.cs" />
     <Compile Include="LexicalAnalysis\CharacterClasses.cs" />
     <Compile Include="LexicalAnalysis\CompositeToken.cs" />
     <Compile Include="LexicalAnalysis\HtmlGrammar.cs" />

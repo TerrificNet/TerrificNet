@@ -31,51 +31,21 @@ namespace TerrificNet.Thtml.Test
             get
             {
                 var startToken = new Token(TokenCategory.StartDocument, 0, 0);
-                yield return new object[] { string.Empty, new[] { startToken, EndToken(0) } };
-                yield return new object[] { " ", new[] { startToken, Whitespace(" ", 0), EndToken(1) } };
-                yield return new object[] { "   ", new[] { startToken, Whitespace("   ", 0), EndToken(3) } };
-                yield return new object[] { "<html>", new[] { startToken, ElementStart("<html>", 0, 6), EndToken(6) } };
-                yield return new object[] { "<html >", new[] { startToken, ElementStart("<html >", 0, 7), EndToken(7) } };
-                yield return new object[] { "<html attribute>", new[] { startToken, ElementStart("<html attribute>", 0, 16), EndToken(16) } };
-                yield return new object[] { "<html attribute=\"hallo\">", new[] { startToken, ElementStart("<html attribute=\"hallo\">", 0, 24), EndToken(24) } };
-                yield return new object[] { "<html attribute=\"\">", new[] { startToken, ElementStart("<html attribute=\"\">", 0, 19), EndToken(19) } };
-                yield return new object[] { "<html attribute=\"hallo\" att2=\"val2\">", new[] { startToken, ElementStart("<html attribute=\"hallo\" att2=\"val2\">", 0, 36), EndToken(36) } };
-                yield return new object[] { "<html ><h1>", new[] { startToken, ElementStart("<html >", 0, 7), ElementStart("<h1>", 7, 11), EndToken(11) } };
-                yield return new object[] { "</h1>", new[] { startToken, ElementEnd("</h1>", 0, 5), EndToken(5) } };
-                yield return new object[] { "</h1  >", new[] { startToken, ElementEnd("</h1  >", 0, 7), EndToken(7) } };
-                yield return new object[] { "<h1>content</h1>", new[] { startToken, ElementStart("<h1>", 0, 4), Content("content", 4), ElementEnd("</h1>", 11, 16), EndToken(16) } };
-                yield return new object[] { "<h1 attr />", new[] { startToken, EmptyElement("<h1 attr />", 0, 11), EndToken(11) } };
+                yield return new object[] { string.Empty, new[] { startToken, TokenFactory.EndToken(0) } };
+                yield return new object[] { " ", new[] { startToken, TokenFactory.Whitespace(" ", 0), TokenFactory.EndToken(1) } };
+                yield return new object[] { "   ", new[] { startToken, TokenFactory.Whitespace("   ", 0), TokenFactory.EndToken(3) } };
+                yield return new object[] { "<html>", new[] { startToken, TokenFactory.ElementStart("<html>", 0, 6), TokenFactory.EndToken(6) } };
+                yield return new object[] { "<html >", new[] { startToken, TokenFactory.ElementStart("<html >", 0, 7), TokenFactory.EndToken(7) } };
+                yield return new object[] { "<html attribute>", new[] { startToken, TokenFactory.ElementStart("<html attribute>", 0, 16), TokenFactory.EndToken(16) } };
+                yield return new object[] { "<html attribute=\"hallo\">", new[] { startToken, TokenFactory.ElementStart("<html attribute=\"hallo\">", 0, 24), TokenFactory.EndToken(24) } };
+                yield return new object[] { "<html attribute=\"\">", new[] { startToken, TokenFactory.ElementStart("<html attribute=\"\">", 0, 19), TokenFactory.EndToken(19) } };
+                yield return new object[] { "<html attribute=\"hallo\" att2=\"val2\">", new[] { startToken, TokenFactory.ElementStart("<html attribute=\"hallo\" att2=\"val2\">", 0, 36), TokenFactory.EndToken(36) } };
+                yield return new object[] { "<html ><h1>", new[] { startToken, TokenFactory.ElementStart("<html >", 0, 7), TokenFactory.ElementStart("<h1>", 7, 11), TokenFactory.EndToken(11) } };
+                yield return new object[] { "</h1>", new[] { startToken, TokenFactory.ElementEnd("</h1>", 0, 5), TokenFactory.EndToken(5) } };
+                yield return new object[] { "</h1  >", new[] { startToken, TokenFactory.ElementEnd("</h1  >", 0, 7), TokenFactory.EndToken(7) } };
+                yield return new object[] { "<h1>content</h1>", new[] { startToken, TokenFactory.ElementStart("<h1>", 0, 4), TokenFactory.Content("content", 4), TokenFactory.ElementEnd("</h1>", 11, 16), TokenFactory.EndToken(16) } };
+                yield return new object[] { "<h1 attr />", new[] { startToken, TokenFactory.EmptyElement("<h1 attr />", 0, 11), TokenFactory.EndToken(11) } };
             }
-        }
-
-        private static Token EmptyElement(string lexem, int position, int end)
-        {
-            return new CompositeToken(TokenCategory.EmptyElement, lexem, position, end);
-        }
-
-        private static Token Content(string lexem, int start)
-        {
-            return new Token(TokenCategory.Content, lexem, start, start + lexem.Length);
-        }
-
-        private static Token ElementEnd(string lexem, int position, int end)
-        {
-            return new CompositeToken(TokenCategory.ElementEnd, lexem, position, end);
-        }
-
-        private static Token EndToken(int position)
-        {
-            return new Token(TokenCategory.EndDocument, position, position);
-        }
-
-        private static Token Whitespace(string lexem, int position)
-        {
-            return new Token(TokenCategory.Whitespace, lexem, position, position + lexem.Length);
-        }
-
-        private static Token ElementStart(string lexem, int position, int end)
-        {
-            return new CompositeToken(TokenCategory.ElementStart, lexem, position, end);
         }
     }
 }
