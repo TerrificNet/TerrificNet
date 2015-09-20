@@ -14,64 +14,103 @@ namespace TerrificNet.Thtml.Test
             var result = parser.Parse(tokens);
 
             Assert.NotNull(result);
-            AssertNode(expectedNode, result);
+            NodeAsserts.AssertNode(expectedNode, result);
         }
 
         public static IEnumerable<object[]> TestData
         {
             get
             {
-                var startToken = new Token(TokenCategory.StartDocument, 0, 0);
-                yield return new object[] { new[] { startToken, TokenFactory.EndToken(0) }, new HtmlDocument() };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(),
+                    new HtmlDocument()
+                };
 
-                var content = TokenFactory.Content("test", 0);
-                yield return new object[] { new[] { startToken, content, TokenFactory.EndToken(4) }, new HtmlDocument(new HtmlTextNode(content)) };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(i => TokenFactory.Content("test", i)),
+                    new HtmlDocument(new HtmlTextNode("test"))
+                };
 
-                yield return new object[] { new[] { startToken, TokenFactory.ElementStart("h1", 0), TokenFactory.ElementEnd("h1", 4), TokenFactory.EndToken(9) }, new HtmlDocument(new HtmlElement("h1")) };
-                yield return new object[] { new[] { startToken, TokenFactory.ElementStart("h1", 0), content, TokenFactory.ElementEnd("h1", 4), TokenFactory.EndToken(9) }, new HtmlDocument(new HtmlElement("h1", new HtmlTextNode(content))) };
-                //yield return new object[] { new[] { startToken, TokenFactory.ElementStart("h1", 0), TokenFactory.ElementEnd("h1", 4), TokenFactory.EndToken(9) }, new HtmlDocument(new HtmlElement("h1")) };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i),
+                        i => TokenFactory.ElementEnd("h1", i)),
+                    new HtmlDocument(new HtmlElement("h1"))
+                };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i),
+                        i => TokenFactory.Content("test", i),
+                        i => TokenFactory.ElementEnd("h1", i)),
 
-            }
-        }
+                    new HtmlDocument(new HtmlElement("h1", new HtmlTextNode("test")))
+                };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i),
+                        i => TokenFactory.ElementStart("h2", i),
+                        i => TokenFactory.Content("test", i),
+                        i => TokenFactory.ElementEnd("h2", i),
+                        i => TokenFactory.ElementEnd("h1", i)),
 
-        private static void AssertNode(HtmlNode expected, HtmlNode actual)
-        {
-            if (expected == null)
-                Assert.Null(actual);
-            
-            Assert.IsType(expected.GetType(), actual);
+                    new HtmlDocument(
+                        new HtmlElement("h1",
+                            new HtmlElement("h2",
+                                new HtmlTextNode("test"))))
+                };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i),
+                        i => TokenFactory.Content("inner", i),
+                        i => TokenFactory.ElementStart("h2", i),
+                        i => TokenFactory.Content("test", i),
+                        i => TokenFactory.ElementEnd("h2", i),
+                        i => TokenFactory.ElementEnd("h1", i)),
 
-            var eDocument = expected as HtmlDocument;
-            var aDocument = actual as HtmlDocument;
+                    new HtmlDocument(
+                        new HtmlElement("h1",
+                            new HtmlTextNode("inner"),
+                            new HtmlElement("h2",
+                                new HtmlTextNode("test"))))
+                };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "test", "val")),
+                        i => TokenFactory.ElementEnd("h1", i)),
 
-            var eContent = expected as HtmlTextNode;
-            var aContent = actual as HtmlTextNode;
+                    new HtmlDocument(
+                        new HtmlElement("h1") { Attributes = new List<HtmlAttribute>
+                        {
+                            new HtmlAttribute("test", "val")
+                        }})
+                };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "test", "val"),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithoutContent(a, "test2")),
+                        i => TokenFactory.ElementEnd("h1", i)),
 
-            if (eDocument != null)
-            {
-                AssertDocument(eDocument, aDocument);
-            }
-            else if (eContent != null)
-            {
-                AssertContent(eContent, aContent);
-            }
-            else
-                Assert.True(false, "Unknown type");
-        }
+                    new HtmlDocument(
+                        new HtmlElement("h1") { Attributes = new List<HtmlAttribute>
+                        {
+                            new HtmlAttribute("test", "val"),
+                            new HtmlAttribute("test2", null)
+                        }})
+                };
 
-        private static void AssertContent(HtmlTextNode expected, HtmlTextNode actual)
-        {
-            Assert.Equal(expected.Text, actual.Text);
-        }
-
-        private static void AssertDocument(HtmlDocument expected, HtmlDocument actual)
-        {
-            var expectedList = expected.ChildNodes;
-
-            Assert.Equal(expectedList.Count, actual.ChildNodes.Count);
-            for (int i = 0; i < expectedList.Count; i++)
-            {
-                AssertNode(expectedList[i], actual.ChildNodes[i]);
             }
         }
     }

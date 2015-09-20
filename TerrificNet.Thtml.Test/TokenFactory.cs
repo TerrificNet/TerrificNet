@@ -42,29 +42,26 @@ namespace TerrificNet.Thtml.Test
             return new CompositeToken(TokenCategory.ElementStart, lexem, position, position + lexem.Length);
         }
 
-        public static Token ElementStart(string tagName, int position)
+        public static Token ElementStart(string tagName, int position, params Func<int, Token>[] attributeTokenFactories)
         {
-            var tokens = new List<Token>
+            var factories = new List<Func<int, Token>>
             {
-                new Token(TokenCategory.BracketOpen, "<", position, position + 1),
-                new Token(TokenCategory.Name, tagName, position + 1, position + 1 + tagName.Length),
-                new Token(TokenCategory.BracketClose, ">", position + 1 + tagName.Length, position + 2 + tagName.Length)
+                BracketOpen,
+                i => Name(tagName, i)
             };
+            factories.AddRange(attributeTokenFactories);
+            factories.Add(BracketClose);
 
-            return new CompositeToken(TokenCategory.ElementStart, tokens);
+            return Composite(position, TokenCategory.ElementStart, factories.ToArray());
         }
 
         public static Token ElementEnd(string tagName, int position)
         {
-            var tokens = new List<Token>
-            {
-                new Token(TokenCategory.BracketOpen, "<", position, position + 1),
-                new Token(TokenCategory.Slash, "/", position, position + 1),
-                new Token(TokenCategory.Name, tagName, position + 1, position + 1 + tagName.Length),
-                new Token(TokenCategory.BracketClose, ">", position + 1 + tagName.Length, position + 2 + tagName.Length)
-            };
-
-            return new CompositeToken(TokenCategory.ElementEnd, tokens);
+            return Composite(position, TokenCategory.ElementEnd,
+                BracketOpen,
+                i => Name(tagName, i),
+                Slash,
+                BracketClose);
         }
 
         public static Token Composite(int start, TokenCategory tokenCategory, params Func<int, Token>[] tokenFactories)
@@ -124,6 +121,13 @@ namespace TerrificNet.Thtml.Test
         public static Token AttributeContent(string content, int position)
         {
             return new Token(TokenCategory.AttributeContent, content, position, position + content.Length);
+        }
+
+        public static Token AttributeWithoutContent(int a, string name)
+        {
+            return Composite(a,
+                TokenCategory.Attribute,
+                b => Name(name, b));
         }
 
         public static Token AttributeWithContent(int a, string name, string content)

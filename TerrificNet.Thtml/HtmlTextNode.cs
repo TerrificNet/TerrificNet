@@ -7,6 +7,11 @@ namespace TerrificNet.Thtml
         private readonly Token _token;
         public string Text { get; set; }
 
+        public HtmlTextNode(string text)
+        {
+            this.Text = text;
+        }
+
         public HtmlTextNode(Token token)
         {
             _token = token;

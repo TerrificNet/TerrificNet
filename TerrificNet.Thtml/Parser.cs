@@ -24,45 +24,75 @@ namespace TerrificNet.Thtml
 
         private IEnumerable<HtmlNode> Content(IEnumerator<Token> enumerator)
         {
-            if (enumerator.Current.Category == TokenCategory.Content)
+            while (true)
             {
-                yield return new HtmlTextNode(enumerator.Current);
-                enumerator.MoveNext();
-            }
-            else if (enumerator.Current.Category == TokenCategory.ElementStart)
-            {
-                var tagName = GetTagName(enumerator.Current);
-                var attributes = GetAttributes(enumerator.Current);
+                if (enumerator.Current.Category == TokenCategory.Content)
+                {
+                    yield return new HtmlTextNode(enumerator.Current);
+                    enumerator.MoveNext();
+                }
+                else if (enumerator.Current.Category == TokenCategory.ElementStart)
+                {
+                    var tagName = GetTagName(enumerator.Current);
+                    var attributes = GetAttributes(enumerator.Current).ToList();
 
-                enumerator.MoveNext();
+                    enumerator.MoveNext();
 
-                var nodes = Content(enumerator).ToList();
+                    var nodes = Content(enumerator).ToList();
 
-                var tEnd = GetTagName(Expect(enumerator, TokenCategory.ElementEnd));
-                if (tEnd != tagName)
-                    throw new Exception($"Unexpected tag name '{tEnd}'. Expected closing tag for '{tagName}'.");
+                    var tEnd = GetTagName(Expect(enumerator, TokenCategory.ElementEnd));
+                    if (tEnd != tagName)
+                        throw new Exception($"Unexpected tag name '{tEnd}'. Expected closing tag for '{tagName}'.");
 
-                yield return new HtmlElement(tagName, nodes);
+                    yield return new HtmlElement(tagName, nodes) { Attributes = attributes };
+                }
+                else
+                    break;
             }
         }
 
-        private IEnumerable<HtmlAttribute> GetAttributes(Token current)
+        private IEnumerable<HtmlAttribute> GetAttributes(Token token)
         {
+            var compositeToken = ExpectComposite(token);
+            return compositeToken.Tokens
+                .Where(t => t.Category == TokenCategory.Attribute)
+                .Select(GetAttribute);
+        }
 
-            yield return new HtmlAttribute();
+        private HtmlAttribute GetAttribute(Token token)
+        {
+            var compositeToken = ExpectComposite(token);
+            var name = GetNameToken(compositeToken);
+            var value = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.AttributeContent);
+
+            return new HtmlAttribute(name.Lexem, value?.Lexem);
         }
 
         private static string GetTagName(Token token)
         {
-            var compositeToken = token as CompositeToken;
-            if (compositeToken == null)
-                throw new Exception("Only possible to get the tagname from a composition token.");
+            var compositeToken = ExpectComposite(token);
 
+            var tagNameToken = GetNameToken(compositeToken);
+
+            return tagNameToken.Lexem;
+        }
+
+        private static Token GetNameToken(CompositeToken compositeToken)
+        {
             var tagNameToken = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.Name);
             if (tagNameToken == null)
                 throw new Exception("Invalid composite token. Expected to have a name token inside.");
 
-            return tagNameToken.Lexem;
+            return tagNameToken;
+        }
+
+        private static CompositeToken ExpectComposite(Token token)
+        {
+            var compositeToken = token as CompositeToken;
+            if (compositeToken == null)
+                throw new Exception($"Expected token {token} to be a composite token.");
+
+            return compositeToken;
         }
 
         private Token Expect(IEnumerator<Token> tokens, TokenCategory category)
@@ -75,9 +105,5 @@ namespace TerrificNet.Thtml
 
             return current;
         }
-    }
-
-    internal class HtmlAttribute
-    {
     }
 }

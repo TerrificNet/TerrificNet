@@ -6,6 +6,7 @@ namespace TerrificNet.Thtml
     public class HtmlElement : HtmlDocument
     {
         public string TagName { get; set; }
+        public List<HtmlAttribute> Attributes { get; set; }
 
         public HtmlElement(string tagName) : this(tagName, Enumerable.Empty<HtmlNode>())
         {
