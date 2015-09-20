@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HtmlDocument.cs" />
+    <Compile Include="HtmlElement.cs" />
     <Compile Include="HtmlNode.cs" />
     <Compile Include="HtmlTextNode.cs" />
     <Compile Include="LexicalAnalysis\CharacterClasses.cs" />

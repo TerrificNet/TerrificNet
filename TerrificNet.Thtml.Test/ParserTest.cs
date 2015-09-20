@@ -26,6 +26,11 @@ namespace TerrificNet.Thtml.Test
 
                 var content = TokenFactory.Content("test", 0);
                 yield return new object[] { new[] { startToken, content, TokenFactory.EndToken(4) }, new HtmlDocument(new HtmlTextNode(content)) };
+
+                yield return new object[] { new[] { startToken, TokenFactory.ElementStart("h1", 0), TokenFactory.ElementEnd("h1", 4), TokenFactory.EndToken(9) }, new HtmlDocument(new HtmlElement("h1")) };
+                yield return new object[] { new[] { startToken, TokenFactory.ElementStart("h1", 0), content, TokenFactory.ElementEnd("h1", 4), TokenFactory.EndToken(9) }, new HtmlDocument(new HtmlElement("h1", new HtmlTextNode(content))) };
+                //yield return new object[] { new[] { startToken, TokenFactory.ElementStart("h1", 0), TokenFactory.ElementEnd("h1", 4), TokenFactory.EndToken(9) }, new HtmlDocument(new HtmlElement("h1")) };
+
             }
         }
 

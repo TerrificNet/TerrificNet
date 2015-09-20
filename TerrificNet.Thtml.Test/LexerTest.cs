@@ -14,16 +14,7 @@ namespace TerrificNet.Thtml.Test
             var result = lexer.Tokenize(input);
 
             Assert.NotNull(result);
-            Assert.Equal(expectedResult, result);
-        }
-
-        [Fact]
-        public void TestTokenWithSameCategoryAndSameStringAreEqual()
-        {
-            var token1 = new Token(TokenCategory.Whitespace, "  ", 2, 3);
-            var token2 = new Token(TokenCategory.Whitespace, "  ", 2, 3);
-
-            Assert.True(Equals(token1, token2));
+            Assert.Equal(expectedResult, result, new TokenEqualityComparer());
         }
 
         public static IEnumerable<object[]> TestData
@@ -31,20 +22,180 @@ namespace TerrificNet.Thtml.Test
             get
             {
                 var startToken = new Token(TokenCategory.StartDocument, 0, 0);
-                yield return new object[] { string.Empty, new[] { startToken, TokenFactory.EndToken(0) } };
-                yield return new object[] { " ", new[] { startToken, TokenFactory.Whitespace(" ", 0), TokenFactory.EndToken(1) } };
-                yield return new object[] { "   ", new[] { startToken, TokenFactory.Whitespace("   ", 0), TokenFactory.EndToken(3) } };
-                yield return new object[] { "<html>", new[] { startToken, TokenFactory.ElementStart("<html>", 0, 6), TokenFactory.EndToken(6) } };
-                yield return new object[] { "<html >", new[] { startToken, TokenFactory.ElementStart("<html >", 0, 7), TokenFactory.EndToken(7) } };
-                yield return new object[] { "<html attribute>", new[] { startToken, TokenFactory.ElementStart("<html attribute>", 0, 16), TokenFactory.EndToken(16) } };
-                yield return new object[] { "<html attribute=\"hallo\">", new[] { startToken, TokenFactory.ElementStart("<html attribute=\"hallo\">", 0, 24), TokenFactory.EndToken(24) } };
-                yield return new object[] { "<html attribute=\"\">", new[] { startToken, TokenFactory.ElementStart("<html attribute=\"\">", 0, 19), TokenFactory.EndToken(19) } };
-                yield return new object[] { "<html attribute=\"hallo\" att2=\"val2\">", new[] { startToken, TokenFactory.ElementStart("<html attribute=\"hallo\" att2=\"val2\">", 0, 36), TokenFactory.EndToken(36) } };
-                yield return new object[] { "<html ><h1>", new[] { startToken, TokenFactory.ElementStart("<html >", 0, 7), TokenFactory.ElementStart("<h1>", 7, 11), TokenFactory.EndToken(11) } };
-                yield return new object[] { "</h1>", new[] { startToken, TokenFactory.ElementEnd("</h1>", 0, 5), TokenFactory.EndToken(5) } };
-                yield return new object[] { "</h1  >", new[] { startToken, TokenFactory.ElementEnd("</h1  >", 0, 7), TokenFactory.EndToken(7) } };
-                yield return new object[] { "<h1>content</h1>", new[] { startToken, TokenFactory.ElementStart("<h1>", 0, 4), TokenFactory.Content("content", 4), TokenFactory.ElementEnd("</h1>", 11, 16), TokenFactory.EndToken(16) } };
-                yield return new object[] { "<h1 attr />", new[] { startToken, TokenFactory.EmptyElement("<h1 attr />", 0, 11), TokenFactory.EndToken(11) } };
+                yield return new object[] 
+                {
+                    "",
+                    TokenFactory.DocumentList()
+                };
+                yield return new object[]
+                {
+                    " ",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Whitespace(" ", i))
+                };
+                yield return new object[]
+                {
+                    "   ",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Whitespace("   ", i))
+                };
+                yield return new object[]
+                {
+                    "<html>",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("html", a), 
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "<html >",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("html", a),
+                            TokenFactory.Whitespace,
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "<html attribute>",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("html", a),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.Composite(a, 
+                                TokenCategory.Attribute,
+                                b => TokenFactory.Name("attribute", b)),
+                            TokenFactory.BracketClose))
+                };
+
+                yield return new object[]
+                {
+                    "<html attribute=\"hallo\">",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("html", a),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.Composite(a,
+                                TokenCategory.Attribute,
+                                b => TokenFactory.Name("attribute", b),
+                                TokenFactory.Equal,
+                                TokenFactory.Quote,
+                                b => TokenFactory.AttributeContent("hallo", b),
+                                TokenFactory.Quote),
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "<html attribute=\"\">",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("html", a),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.Composite(a,
+                                TokenCategory.Attribute,
+                                b => TokenFactory.Name("attribute", b),
+                                TokenFactory.Equal,
+                                TokenFactory.Quote,
+                                TokenFactory.Quote),
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "<html attribute=\"hallo\" att2=\"val2\">",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("html", a),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "attribute", "hallo"),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "att2", "val2"),
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "<html ><h1>",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("html", a),
+                            TokenFactory.Whitespace,
+                            TokenFactory.BracketClose),
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("h1", a),
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "</h1>",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementEnd,
+                            TokenFactory.BracketOpen,
+                            TokenFactory.Slash,
+                            a => TokenFactory.Name("h1", a),
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "</h1  >",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementEnd,
+                            TokenFactory.BracketOpen,
+                            TokenFactory.Slash,
+                            a => TokenFactory.Name("h1", a),
+                            a => TokenFactory.Whitespace("  ", a),
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "<h1>content</h1>",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementStart,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("h1", a),
+                            TokenFactory.BracketClose),
+                        i => TokenFactory.Content("content", i),
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.ElementEnd,
+                            TokenFactory.BracketOpen,
+                            TokenFactory.Slash,
+                            a => TokenFactory.Name("h1", a),
+                            TokenFactory.BracketClose))
+                };
+                yield return new object[]
+                {
+                    "<h1 attr />",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.EmptyElement,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("h1", a),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.Composite(a,
+                                TokenCategory.Attribute,
+                                b => TokenFactory.Name("attr", b),
+                                TokenFactory.Whitespace),
+                            TokenFactory.Slash,
+                            TokenFactory.BracketClose))
+                };
             }
         }
     }
