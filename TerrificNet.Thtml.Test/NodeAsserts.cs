@@ -1,3 +1,4 @@
+using TerrificNet.Thtml.Parsing;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test

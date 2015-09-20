@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.LexicalAnalysis;
+using TerrificNet.Thtml.Parsing;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test

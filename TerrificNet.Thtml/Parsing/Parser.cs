@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TerrificNet.Thtml.LexicalAnalysis;
 
-namespace TerrificNet.Thtml
+namespace TerrificNet.Thtml.Parsing
 {
     public class Parser
     {
