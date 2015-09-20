@@ -154,10 +154,14 @@ namespace TerrificNet.Thtml.Test
         public static Token Expression(int position, params string[] name)
         {
             var factories = name.SelectMany(NameAndDot);
+            return Expression(position, factories.Take(name.Length*2 - 1).ToArray());
+        }
 
-            return Composite(position, 
-                TokenCategory.HandlebarsExpression, 
-                factories.Take(name.Length * 2 - 1).ToArray());
+        public static Token Expression(int position, params Func<int, Token>[] tokenFactories)
+        {
+            return Composite(position,
+                TokenCategory.HandlebarsExpression,
+                tokenFactories);
         }
 
         private static IEnumerable<Func<int, Token>> NameAndDot(string name)
@@ -166,7 +170,7 @@ namespace TerrificNet.Thtml.Test
             yield return Dot;
         }
 
-        private static Token Dot(int position)
+        public static Token Dot(int position)
         {
             return new Token(TokenCategory.Dot, ".", position, position + 1);
         }

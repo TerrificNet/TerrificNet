@@ -21,7 +21,6 @@ namespace TerrificNet.Thtml.Test
         {
             get
             {
-                var startToken = new Token(TokenCategory.StartDocument, 0, 0);
                 yield return new object[] 
                 {
                     "",
@@ -219,8 +218,9 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
                             a => TokenFactory.Whitespace("  ", a),
-                            a => TokenFactory.Expression(a, "name"),
-                            TokenFactory.Whitespace,
+                            a => TokenFactory.Expression(a, 
+                                b => TokenFactory.Name("name", b),
+                                TokenFactory.Whitespace),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
@@ -229,6 +229,23 @@ namespace TerrificNet.Thtml.Test
                     "{ {  name }}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Content("{ {  name }}", i))
+                };
+                yield return new object[]
+                {
+                    "{{name. value}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.HandlebarsEvaluate,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Expression(a, 
+                                b => TokenFactory.Name("name", b),
+                                TokenFactory.Dot,
+                                TokenFactory.Whitespace,
+                                b => TokenFactory.Expression(b, "value")
+                            ),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
                 };
                 yield return new object[]
                 {
@@ -243,14 +260,14 @@ namespace TerrificNet.Thtml.Test
                 };
                 yield return new object[]
                 {
-                    "{{#if}}",
+                    "{{#group}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
                             TokenCategory.HandlebarsBlockStart,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.Hash,
-                            a => TokenFactory.Name("if", a),
+                            a => TokenFactory.Name("group", a),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };

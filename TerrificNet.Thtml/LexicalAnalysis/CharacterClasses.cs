@@ -14,7 +14,6 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             return Check(
                 () => IsNameStartChar(c),
                 () => c == '-',
-                () => c == '.',
                 () => InRange(c, '0', '9'),
                 () => c == 0xB7,
                 () => InRange(c, (char)0x0300, (char)0x036F),

@@ -128,7 +128,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             _position++;
         }
 
-        public void Must(Action name, TokenCategory tokenCategory)
+        public Token Must(Action name, TokenCategory tokenCategory)
         {
             if (Eof())
                 Problem($"Unexpected end of file. Expected a {tokenCategory} token.");
@@ -137,6 +137,8 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
             if (_currentToken.Category != tokenCategory)
                 Problem($"Expected '{tokenCategory}'.");
+
+            return _currentToken;
         }
 
         public void Put(Token token)

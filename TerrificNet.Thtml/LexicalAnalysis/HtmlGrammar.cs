@@ -67,10 +67,18 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         {
             if (_lexerState.Can('#', TokenCategory.Hash))
             {
-                _lexerState.Must(Name, TokenCategory.Name);
-                if (_lexerState.Can(Whitespace, TokenCategory.Whitespace))
+                var token = _lexerState.Must(Name, TokenCategory.Name);
+                if (token.Lexem == "if")
                 {
-                    _lexerState.Can(Expression, TokenCategory.HandlebarsExpression);
+                    _lexerState.Must(Whitespace, TokenCategory.Whitespace);
+                    _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
+                }
+                else
+                {
+                    if (_lexerState.Can(Whitespace, TokenCategory.Whitespace))
+                    {
+                        _lexerState.Can(Expression, TokenCategory.HandlebarsExpression);
+                    }
                 }
                 return TokenCategory.HandlebarsBlockStart;
             }
@@ -91,6 +99,12 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
             _lexerState.Composite(() =>
             {
+                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+                if (_lexerState.Can('.', TokenCategory.Dot))
+                {
+                    _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+                    _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
+                }
                 return TokenCategory.HandlebarsExpression;
             });
         }
