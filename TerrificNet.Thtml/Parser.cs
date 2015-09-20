@@ -33,18 +33,25 @@ namespace TerrificNet.Thtml
                 }
                 else if (enumerator.Current.Category == TokenCategory.ElementStart)
                 {
-                    var tagName = GetTagName(enumerator.Current);
+                    var tagName = GetNamePart(enumerator.Current);
                     var attributes = GetAttributes(enumerator.Current).ToList();
 
                     enumerator.MoveNext();
 
                     var nodes = Content(enumerator).ToList();
 
-                    var tEnd = GetTagName(Expect(enumerator, TokenCategory.ElementEnd));
+                    var tEnd = GetNamePart(Expect(enumerator, TokenCategory.ElementEnd));
                     if (tEnd != tagName)
                         throw new Exception($"Unexpected tag name '{tEnd}'. Expected closing tag for '{tagName}'.");
 
                     yield return new HtmlElement(tagName, nodes) { Attributes = attributes };
+                }
+                else if (enumerator.Current.Category == TokenCategory.HandlebarsEvaluate)
+                {
+                    var name = GetNamePart(enumerator.Current);
+
+                    yield return new DynamicHtmlNode(name);
+                    enumerator.MoveNext();
                 }
                 else
                     break;
@@ -68,7 +75,7 @@ namespace TerrificNet.Thtml
             return new HtmlAttribute(name.Lexem, value?.Lexem);
         }
 
-        private static string GetTagName(Token token)
+        private static string GetNamePart(Token token)
         {
             var compositeToken = ExpectComposite(token);
 

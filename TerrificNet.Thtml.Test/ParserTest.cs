@@ -111,6 +111,19 @@ namespace TerrificNet.Thtml.Test
                         }})
                 };
 
+                // Handlebars
+
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i),
+                        i => TokenFactory.HandlebarsSimple(i, "name"),
+                        i => TokenFactory.ElementEnd("h1", i)),
+
+                    new HtmlDocument(
+                        new HtmlElement("h1", new DynamicHtmlNode("name")))
+                };
+
             }
         }
     }

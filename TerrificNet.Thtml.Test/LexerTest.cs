@@ -196,6 +196,8 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.Slash,
                             TokenFactory.BracketClose))
                 };
+
+                // Handlebars
                 yield return new object[]
                 {
                     "{{name}}",
@@ -232,6 +234,32 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.Content(".", i),
                         i => TokenFactory.ElementEnd("h1", i),
                         i => TokenFactory.HandlebarsSimple(i, "end"))
+                };
+                yield return new object[]
+                {
+                    "{{#if}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.HandlebarsGroupStart,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.Hash,
+                            a => TokenFactory.Name("if", a),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+                yield return new object[]
+                {
+                    "{{/if}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.HandlebarsGroupEnd,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.Slash,
+                            a => TokenFactory.Name("if", a),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
                 };
             }
         }

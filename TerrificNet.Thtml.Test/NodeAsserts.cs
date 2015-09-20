@@ -20,9 +20,16 @@ namespace TerrificNet.Thtml.Test
             var eElement = expected as HtmlElement;
             var aElement = actual as HtmlElement;
 
+            var eDynamic = expected as DynamicHtmlNode;
+            var aDynamic = actual as DynamicHtmlNode;
+
             if (eElement != null)
             {
                 AssertElement(eElement, aElement);
+            }
+            if (eDynamic != null)
+            {
+                AssertDynamic(eDynamic, aDynamic);
             }
             else if (eDocument != null)
             {
@@ -34,6 +41,11 @@ namespace TerrificNet.Thtml.Test
             }
             else
                 Assert.True(false, "Unknown type");
+        }
+
+        private static void AssertDynamic(DynamicHtmlNode eDynamic, DynamicHtmlNode aDynamic)
+        {
+            Assert.Equal(eDynamic.Expression, aDynamic.Expression);
         }
 
         public static void AssertElement(HtmlElement expected, HtmlElement actual)

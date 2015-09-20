@@ -54,13 +54,30 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             _lexerState.Composite(() =>
             {
                 _lexerState.Can(Whitespace, TokenCategory.Whitespace);
-                _lexerState.Must(Name, TokenCategory.Name);
+                var category = HandlebarContent();
                 _lexerState.Can(Whitespace, TokenCategory.Whitespace);
                 _lexerState.Must('}', TokenCategory.HandlebarsEnd);
                 _lexerState.Must('}', TokenCategory.HandlebarsEnd);
 
-                return TokenCategory.HandlebarsEvaluate;
+                return category;
             }, 2);
+        }
+
+        private TokenCategory HandlebarContent()
+        {
+            if (_lexerState.Can('#', TokenCategory.Hash))
+            {
+                _lexerState.Must(Name, TokenCategory.Name);
+                return TokenCategory.HandlebarsGroupStart;
+            }
+            if (_lexerState.Can('/', TokenCategory.Slash))
+            {
+                _lexerState.Must(Name, TokenCategory.Name);
+                return TokenCategory.HandlebarsGroupEnd;
+            }
+
+            _lexerState.Must(Name, TokenCategory.Name);
+            return TokenCategory.HandlebarsEvaluate;
         }
 
         private void Whitespace()

@@ -161,5 +161,10 @@ namespace TerrificNet.Thtml.Test
         {
             return new Token(TokenCategory.HandlebarsEnd, "}", position, position + 1);
         }
+
+        public static Token Hash(int position)
+        {
+            return new Token(TokenCategory.Hash, "#", position, position + 1);
+        }
     }
 }
