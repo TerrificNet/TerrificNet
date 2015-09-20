@@ -33,14 +33,14 @@ namespace TerrificNet.Thtml.Parsing
                 }
                 else if (enumerator.Current.Category == TokenCategory.ElementStart)
                 {
-                    var tagName = GetNamePart(enumerator.Current);
+                    var tagName = GetNamePart(enumerator.Current, TokenCategory.Name);
                     var attributes = GetAttributes(enumerator.Current).ToList();
 
                     enumerator.MoveNext();
 
                     var nodes = Content(enumerator).ToList();
 
-                    var tEnd = GetNamePart(Expect(enumerator, TokenCategory.ElementEnd));
+                    var tEnd = GetNamePart(Expect(enumerator, TokenCategory.ElementEnd), TokenCategory.Name);
                     if (tEnd != tagName)
                         throw new Exception($"Unexpected tag name '{tEnd}'. Expected closing tag for '{tagName}'.");
 
@@ -48,7 +48,7 @@ namespace TerrificNet.Thtml.Parsing
                 }
                 else if (enumerator.Current.Category == TokenCategory.EmptyElement)
                 {
-                    var tagName = GetNamePart(enumerator.Current);
+                    var tagName = GetNamePart(enumerator.Current, TokenCategory.Name);
                     var attributes = GetAttributes(enumerator.Current).ToList();
 
                     enumerator.MoveNext();
@@ -58,19 +58,19 @@ namespace TerrificNet.Thtml.Parsing
                 }
                 else if (enumerator.Current.Category == TokenCategory.HandlebarsEvaluate)
                 {
-                    var name = GetNamePart(enumerator.Current);
+                    var name = GetNamePart(enumerator.Current, TokenCategory.HandlebarsExpression);
 
                     yield return new DynamicCreateSingleNode(name);
                     enumerator.MoveNext();
                 }
                 else if (enumerator.Current.Category == TokenCategory.HandlebarsBlockStart)
                 {
-                    var name = GetNamePart(enumerator.Current);
+                    var name = GetNamePart(enumerator.Current, TokenCategory.Name);
                     enumerator.MoveNext();
 
                     var nodes = Content(enumerator).ToList();
 
-                    var tEnd = GetNamePart(Expect(enumerator, TokenCategory.HandlebarsBlockEnd));
+                    var tEnd = GetNamePart(Expect(enumerator, TokenCategory.HandlebarsBlockEnd), TokenCategory.Name);
                     if (tEnd != name)
                         throw new Exception($"Unexpected expression '{tEnd}'. Expected ending epxression for '{name}'.");
 
@@ -81,7 +81,7 @@ namespace TerrificNet.Thtml.Parsing
             }
         }
 
-        private IEnumerable<CreateAttribute> GetAttributes(Token token)
+        private static IEnumerable<CreateAttribute> GetAttributes(Token token)
         {
             var compositeToken = ExpectComposite(token);
             return compositeToken.Tokens
@@ -92,26 +92,26 @@ namespace TerrificNet.Thtml.Parsing
         private static CreateAttribute GetAttribute(Token token)
         {
             var compositeToken = ExpectComposite(token);
-            var name = GetNameToken(compositeToken);
+            var name = GetNameToken(compositeToken, TokenCategory.Name);
             var value = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.AttributeContent);
 
             return new CreateAttribute(name.Lexem, value?.Lexem);
         }
 
-        private static string GetNamePart(Token token)
+        private static string GetNamePart(Token token, TokenCategory tokenCategory)
         {
             var compositeToken = ExpectComposite(token);
 
-            var tagNameToken = GetNameToken(compositeToken);
+            var tagNameToken = GetNameToken(compositeToken, tokenCategory);
 
             return tagNameToken.Lexem;
         }
 
-        private static Token GetNameToken(CompositeToken compositeToken)
+        private static Token GetNameToken(CompositeToken compositeToken, TokenCategory tokenCategory)
         {
-            var tagNameToken = compositeToken.Tokens?.FirstOrDefault(t => t.Category == TokenCategory.Name);
+            var tagNameToken = compositeToken.Tokens?.FirstOrDefault(t => t.Category == tokenCategory);
             if (tagNameToken == null)
-                throw new Exception("Invalid composite token. Expected to have a name token inside.");
+                throw new Exception($"Invalid composite token. Expected to have a {tokenCategory} token inside.");
 
             return tagNameToken;
         }

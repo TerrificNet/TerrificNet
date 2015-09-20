@@ -68,6 +68,10 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             if (_lexerState.Can('#', TokenCategory.Hash))
             {
                 _lexerState.Must(Name, TokenCategory.Name);
+                if (_lexerState.Can(Whitespace, TokenCategory.Whitespace))
+                {
+                    _lexerState.Can(Expression, TokenCategory.HandlebarsExpression);
+                }
                 return TokenCategory.HandlebarsBlockStart;
             }
             if (_lexerState.Can('/', TokenCategory.Slash))
@@ -76,8 +80,19 @@ namespace TerrificNet.Thtml.LexicalAnalysis
                 return TokenCategory.HandlebarsBlockEnd;
             }
 
-            _lexerState.Must(Name, TokenCategory.Name);
+            _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
             return TokenCategory.HandlebarsEvaluate;
+        }
+
+        private void Expression()
+        {
+            if (!_lexerState.Can(Name, TokenCategory.Name))
+                return;
+
+            _lexerState.Composite(() =>
+            {
+                return TokenCategory.HandlebarsExpression;
+            });
         }
 
         private void Whitespace()

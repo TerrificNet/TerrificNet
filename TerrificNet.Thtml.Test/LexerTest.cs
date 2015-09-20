@@ -206,7 +206,7 @@ namespace TerrificNet.Thtml.Test
                             TokenCategory.HandlebarsEvaluate,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            a => TokenFactory.Name("name", a),
+                            a => TokenFactory.Expression(a, "name"),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
@@ -219,10 +219,16 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
                             a => TokenFactory.Whitespace("  ", a),
-                            a => TokenFactory.Name("name", a),
+                            a => TokenFactory.Expression(a, "name"),
                             TokenFactory.Whitespace,
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
+                };
+                yield return new object[]
+                {
+                    "{ {  name }}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Content("{ {  name }}", i))
                 };
                 yield return new object[]
                 {
@@ -258,6 +264,22 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsStart,
                             TokenFactory.Slash,
                             a => TokenFactory.Name("if", a),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+
+                yield return new object[]
+                {
+                    "{{#if expression}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.HandlebarsBlockStart,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.Hash,
+                            a => TokenFactory.Name("if", a),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.Expression(a, "expression"),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };

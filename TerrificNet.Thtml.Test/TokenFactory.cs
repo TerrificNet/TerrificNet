@@ -146,9 +146,29 @@ namespace TerrificNet.Thtml.Test
                 TokenCategory.HandlebarsEvaluate,
                 HandlebarsStart,
                 HandlebarsStart,
-                a => Name(name, a),
+                a => Expression(a, name),
                 HandlebarsEnd,
                 HandlebarsEnd);
+        }
+
+        public static Token Expression(int position, params string[] name)
+        {
+            var factories = name.SelectMany(NameAndDot);
+
+            return Composite(position, 
+                TokenCategory.HandlebarsExpression, 
+                factories.Take(name.Length * 2 - 1).ToArray());
+        }
+
+        private static IEnumerable<Func<int, Token>> NameAndDot(string name)
+        {
+            yield return a => Name(name, a);
+            yield return Dot;
+        }
+
+        private static Token Dot(int position)
+        {
+            return new Token(TokenCategory.Dot, ".", position, position + 1);
         }
 
         public static Token HandlebarsBlockStart(int position, string name)

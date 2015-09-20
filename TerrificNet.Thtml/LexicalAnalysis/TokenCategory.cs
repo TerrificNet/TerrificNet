@@ -25,6 +25,8 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         HandlebarsEvaluate,
         HandlebarsBlockStart,
         Hash,
-        HandlebarsBlockEnd
+        HandlebarsBlockEnd,
+        HandlebarsExpression,
+        Dot
     }
 }
