@@ -23,8 +23,8 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         HandlebarsStart,
         HandlebarsEnd,
         HandlebarsEvaluate,
-        HandlebarsGroupStart,
+        HandlebarsBlockStart,
         Hash,
-        HandlebarsGroupEnd
+        HandlebarsBlockEnd
     }
 }

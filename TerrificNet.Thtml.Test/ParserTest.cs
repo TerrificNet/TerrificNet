@@ -111,6 +111,14 @@ namespace TerrificNet.Thtml.Test
                             new CreateAttribute("test2", null)
                         }})
                 };
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.EmptyElement("h1", i)),
+
+                    new CreateDocument(
+                        new CreateElement("h1"))
+                };
 
                 // Handlebars
 
@@ -122,7 +130,22 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h1", i)),
 
                     new CreateDocument(
-                        new CreateElement("h1", new DynamicCreateNode("name")))
+                        new CreateElement("h1", new DynamicCreateSingleNode("name")))
+                };
+
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.HandlebarsBlockStart(i, "if"),
+                        i => TokenFactory.EmptyElement("br", i),
+                        i => TokenFactory.HandlebarsSimple(i, "name"),
+                        i => TokenFactory.HandlebarsBlockEnd(i, "if")),
+
+                    new CreateDocument(
+                        new DynamicCreateBlockNode(
+                            "if",
+                            new CreateElement("br"), 
+                            new DynamicCreateSingleNode("name")))
                 };
 
             }

@@ -68,12 +68,12 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             if (_lexerState.Can('#', TokenCategory.Hash))
             {
                 _lexerState.Must(Name, TokenCategory.Name);
-                return TokenCategory.HandlebarsGroupStart;
+                return TokenCategory.HandlebarsBlockStart;
             }
             if (_lexerState.Can('/', TokenCategory.Slash))
             {
                 _lexerState.Must(Name, TokenCategory.Name);
-                return TokenCategory.HandlebarsGroupEnd;
+                return TokenCategory.HandlebarsBlockEnd;
             }
 
             _lexerState.Must(Name, TokenCategory.Name);

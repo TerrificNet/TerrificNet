@@ -240,7 +240,7 @@ namespace TerrificNet.Thtml.Test
                     "{{#if}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsGroupStart,
+                            TokenCategory.HandlebarsBlockStart,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.Hash,
@@ -253,7 +253,7 @@ namespace TerrificNet.Thtml.Test
                     "{{/if}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsGroupEnd,
+                            TokenCategory.HandlebarsBlockEnd,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.Slash,

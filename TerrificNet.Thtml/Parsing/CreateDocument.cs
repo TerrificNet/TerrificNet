@@ -23,4 +23,10 @@ namespace TerrificNet.Thtml.Parsing
         public IReadOnlyList<CreateNode> ChildNodes { get; }
 
     }
+
+    public abstract class CreateNodeList
+    {
+    }
+
+
 }

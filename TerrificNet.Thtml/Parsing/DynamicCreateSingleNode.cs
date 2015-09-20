@@ -1,8 +1,8 @@
 namespace TerrificNet.Thtml.Parsing
 {
-    public class DynamicCreateNode : CreateNode
+    public class DynamicCreateSingleNode : CreateNode
     {
-        public DynamicCreateNode(string expression)
+        public DynamicCreateSingleNode(string expression)
         {
             Expression = expression;
         }

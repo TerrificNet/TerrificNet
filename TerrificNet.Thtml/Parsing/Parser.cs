@@ -46,12 +46,35 @@ namespace TerrificNet.Thtml.Parsing
 
                     yield return new CreateElement(tagName, nodes) { Attributes = attributes };
                 }
+                else if (enumerator.Current.Category == TokenCategory.EmptyElement)
+                {
+                    var tagName = GetNamePart(enumerator.Current);
+                    var attributes = GetAttributes(enumerator.Current).ToList();
+
+                    enumerator.MoveNext();
+
+                    yield return new CreateElement(tagName) { Attributes = attributes };
+
+                }
                 else if (enumerator.Current.Category == TokenCategory.HandlebarsEvaluate)
                 {
                     var name = GetNamePart(enumerator.Current);
 
-                    yield return new DynamicCreateNode(name);
+                    yield return new DynamicCreateSingleNode(name);
                     enumerator.MoveNext();
+                }
+                else if (enumerator.Current.Category == TokenCategory.HandlebarsBlockStart)
+                {
+                    var name = GetNamePart(enumerator.Current);
+                    enumerator.MoveNext();
+
+                    var nodes = Content(enumerator).ToList();
+
+                    var tEnd = GetNamePart(Expect(enumerator, TokenCategory.HandlebarsBlockEnd));
+                    if (tEnd != name)
+                        throw new Exception($"Unexpected expression '{tEnd}'. Expected ending epxression for '{name}'.");
+
+                    yield return new DynamicCreateBlockNode(name, nodes.ToArray());
                 }
                 else
                     break;
@@ -66,7 +89,7 @@ namespace TerrificNet.Thtml.Parsing
                 .Select(GetAttribute);
         }
 
-        private CreateAttribute GetAttribute(Token token)
+        private static CreateAttribute GetAttribute(Token token)
         {
             var compositeToken = ExpectComposite(token);
             var name = GetNameToken(compositeToken);
@@ -86,7 +109,7 @@ namespace TerrificNet.Thtml.Parsing
 
         private static Token GetNameToken(CompositeToken compositeToken)
         {
-            var tagNameToken = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.Name);
+            var tagNameToken = compositeToken.Tokens?.FirstOrDefault(t => t.Category == TokenCategory.Name);
             if (tagNameToken == null)
                 throw new Exception("Invalid composite token. Expected to have a name token inside.");
 

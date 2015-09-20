@@ -40,7 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Parsing\DynamicCreateNode.cs" />
+    <Compile Include="Parsing\DynamicCreateBlockNode.cs" />
+    <Compile Include="Parsing\DynamicCreateSingleNode.cs" />
     <Compile Include="Parsing\CreateAttribute.cs" />
     <Compile Include="Parsing\CreateDocument.cs" />
     <Compile Include="Parsing\CreateElement.cs" />
@@ -55,7 +56,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexicalAnalysis\Token.cs" />
     <Compile Include="LexicalAnalysis\TokenCategory.cs" />
+    <Compile Include="VDom\VTree.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

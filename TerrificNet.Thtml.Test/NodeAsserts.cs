@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
 using Xunit;
 
@@ -21,8 +23,11 @@ namespace TerrificNet.Thtml.Test
             var eElement = expected as CreateElement;
             var aElement = actual as CreateElement;
 
-            var eDynamic = expected as DynamicCreateNode;
-            var aDynamic = actual as DynamicCreateNode;
+            var eDynamic = expected as DynamicCreateSingleNode;
+            var aDynamic = actual as DynamicCreateSingleNode;
+
+            var eDynamicBlock = expected as DynamicCreateBlockNode;
+            var aDynamicBlock = actual as DynamicCreateBlockNode;
 
             if (eElement != null)
             {
@@ -40,13 +45,23 @@ namespace TerrificNet.Thtml.Test
             {
                 AssertContent(eContent, aContent);
             }
+            else if (eDynamicBlock != null)
+            {
+                AssertDynamic(eDynamicBlock, aDynamicBlock);
+            }
             else
                 Assert.True(false, "Unknown type");
         }
 
-        private static void AssertDynamic(DynamicCreateNode eDynamic, DynamicCreateNode aDynamic)
+        private static void AssertDynamic(DynamicCreateBlockNode expected, DynamicCreateBlockNode actual)
         {
-            Assert.Equal(eDynamic.Expression, aDynamic.Expression);
+            Assert.Equal(expected.Expression, actual.Expression);
+            AssertNodeList(expected.ChildNodes, actual.ChildNodes);
+        }
+
+        private static void AssertDynamic(DynamicCreateSingleNode expected, DynamicCreateSingleNode actual)
+        {
+            Assert.Equal(expected.Expression, actual.Expression);
         }
 
         public static void AssertElement(CreateElement expected, CreateElement actual)
@@ -79,12 +94,15 @@ namespace TerrificNet.Thtml.Test
 
         public static void AssertDocument(CreateDocument expected, CreateDocument actual)
         {
-            var expectedList = expected.ChildNodes;
+            AssertNodeList(expected.ChildNodes, actual.ChildNodes);
+        }
 
-            Assert.Equal(expectedList.Count, actual.ChildNodes.Count);
+        private static void AssertNodeList(IReadOnlyList<CreateNode> expectedList, IReadOnlyList<CreateNode> acutalList)
+        {
+            Assert.Equal(expectedList.Count, acutalList.Count);
             for (int i = 0; i < expectedList.Count; i++)
             {
-                AssertNode(expectedList[i], actual.ChildNodes[i]);
+                AssertNode(expectedList[i], acutalList[i]);
             }
         }
     }

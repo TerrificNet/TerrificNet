@@ -7,9 +7,13 @@ namespace TerrificNet.Thtml.Test
 {
     static internal class TokenFactory
     {
-        public static Token EmptyElement(string lexem, int position, int end)
+        public static Token EmptyElement(string tagName, int position)
         {
-            return new CompositeToken(TokenCategory.EmptyElement, lexem, position, end);
+            return Composite(position, TokenCategory.EmptyElement, 
+                BracketOpen,
+                i => Name(tagName, i),
+                Slash,
+                BracketClose);
         }
 
         public static Token Content(string lexem, int start)
@@ -142,6 +146,30 @@ namespace TerrificNet.Thtml.Test
                 TokenCategory.HandlebarsEvaluate,
                 HandlebarsStart,
                 HandlebarsStart,
+                a => Name(name, a),
+                HandlebarsEnd,
+                HandlebarsEnd);
+        }
+
+        public static Token HandlebarsBlockStart(int position, string name)
+        {
+            return Composite(position,
+                TokenCategory.HandlebarsBlockStart,
+                HandlebarsStart,
+                HandlebarsStart,
+                Hash,
+                a => Name(name, a),
+                HandlebarsEnd,
+                HandlebarsEnd);
+        }
+
+        public static Token HandlebarsBlockEnd(int position, string name)
+        {
+            return Composite(position,
+                TokenCategory.HandlebarsBlockEnd,
+                HandlebarsStart,
+                HandlebarsStart,
+                Slash,
                 a => Name(name, a),
                 HandlebarsEnd,
                 HandlebarsEnd);
