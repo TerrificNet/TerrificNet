@@ -21,7 +21,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
                 _lexerState.Problem("Expected end of document");
         }
 
-        public void ElementList()
+        private void ElementList()
         {
             while (true)
             {
@@ -31,6 +31,8 @@ namespace TerrificNet.Thtml.LexicalAnalysis
                 }
 
                 _lexerState.MoveUntil(CharacterClasses.IsCharData, TokenCategory.Content);
+                if (_lexerState.Can(Handlebars, TokenCategory.HandlebarsEvaluate))
+                    continue;
 
                 if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd))
                 {
@@ -41,12 +43,32 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             }
         }
 
-        public void Whitespace()
+        private void Handlebars()
+        {
+            if (!_lexerState.Can('{', TokenCategory.HandlebarsStart))
+                return;
+
+            if (!_lexerState.Can('{', TokenCategory.HandlebarsStart))
+                return;
+
+            _lexerState.Composite(() =>
+            {
+                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+                _lexerState.Must(Name, TokenCategory.Name);
+                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+                _lexerState.Must('}', TokenCategory.HandlebarsEnd);
+                _lexerState.Must('}', TokenCategory.HandlebarsEnd);
+
+                return TokenCategory.HandlebarsEvaluate;
+            }, 2);
+        }
+
+        private void Whitespace()
         {
             _lexerState.MoveUntil(CharacterClasses.WhitespaceCharacters.Contains, TokenCategory.Whitespace);
         }
 
-        public void Element()
+        private void Element()
         {
             if (!_lexerState.Can('<', TokenCategory.BracketOpen))
                 return;
@@ -65,7 +87,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             });
         }
 
-        public bool ElementEnd(ref TokenCategory tokenCategory)
+        private bool ElementEnd(ref TokenCategory tokenCategory)
         {
             if (!_lexerState.Can('/', TokenCategory.Slash))
                 return false;
@@ -77,7 +99,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             return true;
         }
 
-        public TokenCategory ElementStart()
+        private TokenCategory ElementStart()
         {
             _lexerState.Must(Name, TokenCategory.Name);
             AttributeList();
@@ -88,7 +110,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             return TokenCategory.ElementStart;
         }
 
-        public void AttributeList()
+        private void AttributeList()
         {
             while (true)
             {
@@ -103,7 +125,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             }
         }
 
-        public void Attribute()
+        private void Attribute()
         {
             if (!_lexerState.Can(Name, TokenCategory.Name))
                 return;
@@ -124,7 +146,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             });
         }
 
-        public void Name()
+        private void Name()
         {
             if (!CharacterClasses.IsNameStartChar(_lexerState.CurrentChar()))
                 return;

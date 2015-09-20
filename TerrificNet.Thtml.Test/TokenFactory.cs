@@ -37,11 +37,6 @@ namespace TerrificNet.Thtml.Test
             return new Token(TokenCategory.Whitespace, lexem, position, position + lexem.Length);
         }
 
-        public static Token ElementStartFake(string lexem, int position)
-        {
-            return new CompositeToken(TokenCategory.ElementStart, lexem, position, position + lexem.Length);
-        }
-
         public static Token ElementStart(string tagName, int position, params Func<int, Token>[] attributeTokenFactories)
         {
             var factories = new List<Func<int, Token>>
@@ -59,8 +54,8 @@ namespace TerrificNet.Thtml.Test
         {
             return Composite(position, TokenCategory.ElementEnd,
                 BracketOpen,
-                i => Name(tagName, i),
                 Slash,
+                i => Name(tagName, i),
                 BracketClose);
         }
 
@@ -141,9 +136,30 @@ namespace TerrificNet.Thtml.Test
                 Quote);
         }
 
+        public static Token HandlebarsSimple(int position, string name)
+        {
+            return Composite(position,
+                TokenCategory.HandlebarsEvaluate,
+                HandlebarsStart,
+                HandlebarsStart,
+                a => Name(name, a),
+                HandlebarsEnd,
+                HandlebarsEnd);
+        }
+
         public static Token Slash(int position)
         {
             return new Token(TokenCategory.Slash, "/", position, position + 1);
+        }
+
+        public static Token HandlebarsStart(int position)
+        {
+            return new Token(TokenCategory.HandlebarsStart, "{", position, position + 1);
+        }
+
+        public static Token HandlebarsEnd(int position)
+        {
+            return new Token(TokenCategory.HandlebarsEnd, "}", position, position + 1);
         }
     }
 }

@@ -196,6 +196,43 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.Slash,
                             TokenFactory.BracketClose))
                 };
+                yield return new object[]
+                {
+                    "{{name}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.HandlebarsEvaluate,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Name("name", a),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+                yield return new object[]
+                {
+                    "{{  name }}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.HandlebarsEvaluate,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Whitespace("  ", a),
+                            a => TokenFactory.Name("name", a),
+                            TokenFactory.Whitespace,
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+                yield return new object[]
+                {
+                    "<h1>Ich bin {{name}}.</h1>{{end}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i),
+                        i => TokenFactory.Content("Ich bin ", i),
+                        i => TokenFactory.HandlebarsSimple(i, "name"),
+                        i => TokenFactory.Content(".", i),
+                        i => TokenFactory.ElementEnd("h1", i),
+                        i => TokenFactory.HandlebarsSimple(i, "end"))
+                };
             }
         }
     }

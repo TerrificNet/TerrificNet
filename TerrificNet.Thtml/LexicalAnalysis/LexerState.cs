@@ -35,6 +35,22 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             }
         }
 
+        public void MoveUntil(Func<char, char, bool> predicate, TokenCategory tokenCategory)
+        {
+            for (; _position < _input.Length && predicate(_input[_position], GetChar(_position + 1)); _position++)
+            {
+                _lexemBuffer.Append(_input[_position]);
+            }
+
+            if (_lexemBuffer.Length > 0)
+            {
+                var start = _position - _lexemBuffer.Length;
+                Put(new Token(tokenCategory, _lexemBuffer.ToString(), start, start + _lexemBuffer.Length));
+
+                _lexemBuffer.Clear();
+            }
+        }
+
         public bool Can(Action action, params TokenCategory[] tokens)
         {
             var oldToken = _currentToken;
@@ -49,15 +65,18 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             return _position >= _input.Length;
         }
 
-        public void Composite(Func<TokenCategory> compositeAction)
+        public void Composite(Func<TokenCategory> compositeAction, int indicatorCount = 1)
         {
             var tmpToken1 = Tokens;
-            int pos = Tokens.Count - 1;
-            var indicatorToken = Tokens[pos];
+            
+            var indicators = TakeIndicators(indicatorCount).ToList();
+            indicators.Reverse();
 
-            Tokens.RemoveAt(pos);
             Tokens = new List<Token>();
-            Tokens.Add(indicatorToken);
+            foreach (var indicatorToken in indicators)
+            {
+                Tokens.Add(indicatorToken);
+            }
 
             var tokenCategory = compositeAction();
 
@@ -65,6 +84,17 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             Tokens = tmpToken1;
 
             Put(new CompositeToken(tokenCategory, subTokens));
+        }
+
+        private IEnumerable<Token> TakeIndicators(int indicatorCount)
+        {
+            for (int i = 0; i < indicatorCount; i++)
+            {
+                int pos = Tokens.Count - 1;
+                yield return Tokens[pos];
+
+                Tokens.RemoveAt(pos);
+            }
         }
 
         public bool Can(char c, TokenCategory category)
@@ -81,7 +111,12 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
         public char CurrentChar()
         {
-            return _position < _input.Length ? _input[_position] : (char)0;
+            return GetChar(_position);
+        }
+
+        private char GetChar(int position)
+        {
+            return position < _input.Length ? _input[position] : (char) 0;
         }
 
         public void Must(char c, TokenCategory token)

@@ -18,6 +18,10 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         ElementEnd,
         Slash,
         Content,
-        EmptyElement
+        EmptyElement,
+        
+        HandlebarsStart,
+        HandlebarsEnd,
+        HandlebarsEvaluate
     }
 }
