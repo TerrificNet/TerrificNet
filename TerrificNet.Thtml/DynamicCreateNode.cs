@@ -1,8 +1,8 @@
 namespace TerrificNet.Thtml
 {
-    public class DynamicHtmlNode : HtmlNode
+    public class DynamicCreateNode : CreateNode
     {
-        public DynamicHtmlNode(string expression)
+        public DynamicCreateNode(string expression)
         {
             Expression = expression;
         }

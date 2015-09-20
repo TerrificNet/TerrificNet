@@ -1,6 +1,6 @@
 namespace TerrificNet.Thtml
 {
-    public class HtmlNode
+    public class CreateNode
     {
     }
 }

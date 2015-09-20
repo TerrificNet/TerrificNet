@@ -4,24 +4,24 @@ namespace TerrificNet.Thtml.Test
 {
     static internal class NodeAsserts
     {
-        public static void AssertNode(HtmlNode expected, HtmlNode actual)
+        public static void AssertNode(CreateNode expected, CreateNode actual)
         {
             if (expected == null)
                 Assert.Null(actual);
 
             Assert.IsType(expected.GetType(), actual);
 
-            var eDocument = expected as HtmlDocument;
-            var aDocument = actual as HtmlDocument;
+            var eDocument = expected as CreateDocument;
+            var aDocument = actual as CreateDocument;
 
-            var eContent = expected as HtmlTextNode;
-            var aContent = actual as HtmlTextNode;
+            var eContent = expected as CreateTextNode;
+            var aContent = actual as CreateTextNode;
 
-            var eElement = expected as HtmlElement;
-            var aElement = actual as HtmlElement;
+            var eElement = expected as CreateElement;
+            var aElement = actual as CreateElement;
 
-            var eDynamic = expected as DynamicHtmlNode;
-            var aDynamic = actual as DynamicHtmlNode;
+            var eDynamic = expected as DynamicCreateNode;
+            var aDynamic = actual as DynamicCreateNode;
 
             if (eElement != null)
             {
@@ -43,12 +43,12 @@ namespace TerrificNet.Thtml.Test
                 Assert.True(false, "Unknown type");
         }
 
-        private static void AssertDynamic(DynamicHtmlNode eDynamic, DynamicHtmlNode aDynamic)
+        private static void AssertDynamic(DynamicCreateNode eDynamic, DynamicCreateNode aDynamic)
         {
             Assert.Equal(eDynamic.Expression, aDynamic.Expression);
         }
 
-        public static void AssertElement(HtmlElement expected, HtmlElement actual)
+        public static void AssertElement(CreateElement expected, CreateElement actual)
         {
             AssertDocument(expected, actual);
             Assert.Equal(expected.TagName, actual.TagName);
@@ -65,18 +65,18 @@ namespace TerrificNet.Thtml.Test
             }
         }
 
-        public static void AssertAttribute(HtmlAttribute expected, HtmlAttribute actual)
+        public static void AssertAttribute(CreateAttribute expected, CreateAttribute actual)
         {
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Value, actual.Value);
         }
 
-        public static void AssertContent(HtmlTextNode expected, HtmlTextNode actual)
+        public static void AssertContent(CreateTextNode expected, CreateTextNode actual)
         {
             Assert.Equal(expected.Text, actual.Text);
         }
 
-        public static void AssertDocument(HtmlDocument expected, HtmlDocument actual)
+        public static void AssertDocument(CreateDocument expected, CreateDocument actual)
         {
             var expectedList = expected.ChildNodes;
 

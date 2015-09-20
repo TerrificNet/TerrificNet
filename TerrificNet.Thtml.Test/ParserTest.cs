@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Test
     {
         [Theory]
         [MemberData("TestData")]
-        public void TestParser(IEnumerable<Token> tokens, HtmlNode expectedNode)
+        public void TestParser(IEnumerable<Token> tokens, CreateNode expectedNode)
         {
             var parser = new Parser();
             var result = parser.Parse(tokens);
@@ -24,13 +24,13 @@ namespace TerrificNet.Thtml.Test
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(),
-                    new HtmlDocument()
+                    new CreateDocument()
                 };
 
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(i => TokenFactory.Content("test", i)),
-                    new HtmlDocument(new HtmlTextNode("test"))
+                    new CreateDocument(new CreateTextNode("test"))
                 };
 
                 yield return new object[]
@@ -38,7 +38,7 @@ namespace TerrificNet.Thtml.Test
                     TokenFactory.DocumentList(
                         i => TokenFactory.ElementStart("h1", i),
                         i => TokenFactory.ElementEnd("h1", i)),
-                    new HtmlDocument(new HtmlElement("h1"))
+                    new CreateDocument(new CreateElement("h1"))
                 };
                 yield return new object[]
                 {
@@ -47,7 +47,7 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.Content("test", i),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new HtmlDocument(new HtmlElement("h1", new HtmlTextNode("test")))
+                    new CreateDocument(new CreateElement("h1", new CreateTextNode("test")))
                 };
                 yield return new object[]
                 {
@@ -58,10 +58,10 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h2", i),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new HtmlDocument(
-                        new HtmlElement("h1",
-                            new HtmlElement("h2",
-                                new HtmlTextNode("test"))))
+                    new CreateDocument(
+                        new CreateElement("h1",
+                            new CreateElement("h2",
+                                new CreateTextNode("test"))))
                 };
                 yield return new object[]
                 {
@@ -73,11 +73,11 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h2", i),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new HtmlDocument(
-                        new HtmlElement("h1",
-                            new HtmlTextNode("inner"),
-                            new HtmlElement("h2",
-                                new HtmlTextNode("test"))))
+                    new CreateDocument(
+                        new CreateElement("h1",
+                            new CreateTextNode("inner"),
+                            new CreateElement("h2",
+                                new CreateTextNode("test"))))
                 };
                 yield return new object[]
                 {
@@ -87,10 +87,10 @@ namespace TerrificNet.Thtml.Test
                             a => TokenFactory.AttributeWithContent(a, "test", "val")),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new HtmlDocument(
-                        new HtmlElement("h1") { Attributes = new List<HtmlAttribute>
+                    new CreateDocument(
+                        new CreateElement("h1") { Attributes = new List<CreateAttribute>
                         {
-                            new HtmlAttribute("test", "val")
+                            new CreateAttribute("test", "val")
                         }})
                 };
                 yield return new object[]
@@ -103,11 +103,11 @@ namespace TerrificNet.Thtml.Test
                             a => TokenFactory.AttributeWithoutContent(a, "test2")),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new HtmlDocument(
-                        new HtmlElement("h1") { Attributes = new List<HtmlAttribute>
+                    new CreateDocument(
+                        new CreateElement("h1") { Attributes = new List<CreateAttribute>
                         {
-                            new HtmlAttribute("test", "val"),
-                            new HtmlAttribute("test2", null)
+                            new CreateAttribute("test", "val"),
+                            new CreateAttribute("test2", null)
                         }})
                 };
 
@@ -120,8 +120,8 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.HandlebarsSimple(i, "name"),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new HtmlDocument(
-                        new HtmlElement("h1", new DynamicHtmlNode("name")))
+                    new CreateDocument(
+                        new CreateElement("h1", new DynamicCreateNode("name")))
                 };
 
             }

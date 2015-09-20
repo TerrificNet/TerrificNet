@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml
 {
     public class Parser
     {
-        public HtmlNode Parse(IEnumerable<Token> tokens)
+        public CreateNode Parse(IEnumerable<Token> tokens)
         {
             var enumerator = tokens.GetEnumerator();
             enumerator.MoveNext();
@@ -18,17 +18,17 @@ namespace TerrificNet.Thtml
 
             Expect(enumerator, TokenCategory.EndDocument);
 
-            var document = new HtmlDocument(nodes);
+            var document = new CreateDocument(nodes);
             return document;
         }
 
-        private IEnumerable<HtmlNode> Content(IEnumerator<Token> enumerator)
+        private IEnumerable<CreateNode> Content(IEnumerator<Token> enumerator)
         {
             while (true)
             {
                 if (enumerator.Current.Category == TokenCategory.Content)
                 {
-                    yield return new HtmlTextNode(enumerator.Current);
+                    yield return new CreateTextNode(enumerator.Current);
                     enumerator.MoveNext();
                 }
                 else if (enumerator.Current.Category == TokenCategory.ElementStart)
@@ -44,13 +44,13 @@ namespace TerrificNet.Thtml
                     if (tEnd != tagName)
                         throw new Exception($"Unexpected tag name '{tEnd}'. Expected closing tag for '{tagName}'.");
 
-                    yield return new HtmlElement(tagName, nodes) { Attributes = attributes };
+                    yield return new CreateElement(tagName, nodes) { Attributes = attributes };
                 }
                 else if (enumerator.Current.Category == TokenCategory.HandlebarsEvaluate)
                 {
                     var name = GetNamePart(enumerator.Current);
 
-                    yield return new DynamicHtmlNode(name);
+                    yield return new DynamicCreateNode(name);
                     enumerator.MoveNext();
                 }
                 else
@@ -58,7 +58,7 @@ namespace TerrificNet.Thtml
             }
         }
 
-        private IEnumerable<HtmlAttribute> GetAttributes(Token token)
+        private IEnumerable<CreateAttribute> GetAttributes(Token token)
         {
             var compositeToken = ExpectComposite(token);
             return compositeToken.Tokens
@@ -66,13 +66,13 @@ namespace TerrificNet.Thtml
                 .Select(GetAttribute);
         }
 
-        private HtmlAttribute GetAttribute(Token token)
+        private CreateAttribute GetAttribute(Token token)
         {
             var compositeToken = ExpectComposite(token);
             var name = GetNameToken(compositeToken);
             var value = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.AttributeContent);
 
-            return new HtmlAttribute(name.Lexem, value?.Lexem);
+            return new CreateAttribute(name.Lexem, value?.Lexem);
         }
 
         private static string GetNamePart(Token token)

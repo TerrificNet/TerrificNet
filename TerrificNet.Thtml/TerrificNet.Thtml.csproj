@@ -40,12 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DynamicHtmlNode.cs" />
-    <Compile Include="HtmlAttribute.cs" />
-    <Compile Include="HtmlDocument.cs" />
-    <Compile Include="HtmlElement.cs" />
-    <Compile Include="HtmlNode.cs" />
-    <Compile Include="HtmlTextNode.cs" />
+    <Compile Include="DynamicCreateNode.cs" />
+    <Compile Include="CreateAttribute.cs" />
+    <Compile Include="CreateDocument.cs" />
+    <Compile Include="CreateElement.cs" />
+    <Compile Include="CreateNode.cs" />
+    <Compile Include="CreateTextNode.cs" />
     <Compile Include="LexicalAnalysis\CharacterClasses.cs" />
     <Compile Include="LexicalAnalysis\CompositeToken.cs" />
     <Compile Include="LexicalAnalysis\HtmlGrammar.cs" />
