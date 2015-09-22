@@ -126,7 +126,7 @@ namespace TerrificNet.Thtml.Parsing
             return compositeToken;
         }
 
-        private Token Expect(IEnumerator<Token> tokens, TokenCategory category)
+        private static Token Expect(IEnumerator<Token> tokens, TokenCategory category)
         {
             var current = tokens.Current;
             if (current.Category != category)
