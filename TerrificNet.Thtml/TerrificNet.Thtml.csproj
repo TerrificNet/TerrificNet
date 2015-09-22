@@ -40,19 +40,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Parsing\DynamicCreateBlockNode.cs" />
-    <Compile Include="Parsing\DynamicCreateSingleNode.cs" />
-    <Compile Include="Parsing\CreateAttribute.cs" />
-    <Compile Include="Parsing\CreateDocument.cs" />
-    <Compile Include="Parsing\CreateElement.cs" />
-    <Compile Include="Parsing\CreateNode.cs" />
-    <Compile Include="Parsing\CreateTextNode.cs" />
+    <Compile Include="Parsing\EvaluateBlockNode.cs" />
+    <Compile Include="Parsing\EvaluateExpressionNode.cs" />
+    <Compile Include="Parsing\Attribute.cs" />
+    <Compile Include="Parsing\Document.cs" />
+    <Compile Include="Parsing\Element.cs" />
+    <Compile Include="Parsing\Node.cs" />
+    <Compile Include="Parsing\TextNode.cs" />
     <Compile Include="LexicalAnalysis\CharacterClasses.cs" />
     <Compile Include="LexicalAnalysis\CompositeToken.cs" />
     <Compile Include="LexicalAnalysis\HtmlGrammar.cs" />
     <Compile Include="LexicalAnalysis\Lexer.cs" />
     <Compile Include="LexicalAnalysis\LexerState.cs" />
     <Compile Include="Parsing\Parser.cs" />
+    <Compile Include="VDom\VTreeBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexicalAnalysis\Token.cs" />
     <Compile Include="LexicalAnalysis\TokenCategory.cs" />

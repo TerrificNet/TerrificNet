@@ -2,32 +2,33 @@ using System;
 using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
 using Xunit;
+using Attribute = TerrificNet.Thtml.Parsing.Attribute;
 
 namespace TerrificNet.Thtml.Test
 {
     static internal class NodeAsserts
     {
-        public static void AssertNode(CreateNode expected, CreateNode actual)
+        public static void AssertNode(Node expected, Node actual)
         {
             if (expected == null)
                 Assert.Null(actual);
 
             Assert.IsType(expected.GetType(), actual);
 
-            var eDocument = expected as CreateDocument;
-            var aDocument = actual as CreateDocument;
+            var eDocument = expected as Document;
+            var aDocument = actual as Document;
 
-            var eContent = expected as CreateTextNode;
-            var aContent = actual as CreateTextNode;
+            var eContent = expected as TextNode;
+            var aContent = actual as TextNode;
 
-            var eElement = expected as CreateElement;
-            var aElement = actual as CreateElement;
+            var eElement = expected as Element;
+            var aElement = actual as Element;
 
-            var eDynamic = expected as DynamicCreateSingleNode;
-            var aDynamic = actual as DynamicCreateSingleNode;
+            var eDynamic = expected as EvaluateExpressionNode;
+            var aDynamic = actual as EvaluateExpressionNode;
 
-            var eDynamicBlock = expected as DynamicCreateBlockNode;
-            var aDynamicBlock = actual as DynamicCreateBlockNode;
+            var eDynamicBlock = expected as EvaluateBlockNode;
+            var aDynamicBlock = actual as EvaluateBlockNode;
 
             if (eElement != null)
             {
@@ -53,18 +54,18 @@ namespace TerrificNet.Thtml.Test
                 Assert.True(false, "Unknown type");
         }
 
-        private static void AssertDynamic(DynamicCreateBlockNode expected, DynamicCreateBlockNode actual)
+        private static void AssertDynamic(EvaluateBlockNode expected, EvaluateBlockNode actual)
         {
             Assert.Equal(expected.Expression, actual.Expression);
             AssertNodeList(expected.ChildNodes, actual.ChildNodes);
         }
 
-        private static void AssertDynamic(DynamicCreateSingleNode expected, DynamicCreateSingleNode actual)
+        private static void AssertDynamic(EvaluateExpressionNode expected, EvaluateExpressionNode actual)
         {
             Assert.Equal(expected.Expression, actual.Expression);
         }
 
-        public static void AssertElement(CreateElement expected, CreateElement actual)
+        public static void AssertElement(Element expected, Element actual)
         {
             AssertDocument(expected, actual);
             Assert.Equal(expected.TagName, actual.TagName);
@@ -81,23 +82,23 @@ namespace TerrificNet.Thtml.Test
             }
         }
 
-        public static void AssertAttribute(CreateAttribute expected, CreateAttribute actual)
+        public static void AssertAttribute(Attribute expected, Attribute actual)
         {
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Value, actual.Value);
         }
 
-        public static void AssertContent(CreateTextNode expected, CreateTextNode actual)
+        public static void AssertContent(TextNode expected, TextNode actual)
         {
             Assert.Equal(expected.Text, actual.Text);
         }
 
-        public static void AssertDocument(CreateDocument expected, CreateDocument actual)
+        public static void AssertDocument(Document expected, Document actual)
         {
             AssertNodeList(expected.ChildNodes, actual.ChildNodes);
         }
 
-        private static void AssertNodeList(IReadOnlyList<CreateNode> expectedList, IReadOnlyList<CreateNode> acutalList)
+        private static void AssertNodeList(IReadOnlyList<Node> expectedList, IReadOnlyList<Node> acutalList)
         {
             Assert.Equal(expectedList.Count, acutalList.Count);
             for (int i = 0; i < expectedList.Count; i++)

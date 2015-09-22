@@ -1,4 +1,7 @@
-﻿namespace TerrificNet.Thtml.VDom
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace TerrificNet.Thtml.VDom
 {
     class VTree
     {
@@ -17,7 +20,17 @@
 
     class VNode : VTree
     {
-        public VNode(string tagName)
+        public VNode(IEnumerable<VTree> children)
+        {
+            Children = children.ToList();
+        }
+
+        public IReadOnlyList<VTree> Children { get; }
+    }
+
+    class VElement : VNode
+    {
+        public VElement(string tagName, IEnumerable<VTree> children) : base(children)
         {
             TagName = tagName;
         }

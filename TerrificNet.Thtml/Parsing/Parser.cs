@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml.Parsing
 {
     public class Parser
     {
-        public CreateNode Parse(IEnumerable<Token> tokens)
+        public Node Parse(IEnumerable<Token> tokens)
         {
             var enumerator = tokens.GetEnumerator();
             enumerator.MoveNext();
@@ -18,17 +18,18 @@ namespace TerrificNet.Thtml.Parsing
 
             Expect(enumerator, TokenCategory.EndDocument);
 
-            var document = new CreateDocument(nodes);
+            var document = new Document(nodes);
             return document;
         }
 
-        private IEnumerable<CreateNode> Content(IEnumerator<Token> enumerator)
+        private IEnumerable<Node> Content(IEnumerator<Token> enumerator)
         {
             while (true)
             {
                 if (enumerator.Current.Category == TokenCategory.Content)
                 {
-                    yield return new CreateTextNode(enumerator.Current);
+                    Token token = enumerator.Current;
+                    yield return new TextNode(token.Lexem);
                     enumerator.MoveNext();
                 }
                 else if (enumerator.Current.Category == TokenCategory.ElementStart)
@@ -44,7 +45,7 @@ namespace TerrificNet.Thtml.Parsing
                     if (tEnd != tagName)
                         throw new Exception($"Unexpected tag name '{tEnd}'. Expected closing tag for '{tagName}'.");
 
-                    yield return new CreateElement(tagName, nodes) { Attributes = attributes };
+                    yield return new Element(tagName, nodes, attributes);
                 }
                 else if (enumerator.Current.Category == TokenCategory.EmptyElement)
                 {
@@ -53,14 +54,14 @@ namespace TerrificNet.Thtml.Parsing
 
                     enumerator.MoveNext();
 
-                    yield return new CreateElement(tagName) { Attributes = attributes };
+                    yield return new Element(tagName, attributes);
 
                 }
                 else if (enumerator.Current.Category == TokenCategory.HandlebarsEvaluate)
                 {
                     var name = GetNamePart(enumerator.Current, TokenCategory.HandlebarsExpression);
 
-                    yield return new DynamicCreateSingleNode(name);
+                    yield return new EvaluateExpressionNode(name);
                     enumerator.MoveNext();
                 }
                 else if (enumerator.Current.Category == TokenCategory.HandlebarsBlockStart)
@@ -74,14 +75,14 @@ namespace TerrificNet.Thtml.Parsing
                     if (tEnd != name)
                         throw new Exception($"Unexpected expression '{tEnd}'. Expected ending epxression for '{name}'.");
 
-                    yield return new DynamicCreateBlockNode(name, nodes.ToArray());
+                    yield return new EvaluateBlockNode(name, nodes.ToArray());
                 }
                 else
                     break;
             }
         }
 
-        private static IEnumerable<CreateAttribute> GetAttributes(Token token)
+        private static IEnumerable<Attribute> GetAttributes(Token token)
         {
             var compositeToken = ExpectComposite(token);
             return compositeToken.Tokens
@@ -89,13 +90,13 @@ namespace TerrificNet.Thtml.Parsing
                 .Select(GetAttribute);
         }
 
-        private static CreateAttribute GetAttribute(Token token)
+        private static Attribute GetAttribute(Token token)
         {
             var compositeToken = ExpectComposite(token);
             var name = GetNameToken(compositeToken, TokenCategory.Name);
             var value = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.AttributeContent);
 
-            return new CreateAttribute(name.Lexem, value?.Lexem);
+            return new Attribute(name.Lexem, value?.Lexem);
         }
 
         private static string GetNamePart(Token token, TokenCategory tokenCategory)

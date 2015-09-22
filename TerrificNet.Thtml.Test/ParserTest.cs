@@ -9,7 +9,7 @@ namespace TerrificNet.Thtml.Test
     {
         [Theory]
         [MemberData("TestData")]
-        public void TestParser(IEnumerable<Token> tokens, CreateNode expectedNode)
+        public void TestParser(IEnumerable<Token> tokens, Node expectedNode)
         {
             var parser = new Parser();
             var result = parser.Parse(tokens);
@@ -25,13 +25,13 @@ namespace TerrificNet.Thtml.Test
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(),
-                    new CreateDocument()
+                    new Document()
                 };
 
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(i => TokenFactory.Content("test", i)),
-                    new CreateDocument(new CreateTextNode("test"))
+                    new Document(new TextNode("test"))
                 };
 
                 yield return new object[]
@@ -39,7 +39,7 @@ namespace TerrificNet.Thtml.Test
                     TokenFactory.DocumentList(
                         i => TokenFactory.ElementStart("h1", i),
                         i => TokenFactory.ElementEnd("h1", i)),
-                    new CreateDocument(new CreateElement("h1"))
+                    new Document(new Element("h1"))
                 };
                 yield return new object[]
                 {
@@ -48,7 +48,7 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.Content("test", i),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new CreateDocument(new CreateElement("h1", new CreateTextNode("test")))
+                    new Document(new Element("h1", new TextNode("test")))
                 };
                 yield return new object[]
                 {
@@ -59,10 +59,10 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h2", i),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new CreateDocument(
-                        new CreateElement("h1",
-                            new CreateElement("h2",
-                                new CreateTextNode("test"))))
+                    new Document(
+                        new Element("h1",
+                            new Element("h2",
+                                new TextNode("test"))))
                 };
                 yield return new object[]
                 {
@@ -74,11 +74,11 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h2", i),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new CreateDocument(
-                        new CreateElement("h1",
-                            new CreateTextNode("inner"),
-                            new CreateElement("h2",
-                                new CreateTextNode("test"))))
+                    new Document(
+                        new Element("h1",
+                            new TextNode("inner"),
+                            new Element("h2",
+                                new TextNode("test"))))
                 };
                 yield return new object[]
                 {
@@ -88,11 +88,11 @@ namespace TerrificNet.Thtml.Test
                             a => TokenFactory.AttributeWithContent(a, "test", "val")),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new CreateDocument(
-                        new CreateElement("h1") { Attributes = new List<CreateAttribute>
+                    new Document(
+                        new Element("h1", new List<Attribute>
                         {
-                            new CreateAttribute("test", "val")
-                        }})
+                            new Attribute("test", "val")
+                        }))
                 };
                 yield return new object[]
                 {
@@ -104,20 +104,20 @@ namespace TerrificNet.Thtml.Test
                             a => TokenFactory.AttributeWithoutContent(a, "test2")),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new CreateDocument(
-                        new CreateElement("h1") { Attributes = new List<CreateAttribute>
+                    new Document(
+                        new Element("h1", new List<Attribute>
                         {
-                            new CreateAttribute("test", "val"),
-                            new CreateAttribute("test2", null)
-                        }})
+                            new Attribute("test", "val"),
+                            new Attribute("test2", null)
+                        }))
                 };
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(
                         i => TokenFactory.EmptyElement("h1", i)),
 
-                    new CreateDocument(
-                        new CreateElement("h1"))
+                    new Document(
+                        new Element("h1"))
                 };
 
                 // Handlebars
@@ -129,8 +129,8 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.HandlebarsSimple(i, "name"),
                         i => TokenFactory.ElementEnd("h1", i)),
 
-                    new CreateDocument(
-                        new CreateElement("h1", new DynamicCreateSingleNode("name")))
+                    new Document(
+                        new Element("h1", new EvaluateExpressionNode("name")))
                 };
 
                 yield return new object[]
@@ -141,11 +141,11 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.HandlebarsSimple(i, "name"),
                         i => TokenFactory.HandlebarsBlockEnd(i, "if")),
 
-                    new CreateDocument(
-                        new DynamicCreateBlockNode(
+                    new Document(
+                        new EvaluateBlockNode(
                             "if",
-                            new CreateElement("br"), 
-                            new DynamicCreateSingleNode("name")))
+                            new Element("br"), 
+                            new EvaluateExpressionNode("name")))
                 };
 
             }

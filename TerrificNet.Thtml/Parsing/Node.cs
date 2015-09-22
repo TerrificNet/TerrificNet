@@ -1,6 +1,6 @@
 namespace TerrificNet.Thtml.Parsing
 {
-    public class CreateNode
+    public class Node
     {
     }
 }
