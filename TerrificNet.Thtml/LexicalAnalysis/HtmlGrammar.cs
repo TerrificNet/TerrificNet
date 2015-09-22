@@ -1,21 +1,23 @@
-using System.Linq;
-
 namespace TerrificNet.Thtml.LexicalAnalysis
 {
     internal class HtmlGrammar
     {
         private readonly LexerState _lexerState;
+        private readonly HandlebarsGrammar _handlebarsGrammar;
+        private readonly CommonGrammar _commonGrammar;
 
         public HtmlGrammar(LexerState lexerState)
         {
             _lexerState = lexerState;
+            _handlebarsGrammar = new HandlebarsGrammar(lexerState);
+            _commonGrammar = new CommonGrammar(lexerState);
         }
 
         public void Document()
         {
-            _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+            _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
             ElementList();
-            _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+            _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
 
             if (!_lexerState.Eof())
                 _lexerState.Problem("Expected end of document");
@@ -53,65 +55,14 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
             _lexerState.Composite(() =>
             {
-                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
-                var category = HandlebarContent();
-                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
+                var category = _handlebarsGrammar.HandlebarContent();
+                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
                 _lexerState.Must('}', TokenCategory.HandlebarsEnd);
                 _lexerState.Must('}', TokenCategory.HandlebarsEnd);
 
                 return category;
             }, 2);
-        }
-
-        private TokenCategory HandlebarContent()
-        {
-            if (_lexerState.Can('#', TokenCategory.Hash))
-            {
-                var token = _lexerState.Must(Name, TokenCategory.Name);
-                if (token.Lexem == "if")
-                {
-                    _lexerState.Must(Whitespace, TokenCategory.Whitespace);
-                    _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
-                }
-                else
-                {
-                    if (_lexerState.Can(Whitespace, TokenCategory.Whitespace))
-                    {
-                        _lexerState.Can(Expression, TokenCategory.HandlebarsExpression);
-                    }
-                }
-                return TokenCategory.HandlebarsBlockStart;
-            }
-            if (_lexerState.Can('/', TokenCategory.Slash))
-            {
-                _lexerState.Must(Name, TokenCategory.Name);
-                return TokenCategory.HandlebarsBlockEnd;
-            }
-
-            _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
-            return TokenCategory.HandlebarsEvaluate;
-        }
-
-        private void Expression()
-        {
-            if (!_lexerState.Can(Name, TokenCategory.Name))
-                return;
-
-            _lexerState.Composite(() =>
-            {
-                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
-                if (_lexerState.Can('.', TokenCategory.Dot))
-                {
-                    _lexerState.Can(Whitespace, TokenCategory.Whitespace);
-                    _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
-                }
-                return TokenCategory.HandlebarsExpression;
-            });
-        }
-
-        private void Whitespace()
-        {
-            _lexerState.MoveUntil(CharacterClasses.WhitespaceCharacters.Contains, TokenCategory.Whitespace);
         }
 
         private void Element()
@@ -138,8 +89,8 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             if (!_lexerState.Can('/', TokenCategory.Slash))
                 return false;
 
-            _lexerState.Must(Name, TokenCategory.Name);
-            _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+            _lexerState.Must(() => _commonGrammar.Name(), TokenCategory.Name);
+            _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
 
             tokenCategory = TokenCategory.ElementEnd;
             return true;
@@ -147,7 +98,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
         private TokenCategory ElementStart()
         {
-            _lexerState.Must(Name, TokenCategory.Name);
+            _lexerState.Must(() => _commonGrammar.Name(), TokenCategory.Name);
             AttributeList();
 
             if (_lexerState.Can('/', TokenCategory.Slash))
@@ -160,7 +111,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         {
             while (true)
             {
-                if (_lexerState.Can(Whitespace, TokenCategory.Whitespace))
+                if (_lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace))
                 {
                     if (_lexerState.Can(Attribute, TokenCategory.Attribute))
                     {
@@ -173,32 +124,23 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
         private void Attribute()
         {
-            if (!_lexerState.Can(Name, TokenCategory.Name))
+            if (!_lexerState.Can(() => _commonGrammar.Name(), TokenCategory.Name))
                 return;
 
             _lexerState.Composite(() =>
             {
-                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
 
                 if (!_lexerState.Can('=', TokenCategory.Equality))
                     return TokenCategory.Attribute;
 
-                _lexerState.Can(Whitespace, TokenCategory.Whitespace);
+                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
                 _lexerState.Must('"', TokenCategory.Quote);
                 _lexerState.MoveUntil(CharacterClasses.IsAttributeValue, TokenCategory.AttributeContent);
                 _lexerState.Must('"', TokenCategory.Quote);
 
                 return TokenCategory.Attribute;
             });
-        }
-
-        private void Name()
-        {
-            if (!CharacterClasses.IsNameStartChar(_lexerState.CurrentChar()))
-                return;
-
-            _lexerState.Move();
-            _lexerState.MoveUntil(CharacterClasses.IsNameChar, TokenCategory.Name);
         }
     }
 }

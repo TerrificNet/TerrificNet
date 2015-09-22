@@ -40,11 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LexicalAnalysis\CommonGrammar.cs" />
+    <Compile Include="LexicalAnalysis\HandlebarsGrammar.cs" />
     <Compile Include="Parsing\EvaluateBlockNode.cs" />
     <Compile Include="Parsing\EvaluateExpressionNode.cs" />
     <Compile Include="Parsing\Attribute.cs" />
     <Compile Include="Parsing\Document.cs" />
     <Compile Include="Parsing\Element.cs" />
+    <Compile Include="Parsing\HandlebarsParser.cs" />
     <Compile Include="Parsing\Node.cs" />
     <Compile Include="Parsing\TextNode.cs" />
     <Compile Include="LexicalAnalysis\CharacterClasses.cs" />
