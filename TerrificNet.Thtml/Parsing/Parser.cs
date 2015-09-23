@@ -82,7 +82,7 @@ namespace TerrificNet.Thtml.Parsing
             }
         }
 
-        private static IEnumerable<Attribute> GetAttributes(Token token)
+        private static IEnumerable<AttributeNode> GetAttributes(Token token)
         {
             var compositeToken = ExpectComposite(token);
             return compositeToken.Tokens
@@ -90,13 +90,13 @@ namespace TerrificNet.Thtml.Parsing
                 .Select(GetAttribute);
         }
 
-        private static Attribute GetAttribute(Token token)
+        private static AttributeNode GetAttribute(Token token)
         {
             var compositeToken = ExpectComposite(token);
             var name = GetNameToken(compositeToken, TokenCategory.Name);
             var value = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.AttributeContent);
 
-            return new Attribute(name.Lexem, value?.Lexem);
+            return new AttributeNode(name.Lexem, value?.Lexem);
         }
 
         private static string GetNamePart(Token token, TokenCategory tokenCategory)

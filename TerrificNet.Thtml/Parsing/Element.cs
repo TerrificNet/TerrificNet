@@ -6,7 +6,7 @@ namespace TerrificNet.Thtml.Parsing
     public class Element : Document
     {
         public string TagName { get; }
-        public IReadOnlyList<Attribute> Attributes { get; }
+        public IReadOnlyList<AttributeNode> Attributes { get; }
 
         public Element(string tagName) : this(tagName, Enumerable.Empty<Node>())
         {
@@ -22,12 +22,12 @@ namespace TerrificNet.Thtml.Parsing
             TagName = tagName;
         }
 
-        public Element(string tagName, IEnumerable<Node> childNodes, IEnumerable<Attribute> attributes) : this(tagName, childNodes)
+        public Element(string tagName, IEnumerable<Node> childNodes, IEnumerable<AttributeNode> attributes) : this(tagName, childNodes)
         {
             Attributes = attributes.ToList();
         }
 
-        public Element(string tagName, IEnumerable<Attribute> attributes) : this(tagName)
+        public Element(string tagName, IEnumerable<AttributeNode> attributes) : this(tagName)
         {
             Attributes = attributes.ToList();
         }

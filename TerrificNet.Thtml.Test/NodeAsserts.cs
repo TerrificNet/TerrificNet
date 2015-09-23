@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
 using Xunit;
-using Attribute = TerrificNet.Thtml.Parsing.Attribute;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -82,7 +81,7 @@ namespace TerrificNet.Thtml.Test
             }
         }
 
-        public static void AssertAttribute(Attribute expected, Attribute actual)
+        public static void AssertAttribute(AttributeNode expected, AttributeNode actual)
         {
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Value, actual.Value);

@@ -89,9 +89,9 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h1", i)),
 
                     new Document(
-                        new Element("h1", new List<Attribute>
+                        new Element("h1", new List<AttributeNode>
                         {
-                            new Attribute("test", "val")
+                            new AttributeNode("test", "val")
                         }))
                 };
                 yield return new object[]
@@ -105,10 +105,10 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h1", i)),
 
                     new Document(
-                        new Element("h1", new List<Attribute>
+                        new Element("h1", new List<AttributeNode>
                         {
-                            new Attribute("test", "val"),
-                            new Attribute("test2", null)
+                            new AttributeNode("test", "val"),
+                            new AttributeNode("test2", null)
                         }))
                 };
                 yield return new object[]

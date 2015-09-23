@@ -61,7 +61,8 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="HandlebarsExpressionTest.cs" />
+    <Compile Include="HandlebarsExpressionAssert.cs" />
+    <Compile Include="HandlebarsParserTest.cs" />
     <Compile Include="NodeAsserts.cs" />
     <Compile Include="ParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
