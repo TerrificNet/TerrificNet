@@ -42,6 +42,11 @@ namespace TerrificNet.Thtml.Test
                     "#if test",
                     new EvaluateExpression(new ConditionalExpression(new MemberAccessExpression("test")))
                 };
+                yield return new object[]
+                {
+                    "{test}",
+                    new EvaluateInHtmlExpression(new MemberAccessExpression("test"))
+                };
             }
         }
     }

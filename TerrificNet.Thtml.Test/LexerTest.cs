@@ -297,6 +297,13 @@ namespace TerrificNet.Thtml.Test
                 };
                 yield return new object[]
                 {
+                    "{{e1}}{{e2}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.HandlebarsSimple(i, "e1"),
+                        i => TokenFactory.HandlebarsSimple(i, "e2"))
+                };
+                yield return new object[]
+                {
                     "{{/if}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
@@ -343,6 +350,21 @@ namespace TerrificNet.Thtml.Test
                                 b => TokenFactory.AttributeContent("before", b),
                                 b => TokenFactory.HandlebarsSimple(b, "test"),
                                 b => TokenFactory.AttributeContent("after", b))))
+                };
+                yield return new object[]
+                {
+                    "{{{test}}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.External,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluateInHtml, 
+                                TokenFactory.HandlebarsStart,
+                                b => TokenFactory.Expression(b, "test"),
+                                TokenFactory.HandlebarsEnd),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
                 };
             }
         }

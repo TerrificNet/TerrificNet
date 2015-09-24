@@ -22,7 +22,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 
         public EvaluateExpression Parse(Token token)
         {
-            if (token.Category != TokenCategory.HandlebarsBlockStart && token.Category != TokenCategory.HandlebarsBlockEnd && token.Category != TokenCategory.HandlebarsEvaluate)
+            if (token.Category != TokenCategory.HandlebarsBlockStart && token.Category != TokenCategory.HandlebarsBlockEnd && token.Category != TokenCategory.HandlebarsEvaluate && token.Category != TokenCategory.HandlebarsEvaluateInHtml)
                 throw new Exception(
                     $"Unexpected token {token.Category} at postion {token.Start}.");
 
@@ -34,6 +34,10 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             if (token.Category == TokenCategory.HandlebarsEvaluate)
             {
                 return new EvaluateExpression(GetMemberAccess(token));
+            }
+            if (token.Category == TokenCategory.HandlebarsEvaluateInHtml)
+            {
+                return new EvaluateInHtmlExpression(GetMemberAccess(token));
             }
             if (token.Category == TokenCategory.HandlebarsBlockStart)
             {

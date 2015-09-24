@@ -64,6 +64,12 @@
                 _lexerState.Must(() => _commonGrammar.Name(), TokenCategory.Name);
                 return TokenCategory.HandlebarsBlockEnd;
             }
+            if (_lexerState.Can('{', TokenCategory.HandlebarsStart))
+            {
+                _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
+                _lexerState.Must('}', TokenCategory.HandlebarsEnd);
+                return TokenCategory.HandlebarsEvaluateInHtml;
+            }
 
             _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
             return TokenCategory.HandlebarsEvaluate;

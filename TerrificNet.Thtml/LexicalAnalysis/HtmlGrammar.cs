@@ -27,18 +27,26 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         {
             while (true)
             {
-                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd, TokenCategory.EmptyElement))
+                _lexerState.MoveUntil(CharacterClasses.IsCharData, TokenCategory.Content);
+
+                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd, TokenCategory.EmptyElement)
+                    || _lexerState.Can(Handlebars, TokenCategory.HandlebarsEvaluate))
                 {
                     continue;
                 }
 
                 _lexerState.MoveUntil(CharacterClasses.IsCharData, TokenCategory.Content);
-                if (_lexerState.Can(Handlebars, TokenCategory.HandlebarsEvaluate))
+
+                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd, TokenCategory.EmptyElement)
+                    || _lexerState.Can(Handlebars, TokenCategory.HandlebarsEvaluate))
+                {
                     continue;
+                }
 
                 _lexerState.MoveUntil(CharacterClasses.IsCharData, TokenCategory.Content);
 
-                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd, TokenCategory.EmptyElement))
+                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd, TokenCategory.EmptyElement)
+                    || _lexerState.Can(Handlebars, TokenCategory.HandlebarsEvaluate))
                 {
                     continue;
                 }

@@ -1,11 +1,13 @@
 using TerrificNet.Thtml.Parsing.Handlebars;
-using TerrificNet.Thtml.Test;
 using Xunit;
 
 static internal class HandlebarsExpressionAssert
 {
     public static void AssertEvaluateExpression(EvaluateExpression expected, EvaluateExpression result)
     {
+        if (expected is EvaluateInHtmlExpression)
+            Assert.IsType<EvaluateInHtmlExpression>(result);
+
         AssertExpression(expected.Expression, result.Expression);
     }
 
