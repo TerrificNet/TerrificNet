@@ -91,7 +91,45 @@ namespace TerrificNet.Thtml.Test
         public static void AssertAttribute(AttributeNode expected, AttributeNode actual)
         {
             Assert.Equal(expected.Name, actual.Name);
-            Assert.Equal(expected.Value, actual.Value);
+            if (expected.Value == null)
+                Assert.Null(actual.Value);
+
+            AssertAttributeContent(expected.Value, actual.Value);
+        }
+
+        private static void AssertAttributeContent(AttributeContent expected, AttributeContent actual)
+        {
+            if (expected == null)
+            {
+                Assert.Null(actual);
+                return;
+            }
+
+            var eConst = expected as ConstantAttributeContent;
+            var eComp = expected as CompositeAttributeContent;
+            var eEvaluate = expected as EvaluteExpressionAttributeContent;
+            if (eConst != null)
+            {
+                Assert.IsType<ConstantAttributeContent>(actual);
+                Assert.Equal(eConst.Text, ((ConstantAttributeContent) actual)?.Text);
+            }
+            else if (eComp != null)
+            {
+                Assert.IsType<CompositeAttributeContent>(actual);
+                var aComp = actual as CompositeAttributeContent;
+
+                Assert.Equal(eComp.ContentParts.Length, aComp.ContentParts.Length);
+                for (int i = 0; i < eComp.ContentParts.Length; i++)
+                {
+                    AssertAttributeContent(eComp.ContentParts[i], aComp.ContentParts[i]);
+                }
+            }
+            else if (eEvaluate != null)
+            {
+                Assert.IsType<EvaluteExpressionAttributeContent>(actual);
+            }
+            else
+                throw new Exception("Unexpected type");
         }
 
         public static void AssertContent(TextNode expected, TextNode actual)

@@ -109,7 +109,7 @@ namespace TerrificNet.Thtml.Test
                         new Element("h1", new List<AttributeNode>
                         {
                             new AttributeNode("test", "val"),
-                            new AttributeNode("test2", null)
+                            new AttributeNode("test2", (ConstantAttributeContent)null)
                         }))
                 };
                 yield return new object[]
@@ -147,6 +147,27 @@ namespace TerrificNet.Thtml.Test
                             NodeAsserts.Any,
                             new Element("br"),
                             new EvaluateExpressionNode(NodeAsserts.Any)))
+                };
+
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            a => TokenFactory.AttributeWithContentExtended(a, "attr",
+                                b => TokenFactory.AttributeContent("before", b),
+                                b => TokenFactory.HandlebarsSimple(b, "test"),
+                                b => TokenFactory.AttributeContent("after", b))),
+                        i => TokenFactory.ElementEnd("h1", i)),
+
+                    new Document(
+                        new Element("h1", new []
+                        {
+                           new AttributeNode("attr", 
+                           new CompositeAttributeContent(
+                               new ConstantAttributeContent("before"), 
+                               new EvaluteExpressionAttributeContent(NodeAsserts.Any),
+                               new ConstantAttributeContent("after")))
+                        }))
                 };
 
             }

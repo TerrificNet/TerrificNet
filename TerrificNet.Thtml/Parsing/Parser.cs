@@ -67,7 +67,7 @@ namespace TerrificNet.Thtml.Parsing
                 }
                 else if (enumerator.Current.Category == TokenCategory.External)
                 {
-                    var ft = GetExternalToken(enumerator);
+                    var ft = GetExternalToken(enumerator.Current);
                     if (ft.Category == TokenCategory.HandlebarsEvaluate)
                     {
                         yield return new EvaluateExpressionNode(_parser.Parse(ft));
@@ -82,7 +82,7 @@ namespace TerrificNet.Thtml.Parsing
 
                         var nodes = Content(enumerator).ToList();
 
-                        var tEnd = GetNamePart(GetExternalToken(enumerator), TokenCategory.Name);
+                        var tEnd = GetNamePart(GetExternalToken(enumerator.Current), TokenCategory.Name);
                         if (tEnd != name)
                             throw new Exception(
                                 $"Unexpected expression '{tEnd}'. Expected ending epxression for '{name}'.");
@@ -99,9 +99,9 @@ namespace TerrificNet.Thtml.Parsing
             }
         }
 
-        private static Token GetExternalToken(IEnumerator<Token> enumerator)
+        private static Token GetExternalToken(Token token)
         {
-            var current = ExpectComposite(enumerator.Current);
+            var current = ExpectComposite(token);
             var ft = current.Tokens.OfType<CompositeToken>().FirstOrDefault();
             if (ft == null)
                 throw new Exception("The external token requires to have one inner token.");
@@ -109,7 +109,7 @@ namespace TerrificNet.Thtml.Parsing
             return ft;
         }
 
-        private static IEnumerable<AttributeNode> GetAttributes(Token token)
+        private IEnumerable<AttributeNode> GetAttributes(Token token)
         {
             var compositeToken = ExpectComposite(token);
             return compositeToken.Tokens
@@ -117,13 +117,36 @@ namespace TerrificNet.Thtml.Parsing
                 .Select(GetAttribute);
         }
 
-        private static AttributeNode GetAttribute(Token token)
+        private AttributeNode GetAttribute(Token token)
         {
             var compositeToken = ExpectComposite(token);
             var name = GetNameToken(compositeToken, TokenCategory.Name);
-            var value = compositeToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.AttributeContent);
 
-            return new AttributeNode(name.Lexem, value?.Lexem);
+            var values = compositeToken.Tokens
+                .SkipWhile(f => f.Category != TokenCategory.Quote)
+                .Skip(1)
+                .TakeWhile(f => f.Category != TokenCategory.Quote)
+                .Select(GetAttributeContent)
+                .ToArray();
+
+            AttributeContent content = null;
+            if (values.Length > 1)
+                content = new CompositeAttributeContent(values);
+            else if (values.Length == 1)
+                content = values[0];
+
+            return new AttributeNode(name.Lexem, content);
+        }
+
+        private AttributeContent GetAttributeContent(Token token)
+        {
+            if (token.Category == TokenCategory.AttributeContent)
+                return new ConstantAttributeContent(token.Lexem);
+
+            if (token.Category == TokenCategory.External)
+                return new EvaluteExpressionAttributeContent(_parser.Parse(GetExternalToken(token)));
+
+            throw new Exception($"Unexpected token {token.Category} at position {token.Start}");
         }
 
         private static string GetNamePart(Token token, TokenCategory tokenCategory)
