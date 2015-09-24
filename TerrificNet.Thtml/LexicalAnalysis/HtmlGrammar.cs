@@ -36,6 +36,8 @@ namespace TerrificNet.Thtml.LexicalAnalysis
                 if (_lexerState.Can(Handlebars, TokenCategory.HandlebarsEvaluate))
                     continue;
 
+                _lexerState.MoveUntil(CharacterClasses.IsCharData, TokenCategory.Content);
+
                 if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd))
                 {
                     continue;
@@ -55,13 +57,12 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
             _lexerState.Composite(() =>
             {
-                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
-                var category = _handlebarsGrammar.HandlebarContent();
-                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
+                _handlebarsGrammar.Handlebar();
+
                 _lexerState.Must('}', TokenCategory.HandlebarsEnd);
                 _lexerState.Must('}', TokenCategory.HandlebarsEnd);
 
-                return category;
+                return TokenCategory.External;
             }, 2);
         }
 

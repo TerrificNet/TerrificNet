@@ -202,10 +202,10 @@ namespace TerrificNet.Thtml.Test
                     "{{name}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsEvaluate,
+                            TokenCategory.External,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            a => TokenFactory.Expression(a, "name"),
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate, b => TokenFactory.Expression(b, "name")),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
@@ -214,13 +214,14 @@ namespace TerrificNet.Thtml.Test
                     "{{  name }}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsEvaluate,
+                            TokenCategory.External,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            a => TokenFactory.Whitespace("  ", a),
-                            a => TokenFactory.Expression(a, 
-                                b => TokenFactory.Name("name", b),
-                                TokenFactory.Whitespace),
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
+                                b => TokenFactory.Whitespace("  ", b),
+                                b => TokenFactory.Expression(b, 
+                                    c => TokenFactory.Name("name", c),
+                                    TokenFactory.Whitespace)),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
@@ -235,15 +236,16 @@ namespace TerrificNet.Thtml.Test
                     "{{name. value}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsEvaluate,
+                            TokenCategory.External,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            a => TokenFactory.Expression(a, 
-                                b => TokenFactory.Name("name", b),
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
+                                b => TokenFactory.Expression(b, 
+                                    c => TokenFactory.Name("name", c),
                                 TokenFactory.Dot,
                                 TokenFactory.Whitespace,
-                                b => TokenFactory.Expression(b, "value")
-                            ),
+                                c => TokenFactory.Expression(c, "value")
+                            )),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
@@ -263,11 +265,12 @@ namespace TerrificNet.Thtml.Test
                     "{{#group}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsBlockStart,
+                            TokenCategory.External,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            TokenFactory.Hash,
-                            a => TokenFactory.Name("group", a),
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockStart,
+                                TokenFactory.Hash,
+                                b => TokenFactory.Name("group", b)),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
@@ -276,11 +279,12 @@ namespace TerrificNet.Thtml.Test
                     "{{/if}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsBlockEnd,
+                            TokenCategory.External,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            TokenFactory.Slash,
-                            a => TokenFactory.Name("if", a),
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockEnd,
+                                TokenFactory.Slash,
+                                b => TokenFactory.Name("if", b)),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
@@ -290,13 +294,14 @@ namespace TerrificNet.Thtml.Test
                     "{{#if expression}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,
-                            TokenCategory.HandlebarsBlockStart,
+                            TokenCategory.External,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            TokenFactory.Hash,
-                            a => TokenFactory.Name("if", a),
-                            TokenFactory.Whitespace,
-                            a => TokenFactory.Expression(a, "expression"),
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockStart,
+                                TokenFactory.Hash,
+                                b => TokenFactory.Name("if", b),
+                                TokenFactory.Whitespace,
+                                b => TokenFactory.Expression(b, "expression")),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };

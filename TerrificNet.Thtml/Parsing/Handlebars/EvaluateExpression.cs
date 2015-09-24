@@ -1,12 +1,15 @@
+using System.Linq.Expressions;
+
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
     public class EvaluateExpression
     {
-        public MemberAccessExpression Expression { get; }
+        public AccessExpression Expression { get; }
 
-        public EvaluateExpression(MemberAccessExpression expression)
+        public EvaluateExpression(AccessExpression expression)
         {
             Expression = expression;
         }
+
     }
 }

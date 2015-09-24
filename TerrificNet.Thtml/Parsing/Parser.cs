@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using TerrificNet.Thtml.LexicalAnalysis;
+using TerrificNet.Thtml.Parsing.Handlebars;
 
 namespace TerrificNet.Thtml.Parsing
 {
     public class Parser
     {
+        private readonly HandlebarsParser _parser;
+
+        public Parser(HandlebarsParser parser)
+        {
+            _parser = parser;
+        }
+
         public Node Parse(IEnumerable<Token> tokens)
         {
             var enumerator = tokens.GetEnumerator();
@@ -57,29 +65,48 @@ namespace TerrificNet.Thtml.Parsing
                     yield return new Element(tagName, attributes);
 
                 }
-                else if (enumerator.Current.Category == TokenCategory.HandlebarsEvaluate)
+                else if (enumerator.Current.Category == TokenCategory.External)
                 {
-                    var name = GetNamePart(enumerator.Current, TokenCategory.HandlebarsExpression);
+                    var ft = GetExternalToken(enumerator);
+                    if (ft.Category == TokenCategory.HandlebarsEvaluate)
+                    {
+                        yield return new EvaluateExpressionNode(_parser.Parse(ft));
+                        enumerator.MoveNext();
+                    }
+                    else if (ft.Category == TokenCategory.HandlebarsBlockStart)
+                    {
+                        var name = GetNamePart(ft, TokenCategory.Name);
+                        var expression = _parser.Parse(ft);
 
-                    yield return new EvaluateExpressionNode(name);
-                    enumerator.MoveNext();
-                }
-                else if (enumerator.Current.Category == TokenCategory.HandlebarsBlockStart)
-                {
-                    var name = GetNamePart(enumerator.Current, TokenCategory.Name);
-                    enumerator.MoveNext();
+                        enumerator.MoveNext();
 
-                    var nodes = Content(enumerator).ToList();
+                        var nodes = Content(enumerator).ToList();
 
-                    var tEnd = GetNamePart(Expect(enumerator, TokenCategory.HandlebarsBlockEnd), TokenCategory.Name);
-                    if (tEnd != name)
-                        throw new Exception($"Unexpected expression '{tEnd}'. Expected ending epxression for '{name}'.");
+                        var tEnd = GetNamePart(GetExternalToken(enumerator), TokenCategory.Name);
+                        if (tEnd != name)
+                            throw new Exception(
+                                $"Unexpected expression '{tEnd}'. Expected ending epxression for '{name}'.");
 
-                    yield return new EvaluateBlockNode(name, nodes.ToArray());
+                        enumerator.MoveNext();
+
+                        yield return new EvaluateBlockNode(expression, nodes.ToArray());
+                    }
+                    else
+                        break;
                 }
                 else
                     break;
             }
+        }
+
+        private static Token GetExternalToken(IEnumerator<Token> enumerator)
+        {
+            var current = ExpectComposite(enumerator.Current);
+            var ft = current.Tokens.OfType<CompositeToken>().FirstOrDefault();
+            if (ft == null)
+                throw new Exception("The external token requires to have one inner token.");
+
+            return ft;
         }
 
         private static IEnumerable<AttributeNode> GetAttributes(Token token)
@@ -121,7 +148,7 @@ namespace TerrificNet.Thtml.Parsing
         {
             var compositeToken = token as CompositeToken;
             if (compositeToken == null)
-                throw new Exception($"Expected token {token} to be a composite token.");
+                throw new Exception($"Expected token {token.Category} to be a composite token.");
 
             return compositeToken;
         }

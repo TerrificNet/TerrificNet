@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
+using TerrificNet.Thtml.Parsing.Handlebars;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test
@@ -11,7 +12,7 @@ namespace TerrificNet.Thtml.Test
         [MemberData("TestData")]
         public void TestParser(IEnumerable<Token> tokens, Node expectedNode)
         {
-            var parser = new Parser();
+            var parser = new Parser(new HandlebarsParser());
             var result = parser.Parse(tokens);
 
             Assert.NotNull(result);
@@ -130,22 +131,22 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h1", i)),
 
                     new Document(
-                        new Element("h1", new EvaluateExpressionNode("name")))
+                        new Element("h1", new EvaluateExpressionNode(NodeAsserts.Any)))
                 };
 
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(
-                        i => TokenFactory.HandlebarsBlockStart(i, "if"),
+                        i => TokenFactory.HandlebarsBlockStart(i, "if", a => TokenFactory.Expression(a, "test")),
                         i => TokenFactory.EmptyElement("br", i),
                         i => TokenFactory.HandlebarsSimple(i, "name"),
                         i => TokenFactory.HandlebarsBlockEnd(i, "if")),
 
                     new Document(
                         new EvaluateBlockNode(
-                            "if",
-                            new Element("br"), 
-                            new EvaluateExpressionNode("name")))
+                            NodeAsserts.Any,
+                            new Element("br"),
+                            new EvaluateExpressionNode(NodeAsserts.Any)))
                 };
 
             }

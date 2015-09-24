@@ -28,7 +28,19 @@
             });
         }
 
-        internal TokenCategory HandlebarContent()
+        internal void Handlebar()
+        {
+            _lexerState.Composite(() =>
+            {
+                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
+                var category = HandlebarContent();
+                _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
+
+                return category;
+            }, 0);
+        }
+
+        private TokenCategory HandlebarContent()
         {
             if (_lexerState.Can('#', TokenCategory.Hash))
             {

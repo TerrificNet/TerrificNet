@@ -1,12 +1,14 @@
+using TerrificNet.Thtml.Parsing.Handlebars;
+
 namespace TerrificNet.Thtml.Parsing
 {
     public class EvaluateExpressionNode : Node
     {
-        public EvaluateExpressionNode(string expression)
+        public EvaluateExpressionNode(EvaluateExpression expression)
         {
             Expression = expression;
         }
 
-        public string Expression { get; }
+        public EvaluateExpression Expression { get; }
     }
 }

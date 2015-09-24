@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
+using TerrificNet.Thtml.Parsing.Handlebars;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test
 {
     static internal class NodeAsserts
     {
+        public static readonly EvaluateExpression Any = new EvaluateExpression(null);
+
         public static void AssertNode(Node expected, Node actual)
         {
             if (expected == null)
@@ -55,13 +58,17 @@ namespace TerrificNet.Thtml.Test
 
         private static void AssertDynamic(EvaluateBlockNode expected, EvaluateBlockNode actual)
         {
-            Assert.Equal(expected.Expression, actual.Expression);
-            AssertNodeList(expected.ChildNodes, actual.ChildNodes);
+            if (expected.Expression != Any)
+            {
+                Assert.Equal(expected.Expression, actual.Expression);
+                AssertNodeList(expected.ChildNodes, actual.ChildNodes);
+            }
         }
 
         private static void AssertDynamic(EvaluateExpressionNode expected, EvaluateExpressionNode actual)
         {
-            Assert.Equal(expected.Expression, actual.Expression);
+            if (expected.Expression != Any)
+                Assert.Equal(expected.Expression, actual.Expression);
         }
 
         public static void AssertElement(Element expected, Element actual)

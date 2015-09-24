@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using Xunit;
+using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -34,6 +36,11 @@ namespace TerrificNet.Thtml.Test
                 {
                     "test . property1.property2 ",
                     new EvaluateExpression(new MemberAccessExpression("test", new MemberAccessExpression("property1", new MemberAccessExpression("property2"))))
+                };
+                yield return new object[]
+                {
+                    "#if test",
+                    new EvaluateExpression(new ConditionalExpression(new MemberAccessExpression("test")))
                 };
             }
         }

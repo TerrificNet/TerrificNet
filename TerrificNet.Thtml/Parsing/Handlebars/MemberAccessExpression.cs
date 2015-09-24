@@ -1,6 +1,11 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class MemberAccessExpression
+    public class AccessExpression
+    {
+        
+    }
+
+    public class MemberAccessExpression : AccessExpression
     {
         public string Name { get; }
         public MemberAccessExpression Expression { get; }

@@ -143,10 +143,11 @@ namespace TerrificNet.Thtml.Test
         public static Token HandlebarsSimple(int position, string name)
         {
             return Composite(position,
-                TokenCategory.HandlebarsEvaluate,
+                TokenCategory.External,
                 HandlebarsStart,
                 HandlebarsStart,
-                a => Expression(a, name),
+                a => Composite(a, TokenCategory.HandlebarsEvaluate,
+                    c => Expression(a, name)),
                 HandlebarsEnd,
                 HandlebarsEnd);
         }
@@ -175,14 +176,17 @@ namespace TerrificNet.Thtml.Test
             return new Token(TokenCategory.Dot, ".", position, position + 1);
         }
 
-        public static Token HandlebarsBlockStart(int position, string name)
+        public static Token HandlebarsBlockStart(int position, string name, Func<int, Token> expressionFactory)
         {
             return Composite(position,
-                TokenCategory.HandlebarsBlockStart,
+                TokenCategory.External,
                 HandlebarsStart,
                 HandlebarsStart,
-                Hash,
-                a => Name(name, a),
+                a => Composite(a, TokenCategory.HandlebarsBlockStart,
+                    Hash,
+                    b => Name(name, b),
+                    Whitespace,
+                    expressionFactory),
                 HandlebarsEnd,
                 HandlebarsEnd);
         }
@@ -190,11 +194,12 @@ namespace TerrificNet.Thtml.Test
         public static Token HandlebarsBlockEnd(int position, string name)
         {
             return Composite(position,
-                TokenCategory.HandlebarsBlockEnd,
+                TokenCategory.External,
                 HandlebarsStart,
                 HandlebarsStart,
-                Slash,
-                a => Name(name, a),
+                a => Composite(a, TokenCategory.HandlebarsBlockEnd,
+                    Slash,
+                    b => Name(name, b)),
                 HandlebarsEnd,
                 HandlebarsEnd);
         }

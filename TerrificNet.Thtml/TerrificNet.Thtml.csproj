@@ -47,6 +47,7 @@
     <Compile Include="Parsing\AttributeNode.cs" />
     <Compile Include="Parsing\Document.cs" />
     <Compile Include="Parsing\Element.cs" />
+    <Compile Include="Parsing\Handlebars\ConditionalExpression.cs" />
     <Compile Include="Parsing\Handlebars\EvaluateExpression.cs" />
     <Compile Include="Parsing\Handlebars\HandlebarsParser.cs" />
     <Compile Include="Parsing\Handlebars\MemberAccessExpression.cs" />
