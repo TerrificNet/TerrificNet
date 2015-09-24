@@ -27,7 +27,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         {
             while (true)
             {
-                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd))
+                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd, TokenCategory.EmptyElement))
                 {
                     continue;
                 }
@@ -38,7 +38,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
                 _lexerState.MoveUntil(CharacterClasses.IsCharData, TokenCategory.Content);
 
-                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd))
+                if (_lexerState.Can(Element, TokenCategory.ElementStart, TokenCategory.ElementEnd, TokenCategory.EmptyElement))
                 {
                     continue;
                 }

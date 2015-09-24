@@ -51,6 +51,7 @@ namespace TerrificNet.UnityModules
                     builder.AddTask(new BundleTask("app.js", pId));
                     builder.AddTask(new CompileJavascriptTask(pId, "app.min.js"));
                     builder.AddTask(new BuildViewTask(project));
+                    builder.AddTask(new BuildThtmlTask(project));
                 }
 
                 childContainer.RegisterInstance(application);

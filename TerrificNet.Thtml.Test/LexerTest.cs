@@ -196,6 +196,27 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.BracketClose))
                 };
 
+                yield return new object[]
+                {
+                    "<div> <h1 attr /> </div>",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("div", i),
+                        i => TokenFactory.Content(" ", i),
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.EmptyElement,
+                            TokenFactory.BracketOpen,
+                            a => TokenFactory.Name("h1", a),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.Composite(a,
+                                TokenCategory.Attribute,
+                                b => TokenFactory.Name("attr", b),
+                                TokenFactory.Whitespace),
+                            TokenFactory.Slash,
+                            TokenFactory.BracketClose),
+                        i => TokenFactory.Content(" ", i),
+                        i => TokenFactory.ElementEnd("div", i))
+                };
+
                 // Handlebars
                 yield return new object[]
                 {

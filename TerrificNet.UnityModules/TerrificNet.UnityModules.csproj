@@ -50,6 +50,10 @@
     <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention">
       <HintPath>..\packages\Unity.3.5.1404.0\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
@@ -67,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildThtmlTask.cs" />
     <Compile Include="BuildViewTask.cs" />
     <Compile Include="DefaultModule.cs" />
     <Compile Include="GenericUnityTerrificTemplateHandlerFactory.cs" />
@@ -88,6 +93,10 @@
     <ProjectReference Include="..\TerrificNet.Generator\TerrificNet.Generator.csproj">
       <Project>{7a0b68ab-f5ef-4bce-ace3-766c9ea06b82}</Project>
       <Name>TerrificNet.Generator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TerrificNet.Thtml\TerrificNet.Thtml.csproj">
+      <Project>{947C6426-E77A-484A-95F1-1854B451B063}</Project>
+      <Name>TerrificNet.Thtml</Name>
     </ProjectReference>
     <ProjectReference Include="..\TerrificNet.ViewEngine.Client\TerrificNet.ViewEngine.Client.csproj">
       <Project>{E0262178-CB44-4A24-958A-868B68E96F84}</Project>
