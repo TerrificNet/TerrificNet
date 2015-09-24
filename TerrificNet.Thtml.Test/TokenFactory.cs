@@ -48,7 +48,11 @@ namespace TerrificNet.Thtml.Test
                 BracketOpen,
                 i => Name(tagName, i)
             };
-            factories.AddRange(attributeTokenFactories);
+            if (attributeTokenFactories.Length > 0)
+            {
+                factories.Add(Whitespace);
+                factories.AddRange(attributeTokenFactories);
+            }
             factories.Add(BracketClose);
 
             return Composite(position, TokenCategory.ElementStart, factories.ToArray());
@@ -131,13 +135,24 @@ namespace TerrificNet.Thtml.Test
 
         public static Token AttributeWithContent(int a, string name, string content)
         {
-            return Composite(a,
-                TokenCategory.Attribute,
+            return AttributeWithContentExtended(a, name, b => AttributeContent(content, b));
+        }
+
+        public static Token AttributeWithContentExtended(int a, string name, params Func<int, Token>[] attributeContent)
+        {
+            var factories = new List<Func<int, Token>>();
+            factories.AddRange(new Func<int, Token>[]
+            {
                 b => Name(name, b),
                 Equal,
-                Quote,
-                b => AttributeContent(content, b),
-                Quote);
+                Quote
+            });
+            factories.AddRange(attributeContent);
+            factories.Add(Quote);
+
+            return Composite(a,
+                TokenCategory.Attribute,
+                factories.ToArray());
         }
 
         public static Token HandlebarsSimple(int position, string name)

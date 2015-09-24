@@ -63,9 +63,9 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             return (c1 != '{' || c2 != '{') && !NotInAttributeValueCharacters.Contains(c1);
         }
 
-        public static bool IsAttributeValue(char c)
+        public static bool IsAttributeValue(char c1, char c2)
         {
-            return !NotInAttributeValueCharacters.Contains(c);
+            return (c1 != '{' || c2 != '{') && !NotInAttributeValueCharacters.Contains(c1);
         }
     }
 }

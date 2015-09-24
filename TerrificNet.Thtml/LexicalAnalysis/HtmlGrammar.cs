@@ -138,6 +138,8 @@ namespace TerrificNet.Thtml.LexicalAnalysis
                 _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
                 _lexerState.Must('"', TokenCategory.Quote);
                 _lexerState.MoveUntil(CharacterClasses.IsAttributeValue, TokenCategory.AttributeContent);
+                _lexerState.Can(Handlebars, TokenCategory.HandlebarsEvaluate);
+                _lexerState.MoveUntil(CharacterClasses.IsAttributeValue, TokenCategory.AttributeContent);
                 _lexerState.Must('"', TokenCategory.Quote);
 
                 return TokenCategory.Attribute;

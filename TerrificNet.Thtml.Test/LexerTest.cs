@@ -326,6 +326,24 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
+                yield return new object[]
+                {
+                    "<h1 attr=\"{{test}}\">",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            a => TokenFactory.AttributeWithContentExtended(a, "attr", 
+                                b => TokenFactory.HandlebarsSimple(b, "test"))))
+                };
+                yield return new object[]
+                {
+                    "<h1 attr=\"before{{test}}after\">",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            a => TokenFactory.AttributeWithContentExtended(a, "attr",
+                                b => TokenFactory.AttributeContent("before", b),
+                                b => TokenFactory.HandlebarsSimple(b, "test"),
+                                b => TokenFactory.AttributeContent("after", b))))
+                };
             }
         }
     }
