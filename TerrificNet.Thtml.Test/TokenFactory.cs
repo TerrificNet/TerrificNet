@@ -238,5 +238,33 @@ namespace TerrificNet.Thtml.Test
         {
             return new Token(TokenCategory.Hash, "#", position, position + 1);
         }
+
+        public static Token IfStartExpression(string expression, int position)
+        {
+            return TokenFactory.Composite(position,
+                TokenCategory.External,
+                TokenFactory.HandlebarsStart,
+                TokenFactory.HandlebarsStart,
+                a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockStart,
+                    TokenFactory.Hash,
+                    b => TokenFactory.Name("if", b),
+                    TokenFactory.Whitespace,
+                    b => TokenFactory.Expression(b, expression)),
+                TokenFactory.HandlebarsEnd,
+                TokenFactory.HandlebarsEnd);
+        }
+
+        public static Token IfEndExpression(int i)
+        {
+            return TokenFactory.Composite(i,
+                TokenCategory.External,
+                TokenFactory.HandlebarsStart,
+                TokenFactory.HandlebarsStart,
+                a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockEnd,
+                    TokenFactory.Slash,
+                    b => TokenFactory.Name("if", b)),
+                TokenFactory.HandlebarsEnd,
+                TokenFactory.HandlebarsEnd);
+        }
     }
 }

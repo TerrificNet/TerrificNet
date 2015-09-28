@@ -120,12 +120,11 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         {
             while (true)
             {
-                if (_lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace))
+                if (_lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace) 
+                    || _lexerState.Can(Handlebars, TokenCategory.External))
                 {
-                    if (_lexerState.Can(Attribute, TokenCategory.Attribute))
-                    {
-                        continue;
-                    }
+                    _lexerState.Can(Attribute, TokenCategory.Attribute);
+                    continue;
                 }
                 break;
             }

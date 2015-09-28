@@ -306,32 +306,14 @@ namespace TerrificNet.Thtml.Test
                 {
                     "{{/if}}",
                     TokenFactory.DocumentList(
-                        i => TokenFactory.Composite(i,
-                            TokenCategory.External,
-                            TokenFactory.HandlebarsStart,
-                            TokenFactory.HandlebarsStart,
-                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockEnd,
-                                TokenFactory.Slash,
-                                b => TokenFactory.Name("if", b)),
-                            TokenFactory.HandlebarsEnd,
-                            TokenFactory.HandlebarsEnd))
+                        TokenFactory.IfEndExpression)
                 };
 
                 yield return new object[]
                 {
                     "{{#if expression}}",
                     TokenFactory.DocumentList(
-                        i => TokenFactory.Composite(i,
-                            TokenCategory.External,
-                            TokenFactory.HandlebarsStart,
-                            TokenFactory.HandlebarsStart,
-                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockStart,
-                                TokenFactory.Hash,
-                                b => TokenFactory.Name("if", b),
-                                TokenFactory.Whitespace,
-                                b => TokenFactory.Expression(b, "expression")),
-                            TokenFactory.HandlebarsEnd,
-                            TokenFactory.HandlebarsEnd))
+                        i => TokenFactory.IfStartExpression("expression", i))
                 };
                 yield return new object[]
                 {
@@ -350,6 +332,15 @@ namespace TerrificNet.Thtml.Test
                                 b => TokenFactory.AttributeContent("before", b),
                                 b => TokenFactory.HandlebarsSimple(b, "test"),
                                 b => TokenFactory.AttributeContent("after", b))))
+                };
+                yield return new object[]
+                {
+                    "<h1 {{#if true}}attr=\"val\"{{/if}}>",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            a => TokenFactory.IfStartExpression("true", a),
+                            a => TokenFactory.AttributeWithContent(a, "attr", "val"),
+                            TokenFactory.IfEndExpression))
                 };
                 yield return new object[]
                 {
