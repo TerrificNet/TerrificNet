@@ -43,6 +43,7 @@
     <Compile Include="LexicalAnalysis\CommonGrammar.cs" />
     <Compile Include="LexicalAnalysis\HandlebarsGrammar.cs" />
     <Compile Include="Parsing\EvaluateBlockNode.cs" />
+    <Compile Include="Parsing\EvaluateExpressionAttributeNode.cs" />
     <Compile Include="Parsing\EvaluateExpressionNode.cs" />
     <Compile Include="Parsing\AttributeNode.cs" />
     <Compile Include="Parsing\Document.cs" />

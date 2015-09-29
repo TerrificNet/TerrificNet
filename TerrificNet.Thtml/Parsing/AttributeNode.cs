@@ -2,7 +2,11 @@ using TerrificNet.Thtml.Parsing.Handlebars;
 
 namespace TerrificNet.Thtml.Parsing
 {
-    public class AttributeNode
+    public class ElementPart
+    {
+    }
+
+    public class AttributeNode : ElementPart
     {
         public string Name { get; }
         public AttributeContent Value { get; }

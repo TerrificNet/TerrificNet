@@ -58,17 +58,19 @@ namespace TerrificNet.Thtml.Test
 
         private static void AssertDynamic(EvaluateBlockNode expected, EvaluateBlockNode actual)
         {
-            if (expected.Expression != Any)
-            {
-                Assert.Equal(expected.Expression, actual.Expression);
-                AssertNodeList(expected.ChildNodes, actual.ChildNodes);
-            }
+            AssertExpression(expected.Expression, actual.Expression);
+            AssertNodeList(expected.ChildNodes, actual.ChildNodes);
+        }
+
+        private static void AssertExpression(EvaluateExpression expected, EvaluateExpression actual)
+        {
+            if (expected != Any)
+                Assert.Equal(expected, actual);
         }
 
         private static void AssertDynamic(EvaluateExpressionNode expected, EvaluateExpressionNode actual)
         {
-            if (expected.Expression != Any)
-                Assert.Equal(expected.Expression, actual.Expression);
+            AssertExpression(expected.Expression, actual.Expression);
         }
 
         public static void AssertElement(Element expected, Element actual)
@@ -76,16 +78,49 @@ namespace TerrificNet.Thtml.Test
             AssertDocument(expected, actual);
             Assert.Equal(expected.TagName, actual.TagName);
 
-            if (expected.Attributes != null)
-            {
-                Assert.NotNull(actual.Attributes);
-                Assert.Equal(expected.Attributes.Count, actual.Attributes.Count);
+            AssertElementParts(expected.Attributes, actual.Attributes);
+        }
 
-                for (int i = 0; i < expected.Attributes.Count; i++)
+        private static void AssertElementParts(IReadOnlyList<ElementPart> expected, IReadOnlyList<ElementPart> actual)
+        {
+            if (expected != null)
+            {
+                Assert.NotNull(actual);
+                Assert.Equal(expected.Count, actual.Count);
+
+                for (int i = 0; i < expected.Count; i++)
                 {
-                    AssertAttribute(expected.Attributes[i], actual.Attributes[i]);
+                    AssertElementPart(expected[i], actual[i]);
                 }
             }
+        }
+
+        private static void AssertElementPart(ElementPart expected, ElementPart actual)
+        {
+            if (expected == null)
+                Assert.Null(actual);
+
+            var attributeExpected = expected as AttributeNode;
+            var dynamicExpected = expected as EvaluateExpressionAttributeNode;
+
+            if (attributeExpected != null)
+            {
+                Assert.IsType<AttributeNode>(actual);
+                AssertAttribute(attributeExpected, (AttributeNode) actual);
+            }
+            else if (dynamicExpected != null)
+            {
+                Assert.IsType<EvaluateExpressionAttributeNode>(actual);
+                AssertExpressionAttribute(dynamicExpected, (EvaluateExpressionAttributeNode)actual);
+            }
+            else
+                Assert.True(false, "Unknown type");
+        }
+
+        private static void AssertExpressionAttribute(EvaluateExpressionAttributeNode expected, EvaluateExpressionAttributeNode actual)
+        {
+            AssertExpression(expected.Expression, actual.Expression);
+            AssertElementParts(expected.ChildNodes, actual.ChildNodes);
         }
 
         public static void AssertAttribute(AttributeNode expected, AttributeNode actual)

@@ -3,10 +3,14 @@ using System.Linq;
 
 namespace TerrificNet.Thtml.Parsing
 {
+    public class AttributeList
+    {
+    }
+
     public class Element : Document
     {
         public string TagName { get; }
-        public IReadOnlyList<AttributeNode> Attributes { get; }
+        public IReadOnlyList<ElementPart> Attributes { get; }
 
         public Element(string tagName) : this(tagName, Enumerable.Empty<Node>())
         {
@@ -22,12 +26,12 @@ namespace TerrificNet.Thtml.Parsing
             TagName = tagName;
         }
 
-        public Element(string tagName, IEnumerable<Node> childNodes, IEnumerable<AttributeNode> attributes) : this(tagName, childNodes)
+        public Element(string tagName, IEnumerable<Node> childNodes, IEnumerable<ElementPart> attributes) : this(tagName, childNodes)
         {
             Attributes = attributes.ToList();
         }
 
-        public Element(string tagName, IEnumerable<AttributeNode> attributes) : this(tagName)
+        public Element(string tagName, IEnumerable<ElementPart> attributes) : this(tagName)
         {
             Attributes = attributes.ToList();
         }
