@@ -48,10 +48,13 @@
     <Compile Include="Parsing\AttributeNode.cs" />
     <Compile Include="Parsing\Document.cs" />
     <Compile Include="Parsing\Element.cs" />
+    <Compile Include="Parsing\Handlebars\CallHelperBoundExpression.cs" />
+    <Compile Include="Parsing\Handlebars\CallHelperExpression.cs" />
     <Compile Include="Parsing\Handlebars\ConditionalExpression.cs" />
     <Compile Include="Parsing\Handlebars\EvaluateExpression.cs" />
     <Compile Include="Parsing\Handlebars\EvaluateInHtmlExpression.cs" />
     <Compile Include="Parsing\Handlebars\HandlebarsParser.cs" />
+    <Compile Include="Parsing\Handlebars\HelperAttribute.cs" />
     <Compile Include="Parsing\Handlebars\MemberAccessExpression.cs" />
     <Compile Include="Parsing\Node.cs" />
     <Compile Include="Parsing\TextNode.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TerrificNet.Thtml.LexicalAnalysis;
 
@@ -33,23 +34,52 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
         {
             if (token.Category == TokenCategory.HandlebarsEvaluate)
             {
-                return new EvaluateExpression(GetMemberAccess(token));
+                return new EvaluateExpression(GetAccessExpression(token));
             }
             if (token.Category == TokenCategory.HandlebarsEvaluateInHtml)
             {
-                return new EvaluateInHtmlExpression(GetMemberAccess(token));
+                return new EvaluateInHtmlExpression(GetAccessExpression(token));
             }
             if (token.Category == TokenCategory.HandlebarsBlockStart)
             {
                 var compToken = ExpectComposite(token);
                 var nameToken = ExpectTokenCategory(compToken, TokenCategory.Name);
 
-                return new EvaluateExpression(new ConditionalExpression(GetMemberAccess(token)));
+                if (nameToken.Lexem == "if")
+                    return new EvaluateExpression(new CallHelperBoundExpression("if", (MemberAccessExpression)GetMemberAccess(token)));
+
+                var attributes = GetHelperAttributes(token).ToArray();
+                return new EvaluateExpression(new CallHelperExpression(nameToken.Lexem, attributes));
             }
             throw new ArgumentException("Unknown Token type.");
         }
 
-        private static MemberAccessExpression GetMemberAccess(Token token)
+        private static AccessExpression GetAccessExpression(Token token)
+        {
+            var compToken = ExpectComposite(token);
+            return GetMemberAccess(token);
+        }
+
+        private static IEnumerable<HelperAttribute> GetHelperAttributes(Token token)
+        {
+            var compToken = ExpectComposite(token);
+
+            return compToken.Tokens
+                .Where(t => t.Category == TokenCategory.HandlebarsAttribute)
+                .Select(GetAttribute);
+        }
+
+        private static HelperAttribute GetAttribute(Token token)
+        {
+            var compToken = ExpectComposite(token);
+
+            var name = ExpectTokenCategory(compToken, TokenCategory.Name);
+            var value = ExpectTokenCategory(compToken, TokenCategory.AttributeContent);
+
+            return new HelperAttribute(name.Lexem, value.Lexem);
+        }
+
+        private static AccessExpression GetMemberAccess(Token token)
         {
             var compToken = ExpectComposite(token);
             var expressionToken = ExpectTokenCategory(compToken, TokenCategory.HandlebarsExpression);
@@ -58,14 +88,18 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             return memberAccess;
         }
 
-        private static MemberAccessExpression Expression(Token current)
+        private static AccessExpression Expression(Token current)
         {
             var compToken = ExpectComposite(current);
             var nameToken = ExpectTokenCategory(compToken, TokenCategory.Name);
 
             var subExpression = compToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.HandlebarsExpression);
             if (subExpression != null)
-                return new MemberAccessExpression(nameToken.Lexem, Expression(subExpression));
+                return new MemberAccessExpression(nameToken.Lexem, (MemberAccessExpression)Expression(subExpression));
+
+            var attributes = GetHelperAttributes(compToken).ToArray();
+            if (attributes.Length > 0)
+                return new CallHelperExpression(nameToken.Lexem, attributes);
 
             return new MemberAccessExpression(nameToken.Lexem);
         }
