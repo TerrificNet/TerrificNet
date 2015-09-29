@@ -68,7 +68,7 @@ namespace TerrificNet.Thtml.Parsing
                 else if (enumerator.Current.Category == TokenCategory.External)
                 {
                     var ft = GetExternalToken(enumerator.Current);
-                    if (ft.Category == TokenCategory.HandlebarsEvaluate)
+                    if (ft.Category == TokenCategory.HandlebarsEvaluate || ft.Category == TokenCategory.HandlebarsEvaluateInHtml)
                     {
                         yield return new EvaluateExpressionNode(_parser.Parse(ft));
                         enumerator.MoveNext();

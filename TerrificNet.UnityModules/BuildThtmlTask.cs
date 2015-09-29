@@ -40,7 +40,8 @@ namespace TerrificNet.UnityModules
         {
             using (var stream = new StreamReader(await item.OpenRead()))
             {
-                var tree = new Parser(new HandlebarsParser()).Parse(new Lexer().Tokenize(stream.ReadToEnd()));
+                var text = stream.ReadToEnd();
+                var tree = new Parser(new HandlebarsParser()).Parse(new Lexer().Tokenize(text));
                 var memoryStream = new MemoryStream();
                 var streamWriter = new StreamWriter(memoryStream);
                 new JsonSerializer().Serialize(streamWriter, tree);
