@@ -18,7 +18,7 @@ namespace TerrificNet.Thtml.Parsing
         public Node Parse(IEnumerable<Token> tokens)
         {
             var enumerator = tokens.GetEnumerator();
-            enumerator.MoveNext();
+            MoveNext(enumerator);
 
             Expect(enumerator, TokenCategory.StartDocument);
 
@@ -38,14 +38,14 @@ namespace TerrificNet.Thtml.Parsing
                 {
                     Token token = enumerator.Current;
                     yield return new TextNode(token.Lexem);
-                    enumerator.MoveNext();
+                    MoveNext(enumerator);
                 }
                 else if (enumerator.Current.Category == TokenCategory.ElementStart)
                 {
                     string tagName;
                     var attributes = GetElementParts(enumerator.Current, out tagName).ToList();
 
-                    enumerator.MoveNext();
+                    MoveNext(enumerator);
 
                     var nodes = Content(enumerator).ToList();
 
@@ -60,7 +60,7 @@ namespace TerrificNet.Thtml.Parsing
                     string tagName;
                     var attributes = GetElementParts(enumerator.Current, out tagName).ToList();
 
-                    enumerator.MoveNext();
+                    MoveNext(enumerator);
 
                     yield return new Element(tagName, attributes);
 
@@ -71,20 +71,20 @@ namespace TerrificNet.Thtml.Parsing
                     if (ft.Category == TokenCategory.HandlebarsEvaluate || ft.Category == TokenCategory.HandlebarsEvaluateInHtml)
                     {
                         yield return new EvaluateExpressionNode(_parser.Parse(ft));
-                        enumerator.MoveNext();
+                        MoveNext(enumerator);
                     }
                     else if (ft.Category == TokenCategory.HandlebarsBlockStart)
                     {
                         var name = GetNamePart(ft, TokenCategory.Name);
                         var expression = _parser.Parse(ft);
 
-                        enumerator.MoveNext();
+                        MoveNext(enumerator);
 
                         var nodes = Content(enumerator).ToList();
 
                         ExpectEndOfExternal(enumerator, name);
 
-                        enumerator.MoveNext();
+                        MoveNext(enumerator);
 
                         yield return new EvaluateBlockNode(expression, nodes.ToArray());
                     }
@@ -93,6 +93,14 @@ namespace TerrificNet.Thtml.Parsing
                 }
                 else
                     break;
+            }
+        }
+
+        private static void MoveNext(IEnumerator<Token> enumerator)
+        {
+            while (enumerator.MoveNext() && (enumerator.Current.Category == TokenCategory.Comment ||
+                   enumerator.Current.Category == TokenCategory.Whitespace))
+            {
             }
         }
 
@@ -131,10 +139,6 @@ namespace TerrificNet.Thtml.Parsing
         {
             while (true)
             {
-                // ignore whitespace
-                if (Can(tokens, TokenCategory.Whitespace) != null)
-                    continue;
-
                 Token external;
                 if ((external = Can(tokens, TokenCategory.External)) != null)
                 {
@@ -233,7 +237,7 @@ namespace TerrificNet.Thtml.Parsing
             if (current.Category != category)
                 return null;
 
-            tokens.MoveNext();
+            MoveNext(tokens);
 
             return current;
         }
@@ -244,7 +248,7 @@ namespace TerrificNet.Thtml.Parsing
             if (current.Category != category)
                 throw new Exception($"Expected token {category} at position {current.Start}");
 
-            tokens.MoveNext();
+            MoveNext(tokens);
 
             return current;
         }

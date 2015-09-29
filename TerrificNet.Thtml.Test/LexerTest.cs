@@ -21,7 +21,7 @@ namespace TerrificNet.Thtml.Test
         {
             get
             {
-                yield return new object[] 
+                yield return new object[]
                 {
                     "",
                     TokenFactory.DocumentList()
@@ -45,7 +45,7 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.Composite(i,
                             TokenCategory.ElementStart,
                             TokenFactory.BracketOpen,
-                            a => TokenFactory.Name("html", a), 
+                            a => TokenFactory.Name("html", a),
                             TokenFactory.BracketClose))
                 };
                 yield return new object[]
@@ -68,7 +68,7 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.BracketOpen,
                             a => TokenFactory.Name("html", a),
                             TokenFactory.Whitespace,
-                            a => TokenFactory.Composite(a, 
+                            a => TokenFactory.Composite(a,
                                 TokenCategory.Attribute,
                                 b => TokenFactory.Name("attribute", b)),
                             TokenFactory.BracketClose))
@@ -255,7 +255,7 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsStart,
                             a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
                                 b => TokenFactory.Whitespace("  ", b),
-                                b => TokenFactory.Expression(b, 
+                                b => TokenFactory.Expression(b,
                                     c => TokenFactory.Name("name", c),
                                     TokenFactory.Whitespace)),
                             TokenFactory.HandlebarsEnd,
@@ -276,7 +276,7 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
                             a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
-                                b => TokenFactory.Expression(b, 
+                                b => TokenFactory.Expression(b,
                                     c => TokenFactory.Name("name", c),
                                 TokenFactory.Dot,
                                 TokenFactory.Whitespace,
@@ -326,6 +326,21 @@ namespace TerrificNet.Thtml.Test
 
                 yield return new object[]
                 {
+                    "{{/test-val}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.External,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockEnd,
+                                TokenFactory.Slash,
+                                b => TokenFactory.Name("test-val", b)),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+
+                yield return new object[]
+                {
                     "{{#if expression}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.IfStartExpression("expression", i))
@@ -335,7 +350,7 @@ namespace TerrificNet.Thtml.Test
                     "<h1 attr=\"{{test}}\">",
                     TokenFactory.DocumentList(
                         i => TokenFactory.ElementStart("h1", i,
-                            a => TokenFactory.AttributeWithContentExtended(a, "attr", 
+                            a => TokenFactory.AttributeWithContentExtended(a, "attr",
                                 b => TokenFactory.HandlebarsSimple(b, "test"))))
                 };
                 yield return new object[]
@@ -365,10 +380,50 @@ namespace TerrificNet.Thtml.Test
                             TokenCategory.External,
                             TokenFactory.HandlebarsStart,
                             TokenFactory.HandlebarsStart,
-                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluateInHtml, 
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluateInHtml,
                                 TokenFactory.HandlebarsStart,
                                 b => TokenFactory.Expression(b, "test"),
                                 TokenFactory.HandlebarsEnd),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+                yield return new object[]
+                {
+                    "{{#name param1=1/2}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.External,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockStart,
+                                TokenFactory.Hash,
+                                b => TokenFactory.Name("name", b),
+                                TokenFactory.Whitespace,
+                                b => TokenFactory.Composite(b, TokenCategory.HandlebarsAttribute,
+                                    c => TokenFactory.Name("param1", c),
+                                    TokenFactory.Equal,
+                                    c => TokenFactory.AttributeContent("1/2", c))),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+                yield return new object[]
+                {
+                    "{{name param1=\"val\"}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.External,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
+                                b => TokenFactory.Composite(b, TokenCategory.HandlebarsExpression,
+                                    c => TokenFactory.Name("name", c),
+                                    TokenFactory.Whitespace,
+                                    c => TokenFactory.Composite(c, TokenCategory.HandlebarsAttribute,
+                                        d => TokenFactory.Name("param1", d),
+                                        TokenFactory.Equal,
+                                        TokenFactory.Quote,
+                                        d => TokenFactory.AttributeContent("val", d),
+                                        TokenFactory.Quote))),
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };

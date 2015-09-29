@@ -33,6 +33,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         Comment,
         CommentStart,
         CommentContent,
-        Dash
+        Dash,
+        HandlebarsAttribute
     }
 }
