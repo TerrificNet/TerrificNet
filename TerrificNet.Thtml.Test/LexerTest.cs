@@ -427,6 +427,34 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
+                yield return new object[]
+                {
+                    "{{name param1=\"val\" param2=\"val2\"}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i,
+                            TokenCategory.External,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
+                                b => TokenFactory.Composite(b, TokenCategory.HandlebarsExpression,
+                                    c => TokenFactory.Name("name", c),
+                                    TokenFactory.Whitespace,
+                                    c => TokenFactory.Composite(c, TokenCategory.HandlebarsAttribute,
+                                        d => TokenFactory.Name("param1", d),
+                                        TokenFactory.Equal,
+                                        TokenFactory.Quote,
+                                        d => TokenFactory.AttributeContent("val", d),
+                                        TokenFactory.Quote),
+                                    TokenFactory.Whitespace,
+                                    c => TokenFactory.Composite(c, TokenCategory.HandlebarsAttribute,
+                                        d => TokenFactory.Name("param2", d),
+                                        TokenFactory.Equal,
+                                        TokenFactory.Quote,
+                                        d => TokenFactory.AttributeContent("val2", d),
+                                        TokenFactory.Quote))),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
             }
         }
     }

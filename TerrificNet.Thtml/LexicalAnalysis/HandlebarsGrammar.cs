@@ -26,7 +26,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
                     _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
                     _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
                 }
-                else if (_lexerState.Can(Attribute, TokenCategory.Attribute))
+                else if (_lexerState.Can(Attribute, TokenCategory.HandlebarsAttribute))
                 {
                     AttributeList();
                 }
@@ -51,7 +51,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             if (_lexerState.Can('#', TokenCategory.Hash))
             {
                 var token = _lexerState.Must(() => _commonGrammar.Name(), TokenCategory.Name);
-                if (token.Lexem == "if")
+                if (token.Lexem == "if" || token.Lexem == "each")
                 {
                     _lexerState.Must(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
                     _lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
@@ -84,7 +84,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             {
                 if (_lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace))
                 {
-                    if (_lexerState.Can(Attribute, TokenCategory.Attribute))
+                    if (_lexerState.Can(Attribute, TokenCategory.HandlebarsAttribute))
                         continue;
                 }
                 break;
