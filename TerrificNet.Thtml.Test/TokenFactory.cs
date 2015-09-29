@@ -266,5 +266,20 @@ namespace TerrificNet.Thtml.Test
                 TokenFactory.HandlebarsEnd,
                 TokenFactory.HandlebarsEnd);
         }
+
+        public static Token CommentStart(int position)
+        {
+            return new Token(TokenCategory.CommentStart, "!", position, position + 1);
+        }
+
+        public static Token CommentContent(int position, string content)
+        {
+            return new Token(TokenCategory.CommentContent, content, position, position + content.Length);
+        }
+
+        public static Token Dash(int position)
+        {
+            return new Token(TokenCategory.Dash, "-", position, position + 1);
+        }
     }
 }

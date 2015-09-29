@@ -217,6 +217,21 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("div", i))
                 };
 
+                yield return new object[]
+                {
+                    "<!-- com -->",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i, TokenCategory.Comment,
+                            TokenFactory.BracketOpen,
+                            TokenFactory.CommentStart,
+                            TokenFactory.Dash,
+                            TokenFactory.Dash,
+                            a => TokenFactory.CommentContent(a, " com "),
+                            TokenFactory.Dash,
+                            TokenFactory.Dash,
+                            TokenFactory.BracketClose))
+                };
+
                 // Handlebars
                 yield return new object[]
                 {

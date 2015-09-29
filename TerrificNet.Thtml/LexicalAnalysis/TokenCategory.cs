@@ -29,6 +29,10 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         HandlebarsExpression,
         Dot,
         External,
-        HandlebarsEvaluateInHtml
+        HandlebarsEvaluateInHtml,
+        Comment,
+        CommentStart,
+        CommentContent,
+        Dash
     }
 }
