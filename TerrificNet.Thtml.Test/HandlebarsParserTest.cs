@@ -38,7 +38,12 @@ namespace TerrificNet.Thtml.Test
                 yield return new object[]
                 {
                     "#if test",
-                    new EvaluateExpression(new CallHelperBoundExpression("if", new MemberAccessExpression("test")))
+                    new EvaluateExpression(new ConditionalExpression(new MemberAccessExpression("test")))
+                };
+                yield return new object[]
+                {
+                    "#each test",
+                    new EvaluateExpression(new IterationExpression(new MemberAccessExpression("test")))
                 };
                 yield return new object[]
                 {

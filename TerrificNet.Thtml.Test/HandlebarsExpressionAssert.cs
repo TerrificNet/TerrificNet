@@ -17,10 +17,14 @@ namespace TerrificNet.Thtml.Test
 
         public static void AssertExpression(AccessExpression expected, AccessExpression result)
         {
+            if (expected == null)
+                Assert.Null(result);
+
             var memberAccess = expected as MemberAccessExpression;
             var conditional = expected as ConditionalExpression;
             var helper = expected as CallHelperExpression;
             var helperBound = expected as CallHelperBoundExpression;
+            var iteration = expected as IterationExpression;
 
             if (memberAccess != null)
             {
@@ -31,6 +35,11 @@ namespace TerrificNet.Thtml.Test
             {
                 Assert.IsType<ConditionalExpression>(result);
                 AssertExpression(conditional, result as ConditionalExpression);
+            }
+            else if (iteration != null)
+            {
+                Assert.IsType<IterationExpression>(result);
+                AssertIterationExpression(iteration, (IterationExpression) result);
             }
             else if (helper != null)
             {
@@ -44,6 +53,11 @@ namespace TerrificNet.Thtml.Test
             }
             else
                 Assert.False(true, "Unknown expression type.");
+        }
+
+        private static void AssertIterationExpression(IterationExpression expected, IterationExpression actual)
+        {
+            AssertExpression(expected.Expression, actual.Expression);
         }
 
         public static void AssertExpression(CallHelperBoundExpression expected, CallHelperBoundExpression result)

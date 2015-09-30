@@ -55,6 +55,7 @@
     <Compile Include="Parsing\Handlebars\EvaluateInHtmlExpression.cs" />
     <Compile Include="Parsing\Handlebars\HandlebarsParser.cs" />
     <Compile Include="Parsing\Handlebars\HelperAttribute.cs" />
+    <Compile Include="Parsing\Handlebars\IterationExpression.cs" />
     <Compile Include="Parsing\Handlebars\MemberAccessExpression.cs" />
     <Compile Include="Parsing\Node.cs" />
     <Compile Include="Parsing\TextNode.cs" />

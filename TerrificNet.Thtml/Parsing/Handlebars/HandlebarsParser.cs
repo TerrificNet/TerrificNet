@@ -46,7 +46,10 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
                 var nameToken = ExpectTokenCategory(compToken, TokenCategory.Name);
 
                 if (nameToken.Lexem == "if")
-                    return new EvaluateExpression(new CallHelperBoundExpression("if", (MemberAccessExpression)GetMemberAccess(token)));
+                    return new EvaluateExpression(new ConditionalExpression((MemberAccessExpression)GetMemberAccess(token)));
+
+                if (nameToken.Lexem == "each")
+                    return new EvaluateExpression(new IterationExpression((MemberAccessExpression)GetMemberAccess(token)));
 
                 var attributes = GetHelperAttributes(token).ToArray();
                 return new EvaluateExpression(new CallHelperExpression(nameToken.Lexem, attributes));
