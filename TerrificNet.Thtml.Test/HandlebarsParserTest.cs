@@ -48,7 +48,7 @@ namespace TerrificNet.Thtml.Test
                 yield return new object[]
                 {
                     "{test}",
-                    new Unconverted(new MemberExpression("test"))
+                    new UnconvertedExpression(new MemberExpression("test"))
                 };
                 yield return new object[]
                 {

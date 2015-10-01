@@ -24,11 +24,11 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
         {
             if (token.Category == TokenCategory.HandlebarsEvaluate)
             {
-                return GetMemberAccess(token);
+                return GetExpression(token);
             }
             if (token.Category == TokenCategory.HandlebarsEvaluateInHtml)
             {
-                return new Unconverted(GetMemberAccess(token));
+                return new UnconvertedExpression(GetExpression(token));
             }
             if (token.Category == TokenCategory.HandlebarsBlockStart)
             {
@@ -36,10 +36,10 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
                 var nameToken = ExpectTokenCategory(compToken, TokenCategory.Name);
 
                 if (nameToken.Lexem == "if")
-                    return new ConditionalExpression(GetMemberAccess(token));
+                    return new ConditionalExpression(GetExpression(token));
 
                 if (nameToken.Lexem == "each")
-                    return new IterationExpression(GetMemberAccess(token));
+                    return new IterationExpression(GetExpression(token));
 
                 var attributes = GetHelperAttributes(token).ToArray();
                 return new CallHelperExpression(nameToken.Lexem, attributes);
@@ -66,7 +66,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             return new HelperAttribute(name.Lexem, value.Lexem);
         }
 
-        private static Expression GetMemberAccess(Token token)
+        private static Expression GetExpression(Token token)
         {
             var compToken = ExpectComposite(token);
             var expressionToken = ExpectTokenCategory(compToken, TokenCategory.HandlebarsExpression);

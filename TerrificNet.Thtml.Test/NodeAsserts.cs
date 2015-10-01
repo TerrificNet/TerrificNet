@@ -23,19 +23,12 @@ namespace TerrificNet.Thtml.Test
             var eElement = expected as Element;
             var aElement = actual as Element;
 
-            var eDynamic = expected as Statement;
-            var aDynamic = actual as Statement;
-
-            var eDynamicBlock = expected as BlockStatement;
-            var aDynamicBlock = actual as BlockStatement;
+            var eDynamicBlock = expected as Statement;
+            var aDynamicBlock = actual as Statement;
 
             if (eElement != null)
             {
                 AssertElement(eElement, aElement);
-            }
-            if (eDynamic != null)
-            {
-                AssertDynamic(eDynamic, aDynamic);
             }
             else if (eDocument != null)
             {
@@ -53,15 +46,10 @@ namespace TerrificNet.Thtml.Test
                 Assert.True(false, "Unknown type");
         }
 
-        private static void AssertDynamic(BlockStatement expected, BlockStatement actual)
-        {
-            HandlebarsExpressionAssert.AssertExpression(expected.Expression, actual.Expression);
-            AssertNodeList(expected.ChildNodes, actual.ChildNodes);
-        }
-
         private static void AssertDynamic(Statement expected, Statement actual)
         {
             HandlebarsExpressionAssert.AssertExpression(expected.Expression, actual.Expression);
+            AssertNodeList(expected.ChildNodes, actual.ChildNodes);
         }
 
         public static void AssertElement(Element expected, Element actual)

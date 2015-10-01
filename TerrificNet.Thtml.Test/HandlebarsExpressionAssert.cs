@@ -16,7 +16,7 @@ namespace TerrificNet.Thtml.Test
             var conditional = expected as ConditionalExpression;
             var helper = expected as CallHelperExpression;
             var iteration = expected as IterationExpression;
-            var html = expected as Unconverted;
+            var html = expected as UnconvertedExpression;
 
             if (memberAccess != null)
             {
@@ -40,8 +40,8 @@ namespace TerrificNet.Thtml.Test
             }
             else if (html != null)
             {
-                Assert.IsType<Unconverted>(result);
-                AssertExpression(html, result as Unconverted);
+                Assert.IsType<UnconvertedExpression>(result);
+                AssertExpression(html, result as UnconvertedExpression);
             }
             else
                 Assert.False(true, "Unknown expression type.");
@@ -52,7 +52,7 @@ namespace TerrificNet.Thtml.Test
             AssertExpression(expected.Expression, actual.Expression);
         }
 
-        public static void AssertExpression(Unconverted expected, Unconverted result)
+        public static void AssertExpression(UnconvertedExpression expected, UnconvertedExpression result)
         {
             AssertExpression(expected.Expression, result.Expression);
         }

@@ -3,11 +3,11 @@ using System.Linq;
 
 namespace TerrificNet.Thtml.VDom
 {
-    class VTree
+    public class VTree
     {
     }
 
-    class VText : VTree
+    public class VText : VTree
     {
         public VText(string text)
         {
@@ -18,7 +18,7 @@ namespace TerrificNet.Thtml.VDom
 
     }
 
-    class VNode : VTree
+    public class VNode : VTree
     {
         public VNode(IEnumerable<VTree> children)
         {
@@ -28,7 +28,7 @@ namespace TerrificNet.Thtml.VDom
         public IReadOnlyList<VTree> Children { get; }
     }
 
-    class VElement : VNode
+    public class VElement : VNode
     {
         public VElement(string tagName, IEnumerable<VTree> children) : base(children)
         {
@@ -39,20 +39,20 @@ namespace TerrificNet.Thtml.VDom
 
     }
 
-    class VProperties
+    public class VProperties
     {
     }
 
-    class VProperty
+    public class VProperty
     {
 
     }
 
-    abstract class VPropertyValue
+    public abstract class VPropertyValue
     {
     }
 
-    class StringVPropertyValue : VPropertyValue
+    public class StringVPropertyValue : VPropertyValue
     {
 
         public StringVPropertyValue(string value)
@@ -64,7 +64,7 @@ namespace TerrificNet.Thtml.VDom
 
     }
 
-    class BooleanVPropertyValue : VPropertyValue
+    public class BooleanVPropertyValue : VPropertyValue
     {
         public BooleanVPropertyValue(bool value)
         {
@@ -75,7 +75,7 @@ namespace TerrificNet.Thtml.VDom
 
     }
 
-    class NumberVPropertyValue : VPropertyValue
+    public class NumberVPropertyValue : VPropertyValue
     {
         public NumberVPropertyValue(int value)
         {

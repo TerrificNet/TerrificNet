@@ -144,7 +144,7 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.HandlebarsBlockEnd(i, "if")),
 
                     new Document(
-                        new BlockStatement(
+                        new Statement(
                             new ConditionalExpression(new MemberExpression("test")),
                             new Element("br"),
                             new Statement(new MemberExpression("name"))))

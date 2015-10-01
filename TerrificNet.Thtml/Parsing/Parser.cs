@@ -86,7 +86,7 @@ namespace TerrificNet.Thtml.Parsing
 
                         MoveNext(enumerator);
 
-                        yield return new BlockStatement(expression, nodes.ToArray());
+                        yield return new Statement(expression, nodes.ToArray());
                     }
                     else
                         break;

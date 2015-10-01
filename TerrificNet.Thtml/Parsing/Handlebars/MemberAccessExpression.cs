@@ -1,9 +1,5 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public abstract class Expression : SyntaxNode
-    {
-    }
-
     public class MemberExpression : Expression
     {
         public string Name { get; }
