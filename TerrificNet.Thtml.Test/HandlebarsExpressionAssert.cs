@@ -7,29 +7,21 @@ namespace TerrificNet.Thtml.Test
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     internal static class HandlebarsExpressionAssert
     {
-        public static void AssertEvaluateExpression(EvaluateExpression expected, EvaluateExpression result)
-        {
-            if (expected is EvaluateInHtmlExpression)
-                Assert.IsType<EvaluateInHtmlExpression>(result);
-
-            AssertExpression(expected.Expression, result.Expression);
-        }
-
-        public static void AssertExpression(AccessExpression expected, AccessExpression result)
+        public static void AssertExpression(Expression expected, Expression result)
         {
             if (expected == null)
                 Assert.Null(result);
 
-            var memberAccess = expected as MemberAccessExpression;
+            var memberAccess = expected as MemberExpression;
             var conditional = expected as ConditionalExpression;
             var helper = expected as CallHelperExpression;
-            var helperBound = expected as CallHelperBoundExpression;
             var iteration = expected as IterationExpression;
+            var html = expected as Unconverted;
 
             if (memberAccess != null)
             {
-                Assert.IsType<MemberAccessExpression>(result);
-                AssertExpression(memberAccess, result as MemberAccessExpression);
+                Assert.IsType<MemberExpression>(result);
+                AssertExpression(memberAccess, result as MemberExpression);
             }
             else if (conditional != null)
             {
@@ -46,10 +38,10 @@ namespace TerrificNet.Thtml.Test
                 Assert.IsType<CallHelperExpression>(result);
                 AssertExpression(helper, result as CallHelperExpression);
             }
-            else if (helperBound != null)
+            else if (html != null)
             {
-                Assert.IsType<CallHelperBoundExpression>(result);
-                AssertExpression(helperBound, result as CallHelperBoundExpression);
+                Assert.IsType<Unconverted>(result);
+                AssertExpression(html, result as Unconverted);
             }
             else
                 Assert.False(true, "Unknown expression type.");
@@ -60,10 +52,9 @@ namespace TerrificNet.Thtml.Test
             AssertExpression(expected.Expression, actual.Expression);
         }
 
-        public static void AssertExpression(CallHelperBoundExpression expected, CallHelperBoundExpression result)
+        public static void AssertExpression(Unconverted expected, Unconverted result)
         {
-            Assert.Equal(expected.Name, result.Name);
-            AssertExpression(expected.AccessExpression, result.AccessExpression);
+            AssertExpression(expected.Expression, result.Expression);
         }
 
         public static void AssertExpression(CallHelperExpression expected, CallHelperExpression result)
@@ -89,19 +80,19 @@ namespace TerrificNet.Thtml.Test
 
         public static void AssertExpression(ConditionalExpression expected, ConditionalExpression result)
         {
-            AssertExpression(expected.MemberAccessExpression, result.MemberAccessExpression);
+            AssertExpression(expected.Expression, result.Expression);
         }
 
-        public static void AssertExpression(MemberAccessExpression expected, MemberAccessExpression result)
+        public static void AssertExpression(MemberExpression expected, MemberExpression result)
         {
             Assert.Equal(expected.Name, result.Name);
-            if (expected.Expression == null)
+            if (expected.SubExpression == null)
             {
-                Assert.Null(result.Expression);
+                Assert.Null(result.SubExpression);
                 return;
             }
 
-            AssertExpression(expected.Expression, result.Expression);
+            AssertExpression(expected.SubExpression, result.SubExpression);
         }
     }
 }

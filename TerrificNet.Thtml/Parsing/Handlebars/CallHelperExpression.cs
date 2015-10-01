@@ -1,6 +1,6 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class CallHelperExpression : AccessExpression
+    public class CallHelperExpression : Expression
     {
         public string Name { get; }
         public HelperAttribute[] Attributes { get; }

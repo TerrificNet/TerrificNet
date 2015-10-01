@@ -3,10 +3,6 @@ using System.Linq;
 
 namespace TerrificNet.Thtml.Parsing
 {
-    public class AttributeList
-    {
-    }
-
     public class Element : Document
     {
         public string TagName { get; }

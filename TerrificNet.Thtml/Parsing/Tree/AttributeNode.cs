@@ -1,4 +1,4 @@
-namespace TerrificNet.Thtml.Parsing
+namespace TerrificNet.Thtml.Parsing.Tree
 {
     public class AttributeNode : ElementPart
     {

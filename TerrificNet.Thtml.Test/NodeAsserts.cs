@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
-using TerrificNet.Thtml.Parsing.Handlebars;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test
 {
     static internal class NodeAsserts
     {
-        public static readonly EvaluateExpression Any = new EvaluateExpression(null);
-
         public static void AssertNode(Node expected, Node actual)
         {
             if (expected == null)
@@ -26,11 +23,11 @@ namespace TerrificNet.Thtml.Test
             var eElement = expected as Element;
             var aElement = actual as Element;
 
-            var eDynamic = expected as EvaluateExpressionNode;
-            var aDynamic = actual as EvaluateExpressionNode;
+            var eDynamic = expected as Statement;
+            var aDynamic = actual as Statement;
 
-            var eDynamicBlock = expected as EvaluateBlockNode;
-            var aDynamicBlock = actual as EvaluateBlockNode;
+            var eDynamicBlock = expected as BlockStatement;
+            var aDynamicBlock = actual as BlockStatement;
 
             if (eElement != null)
             {
@@ -56,21 +53,15 @@ namespace TerrificNet.Thtml.Test
                 Assert.True(false, "Unknown type");
         }
 
-        private static void AssertDynamic(EvaluateBlockNode expected, EvaluateBlockNode actual)
+        private static void AssertDynamic(BlockStatement expected, BlockStatement actual)
         {
-            AssertExpression(expected.Expression, actual.Expression);
+            HandlebarsExpressionAssert.AssertExpression(expected.Expression, actual.Expression);
             AssertNodeList(expected.ChildNodes, actual.ChildNodes);
         }
 
-        private static void AssertExpression(EvaluateExpression expected, EvaluateExpression actual)
+        private static void AssertDynamic(Statement expected, Statement actual)
         {
-            if (expected != Any)
-                Assert.Equal(expected, actual);
-        }
-
-        private static void AssertDynamic(EvaluateExpressionNode expected, EvaluateExpressionNode actual)
-        {
-            AssertExpression(expected.Expression, actual.Expression);
+            HandlebarsExpressionAssert.AssertExpression(expected.Expression, actual.Expression);
         }
 
         public static void AssertElement(Element expected, Element actual)
@@ -101,7 +92,7 @@ namespace TerrificNet.Thtml.Test
                 Assert.Null(actual);
 
             var attributeExpected = expected as AttributeNode;
-            var dynamicExpected = expected as EvaluateExpressionAttributeNode;
+            var dynamicExpected = expected as AttributeStatement;
 
             if (attributeExpected != null)
             {
@@ -110,16 +101,16 @@ namespace TerrificNet.Thtml.Test
             }
             else if (dynamicExpected != null)
             {
-                Assert.IsType<EvaluateExpressionAttributeNode>(actual);
-                AssertExpressionAttribute(dynamicExpected, (EvaluateExpressionAttributeNode)actual);
+                Assert.IsType<AttributeStatement>(actual);
+                AssertExpressionAttribute(dynamicExpected, (AttributeStatement)actual);
             }
             else
                 Assert.True(false, "Unknown type");
         }
 
-        private static void AssertExpressionAttribute(EvaluateExpressionAttributeNode expected, EvaluateExpressionAttributeNode actual)
+        private static void AssertExpressionAttribute(AttributeStatement expected, AttributeStatement actual)
         {
-            AssertExpression(expected.Expression, actual.Expression);
+            HandlebarsExpressionAssert.AssertExpression(expected.Expression, actual.Expression);
             AssertElementParts(expected.ChildNodes, actual.ChildNodes);
         }
 
@@ -142,7 +133,7 @@ namespace TerrificNet.Thtml.Test
 
             var eConst = expected as ConstantAttributeContent;
             var eComp = expected as CompositeAttributeContent;
-            var eEvaluate = expected as EvaluteExpressionAttributeContent;
+            var eEvaluate = expected as AttributeContentStatement;
             if (eConst != null)
             {
                 Assert.IsType<ConstantAttributeContent>(actual);
@@ -161,7 +152,8 @@ namespace TerrificNet.Thtml.Test
             }
             else if (eEvaluate != null)
             {
-                Assert.IsType<EvaluteExpressionAttributeContent>(actual);
+                Assert.IsType<AttributeContentStatement>(actual);
+                HandlebarsExpressionAssert.AssertExpression(eEvaluate.Expression, ((AttributeContentStatement) actual).Expression);
             }
             else
                 throw new Exception("Unexpected type");

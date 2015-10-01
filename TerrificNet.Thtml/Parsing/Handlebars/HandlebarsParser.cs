@@ -7,38 +7,28 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 {
     public class HandlebarsParser
     {
-        public EvaluateExpression Parse(string test)
+        public Expression Parse(string test)
         {
             var state = new LexerState(test);
             var lexer = new HandlebarsGrammar(state);
             lexer.Handlebar();
 
-            var tokens = state.Tokens;
-            var enumerator = tokens.GetEnumerator();
-            if (!enumerator.MoveNext() || enumerator.Current == null)
+            var current = state.Tokens.FirstOrDefault();
+            if (current == null)
                 return null;
 
-            return Parse(enumerator.Current);
+            return ParseExpression(current);
         }
 
-        public EvaluateExpression Parse(Token token)
-        {
-            if (token.Category != TokenCategory.HandlebarsBlockStart && token.Category != TokenCategory.HandlebarsBlockEnd && token.Category != TokenCategory.HandlebarsEvaluate && token.Category != TokenCategory.HandlebarsEvaluateInHtml)
-                throw new Exception(
-                    $"Unexpected token {token.Category} at postion {token.Start}.");
-
-            return Access(token);
-        }
-
-        private static EvaluateExpression Access(Token token)
+        public Expression ParseExpression(Token token)
         {
             if (token.Category == TokenCategory.HandlebarsEvaluate)
             {
-                return new EvaluateExpression(GetAccessExpression(token));
+                return GetMemberAccess(token);
             }
             if (token.Category == TokenCategory.HandlebarsEvaluateInHtml)
             {
-                return new EvaluateInHtmlExpression(GetAccessExpression(token));
+                return new Unconverted(GetMemberAccess(token));
             }
             if (token.Category == TokenCategory.HandlebarsBlockStart)
             {
@@ -46,21 +36,15 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
                 var nameToken = ExpectTokenCategory(compToken, TokenCategory.Name);
 
                 if (nameToken.Lexem == "if")
-                    return new EvaluateExpression(new ConditionalExpression((MemberAccessExpression)GetMemberAccess(token)));
+                    return new ConditionalExpression(GetMemberAccess(token));
 
                 if (nameToken.Lexem == "each")
-                    return new EvaluateExpression(new IterationExpression((MemberAccessExpression)GetMemberAccess(token)));
+                    return new IterationExpression(GetMemberAccess(token));
 
                 var attributes = GetHelperAttributes(token).ToArray();
-                return new EvaluateExpression(new CallHelperExpression(nameToken.Lexem, attributes));
+                return new CallHelperExpression(nameToken.Lexem, attributes);
             }
             throw new ArgumentException("Unknown Token type.");
-        }
-
-        private static AccessExpression GetAccessExpression(Token token)
-        {
-            var compToken = ExpectComposite(token);
-            return GetMemberAccess(token);
         }
 
         private static IEnumerable<HelperAttribute> GetHelperAttributes(Token token)
@@ -82,7 +66,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             return new HelperAttribute(name.Lexem, value.Lexem);
         }
 
-        private static AccessExpression GetMemberAccess(Token token)
+        private static Expression GetMemberAccess(Token token)
         {
             var compToken = ExpectComposite(token);
             var expressionToken = ExpectTokenCategory(compToken, TokenCategory.HandlebarsExpression);
@@ -91,20 +75,20 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             return memberAccess;
         }
 
-        private static AccessExpression Expression(Token current)
+        private static Expression Expression(Token current)
         {
             var compToken = ExpectComposite(current);
             var nameToken = ExpectTokenCategory(compToken, TokenCategory.Name);
 
             var subExpression = compToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.HandlebarsExpression);
             if (subExpression != null)
-                return new MemberAccessExpression(nameToken.Lexem, (MemberAccessExpression)Expression(subExpression));
+                return new MemberExpression(nameToken.Lexem, (MemberExpression)Expression(subExpression));
 
             var attributes = GetHelperAttributes(compToken).ToArray();
             if (attributes.Length > 0)
                 return new CallHelperExpression(nameToken.Lexem, attributes);
 
-            return new MemberAccessExpression(nameToken.Lexem);
+            return new MemberExpression(nameToken.Lexem);
         }
 
         private static Token ExpectTokenCategory(CompositeToken compToken, TokenCategory tokenCategory)

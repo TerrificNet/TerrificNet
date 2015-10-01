@@ -8,12 +8,12 @@ namespace TerrificNet.Thtml.Test
     {
         [Theory]
         [MemberData("TestData")]
-        public void TestParser(string input, EvaluateExpression expected)
+        public void TestParser(string input, Expression expected)
         {
             var underTest = new HandlebarsParser();
             var result = underTest.Parse(input);
 
-            HandlebarsExpressionAssert.AssertEvaluateExpression(expected, result);
+            HandlebarsExpressionAssert.AssertExpression(expected, result);
         }
 
         public static IEnumerable<object[]> TestData
@@ -23,42 +23,42 @@ namespace TerrificNet.Thtml.Test
                 yield return new object[]
                 {
                     "test",
-                    new EvaluateExpression(new MemberAccessExpression("test"))
+                    new MemberExpression("test")
                 };
                 yield return new object[]
                 {
                     "test.property1",
-                    new EvaluateExpression(new MemberAccessExpression("test", new MemberAccessExpression("property1")))
+                    new MemberExpression("test", new MemberExpression("property1"))
                 };
                 yield return new object[]
                 {
                     "test . property1.property2 ",
-                    new EvaluateExpression(new MemberAccessExpression("test", new MemberAccessExpression("property1", new MemberAccessExpression("property2"))))
+                    new MemberExpression("test", new MemberExpression("property1", new MemberExpression("property2")))
                 };
                 yield return new object[]
                 {
                     "#if test",
-                    new EvaluateExpression(new ConditionalExpression(new MemberAccessExpression("test")))
+                    new ConditionalExpression(new MemberExpression("test"))
                 };
                 yield return new object[]
                 {
                     "#each test",
-                    new EvaluateExpression(new IterationExpression(new MemberAccessExpression("test")))
+                    new IterationExpression(new MemberExpression("test"))
                 };
                 yield return new object[]
                 {
                     "{test}",
-                    new EvaluateInHtmlExpression(new MemberAccessExpression("test"))
+                    new Unconverted(new MemberExpression("test"))
                 };
                 yield return new object[]
                 {
                     "#test val=\"1\" val2=\"2\"",
-                    new EvaluateExpression(new CallHelperExpression("test", new HelperAttribute("val", "1"), new HelperAttribute("val2", "2")))
+                    new CallHelperExpression("test", new HelperAttribute("val", "1"), new HelperAttribute("val2", "2"))
                 };
                 yield return new object[]
                 {
                     "test val=\"1\" val2=\"2\"",
-                    new EvaluateExpression(new CallHelperExpression("test", new HelperAttribute("val", "1"), new HelperAttribute("val2", "2")))
+                    new CallHelperExpression("test", new HelperAttribute("val", "1"), new HelperAttribute("val2", "2"))
                 };
             }
         }

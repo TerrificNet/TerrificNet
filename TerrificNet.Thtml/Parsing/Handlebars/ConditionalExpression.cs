@@ -1,12 +1,12 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class ConditionalExpression : AccessExpression
+    public class ConditionalExpression : Expression
     {
-        public MemberAccessExpression MemberAccessExpression { get; }
+        public Expression Expression { get; }
 
-        public ConditionalExpression(MemberAccessExpression memberAccessExpression)
+        public ConditionalExpression(Expression expression)
         {
-            MemberAccessExpression = memberAccessExpression;
+            Expression = expression;
         }
     }
 }

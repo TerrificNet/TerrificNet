@@ -2,12 +2,12 @@ using TerrificNet.Thtml.Parsing.Handlebars;
 
 namespace TerrificNet.Thtml.Parsing
 {
-    public class EvaluateExpressionAttributeNode : ElementPart
+    public class AttributeStatement : ElementPart
     {
-        public EvaluateExpression Expression { get; }
+        public Expression Expression { get; }
         public AttributeNode[] ChildNodes { get; }
 
-        public EvaluateExpressionAttributeNode(EvaluateExpression expression, params AttributeNode[] childNodes)
+        public AttributeStatement(Expression expression, params AttributeNode[] childNodes)
         {
             Expression = expression;
             ChildNodes = childNodes;

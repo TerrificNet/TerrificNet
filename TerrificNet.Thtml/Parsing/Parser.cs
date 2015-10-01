@@ -70,13 +70,13 @@ namespace TerrificNet.Thtml.Parsing
                     var ft = GetExternalToken(enumerator.Current);
                     if (ft.Category == TokenCategory.HandlebarsEvaluate || ft.Category == TokenCategory.HandlebarsEvaluateInHtml)
                     {
-                        yield return new EvaluateExpressionNode(_parser.Parse(ft));
+                        yield return new Statement(_parser.ParseExpression(ft));
                         MoveNext(enumerator);
                     }
                     else if (ft.Category == TokenCategory.HandlebarsBlockStart)
                     {
                         var name = GetNamePart(ft, TokenCategory.Name);
-                        var expression = _parser.Parse(ft);
+                        var expression = _parser.ParseExpression(ft);
 
                         MoveNext(enumerator);
 
@@ -86,7 +86,7 @@ namespace TerrificNet.Thtml.Parsing
 
                         MoveNext(enumerator);
 
-                        yield return new EvaluateBlockNode(expression, nodes.ToArray());
+                        yield return new BlockStatement(expression, nodes.ToArray());
                     }
                     else
                         break;
@@ -144,14 +144,14 @@ namespace TerrificNet.Thtml.Parsing
                 {
                     var ft = GetExternalToken(external);
                     if (ft.Category == TokenCategory.HandlebarsEvaluate)
-                        yield return new EvaluateExpressionAttributeNode(_parser.Parse(ft));
+                        yield return new AttributeStatement(_parser.ParseExpression(ft));
                     else if (ft.Category == TokenCategory.HandlebarsBlockStart)
                     {
                         var name = GetNamePart(ft, TokenCategory.Name);
                         var parts = GetElementPartsAfterName(tokens, name).ToList();
 
                         yield return
-                            new EvaluateExpressionAttributeNode(_parser.Parse(ft),
+                            new AttributeStatement(_parser.ParseExpression(ft),
                                 parts.OfType<AttributeNode>().ToArray());
                     }
                     else if (ft.Category == TokenCategory.HandlebarsBlockEnd && string.IsNullOrEmpty(expectedEndPart))
@@ -199,7 +199,7 @@ namespace TerrificNet.Thtml.Parsing
                 return new ConstantAttributeContent(token.Lexem);
 
             if (token.Category == TokenCategory.External)
-                return new EvaluteExpressionAttributeContent(_parser.Parse(GetExternalToken(token)));
+                return new AttributeContentStatement(_parser.ParseExpression(GetExternalToken(token)));
 
             throw new Exception($"Unexpected token {token.Category} at position {token.Start}");
         }

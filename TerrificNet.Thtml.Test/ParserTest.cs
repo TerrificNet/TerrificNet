@@ -3,6 +3,7 @@ using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using Xunit;
+using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -131,7 +132,7 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.ElementEnd("h1", i)),
 
                     new Document(
-                        new Element("h1", new EvaluateExpressionNode(NodeAsserts.Any)))
+                        new Element("h1", new Statement(new MemberExpression("name"))))
                 };
 
                 yield return new object[]
@@ -143,10 +144,10 @@ namespace TerrificNet.Thtml.Test
                         i => TokenFactory.HandlebarsBlockEnd(i, "if")),
 
                     new Document(
-                        new EvaluateBlockNode(
-                            NodeAsserts.Any,
+                        new BlockStatement(
+                            new ConditionalExpression(new MemberExpression("test")),
                             new Element("br"),
-                            new EvaluateExpressionNode(NodeAsserts.Any)))
+                            new Statement(new MemberExpression("name"))))
                 };
 
                 yield return new object[]
@@ -165,7 +166,7 @@ namespace TerrificNet.Thtml.Test
                            new AttributeNode("attr",
                            new CompositeAttributeContent(
                                new ConstantAttributeContent("before"),
-                               new EvaluteExpressionAttributeContent(NodeAsserts.Any),
+                               new AttributeContentStatement(new MemberExpression("test")),
                                new ConstantAttributeContent("after")))
                         }))
                 };
@@ -180,7 +181,7 @@ namespace TerrificNet.Thtml.Test
                     new Document(
                         new Element("h1", new []
                         {
-                            new EvaluateExpressionAttributeNode(NodeAsserts.Any,
+                            new AttributeStatement(new ConditionalExpression(new MemberExpression("true")),
                                 new AttributeNode("attr", new ConstantAttributeContent("val")))
                         }))
                 };

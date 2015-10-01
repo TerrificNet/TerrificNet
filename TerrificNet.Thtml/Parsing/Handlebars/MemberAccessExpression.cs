@@ -1,24 +1,24 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class AccessExpression
+    public abstract class Expression : SyntaxNode
     {
-        
     }
 
-    public class MemberAccessExpression : AccessExpression
+    public class MemberExpression : Expression
     {
         public string Name { get; }
-        public MemberAccessExpression Expression { get; }
 
-        public MemberAccessExpression(string name)
+        public Expression SubExpression { get; }
+
+        public MemberExpression(string name)
         {
             Name = name;
         }
 
-        public MemberAccessExpression(string name, MemberAccessExpression expression) 
+        public MemberExpression(string name, Expression subExpression)
             : this(name)
         {
-            Expression = expression;
+            SubExpression = subExpression;
         }
     }
 }
