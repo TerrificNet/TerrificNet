@@ -62,7 +62,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="CompilerTest.cs" />
+    <Compile Include="EmitterTest.cs" />
     <Compile Include="HandlebarsExpressionAssert.cs" />
     <Compile Include="HandlebarsParserTest.cs" />
     <Compile Include="NodeAsserts.cs" />

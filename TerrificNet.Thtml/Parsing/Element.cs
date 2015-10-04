@@ -31,5 +31,13 @@ namespace TerrificNet.Thtml.Parsing
         {
             Attributes = attributes.ToList();
         }
+
+        public override void Accept(INodeVisitor visitor)
+        {
+            foreach (var child in ChildNodes)
+                child.Accept(visitor);
+
+            visitor.Visit(this);
+        }
     }
 }

@@ -40,10 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compiler\Compiler.cs" />
+    <Compile Include="Emit\Emitter.cs" />
     <Compile Include="LexicalAnalysis\CommonGrammar.cs" />
     <Compile Include="LexicalAnalysis\HandlebarsGrammar.cs" />
     <Compile Include="Parsing\AttributeContent.cs" />
+    <Compile Include="Parsing\INodeVisitor.cs" />
+    <Compile Include="Parsing\NodeVisitor.cs" />
     <Compile Include="Parsing\Statement.cs" />
     <Compile Include="Parsing\AttributeStatement.cs" />
     <Compile Include="Parsing\CompositeAttributeContent.cs" />

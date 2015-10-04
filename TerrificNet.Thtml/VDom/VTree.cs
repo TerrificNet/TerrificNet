@@ -20,6 +20,10 @@ namespace TerrificNet.Thtml.VDom
 
     public class VNode : VTree
     {
+        public VNode(params VTree[] children) : this((IEnumerable<VTree>)children)
+        {
+        }
+
         public VNode(IEnumerable<VTree> children)
         {
             Children = children.ToList();
@@ -30,6 +34,10 @@ namespace TerrificNet.Thtml.VDom
 
     public class VElement : VNode
     {
+        public VElement(string tagName, params VTree[] children) : this(tagName, (IEnumerable<VTree>)children)
+        {
+        }
+
         public VElement(string tagName, IEnumerable<VTree> children) : base(children)
         {
             TagName = tagName;

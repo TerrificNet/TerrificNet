@@ -16,5 +16,12 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
         {
             SubExpression = subExpression;
         }
+
+        public override void Accept(INodeVisitor visitor)
+        {
+            SubExpression?.Accept(visitor);
+
+            visitor.Visit(this);
+        }
     }
 }

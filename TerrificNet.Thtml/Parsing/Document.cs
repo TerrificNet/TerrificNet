@@ -22,5 +22,14 @@ namespace TerrificNet.Thtml.Parsing
 
         public IReadOnlyList<Node> ChildNodes { get; }
 
+        public override void Accept(INodeVisitor visitor)
+        {
+            foreach (var node in ChildNodes)
+            {
+                node.Accept(visitor);
+            }
+
+            visitor.Visit(this);
+        }
     }
 }

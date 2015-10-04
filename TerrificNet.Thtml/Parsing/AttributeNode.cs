@@ -14,5 +14,11 @@ namespace TerrificNet.Thtml.Parsing
         public AttributeNode(string name, string value) : this(name, new ConstantAttributeContent(value))
         {
         }
+
+        public override void Accept(INodeVisitor visitor)
+        {
+            this.Value.Accept(visitor);
+            visitor.Visit(this);
+        }
     }
 }

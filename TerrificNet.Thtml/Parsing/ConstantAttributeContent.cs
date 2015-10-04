@@ -8,5 +8,10 @@ namespace TerrificNet.Thtml.Parsing
         {
             Text = text;
         }
+
+        public override void Accept(INodeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

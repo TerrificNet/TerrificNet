@@ -1,6 +1,6 @@
 namespace TerrificNet.Thtml.Parsing
 {
-    public class Node : SyntaxNode
+    public abstract class Node : SyntaxNode
     {
     }
 }

@@ -13,5 +13,14 @@ namespace TerrificNet.Thtml.Parsing
         public Expression Expression { get; }
 
         public Node[] ChildNodes { get; }
+        public override void Accept(INodeVisitor visitor)
+        {
+            this.Expression.Accept(visitor);
+
+            foreach (var child in ChildNodes)
+                child.Accept(visitor);
+
+            visitor.Visit(this);
+        }
     }
 }
