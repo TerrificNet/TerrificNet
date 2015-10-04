@@ -1,10 +1,10 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class ConditionalExpression : Expression
+    public class ConditionalExpression : MustacheExpression
     {
-        public Expression Expression { get; }
+        public MustacheExpression Expression { get; }
 
-        public ConditionalExpression(Expression expression)
+        public ConditionalExpression(MustacheExpression expression)
         {
             Expression = expression;
         }

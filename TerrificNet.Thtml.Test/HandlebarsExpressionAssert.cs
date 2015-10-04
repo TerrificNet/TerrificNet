@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml.Test
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     internal static class HandlebarsExpressionAssert
     {
-        public static void AssertExpression(Expression expected, Expression result)
+        public static void AssertExpression(MustacheExpression expected, MustacheExpression result)
         {
             if (expected == null)
                 Assert.Null(result);

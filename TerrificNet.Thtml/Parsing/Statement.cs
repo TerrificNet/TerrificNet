@@ -4,13 +4,13 @@ namespace TerrificNet.Thtml.Parsing
 {
     public class Statement : Node
     {
-        public Statement(Expression expression, params Node[] childNodes)
+        public Statement(MustacheExpression expression, params Node[] childNodes)
         {
             Expression = expression;
             ChildNodes = childNodes;
         }
 
-        public Expression Expression { get; }
+        public MustacheExpression Expression { get; }
 
         public Node[] ChildNodes { get; }
         public override void Accept(INodeVisitor visitor)

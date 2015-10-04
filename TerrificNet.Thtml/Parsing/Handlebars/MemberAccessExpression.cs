@@ -1,17 +1,17 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class MemberExpression : Expression
+    public class MemberExpression : MustacheExpression
     {
         public string Name { get; }
 
-        public Expression SubExpression { get; }
+        public MustacheExpression SubExpression { get; }
 
         public MemberExpression(string name)
         {
             Name = name;
         }
 
-        public MemberExpression(string name, Expression subExpression)
+        public MemberExpression(string name, MustacheExpression subExpression)
             : this(name)
         {
             SubExpression = subExpression;

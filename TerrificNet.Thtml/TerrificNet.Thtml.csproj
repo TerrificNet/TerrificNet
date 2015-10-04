@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Emit\Emitter.cs" />
+    <Compile Include="Emit\IDataBinder.cs" />
+    <Compile Include="Emit\TypeDataBinder.cs" />
     <Compile Include="LexicalAnalysis\CommonGrammar.cs" />
     <Compile Include="LexicalAnalysis\HandlebarsGrammar.cs" />
     <Compile Include="Parsing\AttributeContent.cs" />
@@ -52,7 +54,7 @@
     <Compile Include="Parsing\ConstantAttributeContent.cs" />
     <Compile Include="Parsing\ElementPart.cs" />
     <Compile Include="Parsing\AttributeContentStatement.cs" />
-    <Compile Include="Parsing\Handlebars\Expression.cs" />
+    <Compile Include="Parsing\Handlebars\MustacheExpression.cs" />
     <Compile Include="Parsing\AttributeNode.cs" />
     <Compile Include="Parsing\Document.cs" />
     <Compile Include="Parsing\Element.cs" />

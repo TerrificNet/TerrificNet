@@ -4,9 +4,9 @@ namespace TerrificNet.Thtml.Parsing
 {
     public class AttributeContentStatement : AttributeContent
     {
-        public Expression Expression { get; private set; }
+        public MustacheExpression Expression { get; private set; }
 
-        public AttributeContentStatement(Expression expression)
+        public AttributeContentStatement(MustacheExpression expression)
         {
             Expression = expression;
         }

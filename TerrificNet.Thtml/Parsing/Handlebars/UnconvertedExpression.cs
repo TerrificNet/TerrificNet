@@ -1,10 +1,10 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class UnconvertedExpression : Expression
+    public class UnconvertedExpression : MustacheExpression
     {
-        public Expression Expression { get; set; }
+        public MustacheExpression Expression { get; set; }
 
-        public UnconvertedExpression(Expression expression)
+        public UnconvertedExpression(MustacheExpression expression)
         {
             Expression = expression;
         }

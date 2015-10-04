@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 {
     public class HandlebarsParser
     {
-        public Expression Parse(string test)
+        public MustacheExpression Parse(string test)
         {
             var state = new LexerState(test);
             var lexer = new HandlebarsGrammar(state);
@@ -20,7 +20,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             return ParseExpression(current);
         }
 
-        public Expression ParseExpression(Token token)
+        public MustacheExpression ParseExpression(Token token)
         {
             if (token.Category == TokenCategory.HandlebarsEvaluate)
             {
@@ -66,7 +66,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             return new HelperAttribute(name.Lexem, value.Lexem);
         }
 
-        private static Expression GetExpression(Token token)
+        private static MustacheExpression GetExpression(Token token)
         {
             var compToken = ExpectComposite(token);
             var expressionToken = ExpectTokenCategory(compToken, TokenCategory.HandlebarsExpression);
@@ -75,7 +75,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             return memberAccess;
         }
 
-        private static Expression Expression(Token current)
+        private static MustacheExpression Expression(Token current)
         {
             var compToken = ExpectComposite(current);
             var nameToken = ExpectTokenCategory(compToken, TokenCategory.Name);
