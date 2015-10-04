@@ -74,7 +74,6 @@
     <Compile Include="LexicalAnalysis\Lexer.cs" />
     <Compile Include="LexicalAnalysis\LexerState.cs" />
     <Compile Include="Parsing\Parser.cs" />
-    <Compile Include="VDom\VTreeBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexicalAnalysis\Token.cs" />
     <Compile Include="LexicalAnalysis\TokenCategory.cs" />

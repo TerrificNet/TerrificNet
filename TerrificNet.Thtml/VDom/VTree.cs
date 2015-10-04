@@ -1,10 +1,79 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace TerrificNet.Thtml.VDom
 {
+    public interface IVTreeVisitor
+    {
+        void Visit(VTree vTree);
+        void Visit(VText vText);
+        void BeginVisit(VNode vNode);
+        void EndVisit(VNode vNode);
+        void BeginVisit(VElement vElement);
+        void EndVisit(VElement vElement);
+    }
+
     public class VTree
     {
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            using (var writer = new StringWriter(builder))
+            {
+                var buildStringVisitor = new ToStringVisitor(writer);
+                this.Accept(buildStringVisitor);
+            }
+
+            return builder.ToString();
+        }
+
+        public virtual void Accept(IVTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
+        private class ToStringVisitor : IVTreeVisitor
+        {
+            private readonly TextWriter _textWriter;
+
+            public ToStringVisitor(TextWriter textWriter)
+            {
+                _textWriter = textWriter;
+            }
+
+            public void EndVisit(VNode vNode)
+            {
+            }
+
+            public void BeginVisit(VElement vElement)
+            {
+                _textWriter.Write("<");
+                _textWriter.Write(vElement.TagName);
+                _textWriter.Write(">");
+            }
+
+            public void EndVisit(VElement vElement)
+            {
+                _textWriter.Write("</");
+                _textWriter.Write(vElement.TagName);
+                _textWriter.Write(">");
+            }
+
+            public void Visit(VTree vTree)
+            {
+            }
+
+            public void Visit(VText vText)
+            {
+                _textWriter.Write(vText.Text);
+            }
+
+            public void BeginVisit(VNode vNode)
+            {
+            }
+        }
     }
 
     public class VText : VTree
@@ -16,6 +85,10 @@ namespace TerrificNet.Thtml.VDom
 
         public string Text { get; }
 
+        public override void Accept(IVTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 
     public class VNode : VTree
@@ -30,6 +103,16 @@ namespace TerrificNet.Thtml.VDom
         }
 
         public IReadOnlyList<VTree> Children { get; }
+
+        public override void Accept(IVTreeVisitor visitor)
+        {
+            visitor.BeginVisit(this);
+
+            foreach (var child in Children)
+                child.Accept(visitor);
+
+            visitor.EndVisit(this);
+        }
     }
 
     public class VElement : VNode
@@ -45,6 +128,15 @@ namespace TerrificNet.Thtml.VDom
 
         public string TagName { get; }
 
+        public override void Accept(IVTreeVisitor visitor)
+        {
+            visitor.BeginVisit(this);
+
+            foreach (var child in Children)
+                child.Accept(visitor);
+
+            visitor.EndVisit(this);
+        }
     }
 
     public class VProperties
