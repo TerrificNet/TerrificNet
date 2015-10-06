@@ -24,12 +24,15 @@ namespace TerrificNet.Thtml.Parsing
 
         public override void Accept(INodeVisitor visitor)
         {
+            if (!visitor.BeforeVisit(this))
+                return;
+
             foreach (var node in ChildNodes)
             {
                 node.Accept(visitor);
             }
 
-            visitor.Visit(this);
+            visitor.AfterVisit(this);
         }
     }
 }

@@ -11,10 +11,13 @@ namespace TerrificNet.Thtml.Parsing
 
         public override void Accept(INodeVisitor visitor)
         {
+            if (!visitor.BeforeVisit(this))
+                return;
+
             foreach (var part in ContentParts)
                 part.Accept(visitor);
 
-            visitor.Visit(this);
+            visitor.AfterVisit(this);
         }
     }
 }

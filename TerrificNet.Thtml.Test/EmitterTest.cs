@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Test.Asserts;
 using TerrificNet.Thtml.VDom;
 using Xunit;
 
@@ -60,25 +61,53 @@ namespace TerrificNet.Thtml.Test
                         new VElement("h1",
                             new VText("hallo")))
                 };
+
+                var obj2 = new
+                {
+                    Items = new[] { new Dummy { Name = "test1" }, new Dummy { Name = "test2" } }
+                };
+                yield return new object[]
+                {
+                    "one element with iteration expression",
+                    new Document(
+                        new Element("h1",
+                            new Statement(
+                                new IterationExpression(new MemberExpression("items")), 
+                            new Element("div", 
+                                new Statement(new MemberExpression("name")))))),
+                    TypeDataBinder.BinderFromObject(obj2),
+                    obj2,
+                    new VNode(
+                        new VElement("h1",
+                            new VElement("div",
+                                new VText("test1")),
+                            new VElement("div",
+                                new VText("test2"))))
+                };
             }
         }
     }
 
-    public class ObjectDataContext : IDataContext
+    public class Dummy
     {
-        public ObjectDataContext(object value)
-        {
-            this.Value = value;
-        }
-
-        public object Value { get; }
+        public string Name { get; set; }
     }
 
     public class NullDataBinder : IDataBinder
     {
-        public Func<IDataContext, string> Evaluate(MemberExpression memberExpression)
+        public DataBinderResult Evaluate(string propertyName)
         {
-            return d => null;
+            return null;
+        }
+
+        public DataBinderResult Item()
+        {
+            return null;
+        }
+
+        public DataBinderResult Context()
+        {
+            return null;
         }
     }
 }

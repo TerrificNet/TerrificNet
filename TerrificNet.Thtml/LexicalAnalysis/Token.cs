@@ -17,7 +17,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
             Category = category;
         }
 
-        public TokenCategory Category { get; set; }
+        public TokenCategory Category { get; }
         public int Start { get; }
         public int End { get; }
         public string Lexem { get; protected set; }

@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using Xunit;
 
-namespace TerrificNet.Thtml.Test
+namespace TerrificNet.Thtml.Test.Asserts
 {
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     internal static class HandlebarsExpressionAssert

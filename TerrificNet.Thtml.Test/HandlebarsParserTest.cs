@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Test.Asserts;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TerrificNet.Thtml.VDom;
 using Xunit;
 
-namespace TerrificNet.Thtml.Test
+namespace TerrificNet.Thtml.Test.Asserts
 {
     public class VTreeAsserts
     {

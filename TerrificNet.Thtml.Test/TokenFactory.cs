@@ -241,30 +241,30 @@ namespace TerrificNet.Thtml.Test
 
         public static Token IfStartExpression(string expression, int position)
         {
-            return TokenFactory.Composite(position,
+            return Composite(position,
                 TokenCategory.External,
-                TokenFactory.HandlebarsStart,
-                TokenFactory.HandlebarsStart,
-                a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockStart,
-                    TokenFactory.Hash,
-                    b => TokenFactory.Name("if", b),
-                    TokenFactory.Whitespace,
-                    b => TokenFactory.Expression(b, expression)),
-                TokenFactory.HandlebarsEnd,
-                TokenFactory.HandlebarsEnd);
+                HandlebarsStart,
+                HandlebarsStart,
+                a => Composite(a, TokenCategory.HandlebarsBlockStart,
+                    Hash,
+                    b => Name("if", b),
+                    Whitespace,
+                    b => Expression(b, expression)),
+                HandlebarsEnd,
+                HandlebarsEnd);
         }
 
         public static Token IfEndExpression(int i)
         {
-            return TokenFactory.Composite(i,
+            return Composite(i,
                 TokenCategory.External,
-                TokenFactory.HandlebarsStart,
-                TokenFactory.HandlebarsStart,
-                a => TokenFactory.Composite(a, TokenCategory.HandlebarsBlockEnd,
-                    TokenFactory.Slash,
-                    b => TokenFactory.Name("if", b)),
-                TokenFactory.HandlebarsEnd,
-                TokenFactory.HandlebarsEnd);
+                HandlebarsStart,
+                HandlebarsStart,
+                a => Composite(a, TokenCategory.HandlebarsBlockEnd,
+                    Slash,
+                    b => Name("if", b)),
+                HandlebarsEnd,
+                HandlebarsEnd);
         }
 
         public static Token CommentStart(int position)

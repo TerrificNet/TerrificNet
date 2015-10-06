@@ -1,16 +1,25 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
-using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class TypeDataBinder : IDataBinder
+    public class TypeDataBinder : DataBinderResult
     {
-        private readonly Type _type;
+        private readonly ParameterExpression _dataContextParameter;
+        private readonly Expression _memberAccess;
 
-        private TypeDataBinder(Type type)
+        private TypeDataBinder(Type type) : base(type)
         {
-            _type = type;
+            _dataContextParameter = Expression.Parameter(typeof(IDataContext));
+            _memberAccess = Expression.ConvertChecked(Expression.Property(_dataContextParameter, "Value"), type);
+        }
+
+        private TypeDataBinder(Expression expression, ParameterExpression parameter) : base(expression.Type)
+        {
+            _dataContextParameter = parameter;
+            _memberAccess = expression;
         }
 
         public static IDataBinder BinderFromObject(object obj)
@@ -21,19 +30,22 @@ namespace TerrificNet.Thtml.Emit
             return new TypeDataBinder(obj.GetType());
         }
 
-        public Func<IDataContext, string> Evaluate(MemberExpression memberExpression)
+        public override Func<IDataContext, T> CreateEvaluation<T>()
         {
-            if (memberExpression.SubExpression == null)
-            {
-                var dataContextParameter = Expression.Parameter(typeof (IDataContext));
-                var dataObj = Expression.TypeAs(Expression.Property(dataContextParameter, "Value"), _type);
-                var memberAccess = Expression.Property(dataObj, memberExpression.Name);
+            var lambda = Expression.Lambda<Func<IDataContext, T>>(_memberAccess, _dataContextParameter);
+            return lambda.Compile();
+        }
 
-                var lambda = Expression.Lambda<Func<IDataContext, string>>(memberAccess, dataContextParameter);
-                return lambda.Compile();
-            }
+        public override DataBinderResult Evaluate(string propertyName)
+        {
+            return new TypeDataBinder(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
+        }
 
-            return d => null;
+        public override DataBinderResult Item()
+        {
+            var enumerable = this.ResultType.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
+
+            return new TypeDataBinder(enumerable.GetGenericArguments()[0]);
         }
     }
 }

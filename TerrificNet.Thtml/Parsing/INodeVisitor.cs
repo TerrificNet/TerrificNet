@@ -1,22 +1,21 @@
-using TerrificNet.Thtml.Parsing.Handlebars;
-
 namespace TerrificNet.Thtml.Parsing
 {
     public interface INodeVisitor
     {
-        void Visit(Document document);
-        void Visit(Element element);
+        bool BeforeVisit(Document document);
+        void AfterVisit(Document document);
+        bool BeforeVisit(Element element);
+        void AfterVisit(Element element);
         void Visit(ConstantAttributeContent attributeContent);
-        void Visit(CallHelperExpression callHelperExpression);
-        void Visit(ConditionalExpression conditionalExpression);
-        void Visit(IterationExpression iterationExpression);
-        void Visit(MemberExpression memberExpression);
-        void Visit(UnconvertedExpression unconvertedExpression);
-        void Visit(Statement statement);
+        bool BeforeVisit(Statement statement);
+        void AfterVisit(Statement statement);
         void Visit(TextNode textNode);
         void Visit(AttributeContentStatement constantAttributeContent);
-        void Visit(AttributeNode attributeNode);
-        void Visit(CompositeAttributeContent compositeAttributeContent);
-        void Visit(AttributeStatement attributeStatement);
+        bool BeforeVisit(AttributeNode attributeNode);
+        void AfterVisit(AttributeNode attributeNode);
+        bool BeforeVisit(CompositeAttributeContent compositeAttributeContent);
+        void AfterVisit(CompositeAttributeContent compositeAttributeContent);
+        bool BeforeVisit(AttributeStatement attributeStatement);
+        void AfterVisit(AttributeStatement attributeStatement);
     }
 }

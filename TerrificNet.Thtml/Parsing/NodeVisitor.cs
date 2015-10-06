@@ -4,7 +4,23 @@ namespace TerrificNet.Thtml.Parsing
 {
     public abstract class NodeVisitor : INodeVisitor
     {
-        public virtual void Visit(Element element)
+        private readonly IExpressionVisitor _expressionVisitor;
+
+        protected NodeVisitor(IExpressionVisitor expressionVisitor)
+        {
+            _expressionVisitor = expressionVisitor;
+        }
+
+        public virtual void AfterVisit(Document document)
+        {
+        }
+
+        public virtual bool BeforeVisit(Element element)
+        {
+            return false;
+        }
+
+        public virtual void AfterVisit(Element element)
         {
         }
 
@@ -12,27 +28,13 @@ namespace TerrificNet.Thtml.Parsing
         {
         }
 
-        public virtual void Visit(CallHelperExpression callHelperExpression)
+        public virtual bool BeforeVisit(Statement statement)
         {
+            statement.Expression.Accept(_expressionVisitor);
+            return false;
         }
 
-        public virtual void Visit(ConditionalExpression conditionalExpression)
-        {
-        }
-
-        public virtual void Visit(IterationExpression iterationExpression)
-        {
-        }
-
-        public virtual void Visit(MemberExpression memberExpression)
-        {
-        }
-
-        public virtual void Visit(UnconvertedExpression unconvertedExpression)
-        {
-        }
-
-        public virtual void Visit(Statement statement)
+        public virtual void AfterVisit(Statement statement)
         {
         }
 
@@ -42,22 +44,40 @@ namespace TerrificNet.Thtml.Parsing
 
         public virtual void Visit(AttributeContentStatement constantAttributeContent)
         {
+            constantAttributeContent.Expression.Accept(_expressionVisitor);
         }
 
-        public virtual void Visit(AttributeNode attributeNode)
+        public virtual bool BeforeVisit(AttributeNode attributeNode)
+        {
+            return false;
+        }
+
+        public virtual void AfterVisit(AttributeNode attributeNode)
         {
         }
 
-        public virtual void Visit(CompositeAttributeContent compositeAttributeContent)
+        public virtual bool BeforeVisit(CompositeAttributeContent compositeAttributeContent)
+        {
+            return false;
+        }
+
+        public virtual void AfterVisit(CompositeAttributeContent compositeAttributeContent)
         {
         }
 
-        public virtual void Visit(AttributeStatement attributeStatement)
+        public virtual bool BeforeVisit(AttributeStatement attributeStatement)
+        {
+            attributeStatement.Expression.Accept(_expressionVisitor);
+            return false;
+        }
+
+        public virtual void AfterVisit(AttributeStatement attributeStatement)
         {
         }
 
-        public virtual void Visit(Document document)
+        public virtual bool BeforeVisit(Document document)
         {
+            return false;
         }
     }
 }

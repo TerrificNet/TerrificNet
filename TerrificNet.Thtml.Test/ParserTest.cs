@@ -2,8 +2,8 @@
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Test.Asserts;
 using Xunit;
-using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
 namespace TerrificNet.Thtml.Test
 {

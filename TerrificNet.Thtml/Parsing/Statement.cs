@@ -15,12 +15,13 @@ namespace TerrificNet.Thtml.Parsing
         public Node[] ChildNodes { get; }
         public override void Accept(INodeVisitor visitor)
         {
-            this.Expression.Accept(visitor);
+            if (!visitor.BeforeVisit(this))
+                return;
 
             foreach (var child in ChildNodes)
                 child.Accept(visitor);
 
-            visitor.Visit(this);
+            visitor.AfterVisit(this);
         }
     }
 }

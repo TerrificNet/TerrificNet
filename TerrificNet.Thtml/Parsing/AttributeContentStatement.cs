@@ -13,7 +13,6 @@ namespace TerrificNet.Thtml.Parsing
 
         public override void Accept(INodeVisitor visitor)
         {
-            this.Expression.Accept(visitor);
             visitor.Visit(this);
         }
     }

@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
 using Xunit;
 
-namespace TerrificNet.Thtml.Test
+namespace TerrificNet.Thtml.Test.Asserts
 {
     static internal class NodeAsserts
     {
         public static void AssertNode(Node expected, Node actual)
         {
             if (expected == null)
+            {
                 Assert.Null(actual);
+                return;
+            }
 
             Assert.IsType(expected.GetType(), actual);
 
@@ -119,18 +122,20 @@ namespace TerrificNet.Thtml.Test
                 return;
             }
 
+            Assert.NotNull(actual);
+
             var eConst = expected as ConstantAttributeContent;
             var eComp = expected as CompositeAttributeContent;
             var eEvaluate = expected as AttributeContentStatement;
             if (eConst != null)
             {
                 Assert.IsType<ConstantAttributeContent>(actual);
-                Assert.Equal(eConst.Text, ((ConstantAttributeContent) actual)?.Text);
+                Assert.Equal(eConst.Text, ((ConstantAttributeContent) actual).Text);
             }
             else if (eComp != null)
             {
                 Assert.IsType<CompositeAttributeContent>(actual);
-                var aComp = actual as CompositeAttributeContent;
+                var aComp = (CompositeAttributeContent)actual;
 
                 Assert.Equal(eComp.ContentParts.Length, aComp.ContentParts.Length);
                 for (int i = 0; i < eComp.ContentParts.Length; i++)

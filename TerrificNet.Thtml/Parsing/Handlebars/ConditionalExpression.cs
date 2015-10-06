@@ -9,11 +9,14 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             Expression = expression;
         }
 
-        public override void Accept(INodeVisitor visitor)
+        public override void Accept(IExpressionVisitor visitor)
         {
-            this.Expression.Accept(visitor);
+            if (!visitor.BeforeVisit(this))
+                return;
 
-            visitor.Visit(this);
+            Expression.Accept(visitor);
+
+            visitor.AfterVisit(this);
         }
     }
 }

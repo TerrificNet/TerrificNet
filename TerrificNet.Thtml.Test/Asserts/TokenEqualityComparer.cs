@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TerrificNet.Thtml.LexicalAnalysis;
 
-namespace TerrificNet.Thtml.Test
+namespace TerrificNet.Thtml.Test.Asserts
 {
     internal class TokenEqualityComparer : IEqualityComparer<Token>
     {
