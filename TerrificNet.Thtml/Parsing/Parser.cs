@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Parsing
             _parser = parser;
         }
 
-        public Node Parse(IEnumerable<Token> tokens)
+        public Document Parse(IEnumerable<Token> tokens)
         {
             var enumerator = tokens.GetEnumerator();
             MoveNext(enumerator);
