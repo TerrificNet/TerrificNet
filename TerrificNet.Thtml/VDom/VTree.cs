@@ -41,6 +41,21 @@ namespace TerrificNet.Thtml.VDom
             {
                 _textWriter.Write("<");
                 _textWriter.Write(vElement.TagName);
+
+                if (vElement.Properties.Count > 0)
+                    _textWriter.Write(" ");
+
+                foreach (var property in vElement.Properties)
+                {
+                    _textWriter.Write(property.Name);
+                    _textWriter.Write("=");
+                    _textWriter.Write("\"");
+                    var stringValue = property.Value as StringVPropertyValue;
+                    if (stringValue != null)
+                        _textWriter.Write(stringValue.Value);
+
+                    _textWriter.Write("\"");
+                }
                 _textWriter.Write(">");
             }
 

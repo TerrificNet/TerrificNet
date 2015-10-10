@@ -39,6 +39,12 @@ namespace TerrificNet.Thtml.Test
                     },
                     @"<h1><ul><li>test1</li><li>test2</li></ul></h1>"
                 };
+                yield return new object[]
+                {
+                    @"<div name=""{{name}}"" />",
+                    new Dummy { Name = "test1" },
+                    @"<div name=""test1""></div>"
+                };
             }
         }
     }
