@@ -17,13 +17,13 @@
 
 		private registerAction(element: Element) {
 			var $elem = $(element);
-			var action: string = $elem.data("tc-action");
+			var action: string = $elem.data("tc-action").val();
 			$elem.click(() => {
 				var $container = $elem.parent("[data-tc-controller]");
 				var controller = $container.data("tc-controller-inst");
 				var result = controller[action]();
 
-				ViewEngine.loadAndRenderAsync($container.data("tc-templateid"), result).then(html => {
+				ViewEngine.loadAndRenderAsync($container.data("tc-templateid").val(), result).then(html => {
 					$container.html(html);
 					this.lookup($container);
 				});
@@ -31,7 +31,7 @@
 		}
 
 		private register(element: Element) {
-			var name: string = $(element).data("tc-controller");
+			var name: string = $(element).data("tc-controller").val();
 			var controller = this.activator.activate(name);
 
 			$(element).data("tc-controller-inst", controller);

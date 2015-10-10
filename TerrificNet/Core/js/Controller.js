@@ -22,19 +22,19 @@ var Tcn;
         ControllerInjector.prototype.registerAction = function (element) {
             var _this = this;
             var $elem = $(element);
-            var action = $elem.data("tc-action");
+            var action = $elem.data("tc-action").val();
             $elem.click(function () {
                 var $container = $elem.parent("[data-tc-controller]");
                 var controller = $container.data("tc-controller-inst");
                 var result = controller[action]();
-                Tcn.ViewEngine.loadAndRenderAsync($container.data("tc-templateid"), result).then(function (html) {
+                Tcn.ViewEngine.loadAndRenderAsync($container.data("tc-templateid").val(), result).then(function (html) {
                     $container.html(html);
                     _this.lookup($container);
                 });
             });
         };
         ControllerInjector.prototype.register = function (element) {
-            var name = $(element).data("tc-controller");
+            var name = $(element).data("tc-controller").val();
             var controller = this.activator.activate(name);
             $(element).data("tc-controller-inst", controller);
         };
@@ -42,4 +42,3 @@ var Tcn;
     })();
     Tcn.ControllerInjector = ControllerInjector;
 })(Tcn || (Tcn = {}));
-//# sourceMappingURL=Controller.js.map

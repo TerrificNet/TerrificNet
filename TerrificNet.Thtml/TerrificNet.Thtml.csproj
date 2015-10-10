@@ -83,7 +83,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexicalAnalysis\Token.cs" />
     <Compile Include="LexicalAnalysis\TokenCategory.cs" />
+    <Compile Include="VDom\BooleanVPropertyValue.cs" />
     <Compile Include="VDom\IVTreeVisitor.cs" />
+    <Compile Include="VDom\NumberVPropertyValue.cs" />
+    <Compile Include="VDom\StringVPropertyValue.cs" />
+    <Compile Include="VDom\VElement.cs" />
+    <Compile Include="VDom\VNode.cs" />
+    <Compile Include="VDom\VProperty.cs" />
+    <Compile Include="VDom\VPropertyValue.cs" />
+    <Compile Include="VDom\VText.cs" />
     <Compile Include="VDom\VTree.cs" />
   </ItemGroup>
   <ItemGroup />
