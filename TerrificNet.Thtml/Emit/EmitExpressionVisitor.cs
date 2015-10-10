@@ -9,13 +9,15 @@ namespace TerrificNet.Thtml.Emit
 {
     public class EmitExpressionVisitor : ExpressionVisitor
     {
+        private readonly IHelperBinder _helperBinder;
         private readonly Stack<DataBinderResult> _dataBinder = new Stack<DataBinderResult>();
         private DataBinderResult Scope => _dataBinder.Peek();
 
         private DataBinderResult Value { get; set; }
 
-        public EmitExpressionVisitor(IDataBinder dataBinder)
+        public EmitExpressionVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
         {
+            _helperBinder = helperBinder;
             _dataBinder.Push(dataBinder.Context());
             Value = Scope;
         }
@@ -34,10 +36,17 @@ namespace TerrificNet.Thtml.Emit
         {
             var iterationExpression = expression as IterationExpression;
             if (iterationExpression != null)
+            {
                 expression = iterationExpression.Expression;
 
-            expression.Accept(this);
-            _dataBinder.Push(Value.Item());
+                expression.Accept(this);
+                _dataBinder.Push(Value.Item());
+            }
+            else
+            {
+                expression.Accept(this);
+                _dataBinder.Push(Value);
+            }
         }
 
         public IListEmitter<VTree> LeaveTreeScope(MustacheExpression expression, IListEmitter<VTree> children)
@@ -47,7 +56,7 @@ namespace TerrificNet.Thtml.Emit
 
         public IListEmitter<VPropertyValue> LeavePropertyValueScope(MustacheExpression expression)
         {
-            return LeaveScope<VPropertyValue>(expression, null, TryConvertStringToVPropertyValue);
+            return LeaveScope(expression, null, TryConvertStringToVPropertyValue);
         }
 
         private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
@@ -74,6 +83,17 @@ namespace TerrificNet.Thtml.Emit
                 }
 
                 throw new Exception("Expect a enumerable as result");
+            }
+
+            var callHelperExpression = expression as CallHelperExpression;
+            if (callHelperExpression != null)
+            {
+                var result = _helperBinder.FindByName(callHelperExpression.Name);
+                if (result == null)
+                    throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
+
+                var evalutation = result.CreateEmitter(children);
+                return evalutation;
             }
 
             foreach (var converter in converters)

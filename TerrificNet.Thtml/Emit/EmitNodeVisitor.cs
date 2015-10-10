@@ -15,13 +15,13 @@ namespace TerrificNet.Thtml.Emit
 
         private List<IListEmitter<VTree>> Scope => _elements.Peek();
 
-        public EmitNodeVisitor(IDataBinder dataBinder) : this(new EmitExpressionVisitor(dataBinder))
-        {
-        }
-
         private EmitNodeVisitor(EmitExpressionVisitor expressionVisitor) : base(expressionVisitor)
         {
             _expressionVisitor = expressionVisitor;
+        }
+
+        public EmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder) : this(new EmitExpressionVisitor(dataBinder, helperBinder))
+        {
         }
 
         public IEmitter<VNode> DocumentFunc { get; private set; }

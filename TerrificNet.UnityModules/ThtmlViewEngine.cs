@@ -30,7 +30,7 @@ namespace TerrificNet.UnityModules
             var ast = parser.Parse(tokens);
             var compiler = new Emitter();
             var dataBinder = TypeDataBinder.BinderFromType(modelType);
-            var method = compiler.Emit(ast, dataBinder);
+            var method = compiler.Emit(ast, dataBinder, null);
 
             return Task.FromResult<IView>(new ThtmlView(method));
         }

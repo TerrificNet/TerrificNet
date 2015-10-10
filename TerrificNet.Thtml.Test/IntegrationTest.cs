@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Test
             var ast = parser.Parse(tokens);
             var compiler = new Emitter();
             var dataBinder = TypeDataBinder.BinderFromObject(inputObject);
-            var method = compiler.Emit(ast, dataBinder);
+            var method = compiler.Emit(ast, dataBinder, null);
 
             var result = method.Execute(new ObjectDataContext(inputObject));
 

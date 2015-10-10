@@ -42,7 +42,9 @@
     <Compile Include="Emit\IDataBinder.cs" />
     <Compile Include="Emit\IDataContext.cs" />
     <Compile Include="Emit\IEmitter.cs" />
+    <Compile Include="Emit\IHelperBinder.cs" />
     <Compile Include="Emit\IListEmitter.cs" />
+    <Compile Include="Emit\NullHelperBinder.cs" />
     <Compile Include="Emit\ObjectDataContext.cs" />
     <Compile Include="Emit\TypeDataBinder.cs" />
     <Compile Include="LexicalAnalysis\CommonGrammar.cs" />

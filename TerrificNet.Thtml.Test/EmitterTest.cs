@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Moq;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
@@ -13,10 +13,10 @@ namespace TerrificNet.Thtml.Test
     {
         [Theory]
         [MemberData("TestData")]
-        public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected)
+        public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
         {
             var compiler = new Emitter();
-            var method = compiler.Emit(input, dataBinder);
+            var method = compiler.Emit(input, dataBinder, helperBinder);
 
             var result = method.Execute(new ObjectDataContext(data));
 
@@ -33,7 +33,8 @@ namespace TerrificNet.Thtml.Test
                     new Document(),
                     new NullDataBinder(),
                     null,
-                    new VNode()
+                    new VNode(),
+                    new NullHelperBinder()
                 };
 
                 yield return new object[]
@@ -46,7 +47,8 @@ namespace TerrificNet.Thtml.Test
                     null,
                     new VNode(
                         new VElement("h1", 
-                            new VText("hallo")))
+                            new VText("hallo"))),
+                    new NullHelperBinder()
                 };
                 var obj = new { Name = "hallo" };   
                 yield return new object[]
@@ -59,7 +61,8 @@ namespace TerrificNet.Thtml.Test
                     obj,
                     new VNode(
                         new VElement("h1",
-                            new VText("hallo")))
+                            new VText("hallo"))),
+                    new NullHelperBinder()
                 };
 
                 var obj2 = new
@@ -82,7 +85,8 @@ namespace TerrificNet.Thtml.Test
                             new VElement("div",
                                 new VText("test1")),
                             new VElement("div",
-                                new VText("test2"))))
+                                new VText("test2")))),
+                    new NullHelperBinder()
                 };
                 var obj3 = new { Name = "value" };
                 yield return new object[]
@@ -93,7 +97,26 @@ namespace TerrificNet.Thtml.Test
                     TypeDataBinder.BinderFromObject(obj3),
                     obj3,
                     new VNode(
-                        new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null))
+                        new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null)),
+                    new NullHelperBinder()
+                };
+
+                var result = new Mock<HelperBinderResult>();
+                result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>())).Returns(EmitterNode.AsList(EmitterNode.Lambda(d => new VText("helper output"))));
+
+                var helper = new Mock<IHelperBinder>();
+                helper.Setup(h => h.FindByName("helper")).Returns(result.Object);
+
+                yield return new object[]
+                {
+                    "one element with helper",
+                    new Document(
+                        new Element("h1", new Statement(new CallHelperExpression("helper")))),
+                    TypeDataBinder.BinderFromObject(obj3),
+                    obj3,
+                    new VNode(
+                        new VElement("h1", new VText("helper output"))),
+                    helper.Object
                 };
             }
         }
