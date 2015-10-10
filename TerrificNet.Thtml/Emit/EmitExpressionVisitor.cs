@@ -88,11 +88,11 @@ namespace TerrificNet.Thtml.Emit
             var callHelperExpression = expression as CallHelperExpression;
             if (callHelperExpression != null)
             {
-                var result = _helperBinder.FindByName(callHelperExpression.Name);
+                var result = _helperBinder.FindByName(callHelperExpression.Name, CreateDictionaryFromArguments(callHelperExpression.Attributes));
                 if (result == null)
                     throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-                var evalutation = result.CreateEmitter(children);
+                var evalutation = result.CreateEmitter(children, _helperBinder, Scope);
                 return evalutation;
             }
 
@@ -104,6 +104,11 @@ namespace TerrificNet.Thtml.Emit
             }
 
             throw new Exception("Expect a VText or string as result");
+        }
+
+        private IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
+        {
+            return attributes.ToDictionary(d => d.Name, d => d.Value);
         }
 
         private IListEmitter<VText> TryConvertVText(MustacheExpression expression)

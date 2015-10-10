@@ -1,15 +1,19 @@
 using System;
+using System.Collections.Generic;
 
 namespace TerrificNet.Thtml.Emit
 {
     public interface IHelperBinder
     {
-        HelperBinderResult FindByName(string helper);
-
+        HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments);
     }
 
     public abstract class HelperBinderResult
     {
-        public abstract IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children);
+        public HelperBinderResult()
+        {
+        }
+
+        public abstract IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataBinder scope);
     }
 }

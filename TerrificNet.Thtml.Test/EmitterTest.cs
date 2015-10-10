@@ -101,11 +101,11 @@ namespace TerrificNet.Thtml.Test
                     new NullHelperBinder()
                 };
 
-                var result = new Mock<HelperBinderResult>();
-                result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>())).Returns(EmitterNode.AsList(EmitterNode.Lambda(d => new VText("helper output"))));
+                var result = new Mock<HelperBinderResult>(MockBehavior.Loose);
+                result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>(), It.IsAny<IHelperBinder>(), It.IsAny<IDataBinder>())).Returns(EmitterNode.AsList(EmitterNode.Lambda(d => new VText("helper output"))));
 
                 var helper = new Mock<IHelperBinder>();
-                helper.Setup(h => h.FindByName("helper")).Returns(result.Object);
+                helper.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(result.Object);
 
                 yield return new object[]
                 {
