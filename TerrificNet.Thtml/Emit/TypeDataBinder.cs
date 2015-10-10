@@ -22,6 +22,11 @@ namespace TerrificNet.Thtml.Emit
             _memberAccess = expression;
         }
 
+        public static IDataBinder BinderFromType(Type type)
+        {
+            return new TypeDataBinder(type);
+        }
+
         public static IDataBinder BinderFromObject(object obj)
         {
             if (obj == null)

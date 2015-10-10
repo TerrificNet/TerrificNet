@@ -74,7 +74,7 @@ namespace TerrificNet.UnityModules
 
         private static void RegisterApplicationSpecific(IUnityContainer container)
         {
-            container.RegisterType<IViewEngine, VeilViewEngine>();
+            container.RegisterType<IViewEngine, ThtmlViewEngine>();
             container.RegisterType<ICacheProvider, MemoryCacheProvider>();
             container.RegisterType<IModelProvider, JsonModelProvider>();
 			//container.RegisterType<IModelTypeProvider, DynamicModelTypeProvider>();

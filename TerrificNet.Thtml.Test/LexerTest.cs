@@ -236,6 +236,23 @@ namespace TerrificNet.Thtml.Test
                 // Handlebars
                 yield return new object[]
                 {
+                    "{{!-- comment --}}",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.Composite(i, TokenCategory.External,
+                            TokenFactory.HandlebarsStart,
+                            TokenFactory.HandlebarsStart,
+                            a => TokenFactory.Composite(a, TokenCategory.Comment,
+                                TokenFactory.CommentStart,
+                                TokenFactory.Dash,
+                                TokenFactory.Dash,
+                                b => TokenFactory.CommentContent(b, " comment "),
+                                TokenFactory.Dash,
+                                TokenFactory.Dash),
+                            TokenFactory.HandlebarsEnd,
+                            TokenFactory.HandlebarsEnd))
+                };
+                yield return new object[]
+                {
                     "{{name}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,

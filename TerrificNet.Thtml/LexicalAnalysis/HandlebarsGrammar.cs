@@ -38,10 +38,23 @@ namespace TerrificNet.Thtml.LexicalAnalysis
         {
             _lexerState.Composite(() =>
             {
+                if (_lexerState.Can('!', TokenCategory.CommentStart))
+                {
+                    _lexerState.Must('-', TokenCategory.Dash);
+                    _lexerState.Must('-', TokenCategory.Dash);
+
+                    _lexerState.MoveUntil((c1, c2) => (c1 == '-' && c2 != '-') || c1 != '-',
+                        TokenCategory.CommentContent);
+
+                    _lexerState.Must('-', TokenCategory.Dash);
+                    _lexerState.Must('-', TokenCategory.Dash);
+
+                    return TokenCategory.Comment;
+                }
+
                 _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
                 var category = HandlebarContent();
                 _lexerState.Can(() => _commonGrammar.Whitespace(), TokenCategory.Whitespace);
-
                 return category;
             }, 0);
         }

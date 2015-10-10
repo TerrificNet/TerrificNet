@@ -88,6 +88,10 @@ namespace TerrificNet.Thtml.Parsing
 
                         yield return new Statement(expression, nodes.ToArray());
                     }
+                    else if (ft.Category == TokenCategory.Comment)
+                    {
+                        MoveNext(enumerator);
+                    }
                     else
                         break;
                 }
