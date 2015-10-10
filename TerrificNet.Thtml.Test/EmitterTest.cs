@@ -84,6 +84,17 @@ namespace TerrificNet.Thtml.Test
                             new VElement("div",
                                 new VText("test2"))))
                 };
+                var obj3 = new { Name = "value" };
+                yield return new object[]
+                {
+                    "one element with attribute expression",
+                    new Document(
+                        new Element("h1", new ElementPart[] { new AttributeNode("title", new AttributeContentStatement(new MemberExpression("name"))) })),
+                    TypeDataBinder.BinderFromObject(obj3),
+                    obj3,
+                    new VNode(
+                        new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null))
+                };
             }
         }
     }

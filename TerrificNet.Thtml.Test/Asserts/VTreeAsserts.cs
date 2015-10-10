@@ -5,7 +5,7 @@ using Xunit;
 
 namespace TerrificNet.Thtml.Test.Asserts
 {
-    public class VTreeAsserts
+    public static class VTreeAsserts
     {
         public static void AssertTree(VTree expected, VTree result)
         {
@@ -16,9 +16,9 @@ namespace TerrificNet.Thtml.Test.Asserts
             }
 
             AssertOneOf(
-                () => AssertTree<VText>(expected, result, AssertText),
-                () => AssertTree<VElement>(expected, result, AssertElement),
-                () => AssertTree<VNode>(expected, result, AssertNode));
+                () => AssertValue<VText>(expected, result, AssertText),
+                () => AssertValue<VElement>(expected, result, AssertElement),
+                () => AssertValue<VNode>(expected, result, AssertNode));
         }
 
         private static void AssertOneOf(params Func<bool>[] assertions)
@@ -28,12 +28,43 @@ namespace TerrificNet.Thtml.Test.Asserts
                 if (assert())
                     return;
             }
+            Assert.False(true, "No Type found");
         }
 
         private static void AssertElement(VElement expected, VElement result)
         {
             Assert.Equal(expected.TagName, result.TagName);
             AssertCollection(expected.Children, result.Children, AssertTree);
+            AssertCollection(expected.Properties, result.Properties, AssertProperty);
+        }
+
+        private static void AssertProperty(VProperty expected, VProperty actual)
+        {
+            if (expected == null)
+            {
+                Assert.Null(actual);
+                return;
+            }
+
+            AssertOneOf(
+                () => AssertValue<StringVPropertyValue>(expected.Value, actual.Value, AssertStringValue),
+                () => AssertValue<BooleanVPropertyValue>(expected.Value, actual.Value, AssertBooleanValue),
+                () => AssertValue<NumberVPropertyValue>(expected.Value, actual.Value, AssertNumberValue));
+        }
+
+        private static void AssertNumberValue(NumberVPropertyValue expected, NumberVPropertyValue actual)
+        {
+            Assert.Equal(expected.Value, actual.Value);
+        }
+
+        private static void AssertBooleanValue(BooleanVPropertyValue expected, BooleanVPropertyValue actual)
+        {
+            Assert.Equal(expected.Value, actual.Value);
+        }
+
+        private static void AssertStringValue(StringVPropertyValue expected, StringVPropertyValue actual)
+        {
+            Assert.Equal(expected.Value, actual.Value);
         }
 
         private static void AssertNode(VNode expected, VNode result)
@@ -55,7 +86,7 @@ namespace TerrificNet.Thtml.Test.Asserts
             Assert.Equal(expected.Text, result.Text);
         }
 
-        private static bool AssertTree<T>(VTree expected, VTree result, Action<T, T> assertion)
+        private static bool AssertValue<T>(object expected, object result, Action<T, T> assertion)
             where T : class
         {
             var t = expected as T;

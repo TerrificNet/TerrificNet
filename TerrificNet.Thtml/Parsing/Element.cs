@@ -12,30 +12,31 @@ namespace TerrificNet.Thtml.Parsing
         {
         }
 
-        public Element(string tagName, IEnumerable<Node> childNodes) : base(childNodes)
+        public Element(string tagName, IEnumerable<Node> childNodes) : this(tagName, childNodes, Enumerable.Empty<ElementPart>())
         {
-            TagName = tagName;
         }
 
-        public Element(string tagName, params Node[] childNodes) : base(childNodes)
+        public Element(string tagName, params Node[] childNodes) : this(tagName, childNodes, Enumerable.Empty<ElementPart>())
         {
-            TagName = tagName;
         }
 
-        public Element(string tagName, IEnumerable<Node> childNodes, IEnumerable<ElementPart> attributes) : this(tagName, childNodes)
+        public Element(string tagName, IEnumerable<Node> childNodes, IEnumerable<ElementPart> attributes) : base(childNodes)
         {
+            TagName = tagName;
             Attributes = attributes.ToList();
         }
 
-        public Element(string tagName, IEnumerable<ElementPart> attributes) : this(tagName)
+        public Element(string tagName, IEnumerable<ElementPart> attributes) : this(tagName, Enumerable.Empty<Node>(), attributes)
         {
-            Attributes = attributes.ToList();
         }
 
         public override void Accept(INodeVisitor visitor)
         {
             if (!visitor.BeforeVisit(this))
                 return;
+
+            foreach (var attribute in Attributes)
+                attribute.Accept(visitor);
 
             foreach (var child in ChildNodes)
                 child.Accept(visitor);

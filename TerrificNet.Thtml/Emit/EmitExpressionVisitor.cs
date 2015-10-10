@@ -40,7 +40,26 @@ namespace TerrificNet.Thtml.Emit
             _dataBinder.Push(Value.Item());
         }
 
-        public IListEmitter<VTree> LeaveScope(MustacheExpression expression, IListEmitter<VTree> children)
+        public IListEmitter<VTree> LeaveTreeScope(MustacheExpression expression, IListEmitter<VTree> children)
+        {
+            return LeaveScope(expression, children, TryConvertStringToVText, TryConvertVText);
+        }
+
+        public IListEmitter<VPropertyValue> LeavePropertyValueScope(MustacheExpression expression)
+        {
+            return LeaveScope<VPropertyValue>(expression, null, TryConvertStringToVPropertyValue);
+        }
+
+        private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
+        {
+            if (Value.ResultType != typeof(string))
+                return null;
+
+            var evaluation = Wrap(Value.CreateEvaluation<string>(), expression);
+            return EmitterNode.AsList(EmitterNode.Lambda(d => new StringVPropertyValue(evaluation(d))));
+        }
+
+        private IListEmitter<T> LeaveScope<T>(MustacheExpression expression, IListEmitter<T> children, params Func<MustacheExpression, IListEmitter<T>>[] converters)
         {
             _dataBinder.Pop();
 
@@ -57,18 +76,31 @@ namespace TerrificNet.Thtml.Emit
                 throw new Exception("Expect a enumerable as result");
             }
 
-            if (Value.ResultType == typeof(string))
+            foreach (var converter in converters)
             {
-                var evaluation = Wrap(Value.CreateEvaluation<string>(), expression);
-                return EmitterNode.AsList(EmitterNode.Lambda(d => new VText(evaluation(d))));
-            }
-
-            if (Value.ResultType == typeof(VText))
-            {
-                return EmitterNode.AsList(EmitterNode.Lambda(Wrap(Value.CreateEvaluation<VText>(), expression)));
+                IListEmitter<T> leaveScope;
+                if ((leaveScope = converter(expression)) != null)
+                    return leaveScope;
             }
 
             throw new Exception("Expect a VText or string as result");
+        }
+
+        private IListEmitter<VText> TryConvertVText(MustacheExpression expression)
+        {
+            if (Value.ResultType != typeof(VText))
+                return null;
+
+            return EmitterNode.AsList(EmitterNode.Lambda(Wrap(Value.CreateEvaluation<VText>(), expression)));
+        }
+
+        private IListEmitter<VText> TryConvertStringToVText(MustacheExpression expression)
+        {
+            if (Value.ResultType != typeof (string))
+                return null;
+
+            var evaluation = Wrap(Value.CreateEvaluation<string>(), expression);
+            return EmitterNode.AsList(EmitterNode.Lambda(d => new VText(evaluation(d))));
         }
 
         private static Func<IDataContext, T> Wrap<T>(Func<IDataContext, T> createEvaluation, MustacheExpression expression)

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Text;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.VDom;
 
@@ -8,6 +10,8 @@ namespace TerrificNet.Thtml.Emit
     {
         private readonly EmitExpressionVisitor _expressionVisitor;
         private readonly Stack<List<IListEmitter<VTree>>> _elements = new Stack<List<IListEmitter<VTree>>>();
+        private readonly List<IListEmitter<VProperty>> _properties = new List<IListEmitter<VProperty>>();
+        private IEmitter<VPropertyValue> _propertyValueEmitter;
 
         private List<IListEmitter<VTree>> Scope => _elements.Peek();
 
@@ -31,7 +35,8 @@ namespace TerrificNet.Thtml.Emit
         public override void AfterVisit(Element element)
         {
             var emitter = EmitterNode.Many(LeaveScope());
-            Scope.Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VElement(element.TagName, emitter.Execute(d)))));
+            var attributeEmitter = EmitterNode.Many(_properties);
+            Scope.Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VElement(element.TagName, attributeEmitter.Execute(d), emitter.Execute(d)))));
         }
 
         public override void Visit(TextNode textNode)
@@ -62,9 +67,48 @@ namespace TerrificNet.Thtml.Emit
         public override void AfterVisit(Statement statement)
         {
             var childEmitter = EmitterNode.Many(LeaveScope());
-            var listEmitter = _expressionVisitor.LeaveScope(statement.Expression, childEmitter);
+            var listEmitter = _expressionVisitor.LeaveTreeScope(statement.Expression, childEmitter);
 
             Scope.Add(listEmitter);
+        }
+
+        public override bool BeforeVisit(AttributeNode attributeNode)
+        {
+            return true;
+        }
+
+        public override void AfterVisit(AttributeNode attributeNode)
+        {
+            if (_propertyValueEmitter == null)
+                _propertyValueEmitter = EmitterNode.Lambda<VPropertyValue>(d => null);
+
+            var valueEmitter = _propertyValueEmitter;
+            _properties.Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VProperty(attributeNode.Name, valueEmitter.Execute(d)))));
+
+            _propertyValueEmitter = null;
+        }
+
+        public override void Visit(AttributeContentStatement constantAttributeContent)
+        {
+            _expressionVisitor.EnterScope(constantAttributeContent.Expression);
+            var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContent.Expression);
+
+            _propertyValueEmitter = EmitterNode.Lambda(d => GetPropertyValue(emitter, d));
+        }
+
+        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext)
+        {
+            var stringBuilder = new StringBuilder();
+            foreach (var emit in emitter.Execute(dataContext))
+            {
+                var stringValue = emit as StringVPropertyValue;
+                if (stringValue == null)
+                    throw new Exception($"Unsupported property value {emit.GetType()}.");
+
+                stringBuilder.Append(stringValue.Value);
+            }
+
+            return new StringVPropertyValue(stringBuilder.ToString());
         }
 
         private void EnterScope()

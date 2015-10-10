@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Emit
         public abstract Func<IDataContext, T> CreateEvaluation<T>();
         public Type ResultType { get; }
 
-        public DataBinderResult(Type resultType)
+        protected DataBinderResult(Type resultType)
         {
             ResultType = resultType;
         }

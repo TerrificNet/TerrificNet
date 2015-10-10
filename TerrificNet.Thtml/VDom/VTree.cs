@@ -89,7 +89,7 @@ namespace TerrificNet.Thtml.VDom
 
         public VNode(IEnumerable<VTree> children)
         {
-            Children = children.ToList();
+            Children = children?.ToList() ?? new List<VTree>();
         }
 
         public IReadOnlyList<VTree> Children { get; }
@@ -107,16 +107,19 @@ namespace TerrificNet.Thtml.VDom
 
     public class VElement : VNode
     {
-        public VElement(string tagName, params VTree[] children) : this(tagName, (IEnumerable<VTree>)children)
+        public VElement(string tagName, params VTree[] children) : this(tagName, Enumerable.Empty<VProperty>(), children)
         {
         }
 
-        public VElement(string tagName, IEnumerable<VTree> children) : base(children)
+        public VElement(string tagName, IEnumerable<VProperty> properties, IEnumerable<VTree> children) : base(children)
         {
             TagName = tagName;
+            Properties = properties?.ToList() ?? new List<VProperty>();
         }
 
         public string TagName { get; }
+
+        public IReadOnlyList<VProperty> Properties { get; }
 
         public override void Accept(IVTreeVisitor visitor)
         {
@@ -135,7 +138,14 @@ namespace TerrificNet.Thtml.VDom
 
     public class VProperty
     {
+        public string Name { get; }
+        public VPropertyValue Value { get; }
 
+        public VProperty(string name, VPropertyValue value)
+        {
+            Name = name;
+            Value = value;
+        }
     }
 
     public abstract class VPropertyValue
