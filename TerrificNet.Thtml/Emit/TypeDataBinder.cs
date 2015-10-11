@@ -48,7 +48,9 @@ namespace TerrificNet.Thtml.Emit
 
         public override DataBinderResult Item()
         {
-            var enumerable = this.ResultType.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
+            var enumerable = ResultType.GetInterfaces().Union(new [] { ResultType }).FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
+            if (enumerable == null)
+                return null;
 
             return new TypeDataBinder(enumerable.GetGenericArguments()[0]);
         }
