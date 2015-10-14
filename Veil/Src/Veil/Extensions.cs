@@ -53,7 +53,7 @@ namespace Veil
             return IsNonGenericCollectionType(t) ? typeof(ICollection) : (IsCollectionType(t) ? t : t.GetInterfaces().First(IsCollectionType));
         }
 
-        public static Type GetDictionaryTypeWithKey<TKey>(this Type t)
+        public static Type GetDictionaryTypeWithKey(this Type t)
         {
             Type dictionaryType;
             if (IsDictionaryType(t)) dictionaryType = t;

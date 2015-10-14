@@ -1,5 +1,9 @@
 using System;
+using System.Collections;
+using System.Dynamic;
 using System.Linq;
+using System.Reflection;
+using Veil;
 
 namespace TerrificNet.Thtml.Emit
 {
@@ -56,12 +60,11 @@ namespace TerrificNet.Thtml.Emit
                 if (value == null)
                     throw new Exception($"Unable to bind property '{_propertyName}' null.");
 
-                var type = value.GetType();
-                var property = type.GetProperties().FirstOrDefault(p => p.Name.Equals(_propertyName, StringComparison.InvariantCultureIgnoreCase));
-                if (property == null)
-                    throw new Exception($"The type '{type}' doesn't contain a property with name '{_propertyName}'.");
+                var binder = Helpers.GetBinder(value, _propertyName);
+                if (binder == null)
+                    throw new Exception($"The type '{value.GetType()}' doesn't contain a property with name '{_propertyName}'.");
 
-                return property.GetValue(value);
+                return binder(value);
             }
         }
 
@@ -76,7 +79,11 @@ namespace TerrificNet.Thtml.Emit
 
             public T Evaluate(IDataContext context)
             {
-                return (T) _evalutor.Evaluate(context.Value);
+                var result = _evalutor.Evaluate(context.Value);
+                if (typeof (T) == typeof (string))
+                    return (T) (object) result.ToString();
+
+                return (T) result;
             }
         }
     }
