@@ -35,6 +35,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Emit\DynamicDataBinder.cs" />
     <Compile Include="Emit\EmitExpressionVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />
     <Compile Include="Emit\Emitter.cs" />

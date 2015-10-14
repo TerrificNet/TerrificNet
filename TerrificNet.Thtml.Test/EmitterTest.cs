@@ -129,7 +129,7 @@ namespace TerrificNet.Thtml.Test
 
     public class NullDataBinder : IDataBinder
     {
-        public DataBinderResult Evaluate(string propertyName)
+        public DataBinderResult Property(string propertyName)
         {
             return null;
         }

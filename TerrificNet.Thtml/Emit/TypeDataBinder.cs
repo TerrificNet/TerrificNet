@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,17 +11,21 @@ namespace TerrificNet.Thtml.Emit
         private readonly ParameterExpression _dataContextParameter;
         private readonly Expression _memberAccess;
 
-        private TypeDataBinder(Type type) : base(type)
+        private TypeDataBinder(Type type)
         {
             _dataContextParameter = Expression.Parameter(typeof(IDataContext));
             _memberAccess = Expression.ConvertChecked(Expression.Property(_dataContextParameter, "Value"), type);
+
+            ResultType = type;
         }
 
-        private TypeDataBinder(Expression expression, ParameterExpression parameter) : base(expression.Type)
+        private TypeDataBinder(Expression expression, ParameterExpression parameter) : this(expression.Type)
         {
             _dataContextParameter = parameter;
             _memberAccess = expression;
         }
+
+        internal Type ResultType { get; }
 
         public static IDataBinder BinderFromType(Type type)
         {
@@ -35,13 +40,35 @@ namespace TerrificNet.Thtml.Emit
             return new TypeDataBinder(obj.GetType());
         }
 
-        public override Func<IDataContext, T> CreateEvaluation<T>()
+        private Func<IDataContext, T> CreateEvaluation<T>()
         {
             var lambda = Expression.Lambda<Func<IDataContext, T>>(_memberAccess, _dataContextParameter);
             return lambda.Compile();
         }
 
-        public override DataBinderResult Evaluate(string propertyName)
+        public override bool TryCreateEvaluation<T>(out IEvaluater<T> evaluationFunc)
+        {
+            evaluationFunc = null;
+
+            if (typeof (T) == typeof (IEnumerable))
+            {
+                if (!ResultType.GetInterfaces().Contains(typeof (IEnumerable)))
+                    return false;
+
+                evaluationFunc = new EvaluaterFromLambda<T>(CreateEvaluation<T>());
+                return true;
+            }
+
+            if (typeof (T) == ResultType)
+            {
+                evaluationFunc = new EvaluaterFromLambda<T>(CreateEvaluation<T>());
+                return true;
+            }
+
+            return false;
+        }
+
+        public override DataBinderResult Property(string propertyName)
         {
             return new TypeDataBinder(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
         }
@@ -53,6 +80,21 @@ namespace TerrificNet.Thtml.Emit
                 return null;
 
             return new TypeDataBinder(enumerable.GetGenericArguments()[0]);
+        }
+
+        private class EvaluaterFromLambda<T> : IEvaluater<T>
+        {
+            private readonly Func<IDataContext, T> _evalutionFunc;
+
+            public EvaluaterFromLambda(Func<IDataContext, T> evalutionFunc)
+            {
+                _evalutionFunc = evalutionFunc;
+            }
+
+            public T Evaluate(IDataContext context)
+            {
+                return _evalutionFunc(context);
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace TerrificNet.Thtml.Emit
             if (memberExpression.Name == "this")
                 Value = Scope;
             else
-                Value = Scope.Evaluate(memberExpression.Name);
+                Value = Scope.Property(memberExpression.Name);
 
             return false;
         }
@@ -61,11 +61,20 @@ namespace TerrificNet.Thtml.Emit
 
         private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
         {
-            if (Value.ResultType != typeof(string))
+            IEvaluater<string> evalutor;
+            if (!TryGetEvalutor(expression, out evalutor))
                 return null;
 
-            var evaluation = Wrap(Value.CreateEvaluation<string>(), expression);
-            return EmitterNode.AsList(EmitterNode.Lambda(d => new StringVPropertyValue(evaluation(d))));
+            return EmitterNode.AsList(EmitterNode.Lambda(d => new StringVPropertyValue(evalutor.Evaluate(d))));
+        }
+
+        private bool TryGetEvalutor<T>(MustacheExpression expression, out IEvaluater<T> evalutor)
+        {
+            if (!Value.TryCreateEvaluation(out evalutor))
+                return false;
+
+            evalutor = ExceptionDecorator(evalutor, expression);
+            return true;
         }
 
         private IListEmitter<T> LeaveScope<T>(MustacheExpression expression, IListEmitter<T> children, params Func<MustacheExpression, IListEmitter<T>>[] converters)
@@ -76,13 +85,12 @@ namespace TerrificNet.Thtml.Emit
             if (iterationExpression != null)
             {
                 iterationExpression.Expression.Accept(this);
-                if (Value.ResultType.GetInterfaces().Contains(typeof(IEnumerable)))
-                {
-                    var evaluation = Wrap(Value.CreateEvaluation<IEnumerable>(), expression);
-                    return EmitterNode.Iterator(d => evaluation(d), children);
-                }
 
-                throw new Exception("Expect a enumerable as result");
+                IEvaluater<IEnumerable> evalutor;
+                if (!TryGetEvalutor(expression, out evalutor))
+                    throw new Exception("Expect a enumerable as result");
+
+                return EmitterNode.Iterator(d => evalutor.Evaluate(d), children);                
             }
 
             var callHelperExpression = expression as CallHelperExpression;
@@ -113,34 +121,49 @@ namespace TerrificNet.Thtml.Emit
 
         private IListEmitter<VText> TryConvertVText(MustacheExpression expression)
         {
-            if (Value.ResultType != typeof(VText))
+            IEvaluater<VText> evalutor;
+            if (!TryGetEvalutor(expression, out evalutor))
                 return null;
 
-            return EmitterNode.AsList(EmitterNode.Lambda(Wrap(Value.CreateEvaluation<VText>(), expression)));
+            return EmitterNode.AsList(EmitterNode.Lambda(d => evalutor.Evaluate(d)));
         }
 
         private IListEmitter<VText> TryConvertStringToVText(MustacheExpression expression)
         {
-            if (Value.ResultType != typeof (string))
+            IEvaluater<string> evalutor;
+            if (!TryGetEvalutor(expression, out evalutor))
                 return null;
 
-            var evaluation = Wrap(Value.CreateEvaluation<string>(), expression);
-            return EmitterNode.AsList(EmitterNode.Lambda(d => new VText(evaluation(d))));
+            return EmitterNode.AsList(EmitterNode.Lambda(d => new VText(evalutor.Evaluate(d))));
         }
 
-        private static Func<IDataContext, T> Wrap<T>(Func<IDataContext, T> createEvaluation, MustacheExpression expression)
+        private static IEvaluater<T> ExceptionDecorator<T>(IEvaluater<T> createEvaluation, MustacheExpression expression)
         {
-            return c =>
+            return new ExceptionWrapperEvalutor<T>(createEvaluation, expression);
+        }
+
+        private class ExceptionWrapperEvalutor<T> : IEvaluater<T>
+        {
+            private readonly IEvaluater<T> _evaluator;
+            private readonly MustacheExpression _expression;
+
+            public ExceptionWrapperEvalutor(IEvaluater<T> evaluator, MustacheExpression expression)
+            {
+                _evaluator = evaluator;
+                _expression = expression;
+            }
+
+            public T Evaluate(IDataContext context)
             {
                 try
                 {
-                    return createEvaluation(c);
+                    return _evaluator.Evaluate(context);
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Exception on executing expression {expression}", ex);
+                    throw new Exception($"Exception on executing expression {_expression}", ex);
                 }
-            };
+            }
         }
     }
 }

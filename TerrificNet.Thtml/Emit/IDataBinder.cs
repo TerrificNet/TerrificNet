@@ -1,10 +1,8 @@
-using System;
-
 namespace TerrificNet.Thtml.Emit
 {
     public interface IDataBinder
     {
-        DataBinderResult Evaluate(string propertyName);
+        DataBinderResult Property(string propertyName);
 
         DataBinderResult Item();
         DataBinderResult Context();
@@ -12,20 +10,19 @@ namespace TerrificNet.Thtml.Emit
 
     public abstract class DataBinderResult : IDataBinder
     {
-        public abstract Func<IDataContext, T> CreateEvaluation<T>();
-        public Type ResultType { get; }
+        public abstract bool TryCreateEvaluation<T>(out IEvaluater<T> evaluationFunc);
 
-        protected DataBinderResult(Type resultType)
-        {
-            ResultType = resultType;
-        }
-
-        public abstract DataBinderResult Evaluate(string propertyName);
+        public abstract DataBinderResult Property(string propertyName);
 
         public abstract DataBinderResult Item();
         public DataBinderResult Context()
         {
             return this;
         }
+    }
+
+    public interface IEvaluater<out T>
+    {
+        T Evaluate(IDataContext context);
     }
 }

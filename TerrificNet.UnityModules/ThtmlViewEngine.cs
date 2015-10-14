@@ -25,7 +25,13 @@ namespace TerrificNet.UnityModules
 
         public Task<IView> CreateViewAsync(TemplateInfo templateInfo, Type modelType, IModelBinder modelBinder)
         {
-            var emitter = CreateEmitter(templateInfo, TypeDataBinder.BinderFromType(modelType), new BasicHelperBinder(_templateRepository));
+            IDataBinder binder;
+            if (modelType == typeof(object))
+                binder = new DynamicDataBinder();
+            else
+                binder = TypeDataBinder.BinderFromType(modelType);
+
+            var emitter = CreateEmitter(templateInfo, binder, new BasicHelperBinder(_templateRepository));
 
             return Task.FromResult<IView>(new ThtmlView(emitter));
         }
