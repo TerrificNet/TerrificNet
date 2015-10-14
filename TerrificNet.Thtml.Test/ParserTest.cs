@@ -170,6 +170,29 @@ namespace TerrificNet.Thtml.Test
                                new ConstantAttributeContent("after")))
                         }))
                 };
+
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            a => TokenFactory.AttributeWithContentExtended(a, "attr",
+                                b => TokenFactory.AttributeContent("val", b),
+                                b => TokenFactory.IfStartExpression("test", b),
+                                b => TokenFactory.AttributeContent("so", b),
+                                TokenFactory.IfEndExpression)),
+                        i => TokenFactory.ElementEnd("h1", i)),
+
+                    new Document(
+                        new Element("h1", new []
+                        {
+                           new AttributeNode("attr",
+                           new CompositeAttributeContent(
+                               new ConstantAttributeContent("val"),
+                               new AttributeContentStatement(
+                                   new ConditionalExpression(new MemberExpression("test")), new ConstantAttributeContent("so"))))
+                        }))
+                };
+
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(

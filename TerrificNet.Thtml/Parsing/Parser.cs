@@ -82,7 +82,7 @@ namespace TerrificNet.Thtml.Parsing
 
                         var nodes = Content(enumerator).ToList();
 
-                        ExpectEndOfExternal(enumerator, name);
+                        ExpectEndOfExternal(GetExternalToken(enumerator.Current), name);
 
                         MoveNext(enumerator);
 
@@ -108,9 +108,9 @@ namespace TerrificNet.Thtml.Parsing
             }
         }
 
-        private static void ExpectEndOfExternal(IEnumerator<Token> enumerator, string name)
+        private static void ExpectEndOfExternal(Token token, string name)
         {
-            var tEnd = GetNamePart(GetExternalToken(enumerator.Current), TokenCategory.Name);
+            var tEnd = GetNamePart(token, TokenCategory.Name);
             if (tEnd != name)
                 throw new Exception(
                     $"Unexpected expression '{tEnd}'. Expected ending epxression for '{name}'.");
@@ -141,6 +141,14 @@ namespace TerrificNet.Thtml.Parsing
 
         private IEnumerable<ElementPart> GetElementPartsAfterName(IEnumerator<Token> tokens, string expectedEndPart = null)
         {
+            return Move<ElementPart>(tokens, expectedEndPart, 
+                (expression, children) => new AttributeStatement(expression, children.OfType<AttributeNode>().ToArray()), 
+                GetAttribute, 
+                TokenCategory.Attribute);
+        }
+
+        private IEnumerable<T> Move<T>(IEnumerator<Token> tokens, string expectedEndPart, Func<MustacheExpression, IEnumerable<T>, T> factory, Func<Token, T> childFunction, TokenCategory childTokenCategory)
+        {
             while (true)
             {
                 Token external;
@@ -148,27 +156,25 @@ namespace TerrificNet.Thtml.Parsing
                 {
                     var ft = GetExternalToken(external);
                     if (ft.Category == TokenCategory.HandlebarsEvaluate)
-                        yield return new AttributeStatement(_parser.ParseExpression(ft));
+                        yield return factory(_parser.ParseExpression(ft), null);
                     else if (ft.Category == TokenCategory.HandlebarsBlockStart)
                     {
                         var name = GetNamePart(ft, TokenCategory.Name);
-                        var parts = GetElementPartsAfterName(tokens, name).ToList();
+                        var parts = Move(tokens, name, factory, childFunction, childTokenCategory).ToList();
 
-                        yield return
-                            new AttributeStatement(_parser.ParseExpression(ft),
-                                parts.OfType<AttributeNode>().ToArray());
+                        yield return factory(_parser.ParseExpression(ft), parts);
                     }
-                    else if (ft.Category == TokenCategory.HandlebarsBlockEnd && string.IsNullOrEmpty(expectedEndPart))
+                    else if (ft.Category == TokenCategory.HandlebarsBlockEnd && !string.IsNullOrEmpty(expectedEndPart))
                     {
-                        ExpectEndOfExternal(tokens, expectedEndPart);
+                        ExpectEndOfExternal(ft, expectedEndPart);
                         break;
                     }
                 }
 
                 Token attributeToken;
-                if ((attributeToken = Can(tokens, TokenCategory.Attribute)) != null)
+                if ((attributeToken = Can(tokens, childTokenCategory)) != null)
                 {
-                    yield return GetAttribute(attributeToken);
+                    yield return childFunction(attributeToken);
                     continue;
                 }
 
@@ -179,20 +185,28 @@ namespace TerrificNet.Thtml.Parsing
         private AttributeNode GetAttribute(Token token)
         {
             var compositeToken = ExpectComposite(token);
-            var name = GetNameToken(compositeToken, TokenCategory.Name);
+            var enumerator = compositeToken.Tokens.GetEnumerator();
+            enumerator.MoveNext();
 
-            var values = compositeToken.Tokens
-                .SkipWhile(f => f.Category != TokenCategory.Quote)
-                .Skip(1)
-                .TakeWhile(f => f.Category != TokenCategory.Quote)
-                .Select(GetAttributeContent)
-                .ToArray();
+            var name = Expect(enumerator, TokenCategory.Name);
+            
+            MoveNext(enumerator);
 
             AttributeContent content = null;
-            if (values.Length > 1)
-                content = new CompositeAttributeContent(values);
-            else if (values.Length == 1)
-                content = values[0];
+            if (Can(enumerator, TokenCategory.Quote) != null)
+            {
+                var values = Move(enumerator, null,
+                    (expression, children) => new AttributeContentStatement(expression, children?.ToArray()),
+                    GetAttributeContent,
+                    TokenCategory.AttributeContent).ToArray();
+
+                Expect(enumerator, TokenCategory.Quote);
+
+                if (values.Length > 1)
+                    content = new CompositeAttributeContent(values);
+                else if (values.Length == 1)
+                    content = values[0];
+            }
 
             return new AttributeNode(name.Lexem, content);
         }
@@ -203,7 +217,9 @@ namespace TerrificNet.Thtml.Parsing
                 return new ConstantAttributeContent(token.Lexem);
 
             if (token.Category == TokenCategory.External)
+            {
                 return new AttributeContentStatement(_parser.ParseExpression(GetExternalToken(token)));
+            }
 
             throw new Exception($"Unexpected token {token.Category} at position {token.Start}");
         }
@@ -238,7 +254,7 @@ namespace TerrificNet.Thtml.Parsing
         private static Token Can(IEnumerator<Token> tokens, TokenCategory category)
         {
             var current = tokens.Current;
-            if (current.Category != category)
+            if (current == null || current.Category != category)
                 return null;
 
             MoveNext(tokens);

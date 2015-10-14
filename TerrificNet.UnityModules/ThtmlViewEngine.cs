@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.LexicalAnalysis;
@@ -90,9 +88,20 @@ namespace TerrificNet.UnityModules
                 return new PartialHelperBinderResult(_templateRepository, arguments["template"]);
 
             if ("module".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
-                return new ModuleHelperBinderResult(_moduleRepository, arguments["template"], arguments["skin"]);
+                return new ModuleHelperBinderResult(_moduleRepository, arguments["template"], arguments.ContainsKey("skin") ? arguments["skin"] : null);
+
+            if ("placeholder".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
+                return new PlaceholderHelperBinderResult();
 
             return null;
+        }
+    }
+
+    public class PlaceholderHelperBinderResult : HelperBinderResult
+    {
+        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataBinder scope)
+        {
+            return children;
         }
     }
 

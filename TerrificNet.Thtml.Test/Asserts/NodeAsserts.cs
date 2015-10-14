@@ -134,22 +134,34 @@ namespace TerrificNet.Thtml.Test.Asserts
             }
             else if (eComp != null)
             {
-                Assert.IsType<CompositeAttributeContent>(actual);
-                var aComp = (CompositeAttributeContent)actual;
-
-                Assert.Equal(eComp.ContentParts.Length, aComp.ContentParts.Length);
-                for (int i = 0; i < eComp.ContentParts.Length; i++)
-                {
-                    AssertAttributeContent(eComp.ContentParts[i], aComp.ContentParts[i]);
-                }
+                var aComp = Assert.IsType<CompositeAttributeContent>(actual);
+                AssertAttributeContentChildren(eComp.ContentParts, aComp.ContentParts);
             }
             else if (eEvaluate != null)
             {
-                Assert.IsType<AttributeContentStatement>(actual);
-                HandlebarsExpressionAssert.AssertExpression(eEvaluate.Expression, ((AttributeContentStatement) actual).Expression);
+                var eActual = Assert.IsType<AttributeContentStatement>(actual);
+                HandlebarsExpressionAssert.AssertExpression(eEvaluate.Expression, eActual.Expression);
+
+                AssertAttributeContentChildren(eEvaluate.Children, eActual.Children);
             }
             else
                 throw new Exception("Unexpected type");
+        }
+
+        private static void AssertAttributeContentChildren(IReadOnlyList<AttributeContent> expected, IReadOnlyList<AttributeContent> actual)
+        {
+            if (expected == null)
+            {
+                Assert.Null(actual);
+                return;
+            }
+
+            Assert.NotNull(actual);
+            Assert.Equal(expected.Count, actual.Count);
+            for (int i = 0; i < expected.Count; i++)
+            {
+                AssertAttributeContent(expected[i], actual[i]);
+            }
         }
 
         public static void AssertContent(TextNode expected, TextNode actual)
