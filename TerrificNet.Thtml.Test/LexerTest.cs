@@ -392,6 +392,17 @@ namespace TerrificNet.Thtml.Test
                 };
                 yield return new object[]
                 {
+                    "<h1 attr=\"val{{#if true}}so{{/if}}\">",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            a => TokenFactory.AttributeWithContentExtended(a, "attr", 
+                                b => TokenFactory.AttributeContent("val", b),
+                                b => TokenFactory.IfStartExpression("true", b),
+                                b => TokenFactory.AttributeContent("so", b),
+                                TokenFactory.IfEndExpression)))
+                };
+                yield return new object[]
+                {
                     "{{{test}}}",
                     TokenFactory.DocumentList(
                         i => TokenFactory.Composite(i,

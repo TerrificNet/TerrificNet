@@ -16,10 +16,12 @@ namespace TerrificNet.UnityModules
 {
     public class ThtmlViewEngine : IViewEngine
     {
+        private readonly IModuleRepository _moduleRepository;
         private readonly ITemplateRepository _templateRepository;
 
-        public ThtmlViewEngine(ITemplateRepository templateRepository)
+        public ThtmlViewEngine(IModuleRepository moduleRepository, ITemplateRepository templateRepository)
         {
+            _moduleRepository = moduleRepository;
             _templateRepository = templateRepository;
         }
 
@@ -31,7 +33,7 @@ namespace TerrificNet.UnityModules
             else
                 binder = TypeDataBinder.BinderFromType(modelType);
 
-            var emitter = CreateEmitter(templateInfo, binder, new BasicHelperBinder(_templateRepository));
+            var emitter = CreateEmitter(templateInfo, binder, new BasicHelperBinder(_moduleRepository, _templateRepository));
 
             return Task.FromResult<IView>(new ThtmlView(emitter));
         }
@@ -73,10 +75,12 @@ namespace TerrificNet.UnityModules
 
     public class BasicHelperBinder : IHelperBinder
     {
+        private readonly IModuleRepository _moduleRepository;
         private readonly ITemplateRepository _templateRepository;
 
-        public BasicHelperBinder(ITemplateRepository templateRepository)
+        public BasicHelperBinder(IModuleRepository moduleRepository, ITemplateRepository templateRepository)
         {
+            _moduleRepository = moduleRepository;
             _templateRepository = templateRepository;
         }
 
@@ -85,7 +89,32 @@ namespace TerrificNet.UnityModules
             if ("partial".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
                 return new PartialHelperBinderResult(_templateRepository, arguments["template"]);
 
+            if ("module".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
+                return new ModuleHelperBinderResult(_moduleRepository, arguments["template"], arguments["skin"]);
+
             return null;
+        }
+    }
+
+    public class ModuleHelperBinderResult : HelperBinderResult
+    {
+        private readonly IModuleRepository _templateRepository;
+        private readonly string _module;
+        private readonly string _skin;
+
+        public ModuleHelperBinderResult(IModuleRepository templateRepository, string module, string skin)
+        {
+            _templateRepository = templateRepository;
+            _module = module;
+            _skin = skin;
+        }
+
+        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataBinder scope)
+        {
+            var moduleDescription = _templateRepository.GetModuleDefinitionByIdAsync(_module).Result;
+            var template = moduleDescription.DefaultTemplate;
+
+            return EmitterNode.AsList((IEmitter<T>)ThtmlViewEngine.CreateEmitter(template, scope, helperBinder));
         }
     }
 
