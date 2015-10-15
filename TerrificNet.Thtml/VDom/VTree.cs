@@ -45,14 +45,18 @@ namespace TerrificNet.Thtml.VDom
 
                 foreach (var property in vElement.Properties)
                 {
+                    var stringValue = property.Value as StringVPropertyValue;
+                    var value = stringValue?.Value;
+
+                    if (string.IsNullOrEmpty(value))
+                        continue;
+
                     _textWriter.Write(property.Name);
                     _textWriter.Write("=");
                     _textWriter.Write("\"");
-                    var stringValue = property.Value as StringVPropertyValue;
-                    if (stringValue != null)
-                        _textWriter.Write(stringValue.Value);
-
+                    _textWriter.Write(value);
                     _textWriter.Write("\"");
+                    _textWriter.Write(" ");
                 }
                 _textWriter.Write(">");
             }
