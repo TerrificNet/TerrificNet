@@ -45,7 +45,7 @@ namespace TerrificNet.Thtml.Emit
             else
             {
                 expression.Accept(this);
-                _dataBinder.Push(Value);
+                //_dataBinder.Push(Value);
             }
         }
 
@@ -79,11 +79,10 @@ namespace TerrificNet.Thtml.Emit
 
         private IListEmitter<T> LeaveScope<T>(MustacheExpression expression, IListEmitter<T> children, params Func<MustacheExpression, IListEmitter<T>>[] converters)
         {
-            _dataBinder.Pop();
-
             var iterationExpression = expression as IterationExpression;
             if (iterationExpression != null)
             {
+                _dataBinder.Pop();
                 iterationExpression.Expression.Accept(this);
 
                 IEvaluater<IEnumerable> evalutor;
@@ -91,6 +90,18 @@ namespace TerrificNet.Thtml.Emit
                     throw new Exception("Expect a enumerable as result");
 
                 return EmitterNode.Iterator(d => evalutor.Evaluate(d), children);                
+            }
+
+            var conditionalExpression = expression as ConditionalExpression;
+            if (conditionalExpression != null)
+            {
+                conditionalExpression.Expression.Accept(this);
+
+                IEvaluater<bool> evalutor;
+                if (!TryGetEvalutor(expression, out evalutor))
+                    throw new Exception("Expect a boolean as result");
+
+                return EmitterNode.Condition(d => evalutor.Evaluate(d), children);
             }
 
             var callHelperExpression = expression as CallHelperExpression;

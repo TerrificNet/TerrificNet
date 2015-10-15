@@ -33,7 +33,7 @@ namespace TerrificNet.Thtml.Emit
 
         public override DataBinderResult Item()
         {
-            return this;
+            return new DynamicDataBinder();
         }
 
         private interface IEvaluator
@@ -81,7 +81,20 @@ namespace TerrificNet.Thtml.Emit
             {
                 var result = _evalutor.Evaluate(context.Value);
                 if (typeof (T) == typeof (string))
+                {
+                    if (result == null)
+                        return (T) (object) null;
+
                     return (T) (object) result.ToString();
+                }
+
+                if (typeof (T) == typeof (bool))
+                {
+                    if (result is bool)
+                        return (T) result;
+
+                    return (T) (object) (result == null);
+                }
 
                 return (T) result;
             }

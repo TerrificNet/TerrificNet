@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TerrificNet.Thtml.Emit;
@@ -43,6 +44,36 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
+        public void DataBinder_IterationProperty(Func<Type, IDataBinder> dataBinderFactory)
+        {
+            const string expectedResult = "property";
+            var obj = new { Property = new [] { new { Property2 = expectedResult } } };
+
+            var underTest = dataBinderFactory(obj.GetType());
+            var result = underTest.Property("property");
+
+            Assert.NotNull(result);
+            IEvaluater<IEnumerable> evalutor;
+            Assert.True(result.TryCreateEvaluation(out evalutor));
+            var propertyResult = evalutor.Evaluate(new ObjectDataContext(obj));
+
+            Assert.NotNull(propertyResult);
+
+            var itemResult = result.Item();
+            var innerPropertyResult = itemResult.Property("property2");
+
+            IEvaluater<string> innerPropertyEvaluator;
+            Assert.True(innerPropertyResult.TryCreateEvaluation(out innerPropertyEvaluator));
+
+            foreach (var item in propertyResult)
+            {
+                var innerResult = innerPropertyEvaluator.Evaluate(new ObjectDataContext(item));
+                Assert.Equal(expectedResult, innerResult);
+            }
+        }
+
+        [Theory]
+        [MemberData("BinderFactoriesParameter")]
         public void DataBinder_NestedProperty(Func<Type, IDataBinder> dataBinderFactory)
         {
             const string expectedResult = "property";
@@ -53,6 +84,24 @@ namespace TerrificNet.Thtml.Test
 
             Assert.NotNull(result);
             IEvaluater<string> evalutor;
+            Assert.True(result.TryCreateEvaluation(out evalutor));
+            var propertyResult = evalutor.Evaluate(new ObjectDataContext(obj));
+
+            Assert.Equal(expectedResult, propertyResult);
+        }
+
+        [Theory]
+        [MemberData("BinderFactoriesParameter")]
+        public void DataBinder_ConditionalProperty(Func<Type, IDataBinder> dataBinderFactory)
+        {
+            const bool expectedResult = true;
+            var obj = new { Property1 = true };
+
+            var underTest = dataBinderFactory(obj.GetType());
+            var result = underTest.Property("property1");
+
+            Assert.NotNull(result);
+            IEvaluater<bool> evalutor;
             Assert.True(result.TryCreateEvaluation(out evalutor));
             var propertyResult = evalutor.Evaluate(new ObjectDataContext(obj));
 

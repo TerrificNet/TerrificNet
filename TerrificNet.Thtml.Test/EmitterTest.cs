@@ -101,6 +101,31 @@ namespace TerrificNet.Thtml.Test
                     new NullHelperBinder()
                 };
 
+                var obj4 = new
+                {
+                    List = new []
+                    {
+                      new { Do = false, Value = "hallo1" },
+                      new { Do = true, Value = "hallo2" },
+                    }
+                };
+
+                yield return new object[]
+                {
+                    "one element with iteration and including conditional expression",
+                    new Document(
+                        new Statement(new IterationExpression(new MemberExpression("list")),
+                            new Statement(new ConditionalExpression(new MemberExpression("do")),
+                                new Element("h1", new Statement(new MemberExpression("value"))))
+                        )),
+                    TypeDataBinder.BinderFromObject(obj4),
+                    obj4,
+                    new VNode(
+                        new VElement("h1", new VText("hallo2"))
+                        ),
+                    new NullHelperBinder()
+                };
+
                 var result = new Mock<HelperBinderResult>(MockBehavior.Loose);
                 result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>(), It.IsAny<IHelperBinder>(), It.IsAny<IDataBinder>())).Returns(EmitterNode.AsList(EmitterNode.Lambda(d => new VText("helper output"))));
 

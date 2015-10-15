@@ -27,6 +27,32 @@ namespace TerrificNet.Thtml.Emit
             return new IteratorEmitter<T>(list, blockEmitter);
         }
 
+        public static IListEmitter<T> Condition<T>(Func<IDataContext, bool> predicate, IListEmitter<T> blockEmitter)
+        {
+            return new ConditionalEmitter<T>(predicate, blockEmitter);
+        }
+
+        private class ConditionalEmitter<T> : IListEmitter<T>
+        {
+            private readonly Func<IDataContext, bool> _predicate;
+            private readonly IListEmitter<T> _blockEmitter;
+
+            public ConditionalEmitter(Func<IDataContext, bool> predicate, IListEmitter<T> blockEmitter)
+            {
+                _predicate = predicate;
+                _blockEmitter = blockEmitter;
+            }
+
+            public IEnumerable<T> Execute(IDataContext context)
+            {
+                bool result = _predicate(context);
+                if (result)
+                    return _blockEmitter.Execute(context);
+
+                return Enumerable.Empty<T>();
+            }
+        }
+
         private class IteratorEmitter<T> : IListEmitter<T>
         {
             private readonly Func<IDataContext, IEnumerable> _list;
@@ -45,7 +71,11 @@ namespace TerrificNet.Thtml.Emit
 
             private IEnumerable<IEnumerable<T>> ExecuteInternal(IDataContext context)
             {
-                foreach (var item in _list(context))
+                var result = _list(context);
+                if (result == null)
+                    yield break;
+
+                foreach (var item in result)
                 {
                     yield return _blockEmitter.Execute(new ObjectDataContext(item)).ToList();
                 }
