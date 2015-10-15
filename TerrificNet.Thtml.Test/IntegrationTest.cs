@@ -21,7 +21,7 @@ namespace TerrificNet.Thtml.Test
             var dataBinder = TypeDataBinder.BinderFromObject(inputObject);
             var method = compiler.Emit(ast, dataBinder, null);
 
-            var result = method.Execute(new ObjectDataContext(inputObject));
+            var result = method.Execute(new ObjectDataContext(inputObject), null);
 
             Assert.Equal(expectedResult, result.ToString());
         }
@@ -43,7 +43,7 @@ namespace TerrificNet.Thtml.Test
                 {
                     @"<div name=""{{name}}"" />",
                     new Dummy { Name = "test1" },
-                    @"<div name=""test1""></div>"
+                    @"<div name=""test1"" ></div>"
                 };
             }
         }

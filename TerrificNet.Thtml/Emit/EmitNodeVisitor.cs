@@ -36,12 +36,12 @@ namespace TerrificNet.Thtml.Emit
         {
             var emitter = EmitterNode.Many(LeaveScope());
             var attributeEmitter = EmitterNode.Many(_properties.Pop());
-            Scope.Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VElement(element.TagName, attributeEmitter.Execute(d), emitter.Execute(d)))));
+            Scope.Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VElement(element.TagName, attributeEmitter.Execute(d, r), emitter.Execute(d, r)))));
         }
 
         public override void Visit(TextNode textNode)
         {
-            Scope.Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VText(textNode.Text))));
+            Scope.Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(textNode.Text))));
         }
 
         public override bool BeforeVisit(Document document)
@@ -53,7 +53,7 @@ namespace TerrificNet.Thtml.Emit
         public override void AfterVisit(Document document)
         {
             var emitter = EmitterNode.Many(LeaveScope());
-            DocumentFunc = EmitterNode.Lambda(d => new VNode(emitter.Execute(d)));
+            DocumentFunc = EmitterNode.Lambda((d, r) => new VNode(emitter.Execute(d, r)));
         }
 
         public override bool BeforeVisit(Statement statement)
@@ -80,10 +80,10 @@ namespace TerrificNet.Thtml.Emit
         public override void AfterVisit(AttributeNode attributeNode)
         {
             if (_propertyValueEmitter == null)
-                _propertyValueEmitter = EmitterNode.Lambda<VPropertyValue>(d => null);
+                _propertyValueEmitter = EmitterNode.Lambda<VPropertyValue>((d, r) => null);
 
             var valueEmitter = _propertyValueEmitter;
-            _properties.Peek().Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VProperty(attributeNode.Name, valueEmitter.Execute(d)))));
+            _properties.Peek().Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VProperty(attributeNode.Name, valueEmitter.Execute(d, r)))));
 
             _propertyValueEmitter = null;
         }
@@ -93,18 +93,18 @@ namespace TerrificNet.Thtml.Emit
             _expressionVisitor.EnterScope(constantAttributeContent.Expression);
             var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContent.Expression);
 
-            _propertyValueEmitter = EmitterNode.Lambda(d => GetPropertyValue(emitter, d));
+            _propertyValueEmitter = EmitterNode.Lambda((d, r) => GetPropertyValue(emitter, d, r));
         }
 
         public override void Visit(ConstantAttributeContent attributeContent)
         {
-            _propertyValueEmitter = EmitterNode.Lambda(d => new StringVPropertyValue(attributeContent.Text));
+            _propertyValueEmitter = EmitterNode.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text));
         }
 
-        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext)
+        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext, IRenderingContext renderingContext)
         {
             var stringBuilder = new StringBuilder();
-            foreach (var emit in emitter.Execute(dataContext))
+            foreach (var emit in emitter.Execute(dataContext, renderingContext))
             {
                 var stringValue = emit as StringVPropertyValue;
                 if (stringValue == null)

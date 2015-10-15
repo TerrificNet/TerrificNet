@@ -65,7 +65,7 @@ namespace TerrificNet.Thtml.Emit
             if (!TryGetEvalutor(expression, out evalutor))
                 return null;
 
-            return EmitterNode.AsList(EmitterNode.Lambda(d => new StringVPropertyValue(evalutor.Evaluate(d))));
+            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evalutor.Evaluate(d))));
         }
 
         private bool TryGetEvalutor<T>(MustacheExpression expression, out IEvaluater<T> evalutor)
@@ -136,7 +136,7 @@ namespace TerrificNet.Thtml.Emit
             if (!TryGetEvalutor(expression, out evalutor))
                 return null;
 
-            return EmitterNode.AsList(EmitterNode.Lambda(d => evalutor.Evaluate(d)));
+            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => evalutor.Evaluate(d)));
         }
 
         private IListEmitter<VText> TryConvertStringToVText(MustacheExpression expression)
@@ -145,7 +145,7 @@ namespace TerrificNet.Thtml.Emit
             if (!TryGetEvalutor(expression, out evalutor))
                 return null;
 
-            return EmitterNode.AsList(EmitterNode.Lambda(d => new VText(evalutor.Evaluate(d))));
+            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evalutor.Evaluate(d))));
         }
 
         private static IEvaluater<T> ExceptionDecorator<T>(IEvaluater<T> createEvaluation, MustacheExpression expression)

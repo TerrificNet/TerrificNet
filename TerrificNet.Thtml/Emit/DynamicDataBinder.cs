@@ -93,7 +93,7 @@ namespace TerrificNet.Thtml.Emit
                     if (result is bool)
                         return (T) result;
 
-                    return (T) (object) (result == null);
+                    return (T) (object) (result != null);
                 }
 
                 return (T) result;

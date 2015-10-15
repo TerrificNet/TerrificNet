@@ -18,7 +18,7 @@ namespace TerrificNet.Thtml.Test
             var compiler = new Emitter();
             var method = compiler.Emit(input, dataBinder, helperBinder);
 
-            var result = method.Execute(new ObjectDataContext(data));
+            var result = method.Execute(new ObjectDataContext(data), null);
 
             VTreeAsserts.AssertTree(expected, result);
         }
@@ -144,7 +144,7 @@ namespace TerrificNet.Thtml.Test
                 };
 
                 var result = new Mock<HelperBinderResult>(MockBehavior.Loose);
-                result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>(), It.IsAny<IHelperBinder>(), It.IsAny<IDataBinder>())).Returns(EmitterNode.AsList(EmitterNode.Lambda(d => new VText("helper output"))));
+                result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>(), It.IsAny<IHelperBinder>(), It.IsAny<IDataBinder>())).Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
 
                 var helper = new Mock<IHelperBinder>();
                 helper.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(result.Object);

@@ -390,15 +390,29 @@ namespace TerrificNet.Thtml.Test
                             a => TokenFactory.AttributeWithContent(a, "attr", "val"),
                             TokenFactory.IfEndExpression))
                 };
+
                 yield return new object[]
                 {
-                    "<h1 attr=\"val{{#if true}}so{{/if}}\">",
+                    "<h1 attr=\"val {{#if true}}so{{/if}}\">",
                     TokenFactory.DocumentList(
                         i => TokenFactory.ElementStart("h1", i,
                             a => TokenFactory.AttributeWithContentExtended(a, "attr", 
-                                b => TokenFactory.AttributeContent("val", b),
+                                b => TokenFactory.AttributeContent("val ", b),
                                 b => TokenFactory.IfStartExpression("true", b),
                                 b => TokenFactory.AttributeContent("so", b),
+                                TokenFactory.IfEndExpression)))
+                };
+
+                yield return new object[]
+                {
+                    "<h1 attr=\"val {{#if true}}so-{{do}}{{/if}}\">",
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            a => TokenFactory.AttributeWithContentExtended(a, "attr",
+                                b => TokenFactory.AttributeContent("val ", b),
+                                b => TokenFactory.IfStartExpression("true", b),
+                                b => TokenFactory.AttributeContent("so-", b),
+                                b => TokenFactory.HandlebarsSimple(b, "do"),
                                 TokenFactory.IfEndExpression)))
                 };
                 yield return new object[]

@@ -156,8 +156,12 @@ namespace TerrificNet.Thtml.Parsing
                 {
                     var ft = GetExternalToken(external);
                     if (ft.Category == TokenCategory.HandlebarsEvaluate)
+                    {
                         yield return factory(_parser.ParseExpression(ft), null);
-                    else if (ft.Category == TokenCategory.HandlebarsBlockStart)
+                        continue;
+                    }
+
+                    if (ft.Category == TokenCategory.HandlebarsBlockStart)
                     {
                         var name = GetNamePart(ft, TokenCategory.Name);
                         var parts = Move(tokens, name, factory, childFunction, childTokenCategory).ToList();

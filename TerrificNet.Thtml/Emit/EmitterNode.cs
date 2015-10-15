@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml.Emit
 {
     public static class EmitterNode
     {
-        public static IEmitter<T> Lambda<T>(Func<IDataContext, T> func)
+        public static IEmitter<T> Lambda<T>(Func<IDataContext, IRenderingContext, T> func)
         {
             return new LambdaEmitter<T>(func);
         }
@@ -18,6 +18,11 @@ namespace TerrificNet.Thtml.Emit
         }
 
         public static IListEmitter<T> AsList<T>(IEmitter<T> emitter)
+        {
+            return new ListEmitter<T>(emitter);
+        }
+
+        public static IListEmitter<T> AsList<T>(IEnumerable<IEmitter<T>> emitter)
         {
             return new ListEmitter<T>(emitter);
         }
@@ -43,11 +48,11 @@ namespace TerrificNet.Thtml.Emit
                 _blockEmitter = blockEmitter;
             }
 
-            public IEnumerable<T> Execute(IDataContext context)
+            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
             {
                 bool result = _predicate(context);
                 if (result)
-                    return _blockEmitter.Execute(context);
+                    return _blockEmitter.Execute(context, renderingContext);
 
                 return Enumerable.Empty<T>();
             }
@@ -64,12 +69,12 @@ namespace TerrificNet.Thtml.Emit
                 _blockEmitter = blockEmitter;
             }
 
-            public IEnumerable<T> Execute(IDataContext context)
+            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
             {
-                return ExecuteInternal(context).SelectMany(d => d.ToList()).ToList();
+                return ExecuteInternal(context, renderingContext).SelectMany(d => d.ToList()).ToList();
             }
 
-            private IEnumerable<IEnumerable<T>> ExecuteInternal(IDataContext context)
+            private IEnumerable<IEnumerable<T>> ExecuteInternal(IDataContext context, IRenderingContext renderingContext)
             {
                 var result = _list(context);
                 if (result == null)
@@ -77,38 +82,43 @@ namespace TerrificNet.Thtml.Emit
 
                 foreach (var item in result)
                 {
-                    yield return _blockEmitter.Execute(new ObjectDataContext(item)).ToList();
+                    yield return _blockEmitter.Execute(new ObjectDataContext(item), renderingContext).ToList();
                 }
             }
         }
 
         private class ListEmitter<T> : IListEmitter<T>
         {
-            private readonly IEmitter<T> _emitter;
+            private readonly IList<IEmitter<T>> _emitter;
 
             public ListEmitter(IEmitter<T> emitter)
             {
-                _emitter = emitter;
+                _emitter = new List<IEmitter<T>> { emitter };
             }
 
-            public IEnumerable<T> Execute(IDataContext context)
+            public ListEmitter(IEnumerable<IEmitter<T>> emitter)
             {
-                yield return _emitter.Execute(context);
+                _emitter = emitter.ToList();
+            }
+
+            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
+            {
+                return _emitter.Select(e => e.Execute(context, renderingContext));
             }
         }
 
         private class LambdaEmitter<T> : IEmitter<T>
         {
-            private readonly Func<IDataContext, T> _func;
+            private readonly Func<IDataContext, IRenderingContext, T> _func;
 
-            public LambdaEmitter(Func<IDataContext, T> func)
+            public LambdaEmitter(Func<IDataContext, IRenderingContext, T> func)
             {
                 _func = func;
             }
 
-            public T Execute(IDataContext context)
+            public T Execute(IDataContext context, IRenderingContext renderingContext)
             {
-                return _func(context);
+                return _func(context, renderingContext);
             }
         }
         private class ManyEmitter<T> : IListEmitter<T>
@@ -120,9 +130,9 @@ namespace TerrificNet.Thtml.Emit
                 _emitters = emitters.ToList();
             }
 
-            public IEnumerable<T> Execute(IDataContext context)
+            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
             {
-                return _emitters.SelectMany(e => e.Execute(context).ToList());
+                return _emitters.SelectMany(e => e.Execute(context, renderingContext).ToList());
             }
         }
     }
