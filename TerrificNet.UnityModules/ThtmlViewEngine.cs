@@ -72,20 +72,20 @@ namespace TerrificNet.UnityModules
                 var result = _method.Execute(new ObjectDataContext(model), new RenderingContextAdapter(context));
                 context.Writer.Write(result);
             }
+        }
 
-            private class RenderingContextAdapter : IRenderingContext
+        internal class RenderingContextAdapter : IRenderingContext
+        {
+            public RenderingContext Adaptee { get; }
+
+            public RenderingContextAdapter(RenderingContext adaptee)
             {
-                private readonly RenderingContext _renderingContext;
+                Adaptee = adaptee;
+            }
 
-                public RenderingContextAdapter(RenderingContext renderingContext)
-                {
-                    _renderingContext = renderingContext;
-                }
-
-                public bool TryGetData<T>(string key, out T obj)
-                {
-                    return _renderingContext.TryGetData(key, out obj);
-                }
+            public bool TryGetData<T>(string key, out T obj)
+            {
+                return Adaptee.TryGetData(key, out obj);
             }
         }
     }
@@ -112,41 +112,60 @@ namespace TerrificNet.UnityModules
                 return new ModuleHelperBinderResult(_moduleRepository, _modelProvider, arguments["template"], arguments.ContainsKey("skin") ? arguments["skin"] : null);
 
             if ("placeholder".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
-                return new PlaceholderHelperBinderResult(arguments["key"], _moduleRepository, _modelProvider);
+                return new PlaceholderHelperBinderResult(arguments["key"], _templateRepository, _moduleRepository, _modelProvider);
+
+            if ("grid-cell".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
+                return new GridHelperBinderResult(arguments["ratio"]);
 
             return null;
+        }
+
+        public class GridHelperBinderResult : HelperBinderResult
+        {
+            public GridHelperBinderResult(string ration)
+            {
+            }
+
+            public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataBinder scope)
+            {
+                return children;
+            }
         }
     }
 
     public class PlaceholderHelperBinderResult : HelperBinderResult
     {
         private readonly string _key;
+        private readonly ITemplateRepository _templateRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IModelProvider _modelProvider;
 
-        public PlaceholderHelperBinderResult(string key, IModuleRepository moduleRepository, IModelProvider modelProvider)
+        public PlaceholderHelperBinderResult(string key, ITemplateRepository templateRepository, IModuleRepository moduleRepository, IModelProvider modelProvider)
         {
             _key = key;
+            _templateRepository = templateRepository;
             _moduleRepository = moduleRepository;
             _modelProvider = modelProvider;
         }
 
         public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataBinder scope)
         {
-            return new PlaceholderEmitter<T>(_key, helperBinder, _moduleRepository, _modelProvider);
+            return new PlaceholderEmitter<T>(_key, helperBinder, _templateRepository, _moduleRepository, _modelProvider);
         }
 
         private class PlaceholderEmitter<T> : IListEmitter<T>
         {
             private readonly string _name;
             private readonly IHelperBinder _helperBinder;
+            private readonly ITemplateRepository _templateRepository;
             private readonly IModuleRepository _moduleRepository;
             private readonly IModelProvider _modelProvider;
 
-            public PlaceholderEmitter(string name, IHelperBinder helperBinder, IModuleRepository moduleRepository, IModelProvider modelProvider)
+            public PlaceholderEmitter(string name, IHelperBinder helperBinder, ITemplateRepository templateRepository, IModuleRepository moduleRepository, IModelProvider modelProvider)
             {
                 _name = name;
                 _helperBinder = helperBinder;
+                _templateRepository = templateRepository;
                 _moduleRepository = moduleRepository;
                 _modelProvider = modelProvider;
             }
@@ -164,21 +183,34 @@ namespace TerrificNet.UnityModules
                 if (!definition.Placeholder.TryGetValue(_name, out definitions))
                     return Enumerable.Empty<T>();
 
-                return EmitterNode.AsList(GetEmitters(definitions)).Execute(context, renderingContext);
+                return EmitterNode.AsList(GetEmitters(definitions, renderingContext)).Execute(context, renderingContext);
             }
 
-            private IEnumerable<IEmitter<T>> GetEmitters(IEnumerable<ViewDefinition> definitions)
+            private IEnumerable<IEmitter<T>> GetEmitters(IEnumerable<ViewDefinition> definitions, IRenderingContext renderingContext)
             {
-                foreach (var placeholderConfig in definitions.OfType<ModuleViewDefinition>())
+                foreach (var placeholderConfig in definitions)
                 {
-                    yield return ModuleHelperBinderResult.CreateModuleEmitter<T>(_helperBinder, _moduleRepository, _modelProvider,
-                        placeholderConfig.Module);
-                    // TODO: Move to view definition
-                    //var ctx = new RenderingContext(context.Writer, context);
-                    //ctx.Data["siteDefinition"] = placeholderConfig;
+                    var ctx = new RenderingContext(null, ((ThtmlViewEngine.RenderingContextAdapter)renderingContext).Adaptee);
+                    ctx.Data["siteDefinition"] = placeholderConfig;
 
+                    var newCtx = new ThtmlViewEngine.RenderingContextAdapter(ctx);
 
-                    //placeholderConfig.Render(this, model, ctx);
+                    var moduleConfig = placeholderConfig as ModuleViewDefinition;
+                    if (moduleConfig != null)
+                    {
+                        var moduleEmitter = ModuleHelperBinderResult.CreateModuleEmitter<T>(_helperBinder,
+                            _moduleRepository, _modelProvider,
+                            moduleConfig.Module);
+
+                        yield return EmitterNode.Lambda((c, r) => moduleEmitter.Execute(c, newCtx));
+                    }
+
+                    var partialConfig = placeholderConfig as PageViewDefinition<object>;
+                    if (partialConfig != null)
+                    {
+                        var res = new PartialHelperBinderResult(_templateRepository, partialConfig.Template);
+                        yield return res.CreateEmitter<T>(_helperBinder, new DynamicDataBinder());
+                    }
                 }
             }
         }
@@ -250,9 +282,15 @@ namespace TerrificNet.UnityModules
 
         public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> listEmitter, IHelperBinder helperBinder, IDataBinder scope)
         {
-            var template = _templateRepository.GetTemplateAsync(_templateName).Result;
+            var emitter = CreateEmitter<T>(helperBinder, scope);
+            return EmitterNode.AsList(emitter);
+        }
 
-            return EmitterNode.AsList((IEmitter<T>)ThtmlViewEngine.CreateEmitter(template, scope, helperBinder));
+        internal IEmitter<T> CreateEmitter<T>(IHelperBinder helperBinder, IDataBinder scope)
+        {
+            var template = _templateRepository.GetTemplateAsync(_templateName).Result;
+            var emitter = (IEmitter<T>) ThtmlViewEngine.CreateEmitter(template, scope, helperBinder);
+            return emitter;
         }
     }
 }
