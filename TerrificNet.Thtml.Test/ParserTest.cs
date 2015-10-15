@@ -113,6 +113,45 @@ namespace TerrificNet.Thtml.Test
                             new AttributeNode("test2", (ConstantAttributeContent)null)
                         }))
                 };
+
+                yield return new object[]
+                {
+                    TokenFactory.DocumentList(
+                        i => TokenFactory.ElementStart("h1", i,
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "test", "val"),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithoutContent(a, "test2")),
+                        i => TokenFactory.ElementStart("h2", i,
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "test3", "val3"),
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "test4", "val4")),
+                        i => TokenFactory.ElementEnd("h2", i),
+                        i => TokenFactory.ElementEnd("h1", i),
+                        i => TokenFactory.ElementStart("h1", i,
+                            TokenFactory.Whitespace,
+                            a => TokenFactory.AttributeWithContent(a, "test5", "val5")),
+                        i => TokenFactory.ElementEnd("h1", i)),
+
+                    new Document(
+                        new Element("h1", new []
+                        {
+                            new AttributeNode("test", "val"),
+                            new AttributeNode("test2", (ConstantAttributeContent)null)
+                        }, 
+                            new Element("h2", new [] 
+                            {
+                                new AttributeNode("test3", "val3"),
+                                new AttributeNode("test4", "val4")
+                            })),
+                        new Element("h1", new []
+                        {
+                            new AttributeNode("test5", "val5")
+                        }))
+                };
+
+
                 yield return new object[]
                 {
                     TokenFactory.DocumentList(

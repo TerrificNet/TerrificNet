@@ -29,6 +29,7 @@ namespace TerrificNet.Thtml.Emit
         public override bool BeforeVisit(Element element)
         {
             EnterScope();
+            _properties.Push(new List<IListEmitter<VProperty>>());
             return true;
         }
 
@@ -119,7 +120,6 @@ namespace TerrificNet.Thtml.Emit
         private void EnterScope()
         {
             _elements.Push(new List<IListEmitter<VTree>>());
-            _properties.Push(new List<IListEmitter<VProperty>>());
         }
 
         private List<IListEmitter<VTree>> LeaveScope()

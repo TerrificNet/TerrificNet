@@ -56,14 +56,17 @@ namespace TerrificNet.Thtml.Test
                     "element with attributes",
                     new Document(
                         new Element("h1", new ElementPart [] { new AttributeNode("attr1", new ConstantAttributeContent("hallo")) },
-                            new Element("h2", new ElementPart [] { new AttributeNode("attr2", new ConstantAttributeContent("hallo2")) })
-                        )),
+                            new Element("h2", new ElementPart [] { new AttributeNode("attr2", new ConstantAttributeContent("hallo2")) }),
+                            new Element("h3", new ElementPart [] { new AttributeNode("attr3", new ConstantAttributeContent("hallo3")) })
+                        ),
+                        new Element("h1", new ElementPart [] { new AttributeNode("attr4", new ConstantAttributeContent("hallo4")) })),
                     new NullDataBinder(),
                     null,
                     new VNode(
                         new VElement("h1", new[] { new VProperty("attr1", new StringVPropertyValue("hallo")) },
-                            new VElement("h2", new[] { new VProperty("attr2", new StringVPropertyValue("hallo2")) }))
-                        ),
+                            new VElement("h2", new[] { new VProperty("attr2", new StringVPropertyValue("hallo2")) }),
+                            new VElement("h3", new[] { new VProperty("attr3", new StringVPropertyValue("hallo3")) })),
+                        new VElement("h1", new[] { new VProperty("attr4", new StringVPropertyValue("hallo4")) })),
                     new NullHelperBinder()
                 };
 
