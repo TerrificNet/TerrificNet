@@ -10,7 +10,7 @@ namespace TerrificNet.Thtml.Emit
     {
         private readonly EmitExpressionVisitor _expressionVisitor;
         private readonly Stack<List<IListEmitter<VTree>>> _elements = new Stack<List<IListEmitter<VTree>>>();
-        private readonly List<IListEmitter<VProperty>> _properties = new List<IListEmitter<VProperty>>();
+        private readonly Stack<List<IListEmitter<VProperty>>> _properties = new Stack<List<IListEmitter<VProperty>>>();
         private IEmitter<VPropertyValue> _propertyValueEmitter;
 
         private List<IListEmitter<VTree>> Scope => _elements.Peek();
@@ -35,7 +35,7 @@ namespace TerrificNet.Thtml.Emit
         public override void AfterVisit(Element element)
         {
             var emitter = EmitterNode.Many(LeaveScope());
-            var attributeEmitter = EmitterNode.Many(_properties);
+            var attributeEmitter = EmitterNode.Many(_properties.Pop());
             Scope.Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VElement(element.TagName, attributeEmitter.Execute(d), emitter.Execute(d)))));
         }
 
@@ -83,7 +83,7 @@ namespace TerrificNet.Thtml.Emit
                 _propertyValueEmitter = EmitterNode.Lambda<VPropertyValue>(d => null);
 
             var valueEmitter = _propertyValueEmitter;
-            _properties.Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VProperty(attributeNode.Name, valueEmitter.Execute(d)))));
+            _properties.Peek().Add(EmitterNode.AsList(EmitterNode.Lambda(d => new VProperty(attributeNode.Name, valueEmitter.Execute(d)))));
 
             _propertyValueEmitter = null;
         }
@@ -94,6 +94,11 @@ namespace TerrificNet.Thtml.Emit
             var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContent.Expression);
 
             _propertyValueEmitter = EmitterNode.Lambda(d => GetPropertyValue(emitter, d));
+        }
+
+        public override void Visit(ConstantAttributeContent attributeContent)
+        {
+            _propertyValueEmitter = EmitterNode.Lambda(d => new StringVPropertyValue(attributeContent.Text));
         }
 
         private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext)
@@ -114,6 +119,7 @@ namespace TerrificNet.Thtml.Emit
         private void EnterScope()
         {
             _elements.Push(new List<IListEmitter<VTree>>());
+            _properties.Push(new List<IListEmitter<VProperty>>());
         }
 
         private List<IListEmitter<VTree>> LeaveScope()

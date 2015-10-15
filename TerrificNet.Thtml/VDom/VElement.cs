@@ -15,6 +15,10 @@ namespace TerrificNet.Thtml.VDom
             Properties = properties?.ToList() ?? new List<VProperty>();
         }
 
+        public VElement(string tagName, IEnumerable<VProperty> properties, params VTree[] children) : this(tagName, properties, (IEnumerable<VTree>)children)
+        {
+        }
+
         public string TagName { get; }
 
         public IReadOnlyList<VProperty> Properties { get; }

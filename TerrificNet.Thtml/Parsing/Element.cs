@@ -12,21 +12,27 @@ namespace TerrificNet.Thtml.Parsing
         {
         }
 
-        public Element(string tagName, IEnumerable<Node> childNodes) : this(tagName, childNodes, Enumerable.Empty<ElementPart>())
+        public Element(string tagName, IEnumerable<Node> childNodes) : this(tagName, Enumerable.Empty<ElementPart>(), childNodes)
         {
         }
 
-        public Element(string tagName, params Node[] childNodes) : this(tagName, childNodes, Enumerable.Empty<ElementPart>())
+        public Element(string tagName, params Node[] childNodes) : this(tagName, Enumerable.Empty<ElementPart>(), childNodes)
         {
         }
 
-        public Element(string tagName, IEnumerable<Node> childNodes, IEnumerable<ElementPart> attributes) : base(childNodes)
+        public Element(string tagName, IEnumerable<ElementPart> attributes, IEnumerable<Node> childNodes) : base(childNodes)
         {
             TagName = tagName;
             Attributes = attributes.ToList();
         }
 
-        public Element(string tagName, IEnumerable<ElementPart> attributes) : this(tagName, Enumerable.Empty<Node>(), attributes)
+        public Element(string tagName, IEnumerable<ElementPart> attributes, params Node[] childNodes) : base(childNodes)
+        {
+            TagName = tagName;
+            Attributes = attributes.ToList();
+        }
+
+        public Element(string tagName, IEnumerable<ElementPart> attributes) : this(tagName, attributes, Enumerable.Empty<Node>())
         {
         }
 

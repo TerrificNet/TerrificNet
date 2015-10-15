@@ -50,6 +50,23 @@ namespace TerrificNet.Thtml.Test
                             new VText("hallo"))),
                     new NullHelperBinder()
                 };
+
+                yield return new object[]
+                {
+                    "element with attributes",
+                    new Document(
+                        new Element("h1", new ElementPart [] { new AttributeNode("attr1", new ConstantAttributeContent("hallo")) },
+                            new Element("h2", new ElementPart [] { new AttributeNode("attr2", new ConstantAttributeContent("hallo2")) })
+                        )),
+                    new NullDataBinder(),
+                    null,
+                    new VNode(
+                        new VElement("h1", new[] { new VProperty("attr1", new StringVPropertyValue("hallo")) },
+                            new VElement("h2", new[] { new VProperty("attr2", new StringVPropertyValue("hallo2")) }))
+                        ),
+                    new NullHelperBinder()
+                };
+
                 var obj = new { Name = "hallo" };   
                 yield return new object[]
                 {

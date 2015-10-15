@@ -53,7 +53,7 @@ namespace TerrificNet.Thtml.Parsing
                     if (tEnd != tagName)
                         throw new Exception($"Unexpected tag name '{tEnd}'. Expected closing tag for '{tagName}'.");
 
-                    yield return new Element(tagName, nodes, attributes);
+                    yield return new Element(tagName, attributes, nodes);
                 }
                 else if (enumerator.Current.Category == TokenCategory.EmptyElement)
                 {
