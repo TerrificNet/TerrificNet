@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Dynamic;
-using System.Linq;
-using System.Reflection;
 using Veil;
 
 namespace TerrificNet.Thtml.Emit
@@ -13,6 +9,7 @@ namespace TerrificNet.Thtml.Emit
 
         public DynamicDataBinder()
         {
+            _evalutor = new NullEvaluater();
         }
 
         private DynamicDataBinder(IEvaluator evalutor)
@@ -39,6 +36,14 @@ namespace TerrificNet.Thtml.Emit
         private interface IEvaluator
         {
             object Evaluate(object obj);
+        }
+
+        private class NullEvaluater : IEvaluator
+        {
+            public object Evaluate(object obj)
+            {
+                return obj;
+            }
         }
 
         private class PropertyReflectionEvalutor : IEvaluator

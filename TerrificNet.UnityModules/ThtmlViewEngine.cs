@@ -115,7 +115,7 @@ namespace TerrificNet.UnityModules
                 return new PlaceholderHelperBinderResult(arguments["key"], _templateRepository, _moduleRepository, _modelProvider);
 
             if ("grid-cell".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
-                return new GridHelperBinderResult(arguments["ratio"]);
+                return new GridHelperBinderResult(arguments.ContainsKey("ratio") ? arguments["ratio"] : null);
 
             return null;
         }
@@ -209,7 +209,8 @@ namespace TerrificNet.UnityModules
                     if (partialConfig != null)
                     {
                         var res = new PartialHelperBinderResult(_templateRepository, partialConfig.Template);
-                        yield return res.CreateEmitter<T>(_helperBinder, new DynamicDataBinder());
+                        var emitters = res.CreateEmitter<T>(_helperBinder, new DynamicDataBinder());
+                        yield return EmitterNode.Lambda((c, r) => emitters.Execute(c, newCtx));
                     }
                 }
             }
