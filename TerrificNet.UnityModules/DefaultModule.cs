@@ -4,6 +4,7 @@ using TerrificNet.AssetCompiler;
 using TerrificNet.Environment;
 using TerrificNet.Environment.Building;
 using TerrificNet.Generator;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Cache;
 using TerrificNet.ViewEngine.Client;

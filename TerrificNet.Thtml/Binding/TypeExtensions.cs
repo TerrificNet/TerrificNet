@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Veil
+namespace TerrificNet.Thtml.Binding
 {
-    internal static class Extensions
+    public static class TypeExtensions
     {
         public static string FormatInvariant(this string format, params object[] args)
         {

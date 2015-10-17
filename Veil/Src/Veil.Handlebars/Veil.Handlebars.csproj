@@ -70,6 +70,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\TerrificNet.Thtml\TerrificNet.Thtml.csproj">
+      <Project>{947C6426-E77A-484A-95F1-1854B451B063}</Project>
+      <Name>TerrificNet.Thtml</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Veil\Veil.csproj">
       <Project>{97d96b66-edfe-474b-bc72-d8439830fc76}</Project>
       <Name>Veil</Name>

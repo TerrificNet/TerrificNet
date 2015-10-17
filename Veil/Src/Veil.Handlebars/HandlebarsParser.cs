@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TerrificNet.Thtml.Binding;
 using Veil.Compiler;
 using Veil.Helper;
 using Veil.Parser;

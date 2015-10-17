@@ -1,5 +1,5 @@
 ﻿using System;
-using Veil.Compiler;
+using TerrificNet.Thtml.Binding;
 
 namespace Veil.Parser.Nodes
 {

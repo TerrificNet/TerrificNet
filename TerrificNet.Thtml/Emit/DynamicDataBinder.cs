@@ -1,5 +1,5 @@
 using System;
-using Veil;
+using TerrificNet.Thtml.Binding;
 
 namespace TerrificNet.Thtml.Emit
 {
@@ -65,7 +65,7 @@ namespace TerrificNet.Thtml.Emit
                 if (value == null)
                     throw new Exception($"Unable to bind property '{_propertyName}' null.");
 
-                var binder = Helpers.GetBinder(value, _propertyName);
+                var binder = TypeHelperBinder.GetBinder(value, _propertyName);
                 if (binder == null)
                     throw new Exception($"The type '{value.GetType()}' doesn't contain a property with name '{_propertyName}'.");
 

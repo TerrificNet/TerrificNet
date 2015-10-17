@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Veil.Compiler
+namespace TerrificNet.Thtml.Binding
 {
     public interface IMemberLocator
     {

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using TerrificNet.Thtml.Binding;
 using Veil.Parser;
 using Veil.Parser.Nodes;
 

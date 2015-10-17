@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Veil.Compiler;
+using TerrificNet.Thtml.Binding;
 using Veil.Parser;
 
 namespace Veil.Handlebars

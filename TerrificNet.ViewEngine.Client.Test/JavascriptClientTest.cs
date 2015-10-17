@@ -4,6 +4,7 @@ using System.Linq;
 
 using Moq;
 using Noesis.Javascript;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.ViewEngine.Client.Javascript;
 using TerrificNet.ViewEngine.IO;
 using TerrificNet.ViewEngine.ViewEngines;

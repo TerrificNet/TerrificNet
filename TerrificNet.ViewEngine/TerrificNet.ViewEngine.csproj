@@ -122,6 +122,10 @@
     <Compile Include="IO\ZipFileSystem.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TerrificNet.Thtml\TerrificNet.Thtml.csproj">
+      <Project>{947C6426-E77A-484A-95F1-1854B451B063}</Project>
+      <Name>TerrificNet.Thtml</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TerrificNet.ViewEngine.Schema\TerrificNet.ViewEngine.Schema.csproj">
       <Project>{29F13A40-21B8-4FEA-8A30-D5BAA24622B2}</Project>
       <Name>TerrificNet.ViewEngine.Schema</Name>
