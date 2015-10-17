@@ -17,7 +17,7 @@ namespace TerrificNet.Thtml.Emit
             _evalutor = evalutor;
         }
 
-        public override bool TryCreateEvaluation<T>(out IEvaluater<T> evaluationFunc)
+        public override bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
         {
             evaluationFunc = new CastEvalutor<T>(_evalutor);
             return true;
@@ -73,7 +73,7 @@ namespace TerrificNet.Thtml.Emit
             }
         }
 
-        private class CastEvalutor<T> : IEvaluater<T>
+        private class CastEvalutor<T> : IEvaluator<T>
         {
             private readonly IEvaluator _evalutor;
 

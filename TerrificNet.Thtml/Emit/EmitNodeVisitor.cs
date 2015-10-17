@@ -11,7 +11,7 @@ namespace TerrificNet.Thtml.Emit
         private readonly EmitExpressionVisitor _expressionVisitor;
         private readonly Stack<List<IListEmitter<VTree>>> _elements = new Stack<List<IListEmitter<VTree>>>();
         private readonly Stack<List<IListEmitter<VProperty>>> _properties = new Stack<List<IListEmitter<VProperty>>>();
-        private IEmitter<VPropertyValue> _propertyValueEmitter;
+        private IEmitterRunnable<VPropertyValue> _propertyValueEmitter;
 
         private List<IListEmitter<VTree>> Scope => _elements.Peek();
 
@@ -24,7 +24,7 @@ namespace TerrificNet.Thtml.Emit
         {
         }
 
-        public IEmitter<VNode> DocumentFunc { get; private set; }
+        public IEmitterRunnable<VNode> DocumentFunc { get; private set; }
 
         public override bool BeforeVisit(Element element)
         {

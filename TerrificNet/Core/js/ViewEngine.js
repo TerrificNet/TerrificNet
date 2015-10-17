@@ -87,3 +87,4 @@ var Tcn;
     Tcn.TemplateRepository = new TemplateRepositoryInternal("/js/{id}");
     Tcn.ViewEngine = new ViewEngineImplementation(Tcn.TemplateRepository);
 })(Tcn || (Tcn = {}));
+//# sourceMappingURL=ViewEngine.js.map

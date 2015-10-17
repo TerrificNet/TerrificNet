@@ -1,12 +1,9 @@
+using TerrificNet.Thtml.Parsing;
+
 namespace TerrificNet.Thtml.Emit
 {
-    public interface IEmitter<out T>
-    {
-        T Execute(IDataContext context, IRenderingContext renderingContext);
-    }
-
-    public interface IRenderingContext
-    {
-        bool TryGetData<T>(string key, out T obj);
-    }
+	public interface IEmitter<out TResult>
+	{
+		IEmitterRunnable<TResult> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder);
+	}
 }

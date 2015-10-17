@@ -42,3 +42,4 @@ var Tcn;
     })();
     Tcn.ControllerInjector = ControllerInjector;
 })(Tcn || (Tcn = {}));
+//# sourceMappingURL=Controller.js.map

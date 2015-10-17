@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace TerrificNet.Thtml.Binding
 {
-    static public class TypeHelperBinder
+    public static class TypeHelperBinder
     {
         private static ConcurrentDictionary<Tuple<Type, string>, Func<object, object>> lateBoundCache = new ConcurrentDictionary<Tuple<Type, string>, Func<object, object>>();
 

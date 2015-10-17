@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml.Emit
 {
     public static class EmitterNode
     {
-        public static IEmitter<T> Lambda<T>(Func<IDataContext, IRenderingContext, T> func)
+        public static IEmitterRunnable<T> Lambda<T>(Func<IDataContext, IRenderingContext, T> func)
         {
             return new LambdaEmitter<T>(func);
         }
@@ -17,12 +17,12 @@ namespace TerrificNet.Thtml.Emit
             return new ManyEmitter<T>(emitters);
         }
 
-        public static IListEmitter<T> AsList<T>(IEmitter<T> emitter)
+        public static IListEmitter<T> AsList<T>(IEmitterRunnable<T> emitter)
         {
             return new ListEmitter<T>(emitter);
         }
 
-        public static IListEmitter<T> AsList<T>(IEnumerable<IEmitter<T>> emitter)
+        public static IListEmitter<T> AsList<T>(IEnumerable<IEmitterRunnable<T>> emitter)
         {
             return new ListEmitter<T>(emitter);
         }
@@ -89,14 +89,14 @@ namespace TerrificNet.Thtml.Emit
 
         private class ListEmitter<T> : IListEmitter<T>
         {
-            private readonly IList<IEmitter<T>> _emitter;
+            private readonly IList<IEmitterRunnable<T>> _emitter;
 
-            public ListEmitter(IEmitter<T> emitter)
+            public ListEmitter(IEmitterRunnable<T> emitter)
             {
-                _emitter = new List<IEmitter<T>> { emitter };
+                _emitter = new List<IEmitterRunnable<T>> { emitter };
             }
 
-            public ListEmitter(IEnumerable<IEmitter<T>> emitter)
+            public ListEmitter(IEnumerable<IEmitterRunnable<T>> emitter)
             {
                 _emitter = emitter.ToList();
             }
@@ -107,7 +107,7 @@ namespace TerrificNet.Thtml.Emit
             }
         }
 
-        private class LambdaEmitter<T> : IEmitter<T>
+        private class LambdaEmitter<T> : IEmitterRunnable<T>
         {
             private readonly Func<IDataContext, IRenderingContext, T> _func;
 

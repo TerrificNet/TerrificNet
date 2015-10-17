@@ -9,13 +9,13 @@ using Xunit;
 
 namespace TerrificNet.Thtml.Test
 {
-    public class EmitterTest
+	public class EmitterTest
     {
         [Theory]
         [MemberData("TestData")]
         public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
         {
-            var compiler = new Emitter();
+            var compiler = new VTreeEmitter();
             var method = compiler.Emit(input, dataBinder, helperBinder);
 
             var result = method.Execute(new ObjectDataContext(data), null);

@@ -9,9 +9,14 @@ namespace TerrificNet.Thtml.Parsing
         protected NodeVisitor(IExpressionVisitor expressionVisitor)
         {
             _expressionVisitor = expressionVisitor;
-        }
+		}
 
-        public virtual void AfterVisit(Document document)
+		public virtual bool BeforeVisit(Document document)
+		{
+			return false;
+		}
+
+		public virtual void AfterVisit(Document document)
         {
         }
 
@@ -73,11 +78,6 @@ namespace TerrificNet.Thtml.Parsing
 
         public virtual void AfterVisit(AttributeStatement attributeStatement)
         {
-        }
-
-        public virtual bool BeforeVisit(Document document)
-        {
-            return false;
         }
     }
 }

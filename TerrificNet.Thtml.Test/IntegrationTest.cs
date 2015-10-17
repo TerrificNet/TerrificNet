@@ -17,7 +17,7 @@ namespace TerrificNet.Thtml.Test
             var tokens = lexer.Tokenize(inputTemplate);
             var parser = new Parser(new HandlebarsParser());
             var ast = parser.Parse(tokens);
-            var compiler = new Emitter();
+            var compiler = new VTreeEmitter();
             var dataBinder = TypeDataBinder.BinderFromObject(inputObject);
             var method = compiler.Emit(ast, dataBinder, null);
 
