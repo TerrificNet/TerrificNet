@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json.Schema;
-using Veil.Compiler;
+using TerrificNet.Thtml.Binding;
 using Veil.Helper;
 using Veil.Parser;
 using Veil.Parser.Nodes;

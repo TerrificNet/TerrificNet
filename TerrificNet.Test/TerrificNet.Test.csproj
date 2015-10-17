@@ -111,6 +111,10 @@
       <Project>{1A302EF7-6C6E-40E3-8F16-47AD199E7B83}</Project>
       <Name>TerrificNet.Test.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TerrificNet.Thtml\TerrificNet.Thtml.csproj">
+      <Project>{947C6426-E77A-484A-95F1-1854B451B063}</Project>
+      <Name>TerrificNet.Thtml</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TerrificNet.ViewEngine.Client.Test\TerrificNet.ViewEngine.Client.Test.csproj">
       <Project>{4AD8A282-93F7-4670-A986-A99AC06698A5}</Project>
       <Name>TerrificNet.ViewEngine.Client.Test</Name>

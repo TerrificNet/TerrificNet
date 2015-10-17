@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.ViewEngine.Cache;
 using Veil;
 using Veil.Compiler;

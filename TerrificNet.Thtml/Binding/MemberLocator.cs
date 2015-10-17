@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace Veil.Compiler
+namespace TerrificNet.Thtml.Binding
 {
     public class MemberLocator : IMemberLocator
     {

@@ -1,5 +1,5 @@
 using System;
-using Veil;
+using TerrificNet.Thtml.Binding;
 
 namespace TerrificNet.Thtml.Emit
 {
@@ -17,7 +17,7 @@ namespace TerrificNet.Thtml.Emit
             _evalutor = evalutor;
         }
 
-        public override bool TryCreateEvaluation<T>(out IEvaluater<T> evaluationFunc)
+        public override bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
         {
             evaluationFunc = new CastEvalutor<T>(_evalutor);
             return true;
@@ -65,7 +65,7 @@ namespace TerrificNet.Thtml.Emit
                 if (value == null)
                     throw new Exception($"Unable to bind property '{_propertyName}' null.");
 
-                var binder = Helpers.GetBinder(value, _propertyName);
+                var binder = TypeHelperBinder.GetBinder(value, _propertyName);
                 if (binder == null)
                     throw new Exception($"The type '{value.GetType()}' doesn't contain a property with name '{_propertyName}'.");
 
@@ -73,7 +73,7 @@ namespace TerrificNet.Thtml.Emit
             }
         }
 
-        private class CastEvalutor<T> : IEvaluater<T>
+        private class CastEvalutor<T> : IEvaluator<T>
         {
             private readonly IEvaluator _evalutor;
 

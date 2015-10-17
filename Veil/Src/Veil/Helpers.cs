@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
-using Veil.Compiler;
+using TerrificNet.Thtml.Binding;
 using Veil.Parser;
 using Veil.Parser.Nodes;
 
@@ -178,9 +176,7 @@ namespace Veil
 				throw new VeilCompilerException(message, node);
 		}
 
-		private static ConcurrentDictionary<Tuple<Type, string>, Func<object, object>> lateBoundCache = new ConcurrentDictionary<Tuple<Type, string>, Func<object, object>>();
-
-		public static object RuntimeBind(object model, LateBoundExpressionNode node)
+	    public static object RuntimeBind(object model, LateBoundExpressionNode node)
 		{
 			var itemName = node.ItemName;
 			var memberLocator = node.MemberLocator;
@@ -192,7 +188,7 @@ namespace Veil
 			if (runtimeModel?.Data != null)
 				model = runtimeModel.Data;
 
-			var binder = GetBinder(model, itemName, memberLocator);
+			var binder = TypeHelperBinder.GetBinder(model, itemName, memberLocator);
 
 			if (binder == null)
 				throw new VeilCompilerException("Unable to late-bind '{0}' against model {1}".FormatInvariant(itemName, model.GetType().Name), node);
@@ -201,50 +197,7 @@ namespace Veil
 			return result;
 		}
 
-	    public static Func<object, object> GetBinder(object model, string itemName)
-	    {
-	        return GetBinder(model, itemName, MemberLocator.Default);
-	    }
-
-	    private static Func<object, object> GetBinder(object model, string itemName, IMemberLocator memberLocator)
-	    {
-	        var binder = lateBoundCache.GetOrAdd(Tuple.Create(model.GetType(), itemName), pair =>
-	        {
-	            var type = pair.Item1;
-	            var name = pair.Item2;
-
-	            if (name.EndsWith("()"))
-	            {
-	                var function =
-	                    memberLocator.FindMember(type, name.Substring(0, name.Length - 2), MemberTypes.Method) as MethodInfo;
-	                if (function != null) return DelegateBuilder.FunctionCall(type, function);
-	            }
-
-	            var property = memberLocator.FindMember(type, name, MemberTypes.Property) as PropertyInfo;
-	            if (property != null) return DelegateBuilder.Property(type, property);
-
-	            var field = memberLocator.FindMember(type, name, MemberTypes.Field) as FieldInfo;
-	            if (field != null) return DelegateBuilder.Field(type, field);
-
-	            var dictionaryType = type.GetDictionaryTypeWithKey();
-	            if (dictionaryType != null) return DelegateBuilder.Dictionary(dictionaryType, name);
-
-	            return null;
-	        });
-	        return binder;
-	    }
-
-	    private static BindingFlags GetBindingFlags(bool isCaseSensitive)
-		{
-			var flags = BindingFlags.Public | BindingFlags.Instance;
-			if (!isCaseSensitive)
-			{
-				flags = flags | BindingFlags.IgnoreCase;
-			}
-			return flags;
-		}
-
-		public static Task Then(Task first, Action next)
+	    public static Task Then(Task first, Action next)
 		{
 			return first.ContinueWith(t => next(), TaskContinuationOptions.ExecuteSynchronously);
 		}

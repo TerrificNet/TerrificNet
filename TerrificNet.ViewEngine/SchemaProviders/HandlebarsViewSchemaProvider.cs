@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Schema;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.ViewEngine.Schema;
-using Veil.Compiler;
 using Veil.Handlebars;
 using Veil.Helper;
 

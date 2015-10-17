@@ -46,7 +46,7 @@ namespace TerrificNet.Thtml.Emit
             return lambda.Compile();
         }
 
-        public override bool TryCreateEvaluation<T>(out IEvaluater<T> evaluationFunc)
+        public override bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
         {
             evaluationFunc = null;
 
@@ -55,13 +55,13 @@ namespace TerrificNet.Thtml.Emit
                 if (!ResultType.GetInterfaces().Contains(typeof (IEnumerable)))
                     return false;
 
-                evaluationFunc = new EvaluaterFromLambda<T>(CreateEvaluation<T>());
+                evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
                 return true;
             }
 
             if (typeof (T) == ResultType)
             {
-                evaluationFunc = new EvaluaterFromLambda<T>(CreateEvaluation<T>());
+                evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
                 return true;
             }
 
@@ -82,11 +82,11 @@ namespace TerrificNet.Thtml.Emit
             return new TypeDataBinder(enumerable.GetGenericArguments()[0]);
         }
 
-        private class EvaluaterFromLambda<T> : IEvaluater<T>
+        private class EvaluatorFromLambda<T> : IEvaluator<T>
         {
             private readonly Func<IDataContext, T> _evalutionFunc;
 
-            public EvaluaterFromLambda(Func<IDataContext, T> evalutionFunc)
+            public EvaluatorFromLambda(Func<IDataContext, T> evalutionFunc)
             {
                 _evalutionFunc = evalutionFunc;
             }

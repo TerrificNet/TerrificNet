@@ -35,7 +35,7 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property");
 
             Assert.NotNull(result);
-            IEvaluater<string> evalutor;
+            IEvaluator<string> evalutor;
             Assert.True(result.TryCreateEvaluation(out evalutor));
             var propertyResult = evalutor.Evaluate(new ObjectDataContext(obj));
 
@@ -53,7 +53,7 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property");
 
             Assert.NotNull(result);
-            IEvaluater<IEnumerable> evalutor;
+            IEvaluator<IEnumerable> evalutor;
             Assert.True(result.TryCreateEvaluation(out evalutor));
             var propertyResult = evalutor.Evaluate(new ObjectDataContext(obj));
 
@@ -62,7 +62,7 @@ namespace TerrificNet.Thtml.Test
             var itemResult = result.Item();
             var innerPropertyResult = itemResult.Property("property2");
 
-            IEvaluater<string> innerPropertyEvaluator;
+            IEvaluator<string> innerPropertyEvaluator;
             Assert.True(innerPropertyResult.TryCreateEvaluation(out innerPropertyEvaluator));
 
             foreach (var item in propertyResult)
@@ -83,7 +83,7 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property1").Property("property2");
 
             Assert.NotNull(result);
-            IEvaluater<string> evalutor;
+            IEvaluator<string> evalutor;
             Assert.True(result.TryCreateEvaluation(out evalutor));
             var propertyResult = evalutor.Evaluate(new ObjectDataContext(obj));
 
@@ -101,7 +101,7 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property1");
 
             Assert.NotNull(result);
-            IEvaluater<bool> evalutor;
+            IEvaluator<bool> evalutor;
             Assert.True(result.TryCreateEvaluation(out evalutor));
             var propertyResult = evalutor.Evaluate(new ObjectDataContext(obj));
 

@@ -1,18 +1,9 @@
 using TerrificNet.Thtml.Parsing;
-using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public interface IEmitter<out T>
-    {
-        T Execute(IDataContext context, IRenderingContext renderingContext);
-    }
-}
-
-namespace TerrificNet.Thtml.Emit
-{
-	public interface IEmitter
+	public interface IEmitter<out TResult>
 	{
-		IEmitter<VTree> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder);
+		IEmitterRunnable<TResult> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder);
 	}
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 
 using Moq;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.ViewEngine.Client.Javascript;
 using TerrificNet.ViewEngine.ViewEngines;
 using Veil.Compiler;

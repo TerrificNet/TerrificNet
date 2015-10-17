@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Veil
+namespace TerrificNet.Thtml.Binding
 {
     internal static class DelegateBuilder
     {
@@ -61,6 +61,7 @@ namespace Veil
             ).Compile();
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static T GetValueFromDictionary<T>(IDictionary<string, T> dict, string key)
         {
             T value;

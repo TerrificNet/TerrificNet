@@ -4,9 +4,9 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class Emitter : IEmitter
+    public class VTreeEmitter : IEmitter<VTree>
     {
-        public IEmitter<VTree> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder)
+        public IEmitterRunnable<VTree> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder)
         {
             var visitor = new EmitNodeVisitor(dataBinder, helperBinder ?? new NullHelperBinder());
             input.Accept(visitor);

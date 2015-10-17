@@ -93,6 +93,10 @@
     <Compile Include="JavascriptClientTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TerrificNet.Thtml\TerrificNet.Thtml.csproj">
+      <Project>{947C6426-E77A-484A-95F1-1854B451B063}</Project>
+      <Name>TerrificNet.Thtml</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TerrificNet.ViewEngine.Client\TerrificNet.ViewEngine.Client.csproj">
       <Project>{E0262178-CB44-4A24-958A-868B68E96F84}</Project>
       <Name>TerrificNet.ViewEngine.Client</Name>

@@ -40,7 +40,7 @@ namespace TerrificNet.UnityModules
             return Task.FromResult<IView>(new ThtmlView(emitter));
         }
 
-        internal static IEmitter<VTree> CreateEmitter(TemplateInfo templateInfo, IDataBinder dataBinder, IHelperBinder helperBinder)
+        internal static IEmitterRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataBinder dataBinder, IHelperBinder helperBinder)
         {
             string template;
             using (var reader = new StreamReader(templateInfo.Open()))
@@ -52,7 +52,7 @@ namespace TerrificNet.UnityModules
             var tokens = lexer.Tokenize(template);
             var parser = new Parser(new HandlebarsParser());
             var ast = parser.Parse(tokens);
-            var compiler = new Emitter();
+            var compiler = new VTreeEmitter();
 
             var emitter = compiler.Emit(ast, dataBinder, helperBinder);
             return emitter;
@@ -60,9 +60,9 @@ namespace TerrificNet.UnityModules
 
         private class ThtmlView : IView
         {
-            private readonly IEmitter<VTree> _method;
+            private readonly IEmitterRunnable<VTree> _method;
 
-            public ThtmlView(IEmitter<VTree> method)
+            public ThtmlView(IEmitterRunnable<VTree> method)
             {
                 _method = method;
             }
@@ -186,7 +186,7 @@ namespace TerrificNet.UnityModules
                 return EmitterNode.AsList(GetEmitters(definitions, renderingContext)).Execute(context, renderingContext);
             }
 
-            private IEnumerable<IEmitter<T>> GetEmitters(IEnumerable<ViewDefinition> definitions, IRenderingContext renderingContext)
+            private IEnumerable<IEmitterRunnable<T>> GetEmitters(IEnumerable<ViewDefinition> definitions, IRenderingContext renderingContext)
             {
                 foreach (var placeholderConfig in definitions)
                 {
@@ -238,7 +238,7 @@ namespace TerrificNet.UnityModules
             return EmitterNode.AsList(moduleEmitter);
         }
 
-        internal static IEmitter<T> CreateModuleEmitter<T>(IHelperBinder helperBinder, IModuleRepository templateRepository, IModelProvider modelProvider, string module)
+        internal static IEmitterRunnable<T> CreateModuleEmitter<T>(IHelperBinder helperBinder, IModuleRepository templateRepository, IModelProvider modelProvider, string module)
         {
             var moduleDescription = templateRepository.GetModuleDefinitionByIdAsync(module).Result;
             var data = modelProvider.GetModelForModuleAsync(moduleDescription, null).Result;
@@ -248,16 +248,16 @@ namespace TerrificNet.UnityModules
             var binder = new DynamicDataBinder();
 
             var emitter = ThtmlViewEngine.CreateEmitter(template, binder, helperBinder);
-            var moduleEmitter = new ModuleEmitter<T>((IEmitter<T>) emitter, context);
+            var moduleEmitter = new ModuleEmitter<T>((IEmitterRunnable<T>) emitter, context);
             return moduleEmitter;
         }
 
-        private class ModuleEmitter<T> : IEmitter<T>
+        private class ModuleEmitter<T> : IEmitterRunnable<T>
         {
-            private readonly IEmitter<T> _adaptee;
+            private readonly IEmitterRunnable<T> _adaptee;
             private readonly IDataContext _dataContext;
 
-            public ModuleEmitter(IEmitter<T> adaptee, IDataContext dataContext)
+            public ModuleEmitter(IEmitterRunnable<T> adaptee, IDataContext dataContext)
             {
                 _adaptee = adaptee;
                 _dataContext = dataContext;
@@ -287,10 +287,10 @@ namespace TerrificNet.UnityModules
             return EmitterNode.AsList(emitter);
         }
 
-        internal IEmitter<T> CreateEmitter<T>(IHelperBinder helperBinder, IDataBinder scope)
+        internal IEmitterRunnable<T> CreateEmitter<T>(IHelperBinder helperBinder, IDataBinder scope)
         {
             var template = _templateRepository.GetTemplateAsync(_templateName).Result;
-            var emitter = (IEmitter<T>) ThtmlViewEngine.CreateEmitter(template, scope, helperBinder);
+            var emitter = (IEmitterRunnable<T>) ThtmlViewEngine.CreateEmitter(template, scope, helperBinder);
             return emitter;
         }
     }

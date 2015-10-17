@@ -35,16 +35,25 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binding\DelegateBuilder.cs" />
+    <Compile Include="Binding\IMemberLocator.cs" />
+    <Compile Include="Binding\MemberLocator.cs" />
+    <Compile Include="Binding\TypeExtensions.cs" />
+    <Compile Include="Binding\TypeHelperBinder.cs" />
+    <Compile Include="Emit\Compiler\EmitIlExpressionVisitor.cs" />
+    <Compile Include="Emit\Compiler\IlExpressionEmitNodeVisitor.cs" />
     <Compile Include="Emit\Compiler\IlEmitter.cs" />
-    <Compile Include="Emit\Compiler\IlEmitterFunction.cs" />
+    <Compile Include="Emit\DataBinderResult.cs" />
     <Compile Include="Emit\DynamicDataBinder.cs" />
     <Compile Include="Emit\EmitExpressionVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />
-    <Compile Include="Emit\Emitter.cs" />
+    <Compile Include="Emit\IEvaluator.cs" />
+    <Compile Include="Emit\VTreeEmitter.cs" />
     <Compile Include="Emit\EmitterNode.cs" />
     <Compile Include="Emit\IDataBinder.cs" />
     <Compile Include="Emit\IDataContext.cs" />
     <Compile Include="Emit\IEmitter.cs" />
+    <Compile Include="Emit\IEmitterRunnable.cs" />
     <Compile Include="Emit\IHelperBinder.cs" />
     <Compile Include="Emit\IListEmitter.cs" />
     <Compile Include="Emit\IRenderingContext.cs" />
@@ -97,12 +106,6 @@
     <Compile Include="VDom\VPropertyValue.cs" />
     <Compile Include="VDom\VText.cs" />
     <Compile Include="VDom\VTree.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Veil\Src\Veil\Veil.csproj">
-      <Project>{97D96B66-EDFE-474B-BC72-D8439830FC76}</Project>
-      <Name>Veil</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

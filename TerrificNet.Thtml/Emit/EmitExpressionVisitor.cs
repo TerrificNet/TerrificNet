@@ -61,14 +61,14 @@ namespace TerrificNet.Thtml.Emit
 
         private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
         {
-            IEvaluater<string> evaluator;
+            IEvaluator<string> evaluator;
             if (!TryGetEvaluator(expression, out evaluator))
                 return null;
 
             return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
         }
 
-        private bool TryGetEvaluator<T>(MustacheExpression expression, out IEvaluater<T> evaluator)
+        private bool TryGetEvaluator<T>(MustacheExpression expression, out IEvaluator<T> evaluator)
         {
             if (!Value.TryCreateEvaluation(out evaluator))
                 return false;
@@ -85,7 +85,7 @@ namespace TerrificNet.Thtml.Emit
                 _dataBinder.Pop();
                 iterationExpression.Expression.Accept(this);
 
-                IEvaluater<IEnumerable> evaluator;
+                IEvaluator<IEnumerable> evaluator;
                 if (!TryGetEvaluator(expression, out evaluator))
                     throw new Exception("Expect a enumerable as result");
 
@@ -97,7 +97,7 @@ namespace TerrificNet.Thtml.Emit
             {
                 conditionalExpression.Expression.Accept(this);
 
-                IEvaluater<bool> evaluator;
+                IEvaluator<bool> evaluator;
                 if (!TryGetEvaluator(expression, out evaluator))
                     throw new Exception("Expect a boolean as result");
 
@@ -132,7 +132,7 @@ namespace TerrificNet.Thtml.Emit
 
         private IListEmitter<VText> TryConvertVText(MustacheExpression expression)
         {
-            IEvaluater<VText> evaluator;
+            IEvaluator<VText> evaluator;
             if (!TryGetEvaluator(expression, out evaluator))
                 return null;
 
@@ -141,24 +141,24 @@ namespace TerrificNet.Thtml.Emit
 
         private IListEmitter<VText> TryConvertStringToVText(MustacheExpression expression)
         {
-            IEvaluater<string> evaluator;
+            IEvaluator<string> evaluator;
             if (!TryGetEvaluator(expression, out evaluator))
                 return null;
 
             return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
         }
 
-        private static IEvaluater<T> ExceptionDecorator<T>(IEvaluater<T> createEvaluation, MustacheExpression expression)
+        private static IEvaluator<T> ExceptionDecorator<T>(IEvaluator<T> createEvaluation, MustacheExpression expression)
         {
             return new ExceptionWrapperEvaluator<T>(createEvaluation, expression);
         }
 
-        private class ExceptionWrapperEvaluator<T> : IEvaluater<T>
+        private class ExceptionWrapperEvaluator<T> : IEvaluator<T>
         {
-            private readonly IEvaluater<T> _evaluator;
+            private readonly IEvaluator<T> _evaluator;
             private readonly MustacheExpression _expression;
 
-            public ExceptionWrapperEvaluator(IEvaluater<T> evaluator, MustacheExpression expression)
+            public ExceptionWrapperEvaluator(IEvaluator<T> evaluator, MustacheExpression expression)
             {
                 _evaluator = evaluator;
                 _expression = expression;

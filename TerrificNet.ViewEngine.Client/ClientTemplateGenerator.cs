@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.ViewEngine.Schema;
 using Veil;
-using Veil.Compiler;
 using Veil.Helper;
 using Veil.Parser;
 using Veil.Parser.Nodes;
