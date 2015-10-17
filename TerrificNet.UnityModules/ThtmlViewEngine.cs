@@ -69,8 +69,8 @@ namespace TerrificNet.UnityModules
 
             public void Render(object model, RenderingContext context)
             {
-                var result = _method.Execute(new ObjectDataContext(model), new RenderingContextAdapter(context));
-                context.Writer.Write(result);
+	            var result = _method.Execute(new ObjectDataContext(model), new RenderingContextAdapter(context));
+	            context.Writer.Write(result);
             }
         }
 

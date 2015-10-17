@@ -35,6 +35,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Emit\Compiler\IlEmitter.cs" />
+    <Compile Include="Emit\Compiler\IlEmitterFunction.cs" />
     <Compile Include="Emit\DynamicDataBinder.cs" />
     <Compile Include="Emit\EmitExpressionVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />
@@ -45,6 +47,7 @@
     <Compile Include="Emit\IEmitter.cs" />
     <Compile Include="Emit\IHelperBinder.cs" />
     <Compile Include="Emit\IListEmitter.cs" />
+    <Compile Include="Emit\IRenderingContext.cs" />
     <Compile Include="Emit\NullHelperBinder.cs" />
     <Compile Include="Emit\ObjectDataContext.cs" />
     <Compile Include="Emit\TypeDataBinder.cs" />

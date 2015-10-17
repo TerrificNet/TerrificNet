@@ -9,7 +9,7 @@ using Xunit;
 
 namespace TerrificNet.Thtml.Test
 {
-    public class EmitterTest
+	public class EmitterTest
     {
         [Theory]
         [MemberData("TestData")]

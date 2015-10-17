@@ -4,7 +4,7 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class Emitter
+    public class Emitter : IEmitter
     {
         public IEmitter<VTree> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder)
         {
