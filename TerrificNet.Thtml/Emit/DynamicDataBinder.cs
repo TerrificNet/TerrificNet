@@ -3,32 +3,32 @@ using TerrificNet.Thtml.Binding;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class DynamicDataBinder : DataBinderResult
+    public class DynamicDataBinder : DataBinder
     {
-        private readonly IEvaluator _evalutor;
+        private readonly IEvaluator _evaluator;
 
         public DynamicDataBinder()
         {
-            _evalutor = new NullEvaluater();
+            _evaluator = new NullEvaluator();
         }
 
-        private DynamicDataBinder(IEvaluator evalutor)
+        private DynamicDataBinder(IEvaluator evaluator)
         {
-            _evalutor = evalutor;
+            _evaluator = evaluator;
         }
 
         public override bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
         {
-            evaluationFunc = new CastEvalutor<T>(_evalutor);
+            evaluationFunc = new CastEvaluator<T>(_evaluator);
             return true;
         }
 
-        public override DataBinderResult Property(string propertyName)
+        public override IDataBinder Property(string propertyName)
         {
-            return new DynamicDataBinder(new PropertyReflectionEvalutor(_evalutor, propertyName));
+            return new DynamicDataBinder(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }
 
-        public override DataBinderResult Item()
+        public override IDataBinder Item()
         {
             return new DynamicDataBinder();
         }
@@ -38,7 +38,7 @@ namespace TerrificNet.Thtml.Emit
             object Evaluate(object obj);
         }
 
-        private class NullEvaluater : IEvaluator
+        private class NullEvaluator : IEvaluator
         {
             public object Evaluate(object obj)
             {
@@ -46,21 +46,21 @@ namespace TerrificNet.Thtml.Emit
             }
         }
 
-        private class PropertyReflectionEvalutor : IEvaluator
+        private class PropertyReflectionEvaluator : IEvaluator
         {
-            private readonly IEvaluator _objectEvalutor;
+            private readonly IEvaluator _objectEvaluator;
             private readonly string _propertyName;
 
-            public PropertyReflectionEvalutor(IEvaluator objectEvalutor, string propertyName)
+            public PropertyReflectionEvaluator(IEvaluator objectEvaluator, string propertyName)
             {
-                _objectEvalutor = objectEvalutor;
+                _objectEvaluator = objectEvaluator;
                 _propertyName = propertyName;
             }
 
             public object Evaluate(object value)
             {
-                if (_objectEvalutor != null)
-                    value = _objectEvalutor.Evaluate(value);
+                if (_objectEvaluator != null)
+                    value = _objectEvaluator.Evaluate(value);
 
                 if (value == null)
                     throw new Exception($"Unable to bind property '{_propertyName}' null.");
@@ -73,18 +73,18 @@ namespace TerrificNet.Thtml.Emit
             }
         }
 
-        private class CastEvalutor<T> : IEvaluator<T>
+        private class CastEvaluator<T> : IEvaluator<T>
         {
-            private readonly IEvaluator _evalutor;
+            private readonly IEvaluator _evaluator;
 
-            public CastEvalutor(IEvaluator evalutor)
+            public CastEvaluator(IEvaluator evaluator)
             {
-                _evalutor = evalutor;
+                _evaluator = evaluator;
             }
 
             public T Evaluate(IDataContext context)
             {
-                var result = _evalutor.Evaluate(context.Value);
+                var result = _evaluator.Evaluate(context.Value);
                 if (typeof (T) == typeof (string))
                 {
                     if (result == null)

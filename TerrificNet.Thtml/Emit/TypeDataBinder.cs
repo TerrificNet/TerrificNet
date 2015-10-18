@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class TypeDataBinder : DataBinderResult
+	public class TypeDataBinder : DataBinder
     {
         private readonly ParameterExpression _dataContextParameter;
         private readonly Expression _memberAccess;
@@ -51,16 +51,16 @@ namespace TerrificNet.Thtml.Emit
         {
             evaluationFunc = null;
 
-            if (typeof (T) == typeof (IEnumerable))
+			if (typeof(T) == typeof(IEnumerable))
             {
-                if (!ResultType.GetInterfaces().Contains(typeof (IEnumerable)))
+				if (!typeof(IEnumerable).IsAssignableFrom(ResultType))
                     return false;
 
                 evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
                 return true;
             }
 
-            if (typeof (T) == ResultType)
+			if (typeof(T) == ResultType)
             {
                 evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
                 return true;
@@ -69,12 +69,12 @@ namespace TerrificNet.Thtml.Emit
             return false;
         }
 
-        public override DataBinderResult Property(string propertyName)
+		public override IDataBinder Property(string propertyName)
         {
             return new TypeDataBinder(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
         }
 
-        public override DataBinderResult Item()
+		public override IDataBinder Item()
         {
             var enumerable = ResultType.GetInterfaces().Union(new [] { ResultType }).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
             if (enumerable == null)
@@ -85,16 +85,16 @@ namespace TerrificNet.Thtml.Emit
 
         private class EvaluatorFromLambda<T> : IEvaluator<T>
         {
-            private readonly Func<IDataContext, T> _evalutionFunc;
+			private readonly Func<IDataContext, T> _evaluationFunc;
 
-            public EvaluatorFromLambda(Func<IDataContext, T> evalutionFunc)
+			public EvaluatorFromLambda(Func<IDataContext, T> evaluationFunc)
             {
-                _evalutionFunc = evalutionFunc;
+				_evaluationFunc = evaluationFunc;
             }
 
             public T Evaluate(IDataContext context)
             {
-                return _evalutionFunc(context);
+				return _evaluationFunc(context);
             }
         }
     }
