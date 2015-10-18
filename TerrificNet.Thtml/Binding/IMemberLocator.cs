@@ -5,6 +5,10 @@ namespace TerrificNet.Thtml.Binding
 {
     public interface IMemberLocator
     {
-        MemberInfo FindMember(Type modelType, string name, MemberTypes types);
+        MethodInfo FindMethod(Type modelType, string name);
+
+        PropertyInfo FindProperty(Type modelType, string expression);
+
+        FieldInfo FindField(Type modelType, string expression);
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace TerrificNet.Thtml.Binding
 {
@@ -23,14 +22,14 @@ namespace TerrificNet.Thtml.Binding
                 if (name.EndsWith("()"))
                 {
                     var function =
-                        memberLocator.FindMember(type, name.Substring(0, name.Length - 2), MemberTypes.Method) as MethodInfo;
+                        memberLocator.FindMethod(type, name.Substring(0, name.Length - 2));
                     if (function != null) return DelegateBuilder.FunctionCall(type, function);
                 }
 
-                var property = memberLocator.FindMember(type, name, MemberTypes.Property) as PropertyInfo;
+                var property = memberLocator.FindProperty(type, name);
                 if (property != null) return DelegateBuilder.Property(type, property);
 
-                var field = memberLocator.FindMember(type, name, MemberTypes.Field) as FieldInfo;
+                var field = memberLocator.FindField(type, name);
                 if (field != null) return DelegateBuilder.Field(type, field);
 
                 var dictionaryType = type.GetDictionaryTypeWithKey();

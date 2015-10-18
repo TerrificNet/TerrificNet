@@ -13,11 +13,20 @@ namespace TerrificNet.ViewEngine.ViewEngines
 			_namingRule = namingRule;
 		}
 
-		public override MemberInfo FindMember(Type modelType, string name, MemberTypes types)
-		{
-			name = _namingRule.GetPropertyName(name);
-			return base.FindMember(modelType, name, types);
-		}
+        public override FieldInfo FindField(Type modelType, string expression)
+        {
+            return base.FindField(modelType, _namingRule.GetPropertyName(expression));
+        }
 
-	}
+        public override MethodInfo FindMethod(Type modelType, string name)
+        {
+            return base.FindMethod(modelType, _namingRule.GetPropertyName(name));
+        }
+
+        public override PropertyInfo FindProperty(Type modelType, string expression)
+        {
+            return base.FindProperty(modelType, _namingRule.GetPropertyName(expression));
+        }
+
+    }
 }

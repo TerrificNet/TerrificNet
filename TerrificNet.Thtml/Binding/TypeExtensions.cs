@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 namespace TerrificNet.Thtml.Binding
 {
@@ -10,22 +11,22 @@ namespace TerrificNet.Thtml.Binding
     {
         public static string FormatInvariant(this string format, params object[] args)
         {
-            return String.Format(CultureInfo.InvariantCulture, format, args);
+            return string.Format(CultureInfo.InvariantCulture, format, args);
         }
 
         private static bool IsEnumerableType(Type t)
         {
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+            return t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
         }
 
         private static bool IsDictionaryType(Type t)
         {
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>);
+            return t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>);
         }
 
         private static bool IsCollectionType(Type t)
         {
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>);
+            return t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>);
         }
 
         private static bool IsNonGenericCollectionType(Type t)

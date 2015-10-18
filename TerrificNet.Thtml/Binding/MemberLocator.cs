@@ -12,12 +12,25 @@ namespace TerrificNet.Thtml.Binding
         {
         }
 
-        public virtual MemberInfo FindMember(Type modelType, string name, MemberTypes types)
+        public virtual MethodInfo FindMethod(Type modelType, string name)
         {
-            return modelType
-                .FindMembers(types, BindingFlags.Instance | BindingFlags.Public, Type.FilterNameIgnoreCase, name)
-                .FirstOrDefault(x => x.MemberType == MemberTypes.Property && name.Equals(x.Name, StringComparison.OrdinalIgnoreCase));
+            return
+                modelType.GetRuntimeMethods()
+                    .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
+        public virtual PropertyInfo FindProperty(Type modelType, string expression)
+        {
+            return
+                modelType.GetRuntimeProperties()
+                    .FirstOrDefault(p => p.Name.Equals(expression, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public virtual FieldInfo FindField(Type modelType, string expression)
+        {
+            return 
+                modelType.GetRuntimeFields()
+                    .FirstOrDefault(p => p.Name.Equals(expression, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

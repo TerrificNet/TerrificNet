@@ -42,24 +42,23 @@ namespace Veil.Handlebars
 
             if (expression.EndsWith("()"))
             {
-                var func = memberLocator.FindMember(modelType, expression.Substring(0, expression.Length - 2), MemberTypes.Method);
+                var func = memberLocator.FindMethod(modelType, expression.Substring(0, expression.Length - 2));
                 if (func != null) return SyntaxTreeExpression.Function(modelType, func.Name, location, expressionScope);
             }
 
-            var prop = memberLocator.FindMember(modelType, expression, MemberTypes.Property | MemberTypes.Field);
-            if (prop != null)
-            {
-                switch (prop.MemberType)
-                {
-                    case MemberTypes.Property: return SyntaxTreeExpression.Property(modelType, prop.Name, location, expressionScope);
-                    case MemberTypes.Field: return SyntaxTreeExpression.Field(modelType, prop.Name, location, expressionScope);
-                }
-            }
+            var prop = memberLocator.FindProperty(modelType, expression);
+		    if (prop != null)
+		        return SyntaxTreeExpression.Property(modelType, prop.Name, location, expressionScope);
+
+            var field = memberLocator.FindField(modelType, expression);
+		    if (field != null)
+		        return SyntaxTreeExpression.Field(modelType, field.Name, location, expressionScope);
 
             if (IsLateBoundAcceptingType(modelType)) 
 				return SyntaxTreeExpression.LateBound(expression, location, memberLocator, false, expressionScope);
 
-            throw new VeilParserException(String.Format("Unable to parse model expression '{0}' againt model '{1}'", expression, modelType.Name), location);
+            throw new VeilParserException(
+                $"Unable to parse model expression '{expression}' againt model '{modelType.Name}'", location);
         }
 
         private static bool IsLateBoundAcceptingType(Type type)
