@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Moq;
+using LightMock;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
@@ -146,11 +146,11 @@ namespace TerrificNet.Thtml.Test
                     new NullHelperBinder()
                 };
 
-                var result = new Mock<HelperBinderResult>(MockBehavior.Loose);
-                result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>(), It.IsAny<IHelperBinder>(), It.IsAny<IDataBinder>())).Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
+                var result = new MockContext<HelperBinderResult>();
+                result.Arrange(d => d.CreateEmitter(The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataBinder>.IsAnyValue)).Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
 
-                var helper = new Mock<IHelperBinder>();
-                helper.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(result.Object);
+                var helper = new MockContext<IHelperBinder>();
+                helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(result));
 
                 yield return new object[]
                 {
@@ -161,9 +161,39 @@ namespace TerrificNet.Thtml.Test
                     obj3,
                     new VNode(
                         new VElement("h1", new VText("helper output"))),
-                    helper.Object
+                    new HelperBinderMock(helper)
                 };
             }
+        }
+    }
+
+    internal class HelperBinderMock : IHelperBinder
+    {
+        private readonly IInvocationContext<IHelperBinder> _invocationContext;
+
+        public HelperBinderMock(IInvocationContext<IHelperBinder> invocationContext)
+        {
+            _invocationContext = invocationContext;
+        }
+
+        public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
+        {
+            return _invocationContext.Invoke(f => f.FindByName(helper, arguments));
+        }
+    }
+
+    internal class HelperBinderResultMock : HelperBinderResult
+    {
+        private readonly IInvocationContext<HelperBinderResult> _invocationContext;
+
+        public HelperBinderResultMock(IInvocationContext<HelperBinderResult> invocationContext)
+        {
+            _invocationContext = invocationContext;
+        }
+
+        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataBinder scope)
+        {
+            return _invocationContext.Invoke(f => f.CreateEmitter(children, helperBinder, scope));
         }
     }
 

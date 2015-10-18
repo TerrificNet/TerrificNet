@@ -161,3 +161,4 @@ $RECYCLE.BIN/
 packages
 !packages/repositories.config
 /.vs/config
+project.lock.json

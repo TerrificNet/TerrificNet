@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Moq;
+using LightMock;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
@@ -135,13 +135,13 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				var result = new Mock<HelperBinderResult>(MockBehavior.Loose);
-				result.Setup(d => d.CreateEmitter(It.IsAny<IListEmitter<VTree>>(), It.IsAny<IHelperBinder>(), It.IsAny<IDataBinder>())).Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
+                var result = new MockContext<HelperBinderResult>();
+                result.Arrange(d => d.CreateEmitter(The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataBinder>.IsAnyValue)).Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
 
-				var helper = new Mock<IHelperBinder>();
-				helper.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(result.Object);
+                var helper = new MockContext<IHelperBinder>();
+                helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(result));
 
-				yield return new object[]
+                yield return new object[]
 				{
 					"one element with helper",
 					new Document(
@@ -149,8 +149,8 @@ namespace TerrificNet.Thtml.Test
 					TypeDataBinder.BinderFromObject(obj3),
 					obj3,
 					"<h1>helper output</h1>",
-					helper.Object
-				};
+                    new HelperBinderMock(helper)
+                };
 			}
 		}
 	}
