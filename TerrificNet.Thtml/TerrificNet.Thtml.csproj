@@ -40,10 +40,9 @@
     <Compile Include="Binding\MemberLocator.cs" />
     <Compile Include="Binding\TypeExtensions.cs" />
     <Compile Include="Binding\TypeHelperBinder.cs" />
-    <Compile Include="Emit\Compiler\EmitIlExpressionVisitor.cs" />
     <Compile Include="Emit\Compiler\IlExpressionEmitNodeVisitor.cs" />
     <Compile Include="Emit\Compiler\IlEmitter.cs" />
-    <Compile Include="Emit\DataBinderResult.cs" />
+    <Compile Include="Emit\DataBinder.cs" />
     <Compile Include="Emit\DynamicDataBinder.cs" />
     <Compile Include="Emit\EmitExpressionVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />

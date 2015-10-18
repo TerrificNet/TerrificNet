@@ -171,22 +171,4 @@ namespace TerrificNet.Thtml.Test
     {
         public string Name { get; set; }
     }
-
-    public class NullDataBinder : IDataBinder
-    {
-        public DataBinderResult Property(string propertyName)
-        {
-            return null;
-        }
-
-        public DataBinderResult Item()
-        {
-            return null;
-        }
-
-        public DataBinderResult Context()
-        {
-            return null;
-        }
-    }
 }

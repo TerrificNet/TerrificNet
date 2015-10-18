@@ -10,15 +10,15 @@ namespace TerrificNet.Thtml.Emit
     public class EmitExpressionVisitor : ExpressionVisitor
     {
         private readonly IHelperBinder _helperBinder;
-        private readonly Stack<DataBinderResult> _dataBinder = new Stack<DataBinderResult>();
-        private DataBinderResult Scope => _dataBinder.Peek();
+        private readonly Stack<IDataBinder> _dataBinderStack = new Stack<IDataBinder>();
+        private IDataBinder Scope => _dataBinderStack.Peek();
 
-        private DataBinderResult Value { get; set; }
+        private IDataBinder Value { get; set; }
 
         public EmitExpressionVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
         {
             _helperBinder = helperBinder;
-            _dataBinder.Push(dataBinder.Context());
+            _dataBinderStack.Push(dataBinder.Context());
             Value = Scope;
         }
 
@@ -40,7 +40,7 @@ namespace TerrificNet.Thtml.Emit
                 expression = iterationExpression.Expression;
 
                 expression.Accept(this);
-                _dataBinder.Push(Value.Item());
+                _dataBinderStack.Push(Value.Item());
             }
             else
             {
@@ -82,7 +82,7 @@ namespace TerrificNet.Thtml.Emit
             var iterationExpression = expression as IterationExpression;
             if (iterationExpression != null)
             {
-                _dataBinder.Pop();
+                _dataBinderStack.Pop();
                 iterationExpression.Expression.Accept(this);
 
                 IEvaluator<IEnumerable> evaluator;

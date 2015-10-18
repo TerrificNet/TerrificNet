@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Moq;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.VDom;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test
@@ -79,7 +81,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				/*var obj2 = new
+				var obj2 = new
 				{
 					Items = new[] { new Dummy { Name = "test1" }, new Dummy { Name = "test2" } }
 				};
@@ -94,14 +96,10 @@ namespace TerrificNet.Thtml.Test
 									new Statement(new MemberExpression("name")))))),
 					TypeDataBinder.BinderFromObject(obj2),
 					obj2,
-					new VNode(
-						new VElement("h1",
-							new VElement("div",
-								new VText("test1")),
-							new VElement("div",
-								new VText("test2")))),
+					"<h1><div>test1</div><div>test2</div></h1>",
 					new NullHelperBinder()
 				};
+
 				var obj3 = new { Name = "value" };
 				yield return new object[]
 				{
@@ -110,8 +108,7 @@ namespace TerrificNet.Thtml.Test
 						new Element("h1", new ElementPart[] { new AttributeNode("title", new AttributeContentStatement(new MemberExpression("name"))) })),
 					TypeDataBinder.BinderFromObject(obj3),
 					obj3,
-					new VNode(
-						new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null)),
+					"<h1 title=\"value\"></h1>",
 					new NullHelperBinder()
 				};
 
@@ -134,9 +131,7 @@ namespace TerrificNet.Thtml.Test
 							)),
 					TypeDataBinder.BinderFromObject(obj4),
 					obj4,
-					new VNode(
-						new VElement("h1", new VText("hallo2"))
-						),
+					"<h1>hallo2</h1>",
 					new NullHelperBinder()
 				};
 
@@ -153,10 +148,9 @@ namespace TerrificNet.Thtml.Test
 						new Element("h1", new Statement(new CallHelperExpression("helper")))),
 					TypeDataBinder.BinderFromObject(obj3),
 					obj3,
-					new VNode(
-						new VElement("h1", new VText("helper output"))),
+					"<h1>helper output</h1>",
 					helper.Object
-				};*/
+				};
 			}
 		}
 	}

@@ -1,18 +1,20 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq.Expressions;
 using TerrificNet.Thtml.Parsing;
+using TerrificNet.Thtml.Parsing.Handlebars;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
 	class IlExpressionEmitNodeVisitor : INodeVisitor
 	{
+		private readonly IDataBinder _dataBinder;
 		private readonly Stack<Scope> _scopes = new Stack<Scope>();
 
 		public IlExpressionEmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
 		{
-
+			_dataBinder = dataBinder;
 		}
 
 		public Action<TextWriter, IDataContext, IRenderingContext> Generate()
@@ -21,15 +23,15 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (_scopes.Count != 0)
 				throw new Exception("Scopes not closed");
 
-			Action<TextWriter> exp = writer =>
+			Action<TextWriter, IDataContext, IRenderingContext> exp = (writer, dataContext, renderingContext) =>
 			{
 				foreach (var action in scope.Elements)
 				{
-					action(writer);
+					action(writer, dataContext, renderingContext);
 				}
 			};
 
-			return (writer, dataContext, renderingContext) => exp(writer);
+			return exp;
 		}
 
 		public bool BeforeVisit(Document document)
@@ -40,7 +42,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public void AfterVisit(Document document)
 		{
-
 		}
 
 		public bool BeforeVisit(Element element)
@@ -52,22 +53,22 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public void AfterVisit(Element element)
 		{
 			var scope = _scopes.Pop();
-			Action<TextWriter> exp = writer =>
+			Action<TextWriter, IDataContext, IRenderingContext> exp = (writer, dataContext, renderingContext) =>
 			{
 				writer.Write($"<{element.TagName}");
 				foreach (var attribute in scope.Attributes)
 				{
 					writer.Write(" ");
-					attribute.Item1(writer);
+					attribute.Item1(writer, dataContext, renderingContext);
 					writer.Write("=\"");
-					attribute.Item2(writer);
+					attribute.Item2(writer, dataContext, renderingContext);
 					writer.Write("\"");
 				}
 				writer.Write(">");
 
 				foreach (var action in scope.Elements)
 				{
-					action(writer);
+					action(writer, dataContext, renderingContext);
 				}
 				writer.Write($"</{element.TagName}>");
 			};
@@ -79,22 +80,96 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public void Visit(ConstantAttributeContent attributeContent)
 		{
 			var scope = _scopes.Peek();
-			scope.Elements.Add(writer => writer.Write(attributeContent.Text));
+			scope.Elements.Add((writer, d, rc) => writer.Write(attributeContent.Text));
 		}
 
 		public bool BeforeVisit(Statement statement)
 		{
+			var expression = statement.Expression;
+
+			var iterationExpression = expression as IterationExpression;
+			if (iterationExpression != null)
+			{
+				var scope = new Scope();
+				_scopes.Push(scope);
+
+				var visitor = new EmitExpressionVisitor(_dataBinder, new NullHelperBinder());
+				iterationExpression.Expression.Accept(visitor);
+
+				var context = _dataBinder.Context();
+				IEvaluator<IEnumerable> evaluator;
+				if (!context.TryCreateEvaluation(out evaluator))
+					return false;
+
+				Action<TextWriter, IDataContext, IRenderingContext> ext = (writer, dataContext, renderingContext) =>
+				{
+					var items = evaluator.Evaluate(dataContext);
+					foreach (var item in items)
+					{
+
+					}
+				};
+				scope.Elements.Add(ext);
+
+				//IEvaluator<string> evaluator;
+				//if (result.TryCreateEvaluation(out evaluator))
+				//{
+				//	scope.Elements.Add((writer, dataContext, renderingContext) =>
+				//	{
+				//		var value = evaluator.Evaluate(dataContext);
+				//		writer.Write(value);
+				//	});
+				//}
+			}
+
 			return true;
 		}
 
 		public void AfterVisit(Statement statement)
 		{
+			var scope = _scopes.Peek();
+			var expression = statement.Expression;
+
+			var iterationExpression = expression as IterationExpression;
+			if (iterationExpression != null)
+			{
+				throw new NotImplementedException();
+			}
+
+			var conditionalExpression = expression as ConditionalExpression;
+			if (conditionalExpression != null)
+			{
+				throw new NotImplementedException();
+			}
+
+			var callHelperExpression = expression as CallHelperExpression;
+			if (callHelperExpression != null)
+			{
+				throw new NotImplementedException();
+			}
+
+			var memberExpression = expression as MemberExpression;
+			if (memberExpression != null)
+			{
+				var result = _dataBinder.Property(memberExpression.Name);
+				IEvaluator<string> evaluator;
+				if (result.TryCreateEvaluation(out evaluator))
+				{
+					scope.Elements.Add((writer, dataContext, renderingContext) =>
+					{
+						var value = evaluator.Evaluate(dataContext);
+						writer.Write(value);
+					});
+				}
+				return;
+			}
+
 			throw new NotImplementedException();
 		}
 
 		public void Visit(TextNode textNode)
 		{
-			Action<TextWriter> exp = writer => writer.Write(textNode.Text);
+			Action<TextWriter, IDataContext, IRenderingContext> exp = (writer, d, rc) => writer.Write(textNode.Text);
 			_scopes.Peek().Elements.Add(exp);
 		}
 
@@ -112,16 +187,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public void AfterVisit(AttributeNode attributeNode)
 		{
 			var scope = _scopes.Pop();
-			Action<TextWriter> a = w =>
+			Action<TextWriter, IDataContext, IRenderingContext> a = (w, d, rc) =>
 			{
 				foreach (var element in scope.Elements)
 				{
-					element(w);
+					element(w, d, rc);
 				}
 			};
 
 			var parentScope = _scopes.Peek();
-			parentScope.Attributes.Add(new Tuple<Action<TextWriter>, Action<TextWriter>>(w => w.Write(attributeNode.Name), a));
+			parentScope.Attributes.Add(new Tuple<Action<TextWriter, IDataContext, IRenderingContext>, Action<TextWriter, IDataContext, IRenderingContext>>((w, d, r) => w.Write(attributeNode.Name), a));
 		}
 
 		public bool BeforeVisit(CompositeAttributeContent compositeAttributeContent)
@@ -146,13 +221,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private class Scope
 		{
-			public List<Action<TextWriter>> Elements { get; }
-			public List<Tuple<Action<TextWriter>, Action<TextWriter>>> Attributes { get; }
+			public List<Action<TextWriter, IDataContext, IRenderingContext>> Elements { get; }
+			public List<Tuple<Action<TextWriter, IDataContext, IRenderingContext>, Action<TextWriter, IDataContext, IRenderingContext>>> Attributes { get; }
 
 			public Scope()
 			{
-				Elements = new List<Action<TextWriter>>();
-				Attributes = new List<Tuple<Action<TextWriter>, Action<TextWriter>>>();
+				Elements = new List<Action<TextWriter, IDataContext, IRenderingContext>>();
+				Attributes = new List<Tuple<Action<TextWriter, IDataContext, IRenderingContext>, Action<TextWriter, IDataContext, IRenderingContext>>>();
 			}
 		}
 	}
