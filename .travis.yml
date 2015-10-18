@@ -1,2 +1,6 @@
 language: csharp
 solution: TerrificNet.sln
+mono:
+ - latest
+install:
+ - ./mono/build.sh
