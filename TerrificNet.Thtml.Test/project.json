@@ -1,16 +1,23 @@
 ﻿{
   "version": "0.1-alpha",
   "authors": [ "Marco Schaelle" ],
-  "title": "TerrificNet.Thtml",
+  "title": "TerrificNet.Thtml.Test",
   "description": "TerrificNet",
+  "dependencies": {
+    "TerrificNet.Thtml": "",
+    "xunit": "2.1.0-*",
+    "xunit.runner.dnx": "2.1.0-*",
+    "System.Runtime": "4.0.21-*"
+  },
   "frameworks": {
-    "dnx451": {},
+
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.0-beta-23019",
-        "System.Runtime": "4.0.20-beta-23019",
+
         "System.Collections": "4.0.10-beta-23019",
         "System.Collections.Concurrent": "4.0.10-beta-23019",
+        "System.Collections.Immutable": "1.1.36",
+        "System.Diagnostics.Tools": "4.0.0-beta-23019",
         "System.Reflection": "4.0.10-beta-23019",
         "System.Reflection.TypeExtensions": "4.0.0-beta-23019"
       }
