@@ -10,11 +10,16 @@ namespace TerrificNet.Thtml.VDom
             var builder = new StringBuilder();
             using (var writer = new StringWriter(builder))
             {
-                var buildStringVisitor = new ToStringVisitor(writer);
-                this.Accept(buildStringVisitor);
+                WriteTo(writer);
             }
 
             return builder.ToString();
+        }
+
+        public void WriteTo(TextWriter writer)
+        {
+            var buildStringVisitor = new ToStringVisitor(writer);
+            Accept(buildStringVisitor);
         }
 
         public virtual void Accept(IVTreeVisitor visitor)
@@ -31,11 +36,7 @@ namespace TerrificNet.Thtml.VDom
                 _textWriter = textWriter;
             }
 
-            public void EndVisit(VNode vNode)
-            {
-            }
-
-            public void BeginVisit(VElement vElement)
+            public void Visit(VElement vElement)
             {
                 _textWriter.Write("<");
                 _textWriter.Write(vElement.TagName);
@@ -59,13 +60,27 @@ namespace TerrificNet.Thtml.VDom
                     _textWriter.Write(" ");
                 }
                 _textWriter.Write(">");
-            }
 
-            public void EndVisit(VElement vElement)
-            {
+                foreach (var child in vElement.Children)
+                {
+                    child.Accept(this);
+                }
+
                 _textWriter.Write("</");
                 _textWriter.Write(vElement.TagName);
                 _textWriter.Write(">");
+            }
+
+            public void Visit(BooleanVPropertyValue booleanValue)
+            {
+            }
+
+            public void Visit(NumberVPropertyValue numberValue)
+            {
+            }
+
+            public void Visit(StringVPropertyValue stringValue)
+            {
             }
 
             public void Visit(VTree vTree)
@@ -77,8 +92,12 @@ namespace TerrificNet.Thtml.VDom
                 _textWriter.Write(vText.Text);
             }
 
-            public void BeginVisit(VNode vNode)
+            public void Visit(VNode vNode)
             {
+                foreach (var child in vNode.Children)
+                {
+                    child.Accept(this);
+                }
             }
         }
     }

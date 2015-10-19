@@ -81,6 +81,7 @@
     <Compile Include="LexerTest.cs" />
     <Compile Include="TokenFactory.cs" />
     <Compile Include="DataBinderTest.cs" />
+    <Compile Include="VHyperscriptTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

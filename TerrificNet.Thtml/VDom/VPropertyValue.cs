@@ -2,5 +2,6 @@
 {
     public abstract class VPropertyValue
     {
+        public abstract void Accept(IVTreeVisitor visitor);
     }
 }

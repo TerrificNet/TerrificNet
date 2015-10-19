@@ -9,5 +9,9 @@
 
         public int Value { get; }
 
+        public override void Accept(IVTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

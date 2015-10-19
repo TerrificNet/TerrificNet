@@ -4,9 +4,10 @@
     {
         void Visit(VTree vTree);
         void Visit(VText vText);
-        void BeginVisit(VNode vNode);
-        void EndVisit(VNode vNode);
-        void BeginVisit(VElement vElement);
-        void EndVisit(VElement vElement);
+        void Visit(VNode vNode);
+        void Visit(VElement vElement);
+        void Visit(BooleanVPropertyValue booleanValue);
+        void Visit(NumberVPropertyValue numberValue);
+        void Visit(StringVPropertyValue stringValue);
     }
 }

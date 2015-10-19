@@ -25,12 +25,7 @@ namespace TerrificNet.Thtml.VDom
 
         public override void Accept(IVTreeVisitor visitor)
         {
-            visitor.BeginVisit(this);
-
-            foreach (var child in Children)
-                child.Accept(visitor);
-
-            visitor.EndVisit(this);
+            visitor.Visit(this);
         }
     }
 }
