@@ -1,6 +1,6 @@
 ﻿/// <reference path="../typings/jquery/jquery.d.ts" />
 
-export module Gugus {
+namespace Gugus {
     export class MyDummy {
         doSomething(): string {
             $("#gugus").add($("<h1 />"));

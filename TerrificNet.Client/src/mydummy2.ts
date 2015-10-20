@@ -2,12 +2,13 @@
 
 //import dummy = require("mydummy");
 
-export module Gugus {
+namespace Gugus {
     export class MyDummy2 {
         doSomething(): string {
             $("#gugus").add($("<h1 />"));
 
-            return "hallo";
+            const s = new MyDummy();
+            return s.doSomething();
         }
     }
 }

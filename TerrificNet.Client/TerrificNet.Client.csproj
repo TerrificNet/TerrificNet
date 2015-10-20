@@ -23,7 +23,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="gulpfile.js" />
-    <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\mydummy.ts" />
@@ -34,12 +33,6 @@
     <Content Include="bower.json" />
     <Content Include="tsd.json" />
     <Content Include="tsconfig.json" />
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\mydummy2.ts" />
