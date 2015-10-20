@@ -5,7 +5,7 @@ namespace TerrificNet.Thtml.Binding
 {
     public static class TypeHelperBinder
     {
-        private static ConcurrentDictionary<Tuple<Type, string>, Func<object, object>> lateBoundCache = new ConcurrentDictionary<Tuple<Type, string>, Func<object, object>>();
+        private static readonly ConcurrentDictionary<Tuple<Type, string>, Func<object, object>> LateBoundCache = new ConcurrentDictionary<Tuple<Type, string>, Func<object, object>>();
 
         public static Func<object, object> GetBinder(object model, string itemName)
         {
@@ -14,7 +14,7 @@ namespace TerrificNet.Thtml.Binding
 
         public static Func<object, object> GetBinder(object model, string itemName, IMemberLocator memberLocator)
         {
-            var binder = lateBoundCache.GetOrAdd(Tuple.Create(model.GetType(), itemName), pair =>
+            var binder = LateBoundCache.GetOrAdd(Tuple.Create(model.GetType(), itemName), pair =>
             {
                 var type = pair.Item1;
                 var name = pair.Item2;

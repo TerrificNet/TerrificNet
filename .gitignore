@@ -162,3 +162,8 @@ packages
 !packages/repositories.config
 /.vs/config
 project.lock.json
+node_modules
+bower_components
+typings
+wwwroot
+built
