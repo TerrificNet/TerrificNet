@@ -8,16 +8,5 @@ namespace TerrificNet.Thtml.Parsing
         {
             ContentParts = contentParts;
         }
-
-        public override void Accept(INodeVisitor visitor)
-        {
-            if (!visitor.BeforeVisit(this))
-                return;
-
-            foreach (var part in ContentParts)
-                part.Accept(visitor);
-
-            visitor.AfterVisit(this);
-        }
     }
 }

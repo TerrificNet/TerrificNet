@@ -35,19 +35,5 @@ namespace TerrificNet.Thtml.Parsing
         public Element(string tagName, IEnumerable<ElementPart> attributes) : this(tagName, attributes, Enumerable.Empty<Node>())
         {
         }
-
-        public override void Accept(INodeVisitor visitor)
-        {
-            if (!visitor.BeforeVisit(this))
-                return;
-
-            foreach (var attribute in Attributes)
-                attribute.Accept(visitor);
-
-            foreach (var child in ChildNodes)
-                child.Accept(visitor);
-
-            visitor.AfterVisit(this);
-        }
     }
 }

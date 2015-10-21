@@ -66,7 +66,6 @@
     <Compile Include="Parsing\Handlebars\ExpressionVisitor.cs" />
     <Compile Include="Parsing\Handlebars\IExpressionVisitor.cs" />
     <Compile Include="Parsing\INodeVisitor.cs" />
-    <Compile Include="Parsing\NodeVisitor.cs" />
     <Compile Include="Parsing\Statement.cs" />
     <Compile Include="Parsing\AttributeStatement.cs" />
     <Compile Include="Parsing\CompositeAttributeContent.cs" />

@@ -9,7 +9,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder)
 		{
 			var visitor = new IlExpressionEmitNodeVisitor(dataBinder, helperBinder ?? new NullHelperBinder());
-			input.Accept(visitor);
+			visitor.Visit(input);
 			var action= visitor.Generate();
 
 			return new IlEmitterRunnable(action);

@@ -9,7 +9,7 @@ namespace TerrificNet.Thtml.Emit
         public IEmitterRunnable<VTree> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder)
         {
             var visitor = new EmitNodeVisitor(dataBinder, helperBinder ?? new NullHelperBinder());
-            input.Accept(visitor);
+			visitor.Visit(input);
             return visitor.DocumentFunc;
         }
     }

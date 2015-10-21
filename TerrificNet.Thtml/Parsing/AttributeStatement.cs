@@ -12,16 +12,5 @@ namespace TerrificNet.Thtml.Parsing
             Expression = expression;
             ChildNodes = childNodes;
         }
-
-        public override void Accept(INodeVisitor visitor)
-        {
-            if (!visitor.BeforeVisit(this))
-                return;
-
-            foreach (var child in ChildNodes)
-                child.Accept(visitor);
-
-            visitor.AfterVisit(this);
-        }
     }
 }

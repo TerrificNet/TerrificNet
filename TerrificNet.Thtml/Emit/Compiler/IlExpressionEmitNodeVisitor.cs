@@ -77,94 +77,23 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			parentScope.Elements.Add(exp);
 		}
 
+		public void Visit(Element element)
+		{
+			BeforeVisit(element);
+
+			foreach (var attribute in element.Attributes)
+				Visit(attribute);
+
+			foreach (var child in element.ChildNodes)
+				Visit(child);
+
+			AfterVisit(element);
+		}
+
 		public void Visit(ConstantAttributeContent attributeContent)
 		{
 			var scope = _scopes.Peek();
 			scope.Elements.Add((writer, d, rc) => writer.Write(attributeContent.Text));
-		}
-
-		public bool BeforeVisit(Statement statement)
-		{
-			var expression = statement.Expression;
-
-			var iterationExpression = expression as IterationExpression;
-			if (iterationExpression != null)
-			{
-				var scope = new Scope();
-				_scopes.Push(scope);
-
-				var visitor = new EmitExpressionVisitor(_dataBinder, new NullHelperBinder());
-				iterationExpression.Expression.Accept(visitor);
-
-				var context = _dataBinder.Context();
-				IEvaluator<IEnumerable> evaluator;
-				if (!context.TryCreateEvaluation(out evaluator))
-					return false;
-
-				Action<TextWriter, IDataContext, IRenderingContext> ext = (writer, dataContext, renderingContext) =>
-				{
-					var items = evaluator.Evaluate(dataContext);
-					foreach (var item in items)
-					{
-
-					}
-				};
-				scope.Elements.Add(ext);
-
-				//IEvaluator<string> evaluator;
-				//if (result.TryCreateEvaluation(out evaluator))
-				//{
-				//	scope.Elements.Add((writer, dataContext, renderingContext) =>
-				//	{
-				//		var value = evaluator.Evaluate(dataContext);
-				//		writer.Write(value);
-				//	});
-				//}
-			}
-
-			return true;
-		}
-
-		public void AfterVisit(Statement statement)
-		{
-			var scope = _scopes.Peek();
-			var expression = statement.Expression;
-
-			var iterationExpression = expression as IterationExpression;
-			if (iterationExpression != null)
-			{
-				throw new NotImplementedException();
-			}
-
-			var conditionalExpression = expression as ConditionalExpression;
-			if (conditionalExpression != null)
-			{
-				throw new NotImplementedException();
-			}
-
-			var callHelperExpression = expression as CallHelperExpression;
-			if (callHelperExpression != null)
-			{
-				throw new NotImplementedException();
-			}
-
-			var memberExpression = expression as MemberExpression;
-			if (memberExpression != null)
-			{
-				var result = _dataBinder.Property(memberExpression.Name);
-				IEvaluator<string> evaluator;
-				if (result.TryCreateEvaluation(out evaluator))
-				{
-					scope.Elements.Add((writer, dataContext, renderingContext) =>
-					{
-						var value = evaluator.Evaluate(dataContext);
-						writer.Write(value);
-					});
-				}
-				return;
-			}
-
-			throw new NotImplementedException();
 		}
 
 		public void Visit(TextNode textNode)
@@ -229,6 +158,106 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				Elements = new List<Action<TextWriter, IDataContext, IRenderingContext>>();
 				Attributes = new List<Tuple<Action<TextWriter, IDataContext, IRenderingContext>, Action<TextWriter, IDataContext, IRenderingContext>>>();
 			}
+		}
+
+		public void Visit(SyntaxNode node)
+		{
+			var document = node as Document;
+			if (document != null)
+			{
+				Visit(document);
+				return;
+			}
+
+			var statement = node as Statement;
+			if (statement != null)
+			{
+				Visit(statement);
+				return;
+			}
+
+			var textNode = node as TextNode;
+			if (textNode != null)
+			{
+				Visit(textNode);
+				return;
+			}
+
+			throw new NotImplementedException();
+		}
+
+		private void Visit(Document document)
+		{
+			_scopes.Push(new Scope());
+
+			foreach (var node in document.ChildNodes)
+			{
+				Visit(node);
+			}
+			throw new NotImplementedException();
+		}
+
+		private void Visit(Statement statement)
+		{
+			var expression = statement.Expression;
+
+			var iterationExpression = expression as IterationExpression;
+			if (iterationExpression != null)
+			{
+				var scope = new Scope();
+				_scopes.Push(scope);
+
+				var visitor = new EmitExpressionVisitor(_dataBinder, new NullHelperBinder());
+				iterationExpression.Expression.Accept(visitor);
+
+				var context = _dataBinder.Context();
+				IEvaluator<IEnumerable> evaluator;
+				if (!context.TryCreateEvaluation(out evaluator))
+					return;
+
+				Action<TextWriter, IDataContext, IRenderingContext> ext = (writer, dataContext, renderingContext) =>
+				{
+					var items = evaluator.Evaluate(dataContext);
+					foreach (var item in items)
+					{
+
+					}
+				};
+				scope.Elements.Add(ext);
+
+				//IEvaluator<string> evaluator;
+				//if (result.TryCreateEvaluation(out evaluator))
+				//{
+				//	scope.Elements.Add((writer, dataContext, renderingContext) =>
+				//	{
+				//		var value = evaluator.Evaluate(dataContext);
+				//		writer.Write(value);
+				//	});
+				//}
+			}
+
+			/////////////////////////////////////
+			foreach (var child in statement.ChildNodes)
+				Visit(child);
+
+			var memberExpression = expression as MemberExpression;
+			if (memberExpression != null)
+			{
+				var scope = _scopes.Peek();
+				var result = _dataBinder.Property(memberExpression.Name);
+				IEvaluator<string> evaluator;
+				if (result.TryCreateEvaluation(out evaluator))
+				{
+					scope.Elements.Add((writer, dataContext, renderingContext) =>
+					{
+						var value = evaluator.Evaluate(dataContext);
+						writer.Write(value);
+					});
+				}
+				return;
+			}
+
+			throw new NotImplementedException();
 		}
 	}
 }

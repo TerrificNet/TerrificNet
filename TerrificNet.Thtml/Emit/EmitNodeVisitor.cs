@@ -6,7 +6,7 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    internal class EmitNodeVisitor : NodeVisitor
+    internal class EmitNodeVisitor : INodeVisitor
     {
         private readonly EmitExpressionVisitor _expressionVisitor;
         private readonly Stack<List<IListEmitter<VTree>>> _elements = new Stack<List<IListEmitter<VTree>>>();
@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Emit
 
         private List<IListEmitter<VTree>> Scope => _elements.Peek();
 
-        private EmitNodeVisitor(EmitExpressionVisitor expressionVisitor) : base(expressionVisitor)
+        private EmitNodeVisitor(EmitExpressionVisitor expressionVisitor)
         {
             _expressionVisitor = expressionVisitor;
         }
@@ -24,72 +24,114 @@ namespace TerrificNet.Thtml.Emit
         {
         }
 
-        public IEmitterRunnable<VNode> DocumentFunc { get; private set; }
+		public void Visit(SyntaxNode node)
+		{
+			var element = node as Element;
+			if (element != null)
+			{
+				VisitElement(element);
+				return;
+			}
 
-        public override bool BeforeVisit(Element element)
-        {
-            EnterScope();
-            _properties.Push(new List<IListEmitter<VProperty>>());
-            return true;
-        }
+			var document = node as Document;
+			if (document != null)
+			{
+				VisitDocument(document);
+				return;
+			}
 
-        public override void AfterVisit(Element element)
-        {
-            var emitter = EmitterNode.Many(LeaveScope());
-            var attributeEmitter = EmitterNode.Many(_properties.Pop());
-            Scope.Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VElement(element.TagName, attributeEmitter.Execute(d, r), emitter.Execute(d, r)))));
-        }
+			var textNode = node as TextNode;
+			if (textNode != null)
+			{
+				VisitTextNode(textNode);
+                return;
+			}
 
-        public override void Visit(TextNode textNode)
+			var statement = node as Statement;
+			if (statement != null)
+			{
+				VisitStatement(statement);
+				return;
+			}
+
+			var attributeNode = node as AttributeNode;
+			if (attributeNode != null)
+			{
+				VisitAttributeNode(attributeNode);
+				return;
+			}
+
+			var attributeContentStatement = node as AttributeContentStatement;
+			if (attributeContentStatement != null)
+			{
+				VisitAttributeContentStatement(attributeContentStatement);
+				return;
+			}
+
+			var constantAttributeContent = node as ConstantAttributeContent;
+			if (constantAttributeContent != null)
+			{
+				VisitConstantAttributeContent(constantAttributeContent);
+				return;
+			}
+
+			throw new NotImplementedException();
+		}
+
+		public IEmitterRunnable<VNode> DocumentFunc { get; private set; }
+
+	    private void VisitElement(Element element)
+	    {
+			EnterScope();
+			_properties.Push(new List<IListEmitter<VProperty>>());
+
+		    foreach (var attribute in element.Attributes)
+		    {
+			    Visit(attribute);
+		    }
+		    foreach (var node in element.ChildNodes)
+		    {
+			    Visit(node);
+		    }
+
+			var emitter = EmitterNode.Many(LeaveScope());
+			var attributeEmitter = EmitterNode.Many(_properties.Pop());
+			Scope.Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VElement(element.TagName, attributeEmitter.Execute(d, r), emitter.Execute(d, r)))));
+		}
+		
+        private void VisitTextNode(TextNode textNode)
         {
             Scope.Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(textNode.Text))));
         }
 
-        public override bool BeforeVisit(Document document)
-        {
-            EnterScope();
-            return true;
-        }
+	    private void VisitStatement(Statement statement)
+	    {
+			_expressionVisitor.EnterScope(statement.Expression);
+			EnterScope();
 
-        public override void AfterVisit(Document document)
-        {
-            var emitter = EmitterNode.Many(LeaveScope());
-            DocumentFunc = EmitterNode.Lambda((d, r) => new VNode(emitter.Execute(d, r)));
-        }
+		    foreach (var childNode in statement.ChildNodes)
+		    {
+			    Visit(childNode);
+		    }
+			
+			var childEmitter = EmitterNode.Many(LeaveScope());
+			var listEmitter = _expressionVisitor.LeaveTreeScope(statement.Expression, childEmitter);
 
-        public override bool BeforeVisit(Statement statement)
-        {
-            _expressionVisitor.EnterScope(statement.Expression);
-            EnterScope();
+			Scope.Add(listEmitter);
+		}
 
-            return true;
-        }
+	    private void VisitAttributeNode(AttributeNode attributeNode)
+	    {
+			if (_propertyValueEmitter == null)
+				_propertyValueEmitter = EmitterNode.Lambda<VPropertyValue>((d, r) => null);
 
-        public override void AfterVisit(Statement statement)
-        {
-            var childEmitter = EmitterNode.Many(LeaveScope());
-            var listEmitter = _expressionVisitor.LeaveTreeScope(statement.Expression, childEmitter);
+			var valueEmitter = _propertyValueEmitter;
+			_properties.Peek().Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VProperty(attributeNode.Name, valueEmitter.Execute(d, r)))));
 
-            Scope.Add(listEmitter);
-        }
+			_propertyValueEmitter = null;
+		}
 
-        public override bool BeforeVisit(AttributeNode attributeNode)
-        {
-            return true;
-        }
-
-        public override void AfterVisit(AttributeNode attributeNode)
-        {
-            if (_propertyValueEmitter == null)
-                _propertyValueEmitter = EmitterNode.Lambda<VPropertyValue>((d, r) => null);
-
-            var valueEmitter = _propertyValueEmitter;
-            _properties.Peek().Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VProperty(attributeNode.Name, valueEmitter.Execute(d, r)))));
-
-            _propertyValueEmitter = null;
-        }
-
-        public override void Visit(AttributeContentStatement constantAttributeContent)
+        private void VisitAttributeContentStatement(AttributeContentStatement constantAttributeContent)
         {
             _expressionVisitor.EnterScope(constantAttributeContent.Expression);
             var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContent.Expression);
@@ -97,7 +139,7 @@ namespace TerrificNet.Thtml.Emit
             _propertyValueEmitter = EmitterNode.Lambda((d, r) => GetPropertyValue(emitter, d, r));
         }
 
-        public override void Visit(ConstantAttributeContent attributeContent)
+        private void VisitConstantAttributeContent(ConstantAttributeContent attributeContent)
         {
             _propertyValueEmitter = EmitterNode.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text));
         }
@@ -127,5 +169,17 @@ namespace TerrificNet.Thtml.Emit
             return _elements.Pop();
         }
 
+	    private void VisitDocument(Document document)
+	    {
+			EnterScope();
+
+		    foreach (var node in document.ChildNodes)
+		    {
+			    Visit(node);
+		    }
+
+			var emitter = EmitterNode.Many(LeaveScope());
+			DocumentFunc = EmitterNode.Lambda((d, r) => new VNode(emitter.Execute(d, r)));
+	    }
     }
 }
