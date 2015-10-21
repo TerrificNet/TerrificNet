@@ -4,13 +4,13 @@ using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class IlEmitter : IEmitter<Action<TextWriter>>
+	public class StreamEmitter : IEmitter<Action<TextWriter>>
 	{
 		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder)
 		{
 			var visitor = new IlExpressionEmitNodeVisitor(dataBinder, helperBinder ?? new NullHelperBinder());
 			visitor.Visit(input);
-			var action= visitor.Generate();
+			var action = visitor.Generate();
 
 			return new IlEmitterRunnable(action);
 		}

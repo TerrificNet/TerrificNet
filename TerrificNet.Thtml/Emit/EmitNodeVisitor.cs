@@ -15,103 +15,45 @@ namespace TerrificNet.Thtml.Emit
 
         private List<IListEmitter<VTree>> Scope => _elements.Peek();
 
-        private EmitNodeVisitor(EmitExpressionVisitor expressionVisitor)
+	    public EmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder) 
         {
-            _expressionVisitor = expressionVisitor;
-        }
-
-        public EmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder) : this(new EmitExpressionVisitor(dataBinder, helperBinder))
-        {
-        }
-
-		public void Visit(SyntaxNode node)
-		{
-			var element = node as Element;
-			if (element != null)
-			{
-				VisitElement(element);
-				return;
-			}
-
-			var document = node as Document;
-			if (document != null)
-			{
-				VisitDocument(document);
-				return;
-			}
-
-			var textNode = node as TextNode;
-			if (textNode != null)
-			{
-				VisitTextNode(textNode);
-                return;
-			}
-
-			var statement = node as Statement;
-			if (statement != null)
-			{
-				VisitStatement(statement);
-				return;
-			}
-
-			var attributeNode = node as AttributeNode;
-			if (attributeNode != null)
-			{
-				VisitAttributeNode(attributeNode);
-				return;
-			}
-
-			var attributeContentStatement = node as AttributeContentStatement;
-			if (attributeContentStatement != null)
-			{
-				VisitAttributeContentStatement(attributeContentStatement);
-				return;
-			}
-
-			var constantAttributeContent = node as ConstantAttributeContent;
-			if (constantAttributeContent != null)
-			{
-				VisitConstantAttributeContent(constantAttributeContent);
-				return;
-			}
-
-			throw new NotImplementedException();
+			_expressionVisitor = new EmitExpressionVisitor(dataBinder, helperBinder);
 		}
 
 		public IEmitterRunnable<VNode> DocumentFunc { get; private set; }
 
-	    private void VisitElement(Element element)
+		public void Visit(Element element)
 	    {
 			EnterScope();
 			_properties.Push(new List<IListEmitter<VProperty>>());
 
 		    foreach (var attribute in element.Attributes)
 		    {
-			    Visit(attribute);
+				attribute.Accept(this);
 		    }
 		    foreach (var node in element.ChildNodes)
 		    {
-			    Visit(node);
+				node.Accept(this);
 		    }
 
 			var emitter = EmitterNode.Many(LeaveScope());
 			var attributeEmitter = EmitterNode.Many(_properties.Pop());
 			Scope.Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VElement(element.TagName, attributeEmitter.Execute(d, r), emitter.Execute(d, r)))));
 		}
-		
-        private void VisitTextNode(TextNode textNode)
+
+		public void Visit(TextNode textNode)
         {
             Scope.Add(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(textNode.Text))));
         }
 
-	    private void VisitStatement(Statement statement)
+		public void Visit(Statement statement)
 	    {
 			_expressionVisitor.EnterScope(statement.Expression);
 			EnterScope();
 
 		    foreach (var childNode in statement.ChildNodes)
 		    {
-			    Visit(childNode);
+				childNode.Accept(this);
 		    }
 			
 			var childEmitter = EmitterNode.Many(LeaveScope());
@@ -120,8 +62,10 @@ namespace TerrificNet.Thtml.Emit
 			Scope.Add(listEmitter);
 		}
 
-	    private void VisitAttributeNode(AttributeNode attributeNode)
+		public void Visit(AttributeNode attributeNode)
 	    {
+			attributeNode.Value.Accept(this);
+
 			if (_propertyValueEmitter == null)
 				_propertyValueEmitter = EmitterNode.Lambda<VPropertyValue>((d, r) => null);
 
@@ -131,7 +75,7 @@ namespace TerrificNet.Thtml.Emit
 			_propertyValueEmitter = null;
 		}
 
-        private void VisitAttributeContentStatement(AttributeContentStatement constantAttributeContent)
+		public void Visit(AttributeContentStatement constantAttributeContent)
         {
             _expressionVisitor.EnterScope(constantAttributeContent.Expression);
             var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContent.Expression);
@@ -139,7 +83,7 @@ namespace TerrificNet.Thtml.Emit
             _propertyValueEmitter = EmitterNode.Lambda((d, r) => GetPropertyValue(emitter, d, r));
         }
 
-        private void VisitConstantAttributeContent(ConstantAttributeContent attributeContent)
+		public void Visit(ConstantAttributeContent attributeContent)
         {
             _propertyValueEmitter = EmitterNode.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text));
         }
@@ -169,13 +113,13 @@ namespace TerrificNet.Thtml.Emit
             return _elements.Pop();
         }
 
-	    private void VisitDocument(Document document)
+	    public void Visit(Document document)
 	    {
 			EnterScope();
 
 		    foreach (var node in document.ChildNodes)
 		    {
-			    Visit(node);
+			    node.Accept(this);
 		    }
 
 			var emitter = EmitterNode.Many(LeaveScope());

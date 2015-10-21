@@ -13,5 +13,10 @@ namespace TerrificNet.Thtml.Parsing
 			Expression = expression;
 			Children = children ?? new AttributeContent[0];
 		}
+
+		public override void Accept(INodeVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 	}
 }

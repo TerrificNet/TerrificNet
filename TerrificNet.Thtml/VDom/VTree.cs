@@ -63,7 +63,7 @@ namespace TerrificNet.Thtml.VDom
 
                 foreach (var child in vElement.Children)
                 {
-                    child.Accept(this);
+					child.Accept(this);
                 }
 
                 _textWriter.Write("</");

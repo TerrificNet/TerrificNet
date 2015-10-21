@@ -17,7 +17,7 @@ namespace TerrificNet.Thtml.Test
 		[MemberData("TestData")]
 		public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, string expected, IHelperBinder helperBinder)
 		{
-			var compiler = new IlEmitter();
+			var compiler = new StreamEmitter();
 			var method = compiler.Emit(input, dataBinder, helperBinder);
 
 			var sb = new StringBuilder();
@@ -81,7 +81,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				var obj2 = new
+				/*var obj2 = new
 				{
 					Items = new[] { new Dummy { Name = "test1" }, new Dummy { Name = "test2" } }
 				};
@@ -150,7 +150,7 @@ namespace TerrificNet.Thtml.Test
 					obj3,
 					"<h1>helper output</h1>",
                     new HelperBinderMock(helper)
-                };
+                };*/
 			}
 		}
 	}

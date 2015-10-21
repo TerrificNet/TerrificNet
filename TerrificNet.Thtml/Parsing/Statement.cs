@@ -11,7 +11,11 @@ namespace TerrificNet.Thtml.Parsing
         }
 
         public MustacheExpression Expression { get; }
-
         public Node[] ChildNodes { get; }
+	    
+		public override void Accept(INodeVisitor visitor)
+	    {
+		    visitor.Visit(this);
+	    }
     }
 }

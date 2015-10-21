@@ -8,5 +8,9 @@ namespace TerrificNet.Thtml.Parsing
         {
             ContentParts = contentParts;
         }
+
+	    public override void Accept(INodeVisitor visitor)
+	    {
+	    }
     }
 }

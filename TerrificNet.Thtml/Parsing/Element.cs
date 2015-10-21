@@ -35,5 +35,10 @@ namespace TerrificNet.Thtml.Parsing
         public Element(string tagName, IEnumerable<ElementPart> attributes) : this(tagName, attributes, Enumerable.Empty<Node>())
         {
         }
+
+	    public override void Accept(INodeVisitor visitor)
+	    {
+			visitor.Visit(this);
+	    }
     }
 }

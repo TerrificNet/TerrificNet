@@ -41,7 +41,7 @@
     <Compile Include="Binding\TypeExtensions.cs" />
     <Compile Include="Binding\TypeHelperBinder.cs" />
     <Compile Include="Emit\Compiler\IlExpressionEmitNodeVisitor.cs" />
-    <Compile Include="Emit\Compiler\IlEmitter.cs" />
+    <Compile Include="Emit\Compiler\StreamEmitter.cs" />
     <Compile Include="Emit\DataBinder.cs" />
     <Compile Include="Emit\DynamicDataBinder.cs" />
     <Compile Include="Emit\EmitExpressionVisitor.cs" />
@@ -65,6 +65,7 @@
     <Compile Include="Parsing\AttributeContent.cs" />
     <Compile Include="Parsing\Handlebars\ExpressionVisitor.cs" />
     <Compile Include="Parsing\Handlebars\IExpressionVisitor.cs" />
+    <Compile Include="Parsing\HtmlNode.cs" />
     <Compile Include="Parsing\INodeVisitor.cs" />
     <Compile Include="Parsing\Statement.cs" />
     <Compile Include="Parsing\AttributeStatement.cs" />
