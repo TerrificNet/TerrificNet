@@ -6,8 +6,8 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>d173ee32-1b20-4619-a2ed-300cd413e4c9</ProjectGuid>
-    <RootNamespace>TerrificNet.Thtml.Test</RootNamespace>
+    <ProjectGuid>ac170ec1-5c09-4355-b07d-82d5a329f27c</ProjectGuid>
+    <RootNamespace>TerrificNet.Client</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">..\..\artifacts\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">..\..\artifacts\bin\$(MSBuildProjectName)\</OutputPath>
   </PropertyGroup>
@@ -17,6 +17,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <DnxInvisibleFolder Include="bower_components\" />
+    <DnxInvisibleFolder Include="built\" />
+    <DnxInvisibleFolder Include="typings\" />
+    <DnxInvisibleFolder Include="wwwroot\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>
