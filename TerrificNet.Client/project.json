@@ -5,8 +5,16 @@
   "description": "TerrificNet",
   "exclude": ["bower_components", "node_modules"],
   "dependencies": {
-    "Microsoft.AspNet.Http": "1.0.0-beta8"
+    "Microsoft.AspNet.Http": "1.0.0-beta8",
+    "Microsoft.AspNet.Mvc": "6.0.0-beta8",
+    "Microsoft.AspNet.Hosting": "1.0.0-beta8",
+    "Microsoft.AspNet.Server.Kestrel": "1.0.0-beta8",
+    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8"
   },
+  "commands": {
+    "web ": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
+    "kestrel" : "Microsoft.AspNet.Hosting --server Kestrel --server.urls http://localhost:5004"
+    },
   "frameworks": {
     "dnx451": { },
     "dnxcore50": {
