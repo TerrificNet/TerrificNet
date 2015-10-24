@@ -20,5 +20,7 @@ namespace TerrificNet.Thtml.VDom
         {
             visitor.Visit(this);
         }
+
+        public override string Type => "VirtualNode";
     }
 }

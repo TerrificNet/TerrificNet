@@ -35,7 +35,7 @@ namespace TerrificNet.Thtml.Test.Asserts
         {
             Assert.Equal(expected.TagName, result.TagName);
             AssertCollection(expected.Children, result.Children, AssertTree);
-            AssertCollection(expected.Properties, result.Properties, AssertProperty);
+            AssertCollection(expected.PropertyList, result.PropertyList, AssertProperty);
         }
 
         private static void AssertProperty(VProperty expected, VProperty actual)

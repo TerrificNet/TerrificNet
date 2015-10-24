@@ -12,7 +12,7 @@ namespace TerrificNet.Thtml.VDom
         public VElement(string tagName, IEnumerable<VProperty> properties, IEnumerable<VTree> children) : base(children)
         {
             TagName = tagName;
-            Properties = properties?.ToList() ?? new List<VProperty>();
+            PropertyList = properties?.ToList() ?? new List<VProperty>();
         }
 
         public VElement(string tagName, IEnumerable<VProperty> properties, params VTree[] children) : this(tagName, properties, (IEnumerable<VTree>)children)
@@ -21,7 +21,12 @@ namespace TerrificNet.Thtml.VDom
 
         public string TagName { get; }
 
-        public IReadOnlyList<VProperty> Properties { get; }
+        internal IReadOnlyList<VProperty> PropertyList { get; }
+
+        public Dictionary<string, object> Properties
+        {
+            get { return PropertyList.ToDictionary(d => d.Name, d => d.Value.GetValue()); }
+        }
 
         public override void Accept(IVTreeVisitor visitor)
         {
