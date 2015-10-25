@@ -73,7 +73,6 @@
     <Compile Include="Asserts\VTreeAsserts.cs" />
     <Compile Include="EmitterTest.cs" />
     <Compile Include="HandlebarsParserTest.cs" />
-    <Compile Include="IlEmitterTest.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="NullDataBinder.cs" />
     <Compile Include="ParserTest.cs" />

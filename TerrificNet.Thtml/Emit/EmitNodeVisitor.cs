@@ -67,8 +67,6 @@ namespace TerrificNet.Thtml.Emit
 			var childEmitter = EmitterNode.Many(LeaveScope());
 			_dataBinderStack.Pop();
 
-			//var listEmitter = _expressionVisitor.GetEmitter();
-			//var listEmitter = _expressionVisitor.LeaveTreeScope(statement.Expression, childEmitter);
 			IEvaluator<IEnumerable> evaluator;
 			if (TryGetEvaluator(statement.Expression, out evaluator))
 			{
@@ -96,7 +94,8 @@ namespace TerrificNet.Thtml.Emit
 		public void Visit(AttributeContentStatement constantAttributeContent)
 		{
 			constantAttributeContent.Expression.Accept(this);
-			//var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContent.Expression);
+
+			//var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContkent.Expression);
 			//constantAttributeContent.Expression.AcceptLeave(_expressionVisitor, null);
 			//var emitter = _expressionVisitor.GetPropertyValueEmitter();
 
