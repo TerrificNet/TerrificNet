@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.VDom;
+
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
     public class CallHelperExpression : MustacheExpression
@@ -11,9 +15,9 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             Attributes = attributes;
         }
 
-        public override void Accept(IExpressionVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
+	    public override void Accept(INodeVisitor visitor)
+	    {
+		    visitor.Visit(this);
+	    }
     }
 }

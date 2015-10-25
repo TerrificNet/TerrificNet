@@ -7,174 +7,201 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class EmitExpressionVisitor : ExpressionVisitor
-    {
-        private readonly IHelperBinder _helperBinder;
-        private readonly Stack<IDataBinder> _dataBinderStack = new Stack<IDataBinder>();
-        private IDataBinder Scope => _dataBinderStack.Peek();
+	public class EmitExpressionVisitor : IExpressionVisitor
+	{
+		private readonly IHelperBinder _helperBinder;
+		private readonly Stack<IDataBinder> _dataBinderStack = new Stack<IDataBinder>();
+		private IListEmitter<object> _listEmitter;
+		private IDataBinder Scope => _dataBinderStack.Peek();
 
-        private IDataBinder Value { get; set; }
+		private IDataBinder Value { get; set; }
 
-        public EmitExpressionVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
-        {
-            _helperBinder = helperBinder;
-            _dataBinderStack.Push(dataBinder.Context());
-            Value = Scope;
-        }
+		public EmitExpressionVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
+		{
+			_helperBinder = helperBinder;
+			_dataBinderStack.Push(dataBinder.Context());
+			Value = Scope;
+		}
 
-        public override bool BeforeVisit(MemberExpression memberExpression)
-        {
-            if (memberExpression.Name == "this")
-                Value = Scope;
-            else
-                Value = Scope.Property(memberExpression.Name);
+		public void Visit(CallHelperExpression callHelperExpression)
+		{
+		}
 
-            return false;
-        }
+		public void Visit(IterationExpression iterationExpression)
+		{
+			//iterationExpression.Expression.Accept(this);
+			_dataBinderStack.Push(Value.Item());
+		}
+		
+		private void VisitAfter(IterationExpression iterationExpression)
+		{
+			_dataBinderStack.Pop();
+			//iterationExpression.Expression.Accept(this);
 
-        public void EnterScope(MustacheExpression expression)
-        {
-            var iterationExpression = expression as IterationExpression;
-            if (iterationExpression != null)
-            {
-                expression = iterationExpression.Expression;
+			IEvaluator<IEnumerable> evaluator;
+			if (!TryGetEvaluator(iterationExpression.Expression, out evaluator))
+				throw new Exception("Expect a enumerable as result");
 
-                expression.Accept(this);
-                _dataBinderStack.Push(Value.Item());
-            }
-            else
-            {
-                expression.Accept(this);
-                //_dataBinder.Push(Value);
-            }
-        }
+			//_listEmitter = EmitterNode.Iterator(d => evaluator.Evaluate(d), children);
+		}
 
-        public IListEmitter<VTree> LeaveTreeScope(MustacheExpression expression, IListEmitter<VTree> children)
-        {
-            return LeaveScope(expression, children, TryConvertStringToVText, TryConvertVText);
-        }
+		public void Visit(ConditionalExpression conditionalExpression)
+		{
+			//conditionalExpression.Expression.Accept(this);
+		}
+		
 
-        public IListEmitter<VPropertyValue> LeavePropertyValueScope(MustacheExpression expression)
-        {
-            return LeaveScope(expression, null, TryConvertStringToVPropertyValue);
-        }
+		public void Visit(UnconvertedExpression unconvertedExpression)
+		{
+			//unconvertedExpression.Expression.Accept(this);
+		}
 
-        private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
-        {
-            IEvaluator<string> evaluator;
-            if (!TryGetEvaluator(expression, out evaluator))
-                return null;
+		public void Visit(MemberExpression memberExpression)
+		{
+			if (memberExpression.Name == "this")
+				Value = Scope;
+			else
+				Value = Scope.Property(memberExpression.Name);
 
-            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
-        }
+			//memberExpression.SubExpression?.Accept(this);
+		}
+		
+		//public IListEmitter<VTree> LeaveTreeScope(MustacheExpression expression, IListEmitter<VTree> children)
+		//{
+		//	return LeaveScope(expression, children, TryConvertStringToVText, TryConvertVText);
+		//}
 
-        private bool TryGetEvaluator<T>(MustacheExpression expression, out IEvaluator<T> evaluator)
-        {
-            if (!Value.TryCreateEvaluation(out evaluator))
-                return false;
+		//public IListEmitter<VPropertyValue> LeavePropertyValueScope(MustacheExpression expression)
+		//{
+		//	return LeaveScope(expression, null, TryConvertStringToVPropertyValue);
+		//}
 
-            evaluator = ExceptionDecorator(evaluator, expression);
-            return true;
-        }
+		private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
+		{
+			IEvaluator<string> evaluator;
+			if (!TryGetEvaluator(expression, out evaluator))
+				return null;
 
-        private IListEmitter<T> LeaveScope<T>(MustacheExpression expression, IListEmitter<T> children, params Func<MustacheExpression, IListEmitter<T>>[] converters)
-        {
-            var iterationExpression = expression as IterationExpression;
-            if (iterationExpression != null)
-            {
-                _dataBinderStack.Pop();
-                iterationExpression.Expression.Accept(this);
+			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
+		}
 
-                IEvaluator<IEnumerable> evaluator;
-                if (!TryGetEvaluator(expression, out evaluator))
-                    throw new Exception("Expect a enumerable as result");
+		private bool TryGetEvaluator<T>(MustacheExpression expression, out IEvaluator<T> evaluator)
+		{
+			if (!Value.TryCreateEvaluation(out evaluator))
+				return false;
 
-                return EmitterNode.Iterator(d => evaluator.Evaluate(d), children);                
-            }
+			evaluator = ExceptionDecorator(evaluator, expression);
+			return true;
+		}
 
-            var conditionalExpression = expression as ConditionalExpression;
-            if (conditionalExpression != null)
-            {
-                conditionalExpression.Expression.Accept(this);
+		private IListEmitter<T> LeaveScope<T>(MustacheExpression expression, IListEmitter<T> children, params Func<MustacheExpression, IListEmitter<T>>[] converters)
+		{
+			var iterationExpression = expression as IterationExpression;
+			if (iterationExpression != null)
+			{
+				_dataBinderStack.Pop();
+				//iterationExpression.Expression.Accept(this);
 
-                IEvaluator<bool> evaluator;
-                if (!TryGetEvaluator(expression, out evaluator))
-                    throw new Exception("Expect a boolean as result");
+				IEvaluator<IEnumerable> evaluator;
+				if (!TryGetEvaluator(expression, out evaluator))
+					throw new Exception("Expect a enumerable as result");
 
-                return EmitterNode.Condition(d => evaluator.Evaluate(d), children);
-            }
+				return EmitterNode.Iterator(d => evaluator.Evaluate(d), children);
+			}
 
-            var callHelperExpression = expression as CallHelperExpression;
-            if (callHelperExpression != null)
-            {
-                var result = _helperBinder.FindByName(callHelperExpression.Name, CreateDictionaryFromArguments(callHelperExpression.Attributes));
-                if (result == null)
-                    throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
+			var conditionalExpression = expression as ConditionalExpression;
+			if (conditionalExpression != null)
+			{
+				//conditionalExpression.Expression.Accept(this);
 
-                var evaluation = result.CreateEmitter(children, _helperBinder, Scope);
-                return evaluation;
-            }
+				IEvaluator<bool> evaluator;
+				if (!TryGetEvaluator(expression, out evaluator))
+					throw new Exception("Expect a boolean as result");
 
-            foreach (var converter in converters)
-            {
-                IListEmitter<T> leaveScope;
-                if ((leaveScope = converter(expression)) != null)
-                    return leaveScope;
-            }
+				return EmitterNode.Condition(d => evaluator.Evaluate(d), children);
+			}
 
-            throw new Exception("Expect a VText or string as result");
-        }
+			var callHelperExpression = expression as CallHelperExpression;
+			if (callHelperExpression != null)
+			{
+				var result = _helperBinder.FindByName(callHelperExpression.Name, CreateDictionaryFromArguments(callHelperExpression.Attributes));
+				if (result == null)
+					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-        private IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
-        {
-            return attributes.ToDictionary(d => d.Name, d => d.Value);
-        }
+				var evaluation = result.CreateEmitter(children, _helperBinder, Scope);
+				return evaluation;
+			}
 
-        private IListEmitter<VText> TryConvertVText(MustacheExpression expression)
-        {
-            IEvaluator<VText> evaluator;
-            if (!TryGetEvaluator(expression, out evaluator))
-                return null;
+			foreach (var converter in converters)
+			{
+				IListEmitter<T> leaveScope;
+				if ((leaveScope = converter(expression)) != null)
+					return leaveScope;
+			}
 
-            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => evaluator.Evaluate(d)));
-        }
+			throw new Exception("Expect a VText or string as result");
+		}
 
-        private IListEmitter<VText> TryConvertStringToVText(MustacheExpression expression)
-        {
-            IEvaluator<string> evaluator;
-            if (!TryGetEvaluator(expression, out evaluator))
-                return null;
+		private IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
+		{
+			return attributes.ToDictionary(d => d.Name, d => d.Value);
+		}
 
-            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
-        }
+		private IListEmitter<VText> TryConvertVText(MustacheExpression expression)
+		{
+			IEvaluator<VText> evaluator;
+			if (!TryGetEvaluator(expression, out evaluator))
+				return null;
 
-        private static IEvaluator<T> ExceptionDecorator<T>(IEvaluator<T> createEvaluation, MustacheExpression expression)
-        {
-            return new ExceptionWrapperEvaluator<T>(createEvaluation, expression);
-        }
+			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => evaluator.Evaluate(d)));
+		}
 
-        private class ExceptionWrapperEvaluator<T> : IEvaluator<T>
-        {
-            private readonly IEvaluator<T> _evaluator;
-            private readonly MustacheExpression _expression;
+		private IListEmitter<VText> TryConvertStringToVText(MustacheExpression expression)
+		{
+			IEvaluator<string> evaluator;
+			if (!TryGetEvaluator(expression, out evaluator))
+				return null;
 
-            public ExceptionWrapperEvaluator(IEvaluator<T> evaluator, MustacheExpression expression)
-            {
-                _evaluator = evaluator;
-                _expression = expression;
-            }
+			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
+		}
 
-            public T Evaluate(IDataContext context)
-            {
-                try
-                {
-                    return _evaluator.Evaluate(context);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Exception on executing expression {_expression}", ex);
-                }
-            }
-        }
-    }
+		private static IEvaluator<T> ExceptionDecorator<T>(IEvaluator<T> createEvaluation, MustacheExpression expression)
+		{
+			return new ExceptionWrapperEvaluator<T>(createEvaluation, expression);
+		}
+
+		private class ExceptionWrapperEvaluator<T> : IEvaluator<T>
+		{
+			private readonly IEvaluator<T> _evaluator;
+			private readonly MustacheExpression _expression;
+
+			public ExceptionWrapperEvaluator(IEvaluator<T> evaluator, MustacheExpression expression)
+			{
+				_evaluator = evaluator;
+				_expression = expression;
+			}
+
+			public T Evaluate(IDataContext context)
+			{
+				try
+				{
+					return _evaluator.Evaluate(context);
+				}
+				catch (Exception ex)
+				{
+					throw new Exception($"Exception on executing expression {_expression}", ex);
+				}
+			}
+		}
+
+		public IListEmitter<VTree> GetEmitter()
+		{
+			throw new NotImplementedException();
+		}
+
+		public IListEmitter<VPropertyValue> GetPropertyValueEmitter()
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

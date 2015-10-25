@@ -89,18 +89,41 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			}
 		}
 
+		public void Visit(CallHelperExpression callHelperExpression)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Visit(UnconvertedExpression unconvertedExpression)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Visit(IterationExpression iterationExpression)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Visit(ConditionalExpression conditionalExpression)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Visit(MemberExpression memberExpression)
+		{
+			throw new NotImplementedException();
+		}
+
 		public void Visit(Statement statement)
 		{
-			_expressionVisitor.EnterScope(statement.Expression);
+			statement.Expression.Accept(this);
 			_scopes.Push(new ScopeItem());
 
 			foreach (var childNode in statement.ChildNodes)
 			{
 				childNode.Accept(this);
 			}
-
-			var childScope = _scopes.Pop();
-			var listEmitter = _expressionVisitor.LeaveTreeScope(statement.Expression, null);
+			
 		}
 
 		private class ScopeItem

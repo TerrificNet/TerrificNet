@@ -51,17 +51,20 @@ namespace TerrificNet.Thtml.Emit
         {
             evaluationFunc = null;
 
+			if (typeof(T) == ResultType)
+			{
+				evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
+				return true;
+			}
+
 			if (typeof(T) == typeof(IEnumerable))
             {
 				if (!typeof(IEnumerable).IsAssignableFrom(ResultType))
                     return false;
 
-                evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
-                return true;
-            }
+	            if (typeof (string).IsAssignableFrom(ResultType))
+		            return false;
 
-			if (typeof(T) == ResultType)
-            {
                 evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
                 return true;
             }

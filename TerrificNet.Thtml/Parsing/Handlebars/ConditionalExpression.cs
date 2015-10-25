@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.VDom;
+
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
     public class ConditionalExpression : MustacheExpression
@@ -9,14 +13,9 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             Expression = expression;
         }
 
-        public override void Accept(IExpressionVisitor visitor)
-        {
-            if (!visitor.BeforeVisit(this))
-                return;
-
-            Expression.Accept(visitor);
-
-            visitor.AfterVisit(this);
-        }
+	    public override void Accept(INodeVisitor visitor)
+	    {
+			visitor.Visit(this);
+		}
     }
 }

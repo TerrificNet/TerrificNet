@@ -70,7 +70,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				var obj = new { Name = "hallo" };
+				var obj = new Dummy { Name = "hallo" };
 				yield return new object[]
 				{
 					"one element with dynamic expression",
@@ -85,7 +85,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				var obj2 = new
+				var obj2 = new DummyCollection
 				{
 					Items = new[] { new Dummy { Name = "test1" }, new Dummy { Name = "test2" } }
 				};
@@ -96,8 +96,8 @@ namespace TerrificNet.Thtml.Test
 						new Element("h1",
 							new Statement(
 								new IterationExpression(new MemberExpression("items")),
-							new Element("div",
-								new Statement(new MemberExpression("name")))))),
+								new Element("div",
+									new Statement(new MemberExpression("name")))))),
 					TypeDataBinder.BinderFromObject(obj2),
 					obj2,
 					new VNode(
@@ -109,7 +109,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				var obj3 = new { Name = "value" };
+				/*var obj3 = new Dummy { Name = "value" };
 				yield return new object[]
 				{
 					"one element with attribute expression",
@@ -163,7 +163,7 @@ namespace TerrificNet.Thtml.Test
 					new VNode(
 						new VElement("h1", new VText("helper output"))),
 					new HelperBinderMock(helper)
-				};
+				};*/
 			}
 		}
 	}
@@ -201,5 +201,10 @@ namespace TerrificNet.Thtml.Test
 	public class Dummy
 	{
 		public string Name { get; set; }
+	}
+
+	public class DummyCollection
+	{
+		public IEnumerable<Dummy> Items { get; set; }
 	}
 }

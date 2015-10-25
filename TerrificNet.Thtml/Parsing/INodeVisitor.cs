@@ -1,3 +1,5 @@
+using TerrificNet.Thtml.Parsing.Handlebars;
+
 namespace TerrificNet.Thtml.Parsing
 {
     public interface INodeVisitor
@@ -9,5 +11,11 @@ namespace TerrificNet.Thtml.Parsing
 	    void Visit(AttributeContentStatement constantAttributeContent);
 	    void Visit(ConstantAttributeContent attributeContent);
 	    void Visit(Document document);
-    }
+
+	    void Visit(CallHelperExpression callHelperExpression);
+		void Visit(UnconvertedExpression unconvertedExpression);
+		void Visit(IterationExpression iterationExpression);
+		void Visit(ConditionalExpression conditionalExpression);
+		void Visit(MemberExpression memberExpression);
+	}
 }

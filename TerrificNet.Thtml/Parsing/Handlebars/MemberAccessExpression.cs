@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.VDom;
+
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
     public class MemberExpression : MustacheExpression
@@ -17,14 +21,9 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
             SubExpression = subExpression;
         }
 
-        public override void Accept(IExpressionVisitor visitor)
+        public override void Accept(INodeVisitor visitor)
         {
-            if (!visitor.BeforeVisit(this))
-                return;
-
-            SubExpression?.Accept(visitor);
-
-            visitor.AfterVisit(this);
+			visitor.Visit(this);
         }
     }
 }

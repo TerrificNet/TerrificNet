@@ -63,7 +63,6 @@
     <Compile Include="LexicalAnalysis\CommonGrammar.cs" />
     <Compile Include="LexicalAnalysis\HandlebarsGrammar.cs" />
     <Compile Include="Parsing\AttributeContent.cs" />
-    <Compile Include="Parsing\Handlebars\ExpressionVisitor.cs" />
     <Compile Include="Parsing\Handlebars\IExpressionVisitor.cs" />
     <Compile Include="Parsing\HtmlNode.cs" />
     <Compile Include="Parsing\INodeVisitor.cs" />
