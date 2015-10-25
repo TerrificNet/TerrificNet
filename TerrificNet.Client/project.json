@@ -10,6 +10,7 @@
     "Microsoft.AspNet.Hosting": "1.0.0-beta8",
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-beta8",
     "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8",
+    "Microsoft.AspNet.Cors": "6.0.0-beta8",
     "TerrificNet.Thtml": "0.1-*"
   },
   "commands": {

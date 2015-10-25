@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Microsoft.AspNet.Mvc;
+using Newtonsoft.Json.Linq;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
@@ -11,12 +12,12 @@ namespace TerrificNet.Client.test
     [Route("test")]
     public class TestController : Controller
     {
-        [HttpGet]
-        public IActionResult Get(string template)
+        [HttpPost]
+        public IActionResult Get([FromQuery] string template, [FromBody] JToken obj)
         {
             var emitter = CreateEmitter(new DynamicDataBinder(), new NullHelperBinder(), template);
 
-            var vTree = emitter.Execute(new ObjectDataContext(null), null);
+            var vTree = emitter.Execute(new ObjectDataContext(obj), null);
             return new ObjectResult(vTree);
         }
 
