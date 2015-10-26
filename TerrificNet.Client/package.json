@@ -21,7 +21,10 @@
     "browserify": "^11.2.0",
     "vinyl-transform": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
+    "tsify": "^0.12.2",
+    "vinyl-buffer": "^1.0.0",
     "tsd": "^0.6.5",
+    "es6-promise": "^3.0.2",
     "gulp-tsd": "^0.0.4",
     "phantomjs": "^1.9.18"
   }

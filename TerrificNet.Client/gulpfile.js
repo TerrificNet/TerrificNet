@@ -8,9 +8,11 @@ var jasmineBrowser = require('gulp-jasmine-browser');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var transform = require('vinyl-transform');
+var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var dnx = require('gulp-dnx');
 var del = require('del');
+var tsify = require('tsify');
 
 var srcProject = tsc.createProject({
     target: "es5",
@@ -76,12 +78,16 @@ gulp.task('restore', ['tsd', 'bower']);
 
 
 gulp.task('bundle_js', ['compile'], function () {
-    var props = { entries: [config.out + "/test/integrationtest.js"], debug: true };
-    var bundler = browserify(props);
+    var props = { entries: ["./test/integrationtest.ts"], debug: true };
+    var bundler = browserify(props).plugin(tsify);
     var stream = bundler.bundle();
     return stream
-        .pipe(source(config.out + "/test/bundle.js"))
-        .pipe(gulp.dest("."));
+        .pipe(source("bundle.js"))
+        //.pipe(buffer())
+        //.pipe(sourcemaps.init({ loadMaps: true }))
+        //.pipe(uglify())
+        //.pipe(sourcemaps.write("./"))
+        .pipe(gulp.dest(config.out + "/test/"));
 
     //var browserified = transform(function (filename) {
     //    var b = browserify(filename);

@@ -23,9 +23,15 @@ namespace TerrificNet.Thtml.VDom
 
         internal IReadOnlyList<VProperty> PropertyList { get; }
 
-        public Dictionary<string, object> Properties
+        public Dictionary<string, Dictionary<string, object>> Properties
         {
-            get { return PropertyList.ToDictionary(d => d.Name, d => d.Value.GetValue()); }
+            get
+            {
+                return new Dictionary<string, Dictionary<string, object>>
+                {
+                    { "attributes", PropertyList.ToDictionary(d => d.Name, d => d.Value.GetValue()) }
+                };
+            }
         }
 
         public override void Accept(IVTreeVisitor visitor)

@@ -5,5 +5,5 @@
     "sourceMap": true,
     "noImplicitAny": true
   },
-  "files": [ "test/integrationtest.ts" ]
+  "files": [ "test/integrationtest.ts", "src/request.ts", "src/view.ts" ]
 }
