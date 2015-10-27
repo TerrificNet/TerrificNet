@@ -7,25 +7,28 @@ import patch = require("virtual-dom/patch");
 
 export class View {
     private tree: VTree;
-    private _node: HTMLElement;
+    private currentNode: HTMLElement;
 
     constructor(node: HTMLElement, tree: VTree) {
-        this._node = node;
+        this.currentNode = node;
         this.tree = tree;
     }
 
     get node(): HTMLElement {
-        return this._node;
+        return this.currentNode;
     }
 
     update(treeCurrent: VNode) {
-        var patches = diff(this.tree, treeCurrent.children[0]);
+        const patches = diff(this.tree, treeCurrent.children[0]);
         this.tree = treeCurrent.children[0];
-        this._node = <HTMLElement>patch(this._node, patches);
+        this.currentNode = <HTMLElement>patch(this.currentNode, patches);
     }
 
-    updateAsync(treePromise: Promise<VNode>): Promise<void> {
-        return treePromise.then((treeResult: VNode) => this.update(treeResult));
+    updateAsync(treePromise: Promise<VNode>): Promise<View> {
+        return treePromise.then((treeResult: VNode) => {
+            this.update(treeResult);
+            return this;
+        });
     }
 
     static createFromVDom(treePromise: Promise<VNode>): Promise<View> {

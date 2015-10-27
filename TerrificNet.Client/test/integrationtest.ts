@@ -2,7 +2,14 @@
 /// <reference path="../typings_custom/virtual-dom.d.ts" />
 
 import thtml = require("../src/view");
-import http = require("../src/request");
+import http = require("../src/http");
+
+function handleFail(done: () => void) : (data:any) => void {
+    return data => {
+        fail(data);
+        done();
+    };
+}
 
 describe("integration test", () => {
 
@@ -12,6 +19,8 @@ describe("integration test", () => {
 
         var data = { url: "http://terrific.net", content:"Test" };
         var data2 = { url: "http://terrific.net", content: "Test2" };
+
+        var fail = handleFail(done);
 
         thtml.View.createFromVDom(http.post<VTree>(url, data)).then(view => {
 
@@ -26,7 +35,7 @@ describe("integration test", () => {
                 expect(a2.getAttribute("href")).toBe(data2.url);
 
                 done();
-            });
-        });
+            }, fail);
+        }, fail);
     });
 });

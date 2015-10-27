@@ -14,7 +14,7 @@ function execute<T>(url: string, data: Object, method: string): Promise<T> {
     return new rsvp.Promise<T>((resolve, reject) => {
         var req = new XMLHttpRequest();
         req.open(method, url);
-        req.setRequestHeader('Content-Type', "application/json");
+        req.setRequestHeader("Content-Type", "application/json");
 
         req.onload = () => {
             if (req.status === 200) {
