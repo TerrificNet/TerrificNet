@@ -14,11 +14,15 @@ namespace TerrificNet.Thtml.VDom
             Children = children?.ToList() ?? new List<VTree>();
         }
 
+        public int Count => Children.Count;
+
         public IReadOnlyList<VTree> Children { get; }
 
         public override void Accept(IVTreeVisitor visitor)
         {
             visitor.Visit(this);
         }
+
+        public override string Type => "VirtualNode";
     }
 }

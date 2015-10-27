@@ -13,5 +13,7 @@
         {
             visitor.Visit(this);
         }
+
+        public override string Type => "VirtualText";
     }
 }

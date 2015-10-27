@@ -82,12 +82,12 @@ namespace TerrificNet.Thtml.Hyperscript
 
             private void RenderProperties(VElement vElement)
             {
-                if (vElement.Properties.Count > 0)
+                if (vElement.PropertyList.Count > 0)
                 {
-                    var last = vElement.Properties[vElement.Properties.Count - 1];
+                    var last = vElement.PropertyList[vElement.PropertyList.Count - 1];
 
                     _writer.Write(",{");
-                    foreach (var property in vElement.Properties)
+                    foreach (var property in vElement.PropertyList)
                     {
                         _writer.Write(property.Name);
                         _writer.Write(":");
