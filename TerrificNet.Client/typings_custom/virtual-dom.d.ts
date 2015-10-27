@@ -45,3 +45,9 @@ declare module "virtual-dom/patch" {
 
     export = patch;
 }
+
+declare module "virtual-dom/h" {
+    function h(selector: string, attributes: Object, children: Array<VNode|string>): VNode;
+
+    export = h;
+}
