@@ -17,10 +17,9 @@ namespace TerrificNet.Thtml.Emit
 		private readonly Stack<IDataBinder> _dataBinderStack = new Stack<IDataBinder>();
 		private readonly Stack<List<IListEmitter<VProperty>>> _properties = new Stack<List<IListEmitter<VProperty>>>();
 		private IEmitterRunnable<VPropertyValue> _propertyValueEmitter;
-		private IListEmitter<VPropertyValue> _propertyEmitter;
 
 		private List<IListEmitter<VTree>> Scope => _elements.Peek();
-		private IDataBinder Value { get; set; }
+		private IDataBinder Value => _dataBinderStack.Peek();
 
 		public EmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
 		{
@@ -57,24 +56,34 @@ namespace TerrificNet.Thtml.Emit
 		public void Visit(Statement statement)
 		{
 			EnterScope();
+			var dataStackPos = _dataBinderStack.Count;
 			statement.Expression.Accept(this); // Set data scopes
-			
+			var dataStackAdded = _dataBinderStack.Count - dataStackPos;
+			if (dataStackAdded < 0)
+				throw new InvalidOperationException("Data stack missmatch");
+
 			foreach (var childNode in statement.ChildNodes)
 			{
 				childNode.Accept(this);
 			}
 
 			var childEmitter = EmitterNode.Many(LeaveScope());
-			_dataBinderStack.Pop();
+			if (dataStackAdded > 0)
+				_dataBinderStack.Pop();
 
 			IEvaluator<IEnumerable> evaluator;
-			if (TryGetEvaluator(statement.Expression, out evaluator))
+			if (TryGetEvaluator(Value, statement.Expression, out evaluator))
 			{
 				Scope.Add(EmitterNode.Iterator(d => evaluator.Evaluate(d), childEmitter));
 			}
 			else
 			{
 				Scope.Add(childEmitter);
+			}
+
+			for (var i = 0; i < dataStackAdded - 1; i++)
+			{
+				_dataBinderStack.Pop();
 			}
 		}
 
@@ -98,8 +107,8 @@ namespace TerrificNet.Thtml.Emit
 			//var emitter = _expressionVisitor.LeavePropertyValueScope(constantAttributeContkent.Expression);
 			//constantAttributeContent.Expression.AcceptLeave(_expressionVisitor, null);
 			//var emitter = _expressionVisitor.GetPropertyValueEmitter();
-
-			_propertyValueEmitter = EmitterNode.Lambda((d, r) => GetPropertyValue(_propertyEmitter, d, r));
+			IListEmitter<VPropertyValue> _propertyEmitter = null;
+            _propertyValueEmitter = EmitterNode.Lambda((d, r) => GetPropertyValue(_propertyEmitter, d, r));
 		}
 
 		public void Visit(ConstantAttributeContent attributeContent)
@@ -168,7 +177,7 @@ namespace TerrificNet.Thtml.Emit
 			var scope = LeaveScope();
 
 			IEvaluator<bool> evaluator;
-			if (!TryGetEvaluator(conditionalExpression.Expression, out evaluator))
+			if (!TryGetEvaluator(Value, conditionalExpression.Expression, out evaluator))
 				throw new Exception("Expect a boolean as result");
 
 			Scope.Add(EmitterNode.Condition(d => evaluator.Evaluate(d), EmitterNode.Many(scope)));
@@ -177,10 +186,13 @@ namespace TerrificNet.Thtml.Emit
 		public void Visit(MemberExpression memberExpression)
 		{
 			var binder = _dataBinderStack.Peek();
-			Value = memberExpression.Name == "this" ? binder : binder.Property(memberExpression.Name);
+
+			var push = memberExpression.Name != "this";
+			if (push)
+				_dataBinderStack.Push(binder.Property(memberExpression.Name));
 
 			IEvaluator<string> evaluator;
-			if (TryGetEvaluator(memberExpression, out evaluator))
+			if (TryGetEvaluator(Value, memberExpression, out evaluator))
 			{
 				var emitter = EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
 				Scope.Add(emitter);
@@ -188,9 +200,9 @@ namespace TerrificNet.Thtml.Emit
 			}
 		}
 
-		private bool TryGetEvaluator<T>(MustacheExpression expression, out IEvaluator<T> evaluator)
+		private bool TryGetEvaluator<T>(IDataBinder dataBinder, MustacheExpression expression, out IEvaluator<T> evaluator)
 		{
-			if (!Value.TryCreateEvaluation(out evaluator))
+			if (!dataBinder.TryCreateEvaluation(out evaluator))
 				return false;
 
 			evaluator = ExceptionDecorator(evaluator, expression);
@@ -200,7 +212,7 @@ namespace TerrificNet.Thtml.Emit
 		private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
 		{
 			IEvaluator<string> evaluator;
-			if (!TryGetEvaluator(expression, out evaluator))
+			if (!TryGetEvaluator(Value, expression, out evaluator))
 				return null;
 
 			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
