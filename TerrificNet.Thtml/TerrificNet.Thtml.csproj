@@ -44,12 +44,13 @@
     <Compile Include="Emit\Compiler\StreamEmitter.cs" />
     <Compile Include="Emit\DataBinder.cs" />
     <Compile Include="Emit\DynamicDataBinder.cs" />
-    <Compile Include="Emit\EmitExpressionVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />
+    <Compile Include="Emit\EmitNodeVisitorBase.cs" />
     <Compile Include="Emit\IEvaluator.cs" />
     <Compile Include="Emit\NodeVisitorBase.cs" />
     <Compile Include="Emit\PropertyEmitter.cs" />
     <Compile Include="Emit\PropertyValueEmitter.cs" />
+    <Compile Include="Emit\ScopeEmitter.cs" />
     <Compile Include="Emit\VTreeEmitter.cs" />
     <Compile Include="Emit\EmitterNode.cs" />
     <Compile Include="Emit\IDataBinder.cs" />

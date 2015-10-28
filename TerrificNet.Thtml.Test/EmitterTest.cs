@@ -164,7 +164,45 @@ namespace TerrificNet.Thtml.Test
 						new VElement("h1", new VText("helper output"))),
 					new HelperBinderMock(helper)
 				};
-			}
+
+			    var obj5 = new { Member = "member" };
+                yield return new object[]
+                {
+                    "one element with composite attribute",
+                    new Document(
+                        new Element("h1", new ElementPart[]
+                        {
+                            new AttributeNode("test", 
+                                new CompositeAttributeContent(
+                                    new AttributeContentStatement(new MemberExpression("member")),
+                                    new ConstantAttributeContent("hallo")))
+                        })),
+                    TypeDataBinder.BinderFromObject(obj5),
+                    obj5,
+                    new VNode(
+                        new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("memberhallo")) })),
+                    new NullHelperBinder()
+                };
+
+                var obj6 = new { Do = true };
+                yield return new object[]
+                {
+                    "one element with conditional attribte",
+                    new Document(
+                        new Element("h1", new ElementPart[]
+                        {
+                            new AttributeNode("test",
+                                new AttributeContentStatement(
+                                    new ConditionalExpression(new MemberExpression("do")),
+                                    new ConstantAttributeContent("hallo")))
+                        })),
+                    TypeDataBinder.BinderFromObject(obj6),
+                    obj6,
+                    new VNode(
+                        new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),
+                    new NullHelperBinder()
+                };
+            }
 		}
 	}
 

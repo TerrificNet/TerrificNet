@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
@@ -6,74 +7,41 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    internal class ScopeEmitter : NodeVisitorBase<IDataBinder>
+    internal class PropertyValueEmitter : EmitNodeVisitorBase<VPropertyValue>
     {
-        private IDataBinder _dataBinder;
-
-        private ScopeEmitter(IDataBinder dataBinder)
+        public PropertyValueEmitter(IDataBinder dataBinder, IHelperBinder helperBinder) : base(dataBinder, helperBinder)
         {
-            _dataBinder = dataBinder;
         }
 
-        public override IDataBinder Visit(MemberExpression memberExpression)
+        public override IListEmitter<VPropertyValue> Visit(AttributeContentStatement constantAttributeContent)
         {
-            _dataBinder = _dataBinder.Property(memberExpression.Name);
-            if (memberExpression.SubExpression != null)
-                return memberExpression.SubExpression.Accept(this);
-
-            return _dataBinder;
+            return HandleStatement(constantAttributeContent.Expression, constantAttributeContent.Children);
         }
 
-        public static IDataBinder Bind(IDataBinder binder, MustacheExpression expression)
+        public override IListEmitter<VPropertyValue> Visit(MemberExpression memberExpression)
         {
-            var visitor = new ScopeEmitter(binder);
-            return expression.Accept(visitor);
-        }
-    }
-
-    internal class PropertyValueEmitter : NodeVisitorBase<IEmitterRunnable<VPropertyValue>>
-    {
-        private readonly IDataBinder _dataBinder;
-
-        public PropertyValueEmitter(IDataBinder dataBinder)
-        {
-            _dataBinder = dataBinder;
-        }
-
-        public override IEmitterRunnable<VPropertyValue> Visit(AttributeContentStatement constantAttributeContent)
-        {
-            return constantAttributeContent.Expression.Accept(this);
-        }
-
-        public override IEmitterRunnable<VPropertyValue> Visit(MemberExpression memberExpression)
-        {
-            var scope = ScopeEmitter.Bind(_dataBinder, memberExpression);
+            var scope = ScopeEmitter.Bind(DataBinder, memberExpression);
 
             IEvaluator<string> evaluator;
             if (!scope.TryCreateEvaluation(out evaluator))
                 throw new Exception();
 
-            return EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d)));
+            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
         }
 
-        public override IEmitterRunnable<VPropertyValue> Visit(ConstantAttributeContent attributeContent)
+        public override IListEmitter<VPropertyValue> Visit(CompositeAttributeContent compositeAttributeContent)
         {
-            return EmitterNode.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text));
+            return EmitterNode.Many(compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList());
         }
 
-        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext, IRenderingContext renderingContext)
+        public override IListEmitter<VPropertyValue> Visit(ConstantAttributeContent attributeContent)
         {
-            var stringBuilder = new StringBuilder();
-            foreach (var emit in emitter.Execute(dataContext, renderingContext))
-            {
-                var stringValue = emit as StringVPropertyValue;
-                if (stringValue == null)
-                    throw new Exception($"Unsupported property value {emit.GetType()}.");
+            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text)));
+        }
 
-                stringBuilder.Append(stringValue.Value);
-            }
-
-            return new StringVPropertyValue(stringBuilder.ToString());
+        protected override INodeVisitor<IListEmitter<VPropertyValue>> CreateVisitor(IDataBinder childScope)
+        {
+            return new PropertyValueEmitter(childScope, HelperBinder);
         }
     }
 }
