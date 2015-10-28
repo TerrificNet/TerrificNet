@@ -109,7 +109,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				/*var obj3 = new Dummy { Name = "value" };
+				var obj3 = new Dummy { Name = "value" };
 				yield return new object[]
 				{
 					"one element with attribute expression",
@@ -122,7 +122,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				var obj4 = new
+				/*var obj4 = new
 				{
 					List = new[]
 					{

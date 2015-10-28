@@ -3,7 +3,7 @@ using System.Text;
 
 namespace TerrificNet.Thtml.VDom
 {
-    public class VTree
+    public abstract class VTree
     {
         public override string ToString()
         {
@@ -41,10 +41,10 @@ namespace TerrificNet.Thtml.VDom
                 _textWriter.Write("<");
                 _textWriter.Write(vElement.TagName);
 
-                if (vElement.Properties.Count > 0)
+                if (vElement.PropertyList.Count > 0)
                     _textWriter.Write(" ");
 
-                foreach (var property in vElement.Properties)
+                foreach (var property in vElement.PropertyList)
                 {
                     var stringValue = property.Value as StringVPropertyValue;
                     var value = stringValue?.Value;
@@ -100,5 +100,9 @@ namespace TerrificNet.Thtml.VDom
                 }
             }
         }
+
+        public abstract string Type { get; }
+
+        public string Version => "2";
     }
 }

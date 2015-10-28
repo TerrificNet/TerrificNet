@@ -27,7 +27,7 @@ namespace TerrificNet.Thtml.Test
             {
                 yield return new object[]
                 {
-                    new VTree(),
+                    new VNode(),
                     string.Empty
                 };
                 yield return new object[]

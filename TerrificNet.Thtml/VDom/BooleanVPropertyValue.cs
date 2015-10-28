@@ -13,5 +13,10 @@
         {
             visitor.Visit(this);
         }
+
+        public override object GetValue()
+        {
+            return Value;
+        }
     }
 }
