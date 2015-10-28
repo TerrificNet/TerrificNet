@@ -11,21 +11,19 @@ namespace TerrificNet.Thtml.Emit
     internal class EmitNodeVisitor : NodeVisitorBase<IListEmitter<VTree>>
 	{
         private readonly IHelperBinder _helperBinder;
-        private readonly Stack<IDataBinder> _dataBinderStack = new Stack<IDataBinder>();
-
-        private IDataBinder Value { get; set; }
+        private readonly IDataBinder _dataBinder;
 
         public EmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
         {
             _helperBinder = helperBinder;
-            _dataBinderStack.Push(dataBinder);
+            _dataBinder = dataBinder;
         }
 
         public IEmitterRunnable<VNode> DocumentFunc { get; private set; }
 
 		public override IListEmitter<VTree> Visit(Element element)
 		{
-		    var attributeVisitor = new PropertyEmitter(_dataBinderStack.Peek());
+		    var attributeVisitor = new PropertyEmitter(_dataBinder);
 
 		    var properties = element.Attributes.Select(attribute => attribute.Accept(attributeVisitor)).ToList();
 		    var elements = element.ChildNodes.Select(node => node.Accept(this)).ToList();
@@ -46,7 +44,7 @@ namespace TerrificNet.Thtml.Emit
         {
             var expression = statement.Expression;
             var iterationExpression = expression as IterationExpression;
-            var dataBinder = _dataBinderStack.Peek();
+            var dataBinder = _dataBinder;
             if (iterationExpression != null)
             {
                 var scope = ScopeEmitter.Bind(dataBinder, iterationExpression.Expression);
@@ -109,15 +107,6 @@ namespace TerrificNet.Thtml.Emit
 			return unconvertedExpression.Accept(this);
 		}
 
-	    public override IListEmitter<VTree> Visit(IterationExpression iterationExpression)
-		{
-		    var expression = iterationExpression.Expression;
-		    expression.Accept(this);
-			_dataBinderStack.Push(Value.Item());
-
-            return null;
-        }
-
         private IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
         {
             return attributes.ToDictionary(d => d.Name, d => d.Value);
@@ -125,7 +114,7 @@ namespace TerrificNet.Thtml.Emit
 
 		public override IListEmitter<VTree> Visit(MemberExpression memberExpression)
 		{
-		    var scope = ScopeEmitter.Bind(_dataBinderStack.Peek(), memberExpression);
+		    var scope = ScopeEmitter.Bind(_dataBinder, memberExpression);
 
             IEvaluator<string> evaluator;
 			if (scope.TryCreateEvaluation(out evaluator))
@@ -134,25 +123,7 @@ namespace TerrificNet.Thtml.Emit
 		    throw new Exception("no valid");
 		}
 
-		private bool TryGetEvaluator<T>(MustacheExpression expression, out IEvaluator<T> evaluator)
-		{
-			if (!Value.TryCreateEvaluation(out evaluator))
-				return false;
-
-			evaluator = ExceptionDecorator(evaluator, expression);
-			return true;
-		}
-
-		private IListEmitter<VPropertyValue> TryConvertStringToVPropertyValue(MustacheExpression expression)
-		{
-			IEvaluator<string> evaluator;
-			if (!TryGetEvaluator(expression, out evaluator))
-				return null;
-
-			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
-		}
-
-		private static IEvaluator<T> ExceptionDecorator<T>(IEvaluator<T> createEvaluation, MustacheExpression expression)
+        private static IEvaluator<T> ExceptionDecorator<T>(IEvaluator<T> createEvaluation, MustacheExpression expression)
 		{
 			return new ExceptionWrapperEvaluator<T>(createEvaluation, expression);
 		}
