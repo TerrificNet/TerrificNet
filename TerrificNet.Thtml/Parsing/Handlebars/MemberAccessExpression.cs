@@ -8,22 +8,22 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
     {
         public string Name { get; }
 
-        public MustacheExpression SubExpression { get; }
+        public MemberExpression SubExpression { get; }
 
         public MemberExpression(string name)
         {
             Name = name;
         }
 
-        public MemberExpression(string name, MustacheExpression subExpression)
+        public MemberExpression(string name, MemberExpression subExpression)
             : this(name)
         {
             SubExpression = subExpression;
         }
 
-        public override void Accept(INodeVisitor visitor)
+        public override T Accept<T>(INodeVisitor<T> visitor)
         {
-			visitor.Visit(this);
+			return visitor.Visit(this);
         }
     }
 }
