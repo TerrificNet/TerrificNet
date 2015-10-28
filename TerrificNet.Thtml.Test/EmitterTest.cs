@@ -122,7 +122,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				/*var obj4 = new
+				var obj4 = new
 				{
 					List = new[]
 					{
@@ -163,7 +163,7 @@ namespace TerrificNet.Thtml.Test
 					new VNode(
 						new VElement("h1", new VText("helper output"))),
 					new HelperBinderMock(helper)
-				};*/
+				};
 			}
 		}
 	}

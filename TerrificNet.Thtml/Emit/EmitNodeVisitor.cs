@@ -2,110 +2,26 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    internal class PropertyValueEmitter : NodeVisitorBase<IEmitterRunnable<VPropertyValue>>
-    {
-        private readonly IDataBinder _dataBinder;
-
-        public PropertyValueEmitter(IDataBinder dataBinder)
-        {
-            _dataBinder = dataBinder;
-        }
-
-        public override IEmitterRunnable<VPropertyValue> Visit(AttributeContentStatement constantAttributeContent)
-        {
-            return constantAttributeContent.Expression.Accept(this);
-        }
-
-        public override IEmitterRunnable<VPropertyValue> Visit(MemberExpression memberExpression)
-        {
-            var scope = GetScope(memberExpression, _dataBinder);
-
-            IEvaluator<string> evaluator;
-            if (!scope.TryCreateEvaluation(out evaluator))
-                throw new Exception();
-
-            return EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d)));
-        }
-
-        public static IDataBinder GetScope(MemberExpression memberExpression, IDataBinder parentScope)
-        {
-            var expression = memberExpression;
-
-            while (expression != null)
-            {
-                parentScope = parentScope.Property(expression.Name);
-                expression = expression.SubExpression;
-            }
-            return parentScope;
-        }
-
-        public override IEmitterRunnable<VPropertyValue> Visit(ConstantAttributeContent attributeContent)
-        {
-            return EmitterNode.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text));
-        }
-
-        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext, IRenderingContext renderingContext)
-        {
-            var stringBuilder = new StringBuilder();
-            foreach (var emit in emitter.Execute(dataContext, renderingContext))
-            {
-                var stringValue = emit as StringVPropertyValue;
-                if (stringValue == null)
-                    throw new Exception($"Unsupported property value {emit.GetType()}.");
-
-                stringBuilder.Append(stringValue.Value);
-            }
-
-            return new StringVPropertyValue(stringBuilder.ToString());
-        }
-    }
-
-    internal class PropertyEmitter : NodeVisitorBase<IListEmitter<VProperty>>
-    {
-        private readonly IDataBinder _dataBinder;
-
-        public PropertyEmitter(IDataBinder dataBinder)
-        {
-            _dataBinder = dataBinder;
-        }
-
-        public override IListEmitter<VProperty> Visit(AttributeNode attributeNode)
-        {
-            var valueVisitor = new PropertyValueEmitter(_dataBinder);
-            var valueEmitter = attributeNode.Value.Accept(valueVisitor);
-
-            if (valueEmitter == null)
-                valueEmitter = EmitterNode.Lambda<VPropertyValue>((d, r) => null);
-
-            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VProperty(attributeNode.Name, valueEmitter.Execute(d, r))));
-        }
-    }
-
-	internal class EmitNodeVisitor : NodeVisitorBase<IListEmitter<VTree>>
+    internal class EmitNodeVisitor : NodeVisitorBase<IListEmitter<VTree>>
 	{
-		private readonly IHelperBinder _helperBinder;
-		//private readonly EmitExpressionVisitor _expressionVisitor;
-		private readonly Stack<List<IListEmitter<VTree>>> _elements = new Stack<List<IListEmitter<VTree>>>();
-		private readonly Stack<IDataBinder> _dataBinderStack = new Stack<IDataBinder>();
-		private readonly Stack<List<IListEmitter<VProperty>>> _properties = new Stack<List<IListEmitter<VProperty>>>();
+        private readonly IHelperBinder _helperBinder;
+        private readonly Stack<IDataBinder> _dataBinderStack = new Stack<IDataBinder>();
 
-		private List<IListEmitter<VTree>> Scope => _elements.Peek();
-		private IDataBinder Value { get; set; }
+        private IDataBinder Value { get; set; }
 
-		public EmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
-		{
-			_helperBinder = helperBinder;
-			_dataBinderStack.Push(dataBinder);
-		}
+        public EmitNodeVisitor(IDataBinder dataBinder, IHelperBinder helperBinder)
+        {
+            _helperBinder = helperBinder;
+            _dataBinderStack.Push(dataBinder);
+        }
 
-		public IEmitterRunnable<VNode> DocumentFunc { get; private set; }
+        public IEmitterRunnable<VNode> DocumentFunc { get; private set; }
 
 		public override IListEmitter<VTree> Visit(Element element)
 		{
@@ -127,8 +43,50 @@ namespace TerrificNet.Thtml.Emit
 		}
 
         public override IListEmitter<VTree> Visit(Statement statement)
-		{
-			var contentEmitter = statement.Expression.Accept(this);
+        {
+            var expression = statement.Expression;
+            var iterationExpression = expression as IterationExpression;
+            var dataBinder = _dataBinderStack.Peek();
+            if (iterationExpression != null)
+            {
+                var scope = ScopeEmitter.Bind(dataBinder, iterationExpression.Expression);
+
+                IEvaluator<IEnumerable> evaluator;
+                if (!scope.TryCreateEvaluation(out evaluator))
+                    throw new Exception("Expect a enumerable as result");
+
+                var child = new EmitNodeVisitor(scope.Item(), _helperBinder);
+                var children = statement.ChildNodes.Select(c => c.Accept(child)).ToList();
+
+                return EmitterNode.Iterator(d => evaluator.Evaluate(d), EmitterNode.Many(children));
+            }
+
+            var conditionalExpression = expression as ConditionalExpression;
+            if (conditionalExpression != null)
+            {
+                var scope = ScopeEmitter.Bind(dataBinder, conditionalExpression.Expression);
+
+                IEvaluator<bool> evaluator;
+                if (!scope.TryCreateEvaluation(out evaluator))
+                    throw new Exception("Expect a boolean as result");
+
+                var children = statement.ChildNodes.Select(c => c.Accept(this)).ToList();
+                return EmitterNode.Condition(d => evaluator.Evaluate(d), EmitterNode.Many(children));
+            }
+
+            var callHelperExpression = expression as CallHelperExpression;
+            if (callHelperExpression != null)
+            {
+                var result = _helperBinder.FindByName(callHelperExpression.Name, CreateDictionaryFromArguments(callHelperExpression.Attributes));
+                if (result == null)
+                    throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
+
+                var children = statement.ChildNodes.Select(c => c.Accept(this)).ToList();
+                var evaluation = result.CreateEmitter(EmitterNode.Many(children), _helperBinder, dataBinder);
+                return evaluation;
+            }
+
+            var contentEmitter = statement.Expression.Accept(this);
             if (contentEmitter != null)
                 return contentEmitter;
 
@@ -136,17 +94,7 @@ namespace TerrificNet.Thtml.Emit
             return EmitterNode.Many(elements);
 		}
 
-		private void EnterScope()
-		{
-			_elements.Push(new List<IListEmitter<VTree>>());
-		}
-
-		private List<IListEmitter<VTree>> LeaveScope()
-		{
-			return _elements.Pop();
-		}
-
-		public override IListEmitter<VTree> Visit(Document document)
+        public override IListEmitter<VTree> Visit(Document document)
 		{
 		    var elements = document.ChildNodes.Select(node => node.Accept(this)).ToList();
 
@@ -158,10 +106,8 @@ namespace TerrificNet.Thtml.Emit
 
         public override IListEmitter<VTree> Visit(UnconvertedExpression unconvertedExpression)
 		{
-			unconvertedExpression.Accept(this);
-
-            return null;
-        }
+			return unconvertedExpression.Accept(this);
+		}
 
 	    public override IListEmitter<VTree> Visit(IterationExpression iterationExpression)
 		{
@@ -172,24 +118,14 @@ namespace TerrificNet.Thtml.Emit
             return null;
         }
 
-		public override IListEmitter<VTree> Visit(ConditionalExpression conditionalExpression)
-		{
-			EnterScope();
-			conditionalExpression.Expression.Accept(this);
-			var scope = LeaveScope();
-
-			IEvaluator<bool> evaluator;
-			if (!TryGetEvaluator(conditionalExpression.Expression, out evaluator))
-				throw new Exception("Expect a boolean as result");
-
-			//Scope.Add(EmitterNode.Condition(d => evaluator.Evaluate(d), EmitterNode.Many(scope)));
-
-            return null;
+        private IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
+        {
+            return attributes.ToDictionary(d => d.Name, d => d.Value);
         }
 
 		public override IListEmitter<VTree> Visit(MemberExpression memberExpression)
 		{
-		    var scope = PropertyValueEmitter.GetScope(memberExpression, _dataBinderStack.Peek());
+		    var scope = ScopeEmitter.Bind(_dataBinderStack.Peek(), memberExpression);
 
             IEvaluator<string> evaluator;
 			if (scope.TryCreateEvaluation(out evaluator))
@@ -245,78 +181,4 @@ namespace TerrificNet.Thtml.Emit
 			}
 		}
 	}
-
-    internal class NodeVisitorBase<T> : INodeVisitor<T>
-    {
-        public virtual T Visit(Element element)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(TextNode textNode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(Statement statement)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(AttributeNode attributeNode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(AttributeContentStatement constantAttributeContent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(ConstantAttributeContent attributeContent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(Document document)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(CompositeAttributeContent compositeAttributeContent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(CallHelperExpression callHelperExpression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(UnconvertedExpression unconvertedExpression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(AttributeStatement attributeStatement)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(IterationExpression iterationExpression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(ConditionalExpression conditionalExpression)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual T Visit(MemberExpression memberExpression)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
 }
