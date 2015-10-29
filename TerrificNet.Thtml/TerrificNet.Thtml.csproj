@@ -44,7 +44,6 @@
     <Compile Include="Emit\Compiler\StreamEmitter.cs" />
     <Compile Include="Emit\Compiler\StreamPropertyEmitter.cs" />
     <Compile Include="Emit\Compiler\StreamWriterHandler.cs" />
-    <Compile Include="Emit\DataBinder.cs" />
     <Compile Include="Emit\DynamicDataBinder.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitorBase.cs" />

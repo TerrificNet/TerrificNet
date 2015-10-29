@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public class TypeDataBinder : DataBinder
+	public class TypeDataBinder : IDataBinder
     {
         private readonly ParameterExpression _dataContextParameter;
         private readonly Expression _memberAccess;
@@ -47,37 +47,44 @@ namespace TerrificNet.Thtml.Emit
             return lambda.Compile();
         }
 
-        public override bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
-        {
-            evaluationFunc = null;
+		private IEvaluator<T> Bind<T>()
+		{
+			if (typeof (T) != ResultType)
+				throw new Exception($"Can not bind the ${typeof(T).Name} to type ${ResultType}.");
 
-			if (typeof(T) == ResultType)
-			{
-				evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
-				return true;
-			}
+			return new EvaluatorFromLambda<T>(CreateEvaluation<T>());
+		}
 
-			if (typeof(T) == typeof(IEnumerable))
-            {
-				if (!typeof(IEnumerable).IsAssignableFrom(ResultType))
-                    return false;
+		public IEvaluator<bool> BindBoolean()
+		{
+			return Bind<bool>();
+		}
 
-	            if (typeof (string).IsAssignableFrom(ResultType))
-		            return false;
+		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+		{
+			childScope = Item();
+			return BindEnumerable();
+		}
 
-                evaluationFunc = new EvaluatorFromLambda<T>(CreateEvaluation<T>());
-                return true;
-            }
+		public IEvaluator<string> BindString()
+		{
+			return Bind<string>();
+		}
 
-            return false;
-        }
+		public IEvaluator<IEnumerable> BindEnumerable()
+		{
+			if (!typeof (IEnumerable).IsAssignableFrom(ResultType) || typeof(string).IsAssignableFrom(ResultType))
+				throw new Exception($"Can not bind the enumerable to type ${ResultType}.");
 
-		public override IDataBinder Property(string propertyName)
+			return new EvaluatorFromLambda<IEnumerable>(CreateEvaluation<IEnumerable>());
+		}
+
+		public virtual IDataBinder Property(string propertyName)
         {
             return new TypeDataBinder(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
         }
 
-		public override IDataBinder Item()
+		private IDataBinder Item()
         {
             var enumerable = ResultType.GetInterfaces().Union(new [] { ResultType }).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
             if (enumerable == null)

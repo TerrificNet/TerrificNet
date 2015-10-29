@@ -1,4 +1,5 @@
-﻿using TerrificNet.Thtml.Emit;
+﻿using System.Collections;
+using TerrificNet.Thtml.Emit;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -14,10 +15,20 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
+		public IEvaluator<string> BindString()
 		{
-			evaluationFunc = null;
-			return false;
+			return null;
+		}
+
+		public IEvaluator<bool> BindBoolean()
+		{
+			return null;
+		}
+
+		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+		{
+			childScope = new NullDataBinder();
+			return null;
 		}
 	}
 }

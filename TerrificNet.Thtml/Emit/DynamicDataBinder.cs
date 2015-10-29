@@ -1,9 +1,10 @@
 using System;
+using System.Collections;
 using TerrificNet.Thtml.Binding;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class DynamicDataBinder : DataBinder
+    public class DynamicDataBinder : IDataBinder
     {
         private readonly IEvaluator _evaluator;
 
@@ -17,18 +18,28 @@ namespace TerrificNet.Thtml.Emit
             _evaluator = evaluator;
         }
 
-        public override bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
-        {
-            evaluationFunc = new CastEvaluator<T>(_evaluator);
-            return true;
-        }
+	    public IEvaluator<string> BindString()
+	    {
+		    return new CastEvaluator<string>(_evaluator);
+	    }
 
-        public override IDataBinder Property(string propertyName)
+	    public IEvaluator<bool> BindBoolean()
+	    {
+			return new CastEvaluator<bool>(_evaluator);
+		}
+
+	    public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+	    {
+		    childScope = new DynamicDataBinder();
+		    return new CastEvaluator<IEnumerable>(_evaluator);
+	    }
+
+	    public virtual IDataBinder Property(string propertyName)
         {
             return new DynamicDataBinder(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }
 
-        public override IDataBinder Item()
+        public virtual IDataBinder Item()
         {
             return new DynamicDataBinder();
         }
