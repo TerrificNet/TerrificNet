@@ -67,10 +67,13 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Asserts\DataSchemaAssert.cs" />
+    <Compile Include="Asserts\GenericAssert.cs" />
     <Compile Include="Asserts\HandlebarsExpressionAssert.cs" />
     <Compile Include="Asserts\NodeAsserts.cs" />
     <Compile Include="Asserts\TokenEqualityComparer.cs" />
     <Compile Include="Asserts\VTreeAsserts.cs" />
+    <Compile Include="DataScopeTest.cs" />
     <Compile Include="EmitterTest.cs" />
     <Compile Include="HandlebarsParserTest.cs" />
     <Compile Include="IntegrationTest.cs" />
