@@ -14,6 +14,6 @@ namespace TerrificNet.Thtml.Emit
         {
         }
 
-        public abstract IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScope scope);
+        public abstract IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeContract scopeContract);
     }
 }

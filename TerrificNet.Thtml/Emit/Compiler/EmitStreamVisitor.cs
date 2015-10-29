@@ -11,14 +11,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		public IEmitterRunnable<StreamWriterHandler> DocumentFunc { get; private set; }
 
-		public EmitStreamVisitor(IDataScope dataScope, IHelperBinder helperBinder) : base(dataScope, helperBinder)
+		public EmitStreamVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder) : base(dataScopeContract, helperBinder)
 		{
 
 		}
 
-		protected override INodeVisitor<IListEmitter<StreamWriterHandler>> CreateVisitor(IDataScope childScope)
+		protected override INodeVisitor<IListEmitter<StreamWriterHandler>> CreateVisitor(IDataScopeContract childScopeContract)
 		{
-			return new EmitStreamVisitor(childScope, HelperBinder);
+			return new EmitStreamVisitor(childScopeContract, HelperBinder);
 		}
 
 		public override IListEmitter<StreamWriterHandler> Visit(Document document)
@@ -39,7 +39,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override IListEmitter<StreamWriterHandler> Visit(Element element)
 		{
-			var attributeVisitor = new StreamPropertyEmitter(DataScope, HelperBinder);
+			var attributeVisitor = new StreamPropertyEmitter(DataScopeContract, HelperBinder);
 
 			var properties = element.Attributes.Select(attribute => attribute.Accept(attributeVisitor)).ToList();
 			var elements = element.ChildNodes.Select(node => node.Accept(this)).ToList();
@@ -78,7 +78,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override IListEmitter<StreamWriterHandler> Visit(MemberExpression memberExpression)
 		{
-			var scope = ScopeEmitter.Bind(DataScope, memberExpression);
+			var scope = ScopeEmitter.Bind(DataScopeContract, memberExpression);
 
 			var evaluator = scope.RequiresString();
             return EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write(evaluator.Evaluate(d)))));

@@ -2,27 +2,27 @@ using TerrificNet.Thtml.Parsing.Handlebars;
 
 namespace TerrificNet.Thtml.Emit
 {
-    internal class ScopeEmitter : NodeVisitorBase<IDataScope>
+    internal class ScopeEmitter : NodeVisitorBase<IDataScopeContract>
     {
-        private IDataScope _dataScope;
+        private IDataScopeContract _dataScopeContract;
 
-        private ScopeEmitter(IDataScope dataScope)
+        private ScopeEmitter(IDataScopeContract dataScopeContract)
         {
-            _dataScope = dataScope;
+            _dataScopeContract = dataScopeContract;
         }
 
-        public override IDataScope Visit(MemberExpression memberExpression)
+        public override IDataScopeContract Visit(MemberExpression memberExpression)
         {
-            _dataScope = _dataScope.Property(memberExpression.Name, memberExpression);
+            _dataScopeContract = _dataScopeContract.Property(memberExpression.Name, memberExpression);
             if (memberExpression.SubExpression != null)
                 return memberExpression.SubExpression.Accept(this);
 
-            return _dataScope;
+            return _dataScopeContract;
         }
 
-        public static IDataScope Bind(IDataScope scope, MustacheExpression expression)
+        public static IDataScopeContract Bind(IDataScopeContract scopeContract, MustacheExpression expression)
         {
-            var visitor = new ScopeEmitter(scope);
+            var visitor = new ScopeEmitter(scopeContract);
             return expression.Accept(visitor);
         }
     }

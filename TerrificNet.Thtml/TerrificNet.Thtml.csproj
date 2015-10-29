@@ -47,6 +47,7 @@
     <Compile Include="Emit\DynamicDataScope.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitorBase.cs" />
+    <Compile Include="Emit\IDataScopeContract.cs" />
     <Compile Include="Emit\IEvaluator.cs" />
     <Compile Include="Emit\NodeVisitorBase.cs" />
     <Compile Include="Emit\PropertyEmitter.cs" />
@@ -55,7 +56,7 @@
     <Compile Include="Emit\Schema\DataContextException.cs" />
     <Compile Include="Emit\Schema\DataSchema.cs" />
     <Compile Include="Emit\Schema\DataSchemaProperty.cs" />
-    <Compile Include="Emit\Schema\DataScope.cs" />
+    <Compile Include="Emit\Schema\DataScopeContract.cs" />
     <Compile Include="Emit\Schema\IterableDataSchema.cs" />
     <Compile Include="Emit\Schema\SimpleDataSchema.cs" />
     <Compile Include="Emit\ScopeEmitter.cs" />

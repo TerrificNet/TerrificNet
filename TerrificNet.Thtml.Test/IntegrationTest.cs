@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Test
             var ast = parser.Parse(tokens);
             var compiler = new VTreeEmitter();
             var dataBinder = TypeDataScope.BinderFromObject(inputObject);
-            var method = compiler.Emit(ast, new DataScopeLegacyWrapper(dataBinder), null);
+            var method = compiler.Emit(ast, new DataScopeContractLegacyWrapper(dataBinder), null);
 
             var result = method.Execute(new ObjectDataContext(inputObject), null);
 

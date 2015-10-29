@@ -4,6 +4,6 @@ namespace TerrificNet.Thtml.Emit
 {
 	public interface IEmitter<out TResult>
 	{
-		IEmitterRunnable<TResult> Emit(Document input, IDataScope dataScope, IHelperBinder helperBinder);
+		IEmitterRunnable<TResult> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder);
 	}
 }

@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Emit
 {
     internal class EmitNodeVisitor : EmitNodeVisitorBase<VTree>
 	{
-        public EmitNodeVisitor(IDataScope dataScope, IHelperBinder helperBinder) : base(dataScope, helperBinder)
+        public EmitNodeVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder) : base(dataScopeContract, helperBinder)
         {
         }
 
@@ -16,7 +16,7 @@ namespace TerrificNet.Thtml.Emit
 
 		public override IListEmitter<VTree> Visit(Element element)
 		{
-		    var attributeVisitor = new PropertyEmitter(DataScope, HelperBinder);
+		    var attributeVisitor = new PropertyEmitter(DataScopeContract, HelperBinder);
 
 		    var properties = element.Attributes.Select(attribute => attribute.Accept(attributeVisitor)).ToList();
 		    var elements = element.ChildNodes.Select(node => node.Accept(this)).ToList();
@@ -39,9 +39,9 @@ namespace TerrificNet.Thtml.Emit
             return HandleStatement(expression, statement.ChildNodes);
         }
 
-        protected override INodeVisitor<IListEmitter<VTree>> CreateVisitor(IDataScope childScope)
+        protected override INodeVisitor<IListEmitter<VTree>> CreateVisitor(IDataScopeContract childScopeContract)
         {
-            return new EmitNodeVisitor(childScope, HelperBinder);
+            return new EmitNodeVisitor(childScopeContract, HelperBinder);
         }
 
         public override IListEmitter<VTree> Visit(Document document)
@@ -61,7 +61,7 @@ namespace TerrificNet.Thtml.Emit
 
         public override IListEmitter<VTree> Visit(MemberExpression memberExpression)
 		{
-		    var scope = ScopeEmitter.Bind(DataScope, memberExpression);
+		    var scope = ScopeEmitter.Bind(DataScopeContract, memberExpression);
 
             var evaluator = scope.RequiresString();
 			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));

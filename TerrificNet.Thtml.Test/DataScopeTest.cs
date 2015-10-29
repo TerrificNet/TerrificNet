@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Test
 {
 	public class DataScopeTest
 	{
-		private readonly DataScope _underTest;
+		private readonly DataScopeContract _underTest;
 
 		private static readonly SyntaxNode Node1 = new DummySyntaxNode();
 		private static readonly SyntaxNode Node2 = new DummySyntaxNode();
@@ -20,7 +20,7 @@ namespace TerrificNet.Thtml.Test
 
 		public DataScopeTest()
 		{
-			_underTest = new DataScope("_global");
+			_underTest = new DataScopeContract("_global");
 		}
 
 		[Fact]
@@ -54,9 +54,9 @@ namespace TerrificNet.Thtml.Test
 		{
 			var expected = new IterableDataSchema(DataSchema.String, false);
 
-			IDataScope childScope;
-			_underTest.RequiresEnumerable(out childScope);
-			childScope.RequiresString();
+			IDataScopeContract childScopeContract;
+			_underTest.RequiresEnumerable(out childScopeContract);
+			childScopeContract.RequiresString();
 
 			var schema = _underTest.CompleteSchema();
 			DataSchemaAssert.AssertSchema(expected, schema);
@@ -67,8 +67,8 @@ namespace TerrificNet.Thtml.Test
 		{
 			_underTest.DependentNodes.Add(Node1);
 
-			IDataScope childScope;
-			_underTest.RequiresEnumerable(out childScope);
+			IDataScopeContract childScopeContract;
+			_underTest.RequiresEnumerable(out childScopeContract);
 
 			var exception = Assert.Throws<DataContextException>(() => _underTest.RequiresBoolean());
 			Assert.Equal(_underTest.DependentNodes, exception.DependentNodes);
@@ -81,8 +81,8 @@ namespace TerrificNet.Thtml.Test
 
 			var booleanEvaluator = _underTest.RequiresBoolean();
 
-			IDataScope childScope;
-			var enumEvaluator = _underTest.RequiresEnumerable(out childScope);
+			IDataScopeContract childScopeContract;
+			var enumEvaluator = _underTest.RequiresEnumerable(out childScopeContract);
 
 			var schema = _underTest.CompleteSchema();
 			DataSchemaAssert.AssertSchema(expected, schema);

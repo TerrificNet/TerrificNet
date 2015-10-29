@@ -9,11 +9,11 @@ namespace TerrificNet.Thtml.Emit
 	internal abstract class EmitNodeVisitorBase<T> : NodeVisitorBase<IListEmitter<T>>
 	{
 		protected IHelperBinder HelperBinder { get; }
-		protected IDataScope DataScope { get; }
+		protected IDataScopeContract DataScopeContract { get; }
 
-		protected EmitNodeVisitorBase(IDataScope dataScope, IHelperBinder helperBinder)
+		protected EmitNodeVisitorBase(IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
 		{
-			DataScope = dataScope;
+			DataScopeContract = dataScopeContract;
 			HelperBinder = helperBinder;
 		}
 
@@ -22,12 +22,12 @@ namespace TerrificNet.Thtml.Emit
 			var iterationExpression = expression as IterationExpression;
 			if (iterationExpression != null)
 			{
-				var scope = ScopeEmitter.Bind(DataScope, iterationExpression.Expression);
+				var scope = ScopeEmitter.Bind(DataScopeContract, iterationExpression.Expression);
 
-				IDataScope childScope;
-				var evaluator = scope.RequiresEnumerable(out childScope);
+				IDataScopeContract childScopeContract;
+				var evaluator = scope.RequiresEnumerable(out childScopeContract);
 
-				var child = CreateVisitor(childScope);
+				var child = CreateVisitor(childScopeContract);
 				var children = childNodes.Select(c => c.Accept(child)).ToList();
 
 				return EmitterNode.Iterator(d => evaluator.Evaluate(d), EmitterNode.Many(children));
@@ -36,7 +36,7 @@ namespace TerrificNet.Thtml.Emit
 			var conditionalExpression = expression as ConditionalExpression;
 			if (conditionalExpression != null)
 			{
-				var scope = ScopeEmitter.Bind(DataScope, conditionalExpression.Expression);
+				var scope = ScopeEmitter.Bind(DataScopeContract, conditionalExpression.Expression);
 				var evaluator = scope.RequiresBoolean();
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
@@ -52,7 +52,7 @@ namespace TerrificNet.Thtml.Emit
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
-				var evaluation = result.CreateEmitter(EmitterNode.Many(children), HelperBinder, DataScope);
+				var evaluation = result.CreateEmitter(EmitterNode.Many(children), HelperBinder, DataScopeContract);
 				return evaluation;
 			}
 
@@ -64,7 +64,7 @@ namespace TerrificNet.Thtml.Emit
 			return EmitterNode.Many(elements);
 		}
 
-		protected abstract INodeVisitor<IListEmitter<T>> CreateVisitor(IDataScope childScope);
+		protected abstract INodeVisitor<IListEmitter<T>> CreateVisitor(IDataScopeContract childScopeContract);
 
 		private static IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
 		{

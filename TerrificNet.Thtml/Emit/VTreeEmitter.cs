@@ -6,9 +6,9 @@ namespace TerrificNet.Thtml.Emit
 {
 	public class VTreeEmitter : IEmitter<VTree>
 	{
-		public IEmitterRunnable<VTree> Emit(Document input, IDataScope dataScope, IHelperBinder helperBinder)
+		public IEmitterRunnable<VTree> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
 		{
-			var visitor = new EmitNodeVisitor(dataScope, helperBinder ?? new NullHelperBinder());
+			var visitor = new EmitNodeVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder());
 			input.Accept(visitor);
 			return visitor.DocumentFunc;
 		}
