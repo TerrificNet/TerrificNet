@@ -35,8 +35,7 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property");
 
             Assert.NotNull(result);
-            IEvaluator<string> evaluator;
-            Assert.True(result.TryCreateEvaluation(out evaluator));
+            var evaluator = result.BindString();
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
             Assert.Equal(expectedResult, propertyResult);
@@ -53,8 +52,8 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property");
 
             Assert.NotNull(result);
-            IEvaluator<IEnumerable> evaluator;
-            Assert.True(result.TryCreateEvaluation(out evaluator));
+
+            var evaluator = result.BindEnumerable();
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
             Assert.NotNull(propertyResult);
@@ -62,8 +61,7 @@ namespace TerrificNet.Thtml.Test
             var itemResult = result.Item();
             var innerPropertyResult = itemResult.Property("property2");
 
-            IEvaluator<string> innerPropertyEvaluator;
-            Assert.True(innerPropertyResult.TryCreateEvaluation(out innerPropertyEvaluator));
+            var innerPropertyEvaluator = innerPropertyResult.BindString();
 
             foreach (var item in propertyResult)
             {
@@ -83,8 +81,7 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property1").Property("property2");
 
             Assert.NotNull(result);
-            IEvaluator<string> evaluator;
-            Assert.True(result.TryCreateEvaluation(out evaluator));
+            var evaluator = result.BindString();
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
             Assert.Equal(expectedResult, propertyResult);
@@ -101,8 +98,7 @@ namespace TerrificNet.Thtml.Test
             var result = underTest.Property("property1");
 
             Assert.NotNull(result);
-            IEvaluator<bool> evaluator;
-            Assert.True(result.TryCreateEvaluation(out evaluator));
+            var evaluator = result.BindBoolean();
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
             Assert.Equal(expectedResult, propertyResult);

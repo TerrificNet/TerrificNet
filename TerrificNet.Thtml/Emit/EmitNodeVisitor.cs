@@ -63,11 +63,8 @@ namespace TerrificNet.Thtml.Emit
 		{
 		    var scope = ScopeEmitter.Bind(DataBinder, memberExpression);
 
-            IEvaluator<string> evaluator;
-			if (scope.TryCreateEvaluation(out evaluator))
-				return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
-
-		    throw new Exception("no valid");
+            var evaluator = scope.BindString();
+			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
 		}
 	}
 }

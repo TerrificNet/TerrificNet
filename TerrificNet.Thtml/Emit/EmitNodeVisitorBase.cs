@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TerrificNet.Thtml.Parsing;
@@ -7,103 +6,98 @@ using TerrificNet.Thtml.Parsing.Handlebars;
 
 namespace TerrificNet.Thtml.Emit
 {
-    internal abstract class EmitNodeVisitorBase<T> : NodeVisitorBase<IListEmitter<T>>
-    {
-        protected IHelperBinder HelperBinder { get; }
-        protected IDataBinder DataBinder { get; }
+	internal abstract class EmitNodeVisitorBase<T> : NodeVisitorBase<IListEmitter<T>>
+	{
+		protected IHelperBinder HelperBinder { get; }
+		protected IDataBinder DataBinder { get; }
 
-        protected EmitNodeVisitorBase(IDataBinder dataBinder, IHelperBinder helperBinder)
-        {
-            DataBinder = dataBinder;
-            HelperBinder = helperBinder;
-        }
+		protected EmitNodeVisitorBase(IDataBinder dataBinder, IHelperBinder helperBinder)
+		{
+			DataBinder = dataBinder;
+			HelperBinder = helperBinder;
+		}
 
-        protected IListEmitter<T> HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
-        {
-            var iterationExpression = expression as IterationExpression;
-            if (iterationExpression != null)
-            {
-                var scope = ScopeEmitter.Bind(DataBinder, iterationExpression.Expression);
+		protected IListEmitter<T> HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
+		{
+			var iterationExpression = expression as IterationExpression;
+			if (iterationExpression != null)
+			{
+				var scope = ScopeEmitter.Bind(DataBinder, iterationExpression.Expression);
 
-                IEvaluator<IEnumerable> evaluator;
-                if (!scope.TryCreateEvaluation(out evaluator))
-                    throw new Exception("Expect a enumerable as result");
+				var evaluator = scope.BindEnumerable();
 
-                var childScope = scope.Item();
-                var child = CreateVisitor(childScope);
-                var children = childNodes.Select(c => c.Accept(child)).ToList();
+				var childScope = scope.Item();
+				var child = CreateVisitor(childScope);
+				var children = childNodes.Select(c => c.Accept(child)).ToList();
 
-                return EmitterNode.Iterator(d => evaluator.Evaluate(d), EmitterNode.Many(children));
-            }
+				return EmitterNode.Iterator(d => evaluator.Evaluate(d), EmitterNode.Many(children));
+			}
 
-            var conditionalExpression = expression as ConditionalExpression;
-            if (conditionalExpression != null)
-            {
-                var scope = ScopeEmitter.Bind(DataBinder, conditionalExpression.Expression);
+			var conditionalExpression = expression as ConditionalExpression;
+			if (conditionalExpression != null)
+			{
+				var scope = ScopeEmitter.Bind(DataBinder, conditionalExpression.Expression);
+				var evaluator = scope.BindBoolean();
 
-                IEvaluator<bool> evaluator;
-                if (!scope.TryCreateEvaluation(out evaluator))
-                    throw new Exception("Expect a boolean as result");
+				var children = childNodes.Select(c => c.Accept(this)).ToList();
+				return EmitterNode.Condition(d => evaluator.Evaluate(d), EmitterNode.Many(children));
+			}
 
-                var children = childNodes.Select(c => c.Accept(this)).ToList();
-                return EmitterNode.Condition(d => evaluator.Evaluate(d), EmitterNode.Many(children));
-            }
+			var callHelperExpression = expression as CallHelperExpression;
+			if (callHelperExpression != null)
+			{
+				var result = HelperBinder.FindByName(callHelperExpression.Name,
+					CreateDictionaryFromArguments(callHelperExpression.Attributes));
+				if (result == null)
+					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-            var callHelperExpression = expression as CallHelperExpression;
-            if (callHelperExpression != null)
-            {
-                var result = HelperBinder.FindByName(callHelperExpression.Name,
-                    CreateDictionaryFromArguments(callHelperExpression.Attributes));
-                if (result == null)
-                    throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
+				var children = childNodes.Select(c => c.Accept(this)).ToList();
+				var evaluation = result.CreateEmitter(EmitterNode.Many(children), HelperBinder, DataBinder);
+				return evaluation;
+			}
 
-                var children = childNodes.Select(c => c.Accept(this)).ToList();
-                var evaluation = result.CreateEmitter(EmitterNode.Many(children), HelperBinder, DataBinder);
-                return evaluation;
-            }
+			var contentEmitter = expression.Accept(this);
+			if (contentEmitter != null)
+				return contentEmitter;
 
-            var contentEmitter = expression.Accept(this);
-            if (contentEmitter != null)
-                return contentEmitter;
+			var elements = childNodes.Select(childNode => childNode.Accept(this)).ToList();
+			return EmitterNode.Many(elements);
+		}
 
-            var elements = childNodes.Select(childNode => childNode.Accept(this)).ToList();
-            return EmitterNode.Many(elements);
-        }
+		protected abstract INodeVisitor<IListEmitter<T>> CreateVisitor(IDataBinder childScope);
 
-        protected abstract INodeVisitor<IListEmitter<T>> CreateVisitor(IDataBinder childScope);
+		private static IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
+		{
+			return attributes.ToDictionary(d => d.Name, d => d.Value);
+		}
 
-        private static IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
-        {
-            return attributes.ToDictionary(d => d.Name, d => d.Value);
-        }
+		private static IEvaluator<T> ExceptionDecorator<T>(IEvaluator<T> createEvaluation, MustacheExpression expression)
+		{
+			return new ExceptionWrapperEvaluator<T>(createEvaluation, expression);
+		}
 
-        private static IEvaluator<T> ExceptionDecorator<T>(IEvaluator<T> createEvaluation, MustacheExpression expression)
-        {
-            return new ExceptionWrapperEvaluator<T>(createEvaluation, expression);
-        }
+		private class ExceptionWrapperEvaluator<T> : IEvaluator<T>
+		{
+			private readonly IEvaluator<T> _evaluator;
+			private readonly MustacheExpression _expression;
 
-        private class ExceptionWrapperEvaluator<T> : IEvaluator<T>
-        {
-            private readonly IEvaluator<T> _evaluator;
-            private readonly MustacheExpression _expression;
+			public ExceptionWrapperEvaluator(IEvaluator<T> evaluator, MustacheExpression expression)
+			{
+				_evaluator = evaluator;
+				_expression = expression;
+			}
 
-            public ExceptionWrapperEvaluator(IEvaluator<T> evaluator, MustacheExpression expression)
-            {
-                _evaluator = evaluator;
-                _expression = expression;
-            }
-
-            public T Evaluate(IDataContext context)
-            {
-                try
-                {
-                    return _evaluator.Evaluate(context);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Exception on executing expression {_expression}", ex);
-                }
-            }
-        }
-    }
+			public T Evaluate(IDataContext context)
+			{
+				try
+				{
+					return _evaluator.Evaluate(context);
+				}
+				catch (Exception ex)
+				{
+					throw new Exception($"Exception on executing expression {_expression}", ex);
+				}
+			}
+		}
+	}
 }
