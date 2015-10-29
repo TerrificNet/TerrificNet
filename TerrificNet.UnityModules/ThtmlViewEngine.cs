@@ -35,12 +35,12 @@ namespace TerrificNet.UnityModules
             else
                 scope = TypeDataScope.BinderFromType(modelType);
 
-            var emitter = CreateEmitter(templateInfo, scope, new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
+            var emitter = CreateEmitter(templateInfo, new DataScopeContractLegacyWrapper(scope), new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
 
             return Task.FromResult<IView>(new ThtmlView(emitter));
         }
 
-        internal static IEmitterRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataScopeLegacy dataScope, IHelperBinder helperBinder)
+        internal static IEmitterRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataScopeContract dataScope, IHelperBinder helperBinder)
         {
             string template;
             using (var reader = new StreamReader(templateInfo.Open()))
@@ -126,7 +126,7 @@ namespace TerrificNet.UnityModules
             {
             }
 
-            public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeLegacy scope)
+            public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeContract scope)
             {
                 return children;
             }
@@ -148,7 +148,7 @@ namespace TerrificNet.UnityModules
             _modelProvider = modelProvider;
         }
 
-        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeLegacy scope)
+        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeContract scope)
         {
             return new PlaceholderEmitter<T>(_key, helperBinder, _templateRepository, _moduleRepository, _modelProvider);
         }
@@ -209,7 +209,7 @@ namespace TerrificNet.UnityModules
                     if (partialConfig != null)
                     {
                         var res = new PartialHelperBinderResult(_templateRepository, partialConfig.Template);
-                        var emitters = res.CreateEmitter<T>(_helperBinder, new DynamicDataScope());
+                        var emitters = res.CreateEmitter<T>(_helperBinder, new DataScopeContractLegacyWrapper(new DynamicDataScope()));
                         yield return EmitterNode.Lambda((c, r) => emitters.Execute(c, newCtx));
                     }
                 }
@@ -232,7 +232,7 @@ namespace TerrificNet.UnityModules
             _skin = skin;
         }
 
-        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeLegacy scope)
+        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeContract scope)
         {
             var moduleEmitter = CreateModuleEmitter<T>(helperBinder, _templateRepository, _modelProvider, _module);
             return EmitterNode.AsList(moduleEmitter);
@@ -247,7 +247,7 @@ namespace TerrificNet.UnityModules
             var context = new ObjectDataContext(data);
             var binder = new DynamicDataScope();
 
-            var emitter = ThtmlViewEngine.CreateEmitter(template, binder, helperBinder);
+            var emitter = ThtmlViewEngine.CreateEmitter(template, new DataScopeContractLegacyWrapper(binder), helperBinder);
             var moduleEmitter = new ModuleEmitter<T>((IEmitterRunnable<T>) emitter, context);
             return moduleEmitter;
         }
@@ -281,13 +281,13 @@ namespace TerrificNet.UnityModules
             _templateName = templateName;
         }
 
-        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> listEmitter, IHelperBinder helperBinder, IDataScopeLegacy scope)
+        public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> listEmitter, IHelperBinder helperBinder, IDataScopeContract scope)
         {
             var emitter = CreateEmitter<T>(helperBinder, scope);
             return EmitterNode.AsList(emitter);
         }
 
-        internal IEmitterRunnable<T> CreateEmitter<T>(IHelperBinder helperBinder, IDataScopeLegacy scope)
+        internal IEmitterRunnable<T> CreateEmitter<T>(IHelperBinder helperBinder, IDataScopeContract scope)
         {
             var template = _templateRepository.GetTemplateAsync(_templateName).Result;
             var emitter = (IEmitterRunnable<T>) ThtmlViewEngine.CreateEmitter(template, scope, helperBinder);
