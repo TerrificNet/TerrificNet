@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public class TypeDataScope : IDataScope
+	public class TypeDataScope : IDataScopeLegacy
     {
         private readonly ParameterExpression _dataContextParameter;
         private readonly Expression _memberAccess;
@@ -29,12 +28,12 @@ namespace TerrificNet.Thtml.Emit
 
         internal Type ResultType { get; }
 
-        public static IDataScope BinderFromType(Type type)
+        public static IDataScopeLegacy BinderFromType(Type type)
         {
             return new TypeDataScope(type);
         }
 
-        public static IDataScope BinderFromObject(object obj)
+        public static IDataScopeLegacy BinderFromObject(object obj)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
@@ -61,7 +60,7 @@ namespace TerrificNet.Thtml.Emit
 			return Bind<bool>();
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
+		public IEvaluator<IEnumerable> BindEnumerable(out IDataScopeLegacy childScope)
 		{
 			childScope = Item();
 			return BindEnumerable();
@@ -80,12 +79,12 @@ namespace TerrificNet.Thtml.Emit
 			return new EvaluatorFromLambda<IEnumerable>(CreateEvaluation<IEnumerable>());
 		}
 
-		public virtual IDataScope Property(string propertyName, SyntaxNode node)
+		public virtual IDataScopeLegacy Property(string propertyName)
         {
             return new TypeDataScope(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
         }
 
-		private IDataScope Item()
+		private IDataScopeLegacy Item()
         {
             var enumerable = ResultType.GetInterfaces().Union(new [] { ResultType }).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
             if (enumerable == null)

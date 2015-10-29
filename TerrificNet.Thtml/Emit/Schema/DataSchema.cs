@@ -6,7 +6,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 		public static readonly DataSchema String = new SimpleDataSchema("String", true);
 		public static readonly DataSchema Boolean = new SimpleDataSchema("Boolean", false);
-		public static readonly DataSchema Empty = new DataSchema(true);
+		public static readonly DataSchema Any = new DataSchema(true);
 
 		protected DataSchema(bool nullable)
 		{

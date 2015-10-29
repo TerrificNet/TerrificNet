@@ -25,7 +25,7 @@ namespace TerrificNet.Thtml.Emit
 				var scope = ScopeEmitter.Bind(DataScope, iterationExpression.Expression);
 
 				IDataScope childScope;
-				var evaluator = scope.BindEnumerable(out childScope);
+				var evaluator = scope.RequiresEnumerable(out childScope);
 
 				var child = CreateVisitor(childScope);
 				var children = childNodes.Select(c => c.Accept(child)).ToList();
@@ -37,7 +37,7 @@ namespace TerrificNet.Thtml.Emit
 			if (conditionalExpression != null)
 			{
 				var scope = ScopeEmitter.Bind(DataScope, conditionalExpression.Expression);
-				var evaluator = scope.BindBoolean();
+				var evaluator = scope.RequiresBoolean();
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
 				return EmitterNode.Condition(d => evaluator.Evaluate(d), EmitterNode.Many(children));

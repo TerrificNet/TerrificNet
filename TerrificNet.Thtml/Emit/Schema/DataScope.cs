@@ -11,12 +11,16 @@ namespace TerrificNet.Thtml.Emit.Schema
 		private DataScopeBuildStrategy _strategy;
 		internal readonly List<SyntaxNode> DependentNodes = new List<SyntaxNode>();
 
+		public string Name { get; }
+
+		public DataScope(string name)
+		{
+			Name = name;
+		}
+
 		private DataScopeBuildStrategy GetOrCreate(Func<DataScopeBuildStrategy> creation)
 		{
-			if (_strategy == null)
-				_strategy = creation();
-
-			return _strategy;
+			return _strategy ?? (_strategy = creation());
 		}
 
 		public IDataScope Property(string propertyName, SyntaxNode node)
@@ -24,56 +28,68 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return GetOrCreate(() => new ComplexDataScope()).Property(propertyName, node);
 		}
 
-		public IEvaluator<string> BindString()
+		public IEvaluator<string> RequiresString()
 		{
-			return GetOrCreate(() => new StringDataScope()).BindString();
+			return GetOrCreate(() => new StringDataScope()).RequiresString();
 		}
 
-		public IEvaluator<bool> BindBoolean()
+		public IEvaluator<bool> RequiresBoolean()
 		{
-			return GetOrCreate(() => new BooleanDataScope(this)).BindBoolean();
+			return GetOrCreate(() => new BooleanDataScope(this)).RequiresBoolean();
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
+		public IEvaluator<IEnumerable> RequiresEnumerable(out IDataScope childScope)
 		{
-			return GetOrCreate(() => new IterableDataScope(this)).BindEnumerable(out childScope);
+			return GetOrCreate(() => new IterableDataScope(this)).RequiresEnumerable(out childScope);
 		}
 
-		public DataSchema GetSchema()
+		public DataSchema CompleteSchema()
 		{
-			return _strategy != null ? _strategy.GetSchema() : DataSchema.Empty;
+			return _strategy != null ? _strategy.GetSchema() : DataSchema.Any;
+		}
+
+		private class LateEvalutor : IEvaluator<IEnumerable>
+		{
+			private readonly DataScope _dataScope;
+
+			public LateEvalutor(DataScope dataScope)
+			{
+				_dataScope = dataScope;
+			}
+
+			public IEnumerable Evaluate(IDataContext context)
+			{
+				//var schema = _dataScope.CompleteSchema();
+				throw new NotImplementedException();
+			}
 		}
 
 		private class IterableDataScope : DataScopeBuildStrategy
 		{
-			private readonly DataScope _childScope = new DataScope();
+			private readonly DataScope _childScope = new DataScope("item");
 			private readonly bool _nullable;
 			private readonly DataScope _dataScope;
 
-			public IterableDataScope(DataScope dataScope) : this(dataScope, false)
-			{
-			}
-
-			public IterableDataScope(DataScope dataScope, bool nullable)
+			public IterableDataScope(DataScope dataScope, bool nullable = false)
 			{
 				_dataScope = dataScope;
 				_nullable = nullable;
 			}
 
-			public override IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
+			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScope childScope)
 			{
 				childScope = _childScope;
-				return null;
+				return new LateEvalutor(_dataScope);
 			}
 
-			public override IEvaluator<bool> BindBoolean()
+			public override IEvaluator<bool> RequiresBoolean()
 			{
 				throw new DataContextException("The iterable member was already called without boolean check.", _dataScope.DependentNodes.ToArray());
 			}
 
 			public override DataSchema GetSchema()
 			{
-				return new IterableDataSchema(_childScope.GetSchema(), _nullable);
+				return new IterableDataSchema(_childScope.CompleteSchema(), _nullable);
 			}
 		}
 
@@ -84,17 +100,17 @@ namespace TerrificNet.Thtml.Emit.Schema
 				throw new NotSupportedException();
 			}
 
-			public virtual IEvaluator<string> BindString()
+			public virtual IEvaluator<string> RequiresString()
 			{
 				throw new NotSupportedException();
 			}
 
-			public virtual IEvaluator<bool> BindBoolean()
+			public virtual IEvaluator<bool> RequiresBoolean()
 			{
 				throw new NotSupportedException();
 			}
 
-			public virtual IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
+			public virtual IEvaluator<IEnumerable> RequiresEnumerable(out IDataScope childScope)
 			{
 				throw new NotSupportedException();
 			}
@@ -112,7 +128,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				DataScope scope;
 				if (!_childScopes.TryGetValue(propertyName, out scope))
 				{
-					scope = new DataScope();
+					scope = new DataScope(propertyName);
 					_childScopes.Add(propertyName, scope);
 				}
 
@@ -122,13 +138,13 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public override DataSchema GetSchema()
 			{
-				return new ComplexDataSchema(_childScopes.Select(kv => new DataSchemaProperty(kv.Key, kv.Value.GetSchema(), kv.Value.DependentNodes)), _nullable);
+				return new ComplexDataSchema(_childScopes.Select(kv => new DataSchemaProperty(kv.Key, kv.Value.CompleteSchema(), kv.Value.DependentNodes)), _nullable);
 			}
 		}
 
 		private class StringDataScope : DataScopeBuildStrategy
 		{
-			public override IEvaluator<string> BindString()
+			public override IEvaluator<string> RequiresString()
 			{
 				return null;
 			}
@@ -149,15 +165,15 @@ namespace TerrificNet.Thtml.Emit.Schema
 				_dataScope = dataScope;
 			}
 
-			public override IEvaluator<bool> BindBoolean()
+			public override IEvaluator<bool> RequiresBoolean()
 			{
 				return null;
 			}
 
-			public override IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
+			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScope childScope)
 			{
 				_strategy = new IterableDataScope(_dataScope, true);
-				return _strategy.BindEnumerable(out childScope);
+				return _strategy.RequiresEnumerable(out childScope);
 			}
 
 			public override DataSchema GetSchema()

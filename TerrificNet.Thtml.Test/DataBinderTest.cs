@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Test
             get { return BinderFactories.Select(s => new object[] {s}); }
         }
 
-        private static IEnumerable<Func<Type, IDataScope>> BinderFactories
+        private static IEnumerable<Func<Type, IDataScopeLegacy>> BinderFactories
         {
             get
             {
@@ -26,13 +26,13 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_SimpleProperty(Func<Type, IDataScope> dataBinderFactory)
+        public void DataBinder_SimpleProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property = expectedResult };
             
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property", null);
+            var result = underTest.Property("property");
 
             Assert.NotNull(result);
             var evaluator = result.BindString();
@@ -43,24 +43,24 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_IterationProperty(Func<Type, IDataScope> dataBinderFactory)
+        public void DataBinder_IterationProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property = new [] { new { Property2 = expectedResult } } };
 
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property", null);
+            var result = underTest.Property("property");
 
             Assert.NotNull(result);
 
-	        IDataScope childScope;
+	        IDataScopeLegacy childScope;
             var evaluator = result.BindEnumerable(out childScope);
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
             Assert.NotNull(propertyResult);
 
             var itemResult = childScope;
-            var innerPropertyResult = itemResult.Property("property2", null);
+            var innerPropertyResult = itemResult.Property("property2");
 
             var innerPropertyEvaluator = innerPropertyResult.BindString();
 
@@ -73,13 +73,13 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_NestedProperty(Func<Type, IDataScope> dataBinderFactory)
+        public void DataBinder_NestedProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property1 = new { Property2 = expectedResult } };
 
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property1", null).Property("property2", null);
+            var result = underTest.Property("property1").Property("property2");
 
             Assert.NotNull(result);
             var evaluator = result.BindString();
@@ -90,13 +90,13 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_ConditionalProperty(Func<Type, IDataScope> dataBinderFactory)
+        public void DataBinder_ConditionalProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
         {
             const bool expectedResult = true;
             var obj = new { Property1 = true };
 
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property1", null);
+            var result = underTest.Property("property1");
 
             Assert.NotNull(result);
             var evaluator = result.BindBoolean();
@@ -112,7 +112,7 @@ namespace TerrificNet.Thtml.Test
         public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
         {
             var underTest = TypeDataScope.BinderFromType(interfaceType);
-	        IDataScope childScope;
+	        IDataScopeLegacy childScope;
 	        underTest.BindEnumerable(out childScope);
 
             Assert.NotNull(childScope);

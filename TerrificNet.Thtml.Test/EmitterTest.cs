@@ -59,7 +59,7 @@ namespace TerrificNet.Thtml.Test
 				{
 					"empty document",
 					new Document(),
-					new NullDataScope(),
+					new DataScopeLegacyWrapper(new NullDataScope()),
 					null,
 					new VNode(),
 					new NullHelperBinder()
@@ -71,7 +71,7 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Element("h1",
 							new TextNode("hallo"))),
-					new NullDataScope(),
+					new DataScopeLegacyWrapper(new NullDataScope()),
 					null,
 					new VNode(
 						new VElement("h1",
@@ -88,7 +88,7 @@ namespace TerrificNet.Thtml.Test
 							new Element("h3", new ElementPart [] { new AttributeNode("attr3", new ConstantAttributeContent("hallo3")) })
 						),
 						new Element("h1", new ElementPart [] { new AttributeNode("attr4", new ConstantAttributeContent("hallo4")) })),
-					new NullDataScope(),
+					new DataScopeLegacyWrapper(new NullDataScope()),
 					null,
 					new VNode(
 						new VElement("h1", new[] { new VProperty("attr1", new StringVPropertyValue("hallo")) },
@@ -105,7 +105,7 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Element("h1",
 							new Statement(new MemberExpression("name")))),
-					TypeDataScope.BinderFromObject(obj),
+					new DataScopeLegacyWrapper(TypeDataScope.BinderFromObject(obj)),
 					obj,
 					new VNode(
 						new VElement("h1",
@@ -126,7 +126,7 @@ namespace TerrificNet.Thtml.Test
 								new IterationExpression(new MemberExpression("items")),
 								new Element("div",
 									new Statement(new MemberExpression("name")))))),
-					TypeDataScope.BinderFromObject(obj2),
+					new DataScopeLegacyWrapper(TypeDataScope.BinderFromObject(obj2)),
 					obj2,
 					new VNode(
 						new VElement("h1",
@@ -143,7 +143,7 @@ namespace TerrificNet.Thtml.Test
 					"one element with attribute expression",
 					new Document(
 						new Element("h1", new ElementPart[] { new AttributeNode("title", new AttributeContentStatement(new MemberExpression("name"))) })),
-					TypeDataScope.BinderFromObject(obj3),
+					new DataScopeLegacyWrapper(TypeDataScope.BinderFromObject(obj3)),
 					obj3,
 					new VNode(
 						new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null)),
@@ -167,7 +167,7 @@ namespace TerrificNet.Thtml.Test
 							new Statement(new ConditionalExpression(new MemberExpression("do")),
 								new Element("h1", new Statement(new MemberExpression("value"))))
 						)),
-					TypeDataScope.BinderFromObject(obj4),
+					new DataScopeLegacyWrapper(TypeDataScope.BinderFromObject(obj4)),
 					obj4,
 					new VNode(
 						new VElement("h1", new VText("hallo2"))
@@ -187,7 +187,7 @@ namespace TerrificNet.Thtml.Test
 					"one element with helper",
 					new Document(
 						new Element("h1", new Statement(new CallHelperExpression("helper")))),
-					TypeDataScope.BinderFromObject(obj3),
+					new DataScopeLegacyWrapper(TypeDataScope.BinderFromObject(obj3)),
 					obj3,
 					new VNode(
 						new VElement("h1", new VText("helper output"))),
@@ -206,7 +206,7 @@ namespace TerrificNet.Thtml.Test
 									new AttributeContentStatement(new MemberExpression("member")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					TypeDataScope.BinderFromObject(obj5),
+					new DataScopeLegacyWrapper(TypeDataScope.BinderFromObject(obj5)),
 					obj5,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("memberhallo")) })),
@@ -225,7 +225,7 @@ namespace TerrificNet.Thtml.Test
 									new ConditionalExpression(new MemberExpression("do")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					TypeDataScope.BinderFromObject(obj6),
+					new DataScopeLegacyWrapper(TypeDataScope.BinderFromObject(obj6)),
 					obj6,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),

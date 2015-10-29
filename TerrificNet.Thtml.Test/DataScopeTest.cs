@@ -10,34 +10,42 @@ namespace TerrificNet.Thtml.Test
 	{
 		private readonly DataScope _underTest;
 
+		private static readonly SyntaxNode Node1 = new DummySyntaxNode();
+		private static readonly SyntaxNode Node2 = new DummySyntaxNode();
+		private static readonly SyntaxNode Node3 = new DummySyntaxNode();
+
+		private class DummySyntaxNode : SyntaxNode
+		{
+		}
+
 		public DataScopeTest()
 		{
-			_underTest = new DataScope();
+			_underTest = new DataScope("_global");
 		}
 
 		[Fact]
 		public void TestEmptyScope()
 		{
-			var schema = _underTest.GetSchema();
+			var schema = _underTest.CompleteSchema();
 
-			Assert.Equal(DataSchema.Empty, schema);
+			Assert.Equal(DataSchema.Any, schema);
 		}
 
 		[Fact]
 		public void TestStringScope()
 		{
-			_underTest.BindString();
+			_underTest.RequiresString();
 
-			var schema = _underTest.GetSchema();
+			var schema = _underTest.CompleteSchema();
 			Assert.Equal(DataSchema.String, schema);
 		}
 
 		[Fact]
 		public void TestBooleanScope()
 		{
-			_underTest.BindBoolean();
+			_underTest.RequiresBoolean();
 
-			var schema = _underTest.GetSchema();
+			var schema = _underTest.CompleteSchema();
 			Assert.Equal(DataSchema.Boolean, schema);
 		}
 
@@ -47,10 +55,10 @@ namespace TerrificNet.Thtml.Test
 			var expected = new IterableDataSchema(DataSchema.String, false);
 
 			IDataScope childScope;
-			_underTest.BindEnumerable(out childScope);
-			childScope.BindString();
+			_underTest.RequiresEnumerable(out childScope);
+			childScope.RequiresString();
 
-			var schema = _underTest.GetSchema();
+			var schema = _underTest.CompleteSchema();
 			DataSchemaAssert.AssertSchema(expected, schema);
 		}
 
@@ -60,23 +68,40 @@ namespace TerrificNet.Thtml.Test
 			_underTest.DependentNodes.Add(Node1);
 
 			IDataScope childScope;
-			_underTest.BindEnumerable(out childScope);
+			_underTest.RequiresEnumerable(out childScope);
 
-			var exception = Assert.Throws<DataContextException>(() => _underTest.BindBoolean());
+			var exception = Assert.Throws<DataContextException>(() => _underTest.RequiresBoolean());
 			Assert.Equal(_underTest.DependentNodes, exception.DependentNodes);
 		}
 
 		[Fact]
 		public void TestChangeFromBooleanToIterableScope()
 		{
-			var expected = new IterableDataSchema(DataSchema.Empty, true);
+			var expected = new IterableDataSchema(DataSchema.Any, true);
 
-			_underTest.BindBoolean();
+			var booleanEvaluator = _underTest.RequiresBoolean();
 
 			IDataScope childScope;
-			_underTest.BindEnumerable(out childScope);
+			var enumEvaluator = _underTest.RequiresEnumerable(out childScope);
 
-			var schema = _underTest.GetSchema();
+			var schema = _underTest.CompleteSchema();
+			DataSchemaAssert.AssertSchema(expected, schema);
+		}
+
+		[Fact]
+		public void TestDependentNodes()
+		{
+			var expected = new ComplexDataSchema(new []
+			{
+				new DataSchemaProperty("prop1", DataSchema.Any, new [] { Node1, Node2 }),
+				new DataSchemaProperty("prop2", DataSchema.Any, new [] { Node3 }),
+			}, false);
+
+			_underTest.Property("prop1", Node1);
+			_underTest.Property("prop2", Node3);
+			_underTest.Property("prop1", Node2);
+
+			var schema = _underTest.CompleteSchema();
 			DataSchemaAssert.AssertSchema(expected, schema);
 		}
 
@@ -91,16 +116,10 @@ namespace TerrificNet.Thtml.Test
 			}, false);
 
 			var scope = _underTest.Property(propertyName, Node1);
-			scope.BindString();
-			var schema = _underTest.GetSchema();
+			scope.RequiresString();
+			var schema = _underTest.CompleteSchema();
 
 			DataSchemaAssert.AssertSchema(expected, schema);
-		}
-
-		private SyntaxNode Node1 = new DummySyntaxNode();
-
-		private class DummySyntaxNode : SyntaxNode
-		{
 		}
 	}
 }

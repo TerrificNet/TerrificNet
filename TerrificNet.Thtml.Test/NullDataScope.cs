@@ -1,17 +1,16 @@
 ﻿using System.Collections;
 using TerrificNet.Thtml.Emit;
-using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Test
 {
-	public class NullDataScope : IDataScope
+	public class NullDataScope : IDataScopeLegacy
 	{
-		public IDataScope Property(string propertyName, SyntaxNode node)
+		public IDataScopeLegacy Property(string propertyName)
 		{
 			return null;
 		}
 
-		public IDataScope Item()
+		public IDataScopeLegacy Item()
 		{
 			return null;
 		}
@@ -26,7 +25,7 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
+		public IEvaluator<IEnumerable> BindEnumerable(out IDataScopeLegacy childScope)
 		{
 			childScope = new NullDataScope();
 			return null;

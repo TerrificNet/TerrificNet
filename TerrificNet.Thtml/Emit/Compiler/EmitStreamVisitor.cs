@@ -80,7 +80,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			var scope = ScopeEmitter.Bind(DataScope, memberExpression);
 
-			var evaluator = scope.BindString();
+			var evaluator = scope.RequiresString();
             return EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write(evaluator.Evaluate(d)))));
 		}
 

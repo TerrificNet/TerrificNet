@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using TerrificNet.Thtml.Binding;
-using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class DynamicDataScope : IDataScope
+    public class DynamicDataScope : IDataScopeLegacy
     {
         private readonly IEvaluator _evaluator;
 
@@ -29,18 +28,18 @@ namespace TerrificNet.Thtml.Emit
 			return new CastEvaluator<bool>(_evaluator);
 		}
 
-	    public IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
+	    public IEvaluator<IEnumerable> BindEnumerable(out IDataScopeLegacy childScope)
 	    {
 		    childScope = new DynamicDataScope();
 		    return new CastEvaluator<IEnumerable>(_evaluator);
 	    }
 
-	    public virtual IDataScope Property(string propertyName, SyntaxNode node)
+	    public virtual IDataScopeLegacy Property(string propertyName)
         {
             return new DynamicDataScope(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }
 
-        public virtual IDataScope Item()
+        public virtual IDataScopeLegacy Item()
         {
             return new DynamicDataScope();
         }
