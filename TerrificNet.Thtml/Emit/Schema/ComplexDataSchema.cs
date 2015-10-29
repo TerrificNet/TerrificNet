@@ -5,7 +5,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 {
 	public class ComplexDataSchema : DataSchema
 	{
-		public ComplexDataSchema(IEnumerable<DataSchemaProperty> properties)
+		public ComplexDataSchema(IEnumerable<DataSchemaProperty> properties, bool nullable) : base(nullable)
 		{
 			Properties = properties.ToList();
 		}

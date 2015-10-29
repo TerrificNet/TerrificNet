@@ -55,6 +55,8 @@
     <Compile Include="Emit\Schema\DataSchema.cs" />
     <Compile Include="Emit\Schema\DataSchemaProperty.cs" />
     <Compile Include="Emit\Schema\DataScope.cs" />
+    <Compile Include="Emit\Schema\IterableDataSchema.cs" />
+    <Compile Include="Emit\Schema\SimpleDataSchema.cs" />
     <Compile Include="Emit\ScopeEmitter.cs" />
     <Compile Include="Emit\VTreeEmitter.cs" />
     <Compile Include="Emit\EmitterNode.cs" />

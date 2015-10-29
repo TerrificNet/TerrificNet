@@ -13,13 +13,28 @@ namespace TerrificNet.Thtml.Test.Asserts
 				return;
 			}
 
+			Assert.Equal(expected.Nullable, actual.Nullable);
+
 			GenericAssert.AssertOneOf(
+				() => GenericAssert.AssertValue<SimpleDataSchema>(expected, actual, AssertSimpleDataSchema),
 				() => GenericAssert.AssertValue<ComplexDataSchema>(expected, actual, AssertComplexDataSchem),
-				() => GenericAssert.AssertValue<DataSchema>(expected, actual, AssertSimpleSchema));
+				() => GenericAssert.AssertValue<IterableDataSchema>(expected, actual, AssertIterableDataSchema),
+				() => GenericAssert.AssertValue<DataSchema>(expected, actual, AssertEmptyDataSchema));
 		}
 
-		private static void AssertSimpleSchema(DataSchema expected, DataSchema actual)
+		private static void AssertEmptyDataSchema(DataSchema expected, DataSchema actual)
 		{
+			Assert.Equal(expected, actual);
+		}
+
+		private static void AssertSimpleDataSchema(SimpleDataSchema expected, SimpleDataSchema actual)
+		{
+			Assert.Equal(expected.Name, actual.Name);
+		}
+
+		private static void AssertIterableDataSchema(IterableDataSchema expected, IterableDataSchema actual)
+		{
+			AssertSchema(expected.ItemSchema, actual.ItemSchema);
 		}
 
 		private static void AssertComplexDataSchem(ComplexDataSchema expected, ComplexDataSchema actual)
