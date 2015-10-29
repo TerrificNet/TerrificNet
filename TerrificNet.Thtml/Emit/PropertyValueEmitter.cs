@@ -9,7 +9,7 @@ namespace TerrificNet.Thtml.Emit
 {
     internal class PropertyValueEmitter : EmitNodeVisitorBase<VPropertyValue>
     {
-        public PropertyValueEmitter(IDataBinder dataBinder, IHelperBinder helperBinder) : base(dataBinder, helperBinder)
+        public PropertyValueEmitter(IDataScope dataScope, IHelperBinder helperBinder) : base(dataScope, helperBinder)
         {
         }
 
@@ -20,7 +20,7 @@ namespace TerrificNet.Thtml.Emit
 
         public override IListEmitter<VPropertyValue> Visit(MemberExpression memberExpression)
         {
-            var scope = ScopeEmitter.Bind(DataBinder, memberExpression);
+            var scope = ScopeEmitter.Bind(DataScope, memberExpression);
 
             var evaluator = scope.BindString();
             return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
@@ -36,7 +36,7 @@ namespace TerrificNet.Thtml.Emit
             return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text)));
         }
 
-        protected override INodeVisitor<IListEmitter<VPropertyValue>> CreateVisitor(IDataBinder childScope)
+        protected override INodeVisitor<IListEmitter<VPropertyValue>> CreateVisitor(IDataScope childScope)
         {
             return new PropertyValueEmitter(childScope, HelperBinder);
         }

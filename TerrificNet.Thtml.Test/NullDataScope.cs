@@ -3,14 +3,14 @@ using TerrificNet.Thtml.Emit;
 
 namespace TerrificNet.Thtml.Test
 {
-	public class NullDataBinder : IDataBinder
+	public class NullDataScope : IDataScope
 	{
-		public IDataBinder Property(string propertyName)
+		public IDataScope Property(string propertyName)
 		{
 			return null;
 		}
 
-		public IDataBinder Item()
+		public IDataScope Item()
 		{
 			return null;
 		}
@@ -25,9 +25,9 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+		public IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
 		{
-			childScope = new NullDataBinder();
+			childScope = new NullDataScope();
 			return null;
 		}
 	}

@@ -4,16 +4,16 @@ using TerrificNet.Thtml.Binding;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class DynamicDataBinder : IDataBinder
+    public class DynamicDataScope : IDataScope
     {
         private readonly IEvaluator _evaluator;
 
-        public DynamicDataBinder()
+        public DynamicDataScope()
         {
             _evaluator = new NullEvaluator();
         }
 
-        private DynamicDataBinder(IEvaluator evaluator)
+        private DynamicDataScope(IEvaluator evaluator)
         {
             _evaluator = evaluator;
         }
@@ -28,20 +28,20 @@ namespace TerrificNet.Thtml.Emit
 			return new CastEvaluator<bool>(_evaluator);
 		}
 
-	    public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+	    public IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
 	    {
-		    childScope = new DynamicDataBinder();
+		    childScope = new DynamicDataScope();
 		    return new CastEvaluator<IEnumerable>(_evaluator);
 	    }
 
-	    public virtual IDataBinder Property(string propertyName)
+	    public virtual IDataScope Property(string propertyName)
         {
-            return new DynamicDataBinder(new PropertyReflectionEvaluator(_evaluator, propertyName));
+            return new DynamicDataScope(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }
 
-        public virtual IDataBinder Item()
+        public virtual IDataScope Item()
         {
-            return new DynamicDataBinder();
+            return new DynamicDataScope();
         }
 
         private interface IEvaluator

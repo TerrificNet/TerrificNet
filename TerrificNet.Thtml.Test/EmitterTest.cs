@@ -16,10 +16,10 @@ namespace TerrificNet.Thtml.Test
 	{
 		[Theory]
 		[MemberData("TestData")]
-		public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
+		public void TestEmit(string description, Document input, IDataScope dataScope, object data, VTree expected, IHelperBinder helperBinder)
 		{
 			var compiler = new VTreeEmitter();
-			var method = compiler.Emit(input, dataBinder, helperBinder);
+			var method = compiler.Emit(input, dataScope, helperBinder);
 
 			var result = method.Execute(new ObjectDataContext(data), null);
 
@@ -28,17 +28,17 @@ namespace TerrificNet.Thtml.Test
 
 		[Theory]
 		[MemberData("TestData")]
-		public void TestStreamEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
+		public void TestStreamEmit(string description, Document input, IDataScope dataScope, object data, VTree expected, IHelperBinder helperBinder)
 		{
 			var compiler = new VTreeEmitter();
-			var method = compiler.Emit(input, dataBinder, helperBinder);
+			var method = compiler.Emit(input, dataScope, helperBinder);
 			var result = method.Execute(new ObjectDataContext(data), null);
 			var expectedString = result.ToString();
 
 
 			// hack 
 			var helperResult = new MockContext<HelperBinderResult>();
-			helperResult.Arrange(d => d.CreateEmitter(The<IListEmitter<StreamWriterHandler>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataBinder>.IsAnyValue))
+			helperResult.Arrange(d => d.CreateEmitter(The<IListEmitter<StreamWriterHandler>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataScope>.IsAnyValue))
 				.Returns(EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write("helper output")))));
 
 			var helper = new MockContext<IHelperBinder>();
@@ -46,7 +46,7 @@ namespace TerrificNet.Thtml.Test
 
 			var streamCompiler = new StreamEmitter();
 			var sb = new StringBuilder();
-			streamCompiler.Emit(input, dataBinder, new HelperBinderMock(helper)).Execute(new ObjectDataContext(data), null)(new StringWriter(sb));
+			streamCompiler.Emit(input, dataScope, new HelperBinderMock(helper)).Execute(new ObjectDataContext(data), null)(new StringWriter(sb));
 
 			Assert.Equal(expectedString, sb.ToString());
 		}
@@ -59,7 +59,7 @@ namespace TerrificNet.Thtml.Test
 				{
 					"empty document",
 					new Document(),
-					new NullDataBinder(),
+					new NullDataScope(),
 					null,
 					new VNode(),
 					new NullHelperBinder()
@@ -71,7 +71,7 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Element("h1",
 							new TextNode("hallo"))),
-					new NullDataBinder(),
+					new NullDataScope(),
 					null,
 					new VNode(
 						new VElement("h1",
@@ -88,7 +88,7 @@ namespace TerrificNet.Thtml.Test
 							new Element("h3", new ElementPart [] { new AttributeNode("attr3", new ConstantAttributeContent("hallo3")) })
 						),
 						new Element("h1", new ElementPart [] { new AttributeNode("attr4", new ConstantAttributeContent("hallo4")) })),
-					new NullDataBinder(),
+					new NullDataScope(),
 					null,
 					new VNode(
 						new VElement("h1", new[] { new VProperty("attr1", new StringVPropertyValue("hallo")) },
@@ -105,7 +105,7 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Element("h1",
 							new Statement(new MemberExpression("name")))),
-					TypeDataBinder.BinderFromObject(obj),
+					TypeDataScope.BinderFromObject(obj),
 					obj,
 					new VNode(
 						new VElement("h1",
@@ -126,7 +126,7 @@ namespace TerrificNet.Thtml.Test
 								new IterationExpression(new MemberExpression("items")),
 								new Element("div",
 									new Statement(new MemberExpression("name")))))),
-					TypeDataBinder.BinderFromObject(obj2),
+					TypeDataScope.BinderFromObject(obj2),
 					obj2,
 					new VNode(
 						new VElement("h1",
@@ -143,7 +143,7 @@ namespace TerrificNet.Thtml.Test
 					"one element with attribute expression",
 					new Document(
 						new Element("h1", new ElementPart[] { new AttributeNode("title", new AttributeContentStatement(new MemberExpression("name"))) })),
-					TypeDataBinder.BinderFromObject(obj3),
+					TypeDataScope.BinderFromObject(obj3),
 					obj3,
 					new VNode(
 						new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null)),
@@ -167,7 +167,7 @@ namespace TerrificNet.Thtml.Test
 							new Statement(new ConditionalExpression(new MemberExpression("do")),
 								new Element("h1", new Statement(new MemberExpression("value"))))
 						)),
-					TypeDataBinder.BinderFromObject(obj4),
+					TypeDataScope.BinderFromObject(obj4),
 					obj4,
 					new VNode(
 						new VElement("h1", new VText("hallo2"))
@@ -176,7 +176,7 @@ namespace TerrificNet.Thtml.Test
 				};
 
 				var result = new MockContext<HelperBinderResult>();
-				result.Arrange(d => d.CreateEmitter(The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataBinder>.IsAnyValue))
+				result.Arrange(d => d.CreateEmitter(The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataScope>.IsAnyValue))
 					.Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
 
 				var helper = new MockContext<IHelperBinder>();
@@ -187,7 +187,7 @@ namespace TerrificNet.Thtml.Test
 					"one element with helper",
 					new Document(
 						new Element("h1", new Statement(new CallHelperExpression("helper")))),
-					TypeDataBinder.BinderFromObject(obj3),
+					TypeDataScope.BinderFromObject(obj3),
 					obj3,
 					new VNode(
 						new VElement("h1", new VText("helper output"))),
@@ -206,7 +206,7 @@ namespace TerrificNet.Thtml.Test
 									new AttributeContentStatement(new MemberExpression("member")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					TypeDataBinder.BinderFromObject(obj5),
+					TypeDataScope.BinderFromObject(obj5),
 					obj5,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("memberhallo")) })),
@@ -225,7 +225,7 @@ namespace TerrificNet.Thtml.Test
 									new ConditionalExpression(new MemberExpression("do")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					TypeDataBinder.BinderFromObject(obj6),
+					TypeDataScope.BinderFromObject(obj6),
 					obj6,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),
@@ -259,7 +259,7 @@ namespace TerrificNet.Thtml.Test
 			_invocationContext = invocationContext;
 		}
 
-		public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataBinder scope)
+		public override IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScope scope)
 		{
 			return _invocationContext.Invoke(f => f.CreateEmitter(children, helperBinder, scope));
 		}

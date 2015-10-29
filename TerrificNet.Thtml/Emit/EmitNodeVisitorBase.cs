@@ -9,11 +9,11 @@ namespace TerrificNet.Thtml.Emit
 	internal abstract class EmitNodeVisitorBase<T> : NodeVisitorBase<IListEmitter<T>>
 	{
 		protected IHelperBinder HelperBinder { get; }
-		protected IDataBinder DataBinder { get; }
+		protected IDataScope DataScope { get; }
 
-		protected EmitNodeVisitorBase(IDataBinder dataBinder, IHelperBinder helperBinder)
+		protected EmitNodeVisitorBase(IDataScope dataScope, IHelperBinder helperBinder)
 		{
-			DataBinder = dataBinder;
+			DataScope = dataScope;
 			HelperBinder = helperBinder;
 		}
 
@@ -22,9 +22,9 @@ namespace TerrificNet.Thtml.Emit
 			var iterationExpression = expression as IterationExpression;
 			if (iterationExpression != null)
 			{
-				var scope = ScopeEmitter.Bind(DataBinder, iterationExpression.Expression);
+				var scope = ScopeEmitter.Bind(DataScope, iterationExpression.Expression);
 
-				IDataBinder childScope;
+				IDataScope childScope;
 				var evaluator = scope.BindEnumerable(out childScope);
 
 				var child = CreateVisitor(childScope);
@@ -36,7 +36,7 @@ namespace TerrificNet.Thtml.Emit
 			var conditionalExpression = expression as ConditionalExpression;
 			if (conditionalExpression != null)
 			{
-				var scope = ScopeEmitter.Bind(DataBinder, conditionalExpression.Expression);
+				var scope = ScopeEmitter.Bind(DataScope, conditionalExpression.Expression);
 				var evaluator = scope.BindBoolean();
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
@@ -52,7 +52,7 @@ namespace TerrificNet.Thtml.Emit
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
-				var evaluation = result.CreateEmitter(EmitterNode.Many(children), HelperBinder, DataBinder);
+				var evaluation = result.CreateEmitter(EmitterNode.Many(children), HelperBinder, DataScope);
 				return evaluation;
 			}
 
@@ -64,7 +64,7 @@ namespace TerrificNet.Thtml.Emit
 			return EmitterNode.Many(elements);
 		}
 
-		protected abstract INodeVisitor<IListEmitter<T>> CreateVisitor(IDataBinder childScope);
+		protected abstract INodeVisitor<IListEmitter<T>> CreateVisitor(IDataScope childScope);
 
 		private static IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
 		{

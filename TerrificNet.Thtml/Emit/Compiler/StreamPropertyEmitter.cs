@@ -7,13 +7,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	internal class StreamPropertyEmitter : EmitNodeVisitorBase<StreamWriterHandler>
 	{
-		public StreamPropertyEmitter(IDataBinder dataBinder, IHelperBinder helperBinder) : base(dataBinder, helperBinder)
+		public StreamPropertyEmitter(IDataScope dataScope, IHelperBinder helperBinder) : base(dataScope, helperBinder)
 		{
 		}
 
 		public override IListEmitter<StreamWriterHandler> Visit(AttributeNode attributeNode)
 		{
-			var valueVisitor = new PropertyValueEmitter(DataBinder, HelperBinder);
+			var valueVisitor = new PropertyValueEmitter(DataScope, HelperBinder);
 			var valueEmitter = attributeNode.Value.Accept(valueVisitor);
 
 			if (valueEmitter == null)
@@ -44,7 +44,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			}
 		}
 
-		protected override INodeVisitor<IListEmitter<StreamWriterHandler>> CreateVisitor(IDataBinder childScope)
+		protected override INodeVisitor<IListEmitter<StreamWriterHandler>> CreateVisitor(IDataScope childScope)
 		{
 			return new StreamPropertyEmitter(childScope, HelperBinder);
 		}

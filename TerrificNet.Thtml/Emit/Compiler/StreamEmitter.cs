@@ -6,9 +6,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class StreamEmitter : IEmitter<Action<TextWriter>>
 	{
-		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataBinder dataBinder, IHelperBinder helperBinder)
+		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataScope dataScope, IHelperBinder helperBinder)
 		{
-			var visitor = new EmitStreamVisitor(dataBinder, helperBinder ?? new NullHelperBinder());
+			var visitor = new EmitStreamVisitor(dataScope, helperBinder ?? new NullHelperBinder());
 			visitor.Visit(input);
 			var action = visitor.DocumentFunc;
 

@@ -7,12 +7,12 @@ using System.Reflection;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public class TypeDataBinder : IDataBinder
+	public class TypeDataScope : IDataScope
     {
         private readonly ParameterExpression _dataContextParameter;
         private readonly Expression _memberAccess;
 
-        private TypeDataBinder(Type type)
+        private TypeDataScope(Type type)
         {
             _dataContextParameter = Expression.Parameter(typeof(IDataContext));
             _memberAccess = Expression.ConvertChecked(Expression.Property(_dataContextParameter, "Value"), type);
@@ -20,7 +20,7 @@ namespace TerrificNet.Thtml.Emit
             ResultType = type;
         }
 
-        private TypeDataBinder(Expression expression, ParameterExpression parameter) : this(expression.Type)
+        private TypeDataScope(Expression expression, ParameterExpression parameter) : this(expression.Type)
         {
             _dataContextParameter = parameter;
             _memberAccess = expression;
@@ -28,17 +28,17 @@ namespace TerrificNet.Thtml.Emit
 
         internal Type ResultType { get; }
 
-        public static IDataBinder BinderFromType(Type type)
+        public static IDataScope BinderFromType(Type type)
         {
-            return new TypeDataBinder(type);
+            return new TypeDataScope(type);
         }
 
-        public static IDataBinder BinderFromObject(object obj)
+        public static IDataScope BinderFromObject(object obj)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            return new TypeDataBinder(obj.GetType());
+            return new TypeDataScope(obj.GetType());
         }
 
         private Func<IDataContext, T> CreateEvaluation<T>()
@@ -60,7 +60,7 @@ namespace TerrificNet.Thtml.Emit
 			return Bind<bool>();
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+		public IEvaluator<IEnumerable> BindEnumerable(out IDataScope childScope)
 		{
 			childScope = Item();
 			return BindEnumerable();
@@ -79,18 +79,18 @@ namespace TerrificNet.Thtml.Emit
 			return new EvaluatorFromLambda<IEnumerable>(CreateEvaluation<IEnumerable>());
 		}
 
-		public virtual IDataBinder Property(string propertyName)
+		public virtual IDataScope Property(string propertyName)
         {
-            return new TypeDataBinder(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
+            return new TypeDataScope(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
         }
 
-		private IDataBinder Item()
+		private IDataScope Item()
         {
             var enumerable = ResultType.GetInterfaces().Union(new [] { ResultType }).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
             if (enumerable == null)
                 return null;
 
-            return new TypeDataBinder(enumerable.GetGenericArguments()[0]);
+            return new TypeDataScope(enumerable.GetGenericArguments()[0]);
         }
 
         private class EvaluatorFromLambda<T> : IEvaluator<T>

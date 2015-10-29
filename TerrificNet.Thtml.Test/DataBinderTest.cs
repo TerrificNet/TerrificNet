@@ -15,18 +15,18 @@ namespace TerrificNet.Thtml.Test
             get { return BinderFactories.Select(s => new object[] {s}); }
         }
 
-        private static IEnumerable<Func<Type, IDataBinder>> BinderFactories
+        private static IEnumerable<Func<Type, IDataScope>> BinderFactories
         {
             get
             {
-                yield return TypeDataBinder.BinderFromType;
-                yield return t => new DynamicDataBinder();
+                yield return TypeDataScope.BinderFromType;
+                yield return t => new DynamicDataScope();
             }
         }
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_SimpleProperty(Func<Type, IDataBinder> dataBinderFactory)
+        public void DataBinder_SimpleProperty(Func<Type, IDataScope> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property = expectedResult };
@@ -43,7 +43,7 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_IterationProperty(Func<Type, IDataBinder> dataBinderFactory)
+        public void DataBinder_IterationProperty(Func<Type, IDataScope> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property = new [] { new { Property2 = expectedResult } } };
@@ -53,7 +53,7 @@ namespace TerrificNet.Thtml.Test
 
             Assert.NotNull(result);
 
-	        IDataBinder childScope;
+	        IDataScope childScope;
             var evaluator = result.BindEnumerable(out childScope);
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
@@ -73,7 +73,7 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_NestedProperty(Func<Type, IDataBinder> dataBinderFactory)
+        public void DataBinder_NestedProperty(Func<Type, IDataScope> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property1 = new { Property2 = expectedResult } };
@@ -90,7 +90,7 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_ConditionalProperty(Func<Type, IDataBinder> dataBinderFactory)
+        public void DataBinder_ConditionalProperty(Func<Type, IDataScope> dataBinderFactory)
         {
             const bool expectedResult = true;
             var obj = new { Property1 = true };
@@ -111,12 +111,12 @@ namespace TerrificNet.Thtml.Test
         [InlineData(typeof(IDictionary<object, string>), typeof(KeyValuePair<object, string>))]
         public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
         {
-            var underTest = TypeDataBinder.BinderFromType(interfaceType);
-	        IDataBinder childScope;
+            var underTest = TypeDataScope.BinderFromType(interfaceType);
+	        IDataScope childScope;
 	        underTest.BindEnumerable(out childScope);
 
             Assert.NotNull(childScope);
-            var binder = Assert.IsType<TypeDataBinder>(childScope);
+            var binder = Assert.IsType<TypeDataScope>(childScope);
 
             Assert.Equal(expectedItemType, binder.ResultType);
         }
