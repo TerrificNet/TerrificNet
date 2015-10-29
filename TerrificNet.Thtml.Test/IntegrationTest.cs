@@ -43,7 +43,7 @@ namespace TerrificNet.Thtml.Test
                 {
                     @"<div name=""{{name}}"" />",
                     new Dummy { Name = "test1" },
-                    @"<div name=""test1"" ></div>"
+                    @"<div name=""test1""></div>"
                 };
             }
         }

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using LightMock;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Test.Asserts;
@@ -21,6 +24,31 @@ namespace TerrificNet.Thtml.Test
 			var result = method.Execute(new ObjectDataContext(data), null);
 
 			VTreeAsserts.AssertTree(expected, result);
+		}
+
+		[Theory]
+		[MemberData("TestData")]
+		public void TestStreamEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
+		{
+			var compiler = new VTreeEmitter();
+			var method = compiler.Emit(input, dataBinder, helperBinder);
+			var result = method.Execute(new ObjectDataContext(data), null);
+			var expectedString = result.ToString();
+
+
+			// hack 
+			var helperResult = new MockContext<HelperBinderResult>();
+			helperResult.Arrange(d => d.CreateEmitter(The<IListEmitter<StreamWriterHandler>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataBinder>.IsAnyValue))
+				.Returns(EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write("helper output")))));
+
+			var helper = new MockContext<IHelperBinder>();
+			helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(helperResult));
+
+			var streamCompiler = new StreamEmitter();
+			var sb = new StringBuilder();
+			streamCompiler.Emit(input, dataBinder, new HelperBinderMock(helper)).Execute(new ObjectDataContext(data), null)(new StringWriter(sb));
+
+			Assert.Equal(expectedString, sb.ToString());
 		}
 
 		public static IEnumerable<object[]> TestData
@@ -148,7 +176,8 @@ namespace TerrificNet.Thtml.Test
 				};
 
 				var result = new MockContext<HelperBinderResult>();
-				result.Arrange(d => d.CreateEmitter(The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataBinder>.IsAnyValue)).Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
+				result.Arrange(d => d.CreateEmitter(The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataBinder>.IsAnyValue))
+					.Returns(EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText("helper output"))));
 
 				var helper = new MockContext<IHelperBinder>();
 				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(result));
@@ -165,44 +194,44 @@ namespace TerrificNet.Thtml.Test
 					new HelperBinderMock(helper)
 				};
 
-			    var obj5 = new { Member = "member" };
-                yield return new object[]
-                {
-                    "one element with composite attribute",
-                    new Document(
-                        new Element("h1", new ElementPart[]
-                        {
-                            new AttributeNode("test", 
-                                new CompositeAttributeContent(
-                                    new AttributeContentStatement(new MemberExpression("member")),
-                                    new ConstantAttributeContent("hallo")))
-                        })),
-                    TypeDataBinder.BinderFromObject(obj5),
-                    obj5,
-                    new VNode(
-                        new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("memberhallo")) })),
-                    new NullHelperBinder()
-                };
+				var obj5 = new { Member = "member" };
+				yield return new object[]
+				{
+					"one element with composite attribute",
+					new Document(
+						new Element("h1", new ElementPart[]
+						{
+							new AttributeNode("test",
+								new CompositeAttributeContent(
+									new AttributeContentStatement(new MemberExpression("member")),
+									new ConstantAttributeContent("hallo")))
+						})),
+					TypeDataBinder.BinderFromObject(obj5),
+					obj5,
+					new VNode(
+						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("memberhallo")) })),
+					new NullHelperBinder()
+				};
 
-                var obj6 = new { Do = true };
-                yield return new object[]
-                {
-                    "one element with conditional attribte",
-                    new Document(
-                        new Element("h1", new ElementPart[]
-                        {
-                            new AttributeNode("test",
-                                new AttributeContentStatement(
-                                    new ConditionalExpression(new MemberExpression("do")),
-                                    new ConstantAttributeContent("hallo")))
-                        })),
-                    TypeDataBinder.BinderFromObject(obj6),
-                    obj6,
-                    new VNode(
-                        new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),
-                    new NullHelperBinder()
-                };
-            }
+				var obj6 = new { Do = true };
+				yield return new object[]
+				{
+					"one element with conditional attribte",
+					new Document(
+						new Element("h1", new ElementPart[]
+						{
+							new AttributeNode("test",
+								new AttributeContentStatement(
+									new ConditionalExpression(new MemberExpression("do")),
+									new ConstantAttributeContent("hallo")))
+						})),
+					TypeDataBinder.BinderFromObject(obj6),
+					obj6,
+					new VNode(
+						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),
+					new NullHelperBinder()
+				};
+			}
 		}
 	}
 
