@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using TerrificNet.Thtml.Emit;
-using TerrificNet.Thtml.VDom;
-
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
     public class MemberExpression : MustacheExpression

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using TerrificNet.Thtml.Binding;
+using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
@@ -34,7 +35,7 @@ namespace TerrificNet.Thtml.Emit
 		    return new CastEvaluator<IEnumerable>(_evaluator);
 	    }
 
-	    public virtual IDataScope Property(string propertyName)
+	    public virtual IDataScope Property(string propertyName, SyntaxNode node)
         {
             return new DynamicDataScope(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }

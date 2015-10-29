@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Test
 {
 	public class NullDataScope : IDataScope
 	{
-		public IDataScope Property(string propertyName)
+		public IDataScope Property(string propertyName, SyntaxNode node)
 		{
 			return null;
 		}

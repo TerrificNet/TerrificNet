@@ -13,7 +13,7 @@ namespace TerrificNet.Thtml.Emit
 
         public override IDataScope Visit(MemberExpression memberExpression)
         {
-            _dataScope = _dataScope.Property(memberExpression.Name);
+            _dataScope = _dataScope.Property(memberExpression.Name, memberExpression);
             if (memberExpression.SubExpression != null)
                 return memberExpression.SubExpression.Accept(this);
 

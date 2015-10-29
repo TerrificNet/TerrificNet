@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
@@ -79,7 +80,7 @@ namespace TerrificNet.Thtml.Emit
 			return new EvaluatorFromLambda<IEnumerable>(CreateEvaluation<IEnumerable>());
 		}
 
-		public virtual IDataScope Property(string propertyName)
+		public virtual IDataScope Property(string propertyName, SyntaxNode node)
         {
             return new TypeDataScope(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
         }

@@ -46,6 +46,8 @@ namespace TerrificNet.Thtml.Test.Asserts
 		{
 			Assert.Equal(expected.Name, actual.Name);
 			AssertSchema(expected.Schema, actual.Schema);
+
+			Assert.Equal(expected.DependentNodes, actual.DependentNodes);
 		}
 	}
 }

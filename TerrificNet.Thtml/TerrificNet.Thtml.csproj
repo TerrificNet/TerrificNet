@@ -52,6 +52,7 @@
     <Compile Include="Emit\PropertyEmitter.cs" />
     <Compile Include="Emit\PropertyValueEmitter.cs" />
     <Compile Include="Emit\Schema\ComplexDataSchema.cs" />
+    <Compile Include="Emit\Schema\DataContextException.cs" />
     <Compile Include="Emit\Schema\DataSchema.cs" />
     <Compile Include="Emit\Schema\DataSchemaProperty.cs" />
     <Compile Include="Emit\Schema\DataScope.cs" />

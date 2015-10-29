@@ -1,5 +1,6 @@
 ﻿using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Schema;
+using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Test.Asserts;
 using Xunit;
 
@@ -56,10 +57,13 @@ namespace TerrificNet.Thtml.Test
 		[Fact]
 		public void TestNullableChangeForIterableScope_ThrowsException()
 		{
+			_underTest.DependentNodes.Add(Node1);
+
 			IDataScope childScope;
 			_underTest.BindEnumerable(out childScope);
 
-			Assert.Throws<ContextException>(() => _underTest.BindBoolean());
+			var exception = Assert.Throws<DataContextException>(() => _underTest.BindBoolean());
+			Assert.Equal(_underTest.DependentNodes, exception.DependentNodes);
 		}
 
 		[Fact]
@@ -83,14 +87,20 @@ namespace TerrificNet.Thtml.Test
 
 			var expected = new ComplexDataSchema(new[]
 			{
-				new DataSchemaProperty(propertyName, DataSchema.String)
+				new DataSchemaProperty(propertyName, DataSchema.String, new [] { Node1 })
 			}, false);
 
-			var scope = _underTest.Property(propertyName);
+			var scope = _underTest.Property(propertyName, Node1);
 			scope.BindString();
 			var schema = _underTest.GetSchema();
 
 			DataSchemaAssert.AssertSchema(expected, schema);
+		}
+
+		private SyntaxNode Node1 = new DummySyntaxNode();
+
+		private class DummySyntaxNode : SyntaxNode
+		{
 		}
 	}
 }

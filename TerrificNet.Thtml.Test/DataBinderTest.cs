@@ -32,7 +32,7 @@ namespace TerrificNet.Thtml.Test
             var obj = new { Property = expectedResult };
             
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property");
+            var result = underTest.Property("property", null);
 
             Assert.NotNull(result);
             var evaluator = result.BindString();
@@ -49,7 +49,7 @@ namespace TerrificNet.Thtml.Test
             var obj = new { Property = new [] { new { Property2 = expectedResult } } };
 
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property");
+            var result = underTest.Property("property", null);
 
             Assert.NotNull(result);
 
@@ -60,7 +60,7 @@ namespace TerrificNet.Thtml.Test
             Assert.NotNull(propertyResult);
 
             var itemResult = childScope;
-            var innerPropertyResult = itemResult.Property("property2");
+            var innerPropertyResult = itemResult.Property("property2", null);
 
             var innerPropertyEvaluator = innerPropertyResult.BindString();
 
@@ -79,7 +79,7 @@ namespace TerrificNet.Thtml.Test
             var obj = new { Property1 = new { Property2 = expectedResult } };
 
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property1").Property("property2");
+            var result = underTest.Property("property1", null).Property("property2", null);
 
             Assert.NotNull(result);
             var evaluator = result.BindString();
@@ -96,7 +96,7 @@ namespace TerrificNet.Thtml.Test
             var obj = new { Property1 = true };
 
             var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property1");
+            var result = underTest.Property("property1", null);
 
             Assert.NotNull(result);
             var evaluator = result.BindBoolean();
