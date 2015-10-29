@@ -7,7 +7,6 @@ namespace TerrificNet.Thtml.Emit
 	{
 		IDataBinder Property(string propertyName);
 		IDataBinder Item();
-		IDataBinder Context();
 		bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc);
 	}
 
@@ -27,8 +26,10 @@ namespace TerrificNet.Thtml.Emit
 			return dataBinder.TryCreateEvaluation(out evaluationFunc);
 		}
 
-		public static IEvaluator<IEnumerable> BindEnumerable(this IDataBinder dataBinder)
+		public static IEvaluator<IEnumerable> BindEnumerable(this IDataBinder dataBinder, out IDataBinder childScope)
 		{
+			childScope = dataBinder.Item();
+
 			IEvaluator<IEnumerable> evaluator;
 			if (dataBinder.TryBindEnumerable(out evaluator))
 				return evaluator;

@@ -53,12 +53,13 @@ namespace TerrificNet.Thtml.Test
 
             Assert.NotNull(result);
 
-            var evaluator = result.BindEnumerable();
+	        IDataBinder childScope;
+            var evaluator = result.BindEnumerable(out childScope);
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
             Assert.NotNull(propertyResult);
 
-            var itemResult = result.Item();
+            var itemResult = childScope;
             var innerPropertyResult = itemResult.Property("property2");
 
             var innerPropertyEvaluator = innerPropertyResult.BindString();
@@ -111,10 +112,11 @@ namespace TerrificNet.Thtml.Test
         public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
         {
             var underTest = TypeDataBinder.BinderFromType(interfaceType);
-            var result = underTest.Item();
+	        IDataBinder childScope;
+	        underTest.BindEnumerable(out childScope);
 
-            Assert.NotNull(result);
-            var binder = Assert.IsType<TypeDataBinder>(result);
+            Assert.NotNull(childScope);
+            var binder = Assert.IsType<TypeDataBinder>(childScope);
 
             Assert.Equal(expectedItemType, binder.ResultType);
         }

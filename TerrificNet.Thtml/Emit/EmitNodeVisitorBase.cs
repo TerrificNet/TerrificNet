@@ -24,9 +24,9 @@ namespace TerrificNet.Thtml.Emit
 			{
 				var scope = ScopeEmitter.Bind(DataBinder, iterationExpression.Expression);
 
-				var evaluator = scope.BindEnumerable();
+				IDataBinder childScope;
+				var evaluator = scope.BindEnumerable(out childScope);
 
-				var childScope = scope.Item();
 				var child = CreateVisitor(childScope);
 				var children = childNodes.Select(c => c.Accept(child)).ToList();
 

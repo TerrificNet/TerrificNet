@@ -7,10 +7,5 @@ namespace TerrificNet.Thtml.Emit
 		public abstract IDataBinder Property(string propertyName);
 
 		public abstract IDataBinder Item();
-
-		public IDataBinder Context()
-		{
-			return this;
-		}
 	}
 }

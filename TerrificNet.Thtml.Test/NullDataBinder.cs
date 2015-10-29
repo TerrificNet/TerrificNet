@@ -14,11 +14,6 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public IDataBinder Context()
-		{
-			return null;
-		}
-
 		public bool TryCreateEvaluation<T>(out IEvaluator<T> evaluationFunc)
 		{
 			evaluationFunc = null;
