@@ -75,6 +75,17 @@ namespace TerrificNet.Thtml.Test
 		}
 
 		[Fact]
+		public void TestAccessPropertyOnString_ThrowsException()
+		{
+			_underTest.DependentNodes.Add(Node1);
+
+			_underTest.RequiresString();
+
+			var exception = Assert.Throws<DataContextException>(() => _underTest.Property("test", Node1));
+			Assert.Equal(_underTest.DependentNodes, exception.DependentNodes);
+		}
+
+		[Fact]
 		public void TestChangeFromBooleanToIterableScope()
 		{
 			var expected = new IterableDataSchema(DataSchema.Any, true);

@@ -57,24 +57,26 @@ namespace TerrificNet.Thtml.Emit.Schema
 				DataScopeContract = dataScopeContract;
 			}
 
+			protected abstract string Name { get; }
+
 			public virtual IDataScopeContract Property(string propertyName, SyntaxNode node)
 			{
-				throw new NotSupportedException();
+				throw new DataContextException($"Can not access property ${propertyName} on node ${node} because ${Name} doesn't support properties.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IEvaluator<string> RequiresString()
 			{
-				throw new NotSupportedException();
+				throw new DataContextException($"Can not access ${DataScopeContract.Name} as string because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IEvaluator<bool> RequiresBoolean()
 			{
-				throw new NotSupportedException();
+				throw new DataContextException($"The ${DataScopeContract.Name} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
-				throw new NotSupportedException();
+				throw new DataContextException($"Can not access ${DataScopeContract.Name} as iterable because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public abstract DataSchema GetSchema();
@@ -89,6 +91,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 				: base(dataScopeContract, childScopes, nullable)
 			{
 			}
+
+			protected override string Name => "Iterable";
 
 			public IterableDataScopeContract(DataScopeContract dataScopeContract, bool nullable = false) : base(dataScopeContract)
 			{
@@ -124,6 +128,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 			{
 			}
 
+			protected override string Name => "Object";
+
 			public override IDataScopeContract Property(string propertyName, SyntaxNode node)
 			{
 				if (_strategy != null)
@@ -138,11 +144,6 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 				scopeContract.DependentNodes.Add(node);
 				return scopeContract;
-			}
-
-			public override IEvaluator<bool> RequiresBoolean()
-			{
-				throw new DataContextException("The iterable member was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
@@ -168,6 +169,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 			{
 			}
 
+			protected override string Name => "String";
+
 			public override IEvaluator<string> RequiresString()
 			{
 				return null;
@@ -191,6 +194,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 			public BooleanDataScopeContract(DataScopeContract dataScopeContract) : base(dataScopeContract)
 			{
 			}
+
+			protected override string Name => "Boolean";
 
 			public override IEvaluator<bool> RequiresBoolean()
 			{
