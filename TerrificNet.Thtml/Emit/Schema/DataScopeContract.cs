@@ -61,22 +61,22 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public virtual IDataScopeContract Property(string propertyName, SyntaxNode node)
 			{
-				throw new DataContextException($"Can not access property ${propertyName} on node ${node} because ${Name} doesn't support properties.", DataScopeContract.DependentNodes.ToArray());
+				throw new DataContractException($"Can not access property ${propertyName} on node ${node} because ${Name} doesn't support properties.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IEvaluator<string> RequiresString()
 			{
-				throw new DataContextException($"Can not access ${DataScopeContract.Name} as string because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
+				throw new DataContractException($"Can not access ${DataScopeContract.Name} as string because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IEvaluator<bool> RequiresBoolean()
 			{
-				throw new DataContextException($"The ${DataScopeContract.Name} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
+				throw new DataContractException($"The ${DataScopeContract.Name} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
-				throw new DataContextException($"Can not access ${DataScopeContract.Name} as iterable because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
+				throw new DataContractException($"Can not access ${DataScopeContract.Name} as iterable because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public abstract DataSchema GetSchema();

@@ -70,7 +70,7 @@ namespace TerrificNet.Thtml.Test
 			IDataScopeContract childScopeContract;
 			_underTest.RequiresEnumerable(out childScopeContract);
 
-			var exception = Assert.Throws<DataContextException>(() => _underTest.RequiresBoolean());
+			var exception = Assert.Throws<DataContractException>(() => _underTest.RequiresBoolean());
 			Assert.Equal(_underTest.DependentNodes, exception.DependentNodes);
 		}
 
@@ -81,7 +81,7 @@ namespace TerrificNet.Thtml.Test
 
 			_underTest.RequiresString();
 
-			var exception = Assert.Throws<DataContextException>(() => _underTest.Property("test", Node1));
+			var exception = Assert.Throws<DataContractException>(() => _underTest.Property("test", Node1));
 			Assert.Equal(_underTest.DependentNodes, exception.DependentNodes);
 		}
 
