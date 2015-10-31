@@ -5,7 +5,7 @@ using TerrificNet.Thtml.Binding;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class DynamicDataScope : IDataScopeLegacy
+    public class DynamicDataScope : IDataBinder
     {
         private readonly IEvaluator _evaluator;
 
@@ -29,7 +29,7 @@ namespace TerrificNet.Thtml.Emit
 			return new CastEvaluator<bool>(_evaluator);
 		}
 
-	    public IEvaluator<IEnumerable> BindEnumerable(out IDataScopeLegacy childScope)
+	    public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
 	    {
 		    childScope = new DynamicDataScope();
 		    return new CastEvaluator<IEnumerable>(_evaluator);
@@ -37,12 +37,12 @@ namespace TerrificNet.Thtml.Emit
 
 	    public Type ResultType { get; } = null;
 
-	    public virtual IDataScopeLegacy Property(string propertyName)
+	    public virtual IDataBinder Property(string propertyName)
         {
             return new DynamicDataScope(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }
 
-        public virtual IDataScopeLegacy Item()
+        public virtual IDataBinder Item()
         {
             return new DynamicDataScope();
         }

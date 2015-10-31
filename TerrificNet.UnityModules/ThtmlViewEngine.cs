@@ -29,7 +29,7 @@ namespace TerrificNet.UnityModules
 
         public Task<IView> CreateViewAsync(TemplateInfo templateInfo, Type modelType, IModelBinder modelBinder)
         {
-            IDataScopeLegacy scope;
+            IDataBinder scope;
             if (modelType == typeof(object))
                 scope = new DynamicDataScope();
             else

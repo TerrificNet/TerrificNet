@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Test
             get { return BinderFactories.Select(s => new object[] {s}); }
         }
 
-        private static IEnumerable<Func<Type, IDataScopeLegacy>> BinderFactories
+        private static IEnumerable<Func<Type, IDataBinder>> BinderFactories
         {
             get
             {
@@ -26,7 +26,7 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_SimpleProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
+        public void DataBinder_SimpleProperty(Func<Type, IDataBinder> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property = expectedResult };
@@ -43,7 +43,7 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_IterationProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
+        public void DataBinder_IterationProperty(Func<Type, IDataBinder> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property = new [] { new { Property2 = expectedResult } } };
@@ -53,7 +53,7 @@ namespace TerrificNet.Thtml.Test
 
             Assert.NotNull(result);
 
-	        IDataScopeLegacy childScope;
+	        IDataBinder childScope;
             var evaluator = result.BindEnumerable(out childScope);
             var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
 
@@ -73,7 +73,7 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_NestedProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
+        public void DataBinder_NestedProperty(Func<Type, IDataBinder> dataBinderFactory)
         {
             const string expectedResult = "property";
             var obj = new { Property1 = new { Property2 = expectedResult } };
@@ -90,7 +90,7 @@ namespace TerrificNet.Thtml.Test
 
         [Theory]
         [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_ConditionalProperty(Func<Type, IDataScopeLegacy> dataBinderFactory)
+        public void DataBinder_ConditionalProperty(Func<Type, IDataBinder> dataBinderFactory)
         {
             const bool expectedResult = true;
             var obj = new { Property1 = true };
@@ -112,7 +112,7 @@ namespace TerrificNet.Thtml.Test
         public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
         {
             var underTest = TypeDataScope.BinderFromType(interfaceType);
-	        IDataScopeLegacy childScope;
+	        IDataBinder childScope;
 	        underTest.BindEnumerable(out childScope);
 
             Assert.NotNull(childScope);

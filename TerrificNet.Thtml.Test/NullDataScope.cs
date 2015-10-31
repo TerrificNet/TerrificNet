@@ -5,14 +5,14 @@ using TerrificNet.Thtml.Emit;
 
 namespace TerrificNet.Thtml.Test
 {
-	public class NullDataScope : IDataScopeLegacy
+	public class NullDataScope : IDataBinder
 	{
-		public IDataScopeLegacy Property(string propertyName)
+		public IDataBinder Property(string propertyName)
 		{
 			return null;
 		}
 
-		public IDataScopeLegacy Item()
+		public IDataBinder Item()
 		{
 			return null;
 		}
@@ -27,7 +27,7 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataScopeLegacy childScope)
+		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
 		{
 			childScope = new NullDataScope();
 			return null;

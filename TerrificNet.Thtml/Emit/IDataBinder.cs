@@ -5,21 +5,21 @@ using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public interface IDataScopeLegacy
+	public interface IDataBinder
 	{
-		IDataScopeLegacy Property(string propertyName);
+		IDataBinder Property(string propertyName);
 
 		IEvaluator<string> BindString();
 		IEvaluator<bool> BindBoolean();
-		IEvaluator<IEnumerable> BindEnumerable(out IDataScopeLegacy childScope);
+		IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope);
 		Type ResultType { get; }
 	}
 
 	public class DataScopeContractLegacyWrapper : IDataScopeContract
 	{
-		private readonly IDataScopeLegacy _legacy;
+		private readonly IDataBinder _legacy;
 
-		public DataScopeContractLegacyWrapper(IDataScopeLegacy legacy)
+		public DataScopeContractLegacyWrapper(IDataBinder legacy)
 		{
 			_legacy = legacy;
 		}
@@ -41,9 +41,9 @@ namespace TerrificNet.Thtml.Emit
 
 		public IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
-			IDataScopeLegacy childScopeLegacy;
-			var result = _legacy.BindEnumerable(out childScopeLegacy);
-			childScopeContract = new DataScopeContractLegacyWrapper(childScopeLegacy);
+			IDataBinder childBinder;
+			var result = _legacy.BindEnumerable(out childBinder);
+			childScopeContract = new DataScopeContractLegacyWrapper(childBinder);
 
 			return result;
 		}

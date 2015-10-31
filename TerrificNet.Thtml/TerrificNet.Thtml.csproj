@@ -64,7 +64,7 @@
     <Compile Include="Emit\ScopeEmitter.cs" />
     <Compile Include="Emit\VTreeEmitter.cs" />
     <Compile Include="Emit\EmitterNode.cs" />
-    <Compile Include="Emit\IDataScopeLegacy.cs" />
+    <Compile Include="Emit\IDataBinder.cs" />
     <Compile Include="Emit\IDataContext.cs" />
     <Compile Include="Emit\IEmitter.cs" />
     <Compile Include="Emit\IEmitterRunnable.cs" />

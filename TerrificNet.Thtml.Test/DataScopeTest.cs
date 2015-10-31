@@ -79,10 +79,67 @@ namespace TerrificNet.Thtml.Test
 		{
 			var expected = new IterableDataSchema(DataSchema.Any, true);
 
-			var booleanEvaluator = _underTest.RequiresBoolean();
+			_underTest.RequiresBoolean();
 
 			IDataScopeContract childScopeContract;
-			var enumEvaluator = _underTest.RequiresEnumerable(out childScopeContract);
+			_underTest.RequiresEnumerable(out childScopeContract);
+
+			var schema = _underTest.CompleteSchema();
+			DataSchemaAssert.AssertSchema(expected, schema);
+		}
+
+		[Fact]
+		public void TestExtendIterableScope()
+		{
+			var expected = new IterableDataSchema(DataSchema.Any, new[]
+			{
+				new DataSchemaProperty("length", DataSchema.Any, new [] { Node1 })
+			}, false);
+
+			IDataScopeContract childScopeContract;
+			_underTest.RequiresEnumerable(out childScopeContract);
+			_underTest.Property("length", Node1);
+
+			var schema = _underTest.CompleteSchema();
+			DataSchemaAssert.AssertSchema(expected, schema);
+		}
+
+		[Fact]
+		public void TestComplexToIterableScope()
+		{
+			var expected = new IterableDataSchema(DataSchema.Any, new[]
+			{
+				new DataSchemaProperty("length", DataSchema.Any, new [] { Node1 })
+			}, false);
+
+			_underTest.Property("length", Node1);
+
+			IDataScopeContract childScopeContract;
+			_underTest.RequiresEnumerable(out childScopeContract);
+
+			var schema = _underTest.CompleteSchema();
+			DataSchemaAssert.AssertSchema(expected, schema);
+		}
+
+		[Fact]
+		public void TestChangeFromBooleanToStringScope()
+		{
+			var expected = DataSchema.String;
+
+			_underTest.RequiresBoolean();
+			_underTest.RequiresString();
+
+			var schema = _underTest.CompleteSchema();
+			DataSchemaAssert.AssertSchema(expected, schema);
+		}
+
+		[Fact]
+		public void TestChangeFromStringToBooleanScope()
+		{
+			var expected = DataSchema.String;
+
+			_underTest.RequiresString();
+			_underTest.RequiresBoolean();
 
 			var schema = _underTest.CompleteSchema();
 			DataSchemaAssert.AssertSchema(expected, schema);
@@ -91,7 +148,7 @@ namespace TerrificNet.Thtml.Test
 		[Fact]
 		public void TestDependentNodes()
 		{
-			var expected = new ComplexDataSchema(new []
+			var expected = new ComplexDataSchema(new[]
 			{
 				new DataSchemaProperty("prop1", DataSchema.Any, new [] { Node1, Node2 }),
 				new DataSchemaProperty("prop2", DataSchema.Any, new [] { Node3 }),
