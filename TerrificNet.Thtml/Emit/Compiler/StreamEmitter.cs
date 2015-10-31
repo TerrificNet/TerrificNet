@@ -24,7 +24,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_action = action;
 			}
 
-			public Action<TextWriter> Execute(IDataContext context, IRenderingContext renderingContext)
+			public Action<TextWriter> Execute(object context, IRenderingContext renderingContext)
 			{
 				return writer => _action.Execute(context, renderingContext)(writer);
 			}

@@ -47,5 +47,7 @@ namespace TerrificNet.Thtml.Emit
 
 			return result;
 		}
+
+		public Type ResultType => _legacy.ResultType;
 	}
 }

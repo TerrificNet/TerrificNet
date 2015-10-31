@@ -17,16 +17,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private class IlEmitterRunnable : IEmitterRunnable<Action<TextWriter>>
 		{
-			private readonly Action<TextWriter, IDataContext> _action;
+			private readonly Action<TextWriter, object> _action;
 
-			public IlEmitterRunnable(Action<TextWriter, IDataContext> action)
+			public IlEmitterRunnable(Action<TextWriter, object> action)
 			{
 				_action = action;
 			}
 
-			public Action<TextWriter> Execute(IDataContext context, IRenderingContext renderingContext)
+			public Action<TextWriter> Execute(object data, IRenderingContext renderingContext)
 			{
-				return writer => _action(writer, context);
+				return writer => _action(writer, data);
 			}
 		}
 	}

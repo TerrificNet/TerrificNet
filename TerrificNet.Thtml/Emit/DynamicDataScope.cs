@@ -96,9 +96,9 @@ namespace TerrificNet.Thtml.Emit
                 _evaluator = evaluator;
             }
 
-            public T Evaluate(IDataContext context)
+            public T Evaluate(object context)
             {
-                var result = _evaluator.Evaluate(context.Value);
+                var result = _evaluator.Evaluate(context);
                 if (typeof (T) == typeof (string))
                 {
                     if (result == null)

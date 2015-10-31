@@ -19,14 +19,15 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
 		private readonly ParameterExpression _writerParameter = Expression.Parameter(typeof(TextWriter));
-		private readonly ParameterExpression _dataContextParameter = Expression.Parameter(typeof(IDataContext));
+		private readonly ParameterExpression _dataContextParameter;
 
-		public Action<TextWriter, IDataContext> DocumentFunc { get; private set; }
+		public Action<TextWriter, object> DocumentFunc { get; private set; }
 
 		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder, ParameterExpression writerParameter = null)
 		{
 			_dataScopeContract = dataScopeContract;
 			_helperBinder = helperBinder;
+			_dataContextParameter = Expression.Variable(_dataScopeContract.ResultType, "item");
 
 			if (writerParameter != null)
 				_writerParameter = writerParameter;
@@ -37,7 +38,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var elements = document.ChildNodes.Select(node => node.Accept(this)).ToList();
 
 			var expression = elements.Count == 0 ? (Expression)Expression.Empty() : Expression.Block(elements);
-			DocumentFunc = Expression.Lambda<Action<TextWriter, IDataContext>>(expression, _writerParameter, _dataContextParameter).Compile();
+
+			var inputExpression = Expression.Parameter(typeof(object), "input");
+			var convertExpression = Expression.Assign(_dataContextParameter, Expression.ConvertChecked(inputExpression, _dataScopeContract.ResultType));
+			var bodyExpression = Expression.Block(new[] { _dataContextParameter }, convertExpression, expression);
+			DocumentFunc = Expression.Lambda<Action<TextWriter, object>>(bodyExpression, _writerParameter, inputExpression).Compile();
 
 			return expression;
 		}
@@ -61,13 +66,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Block(Write(" " + attributeNode.Name + "=\""),
 				valueEmitter,
 				Write("\""));
-
-			//return EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer =>
-			//{
-			//	writer.Write(" {0}=\"", attributeNode.Name);
-			//	GetPropertyValue(writer, valueEmitter, d, r);
-			//	writer.Write("\"");
-			//})));
 		}
 
 		public override Expression Visit(ConstantAttributeContent attributeContent)
@@ -89,6 +87,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public override Expression Visit(UnconvertedExpression unconvertedExpression)
 		{
 			return unconvertedExpression.Expression.Accept(this);
+		}
+
+		public override Expression Visit(CompositeAttributeContent compositeAttributeContent)
+		{
+			var expressions = compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList();
+			return expressions.Any() ? (Expression)Expression.Block(expressions) : Expression.Empty();
 		}
 
 		public override Expression Visit(MemberExpression memberExpression)
@@ -116,8 +120,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				IDataScopeContract childScopeContract;
 				var evaluator = scope.RequiresEnumerable(out childScopeContract);
 
-				//var tmp = childScopeContract.ResultType;
-
 				var child = CreateVisitor(childScopeContract);
 				var children = childNodes.Select(c => c.Accept(child)).ToList();
 				var bodyExpression = children.Any() ? (Expression)Expression.Block(children) : Expression.Empty();
@@ -125,30 +127,37 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var evaluateMethod = GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
 				var collection = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
 				return ForEach(collection, child._dataContextParameter, bodyExpression);
-
-				//return EmitterNode.Iterator(d => evaluator.Evaluate(d), EmitterNode.Many(children));
-
-				return Expression.Empty();
 			}
 
 			var conditionalExpression = expression as ConditionalExpression;
 			if (conditionalExpression != null)
 			{
-				throw new NotImplementedException();
 
-				//var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
-				//	var evaluator = scope.RequiresBoolean();
+				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
+				var evaluator = scope.RequiresBoolean();
 
-				//	var children = childNodes.Select(c => c.Accept(this)).ToList();
+				var children = childNodes.Select(c => c.Accept(this)).ToList();
+				var childrenExpression = children.Any() ? (Expression) Expression.Block(children) : Expression.Empty();
 
-
-				//	return EmitterNode.Condition(d => evaluator.Evaluate(d), EmitterNode.Many(children));
+				var evaluateMethod = GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
+				var testExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
+				
+				return Expression.IfThen(testExpression, childrenExpression);
 			}
 
 			var callHelperExpression = expression as CallHelperExpression;
 			if (callHelperExpression != null)
 			{
-				throw new NotImplementedException();
+				var result = _helperBinder.FindByName(callHelperExpression.Name,
+					CreateDictionaryFromArguments(callHelperExpression.Attributes));
+				if (result == null)
+					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
+
+				var children = childNodes.Select(c => c.Accept(this)).ToList();
+				//var evaluation = result.CreateEmitter(null, _helperBinder, _dataScopeContract);
+				//return evaluation;
+
+				return Expression.Empty();
 			}
 
 			var contentEmitter = expression.Accept(this);
@@ -159,12 +168,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return elements.Any() ? (Expression)Expression.Block(elements) : Expression.Empty();
 		}
 
+		private static IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
+		{
+			return attributes.ToDictionary(d => d.Name, d => d.Value);
+		}
+
 		private EmitExpressionVisitor CreateVisitor(IDataScopeContract childScopeContract)
 		{
 			return new EmitExpressionVisitor(childScopeContract, _helperBinder, _writerParameter);
 		}
 
-		private static void GetPropertyValue(TextWriter writer, IListEmitter<VPropertyValue> emitter, IDataContext dataContext, IRenderingContext renderingContext)
+		private static void GetPropertyValue(TextWriter writer, IListEmitter<VPropertyValue> emitter, object dataContext, IRenderingContext renderingContext)
 		{
 			foreach (var emit in emitter.Execute(dataContext, renderingContext))
 			{

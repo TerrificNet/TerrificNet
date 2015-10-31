@@ -87,7 +87,7 @@ namespace TerrificNet.Thtml.Emit
 				_expression = expression;
 			}
 
-			public T Evaluate(IDataContext context)
+			public T Evaluate(object context)
 			{
 				try
 				{

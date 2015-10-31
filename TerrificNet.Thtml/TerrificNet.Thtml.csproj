@@ -65,14 +65,12 @@
     <Compile Include="Emit\VTreeEmitter.cs" />
     <Compile Include="Emit\EmitterNode.cs" />
     <Compile Include="Emit\IDataScopeLegacy.cs" />
-    <Compile Include="Emit\IDataContext.cs" />
     <Compile Include="Emit\IEmitter.cs" />
     <Compile Include="Emit\IEmitterRunnable.cs" />
     <Compile Include="Emit\IHelperBinder.cs" />
     <Compile Include="Emit\IListEmitter.cs" />
     <Compile Include="Emit\IRenderingContext.cs" />
     <Compile Include="Emit\NullHelperBinder.cs" />
-    <Compile Include="Emit\ObjectDataContext.cs" />
     <Compile Include="Emit\TypeDataScope.cs" />
     <Compile Include="Hyperscript\VHyperscriptRenderer.cs" />
     <Compile Include="LexicalAnalysis\CommonGrammar.cs" />

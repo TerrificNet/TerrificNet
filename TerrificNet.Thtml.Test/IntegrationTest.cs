@@ -21,7 +21,7 @@ namespace TerrificNet.Thtml.Test
             var dataBinder = TypeDataScope.BinderFromObject(inputObject);
             var method = compiler.Emit(ast, new DataScopeContractLegacyWrapper(dataBinder), null);
 
-            var result = method.Execute(new ObjectDataContext(inputObject), null);
+            var result = method.Execute(inputObject, null);
 
             Assert.Equal(expectedResult, result.ToString());
         }

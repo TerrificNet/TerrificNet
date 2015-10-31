@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
@@ -11,5 +12,7 @@ namespace TerrificNet.Thtml.Emit
 		IEvaluator<string> RequiresString();
 		IEvaluator<bool> RequiresBoolean();
 		IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract);
+
+		Type ResultType { get; }
 	}
 }

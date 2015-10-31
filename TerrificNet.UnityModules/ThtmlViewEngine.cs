@@ -69,7 +69,7 @@ namespace TerrificNet.UnityModules
 
             public void Render(object model, RenderingContext context)
             {
-	            var result = _method.Execute(new ObjectDataContext(model), new RenderingContextAdapter(context));
+	            var result = _method.Execute(model, new RenderingContextAdapter(context));
 	            context.Writer.Write(result);
             }
         }
@@ -170,7 +170,7 @@ namespace TerrificNet.UnityModules
                 _modelProvider = modelProvider;
             }
 
-            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
+            public IEnumerable<T> Execute(object context, IRenderingContext renderingContext)
             {
                 ViewDefinition definition;
                 if (!renderingContext.TryGetData("siteDefinition", out definition))
@@ -244,7 +244,7 @@ namespace TerrificNet.UnityModules
             var data = modelProvider.GetModelForModuleAsync(moduleDescription, null).Result;
             var template = moduleDescription.DefaultTemplate;
 
-            var context = new ObjectDataContext(data);
+            var context = data;
             var binder = new DynamicDataScope();
 
             var emitter = ThtmlViewEngine.CreateEmitter(template, new DataScopeContractLegacyWrapper(binder), helperBinder);
@@ -255,15 +255,15 @@ namespace TerrificNet.UnityModules
         private class ModuleEmitter<T> : IEmitterRunnable<T>
         {
             private readonly IEmitterRunnable<T> _adaptee;
-            private readonly IDataContext _dataContext;
+            private readonly object _dataContext;
 
-            public ModuleEmitter(IEmitterRunnable<T> adaptee, IDataContext dataContext)
+            public ModuleEmitter(IEmitterRunnable<T> adaptee, object dataContext)
             {
                 _adaptee = adaptee;
                 _dataContext = dataContext;
             }
 
-            public T Execute(IDataContext context, IRenderingContext renderingContext)
+            public T Execute(object context, IRenderingContext renderingContext)
             {
                 return _adaptee.Execute(_dataContext, renderingContext);
             }

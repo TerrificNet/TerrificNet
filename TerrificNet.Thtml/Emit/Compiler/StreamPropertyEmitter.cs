@@ -32,7 +32,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return HandleStatement(attributeStatement.Expression, attributeStatement.ChildNodes);
 		}
 
-		private static void GetPropertyValue(TextWriter writer, IListEmitter<VPropertyValue> emitter, IDataContext dataContext, IRenderingContext renderingContext)
+		private static void GetPropertyValue(TextWriter writer, IListEmitter<VPropertyValue> emitter, object dataContext, IRenderingContext renderingContext)
 		{
 			foreach (var emit in emitter.Execute(dataContext, renderingContext))
 			{

@@ -27,7 +27,7 @@ namespace TerrificNet.Thtml.Emit
             return HandleStatement(attributeStatement.Expression, attributeStatement.ChildNodes);
         }
 
-        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext, IRenderingContext renderingContext)
+        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, object dataContext, IRenderingContext renderingContext)
         {
             var stringBuilder = new StringBuilder();
             foreach (var emit in emitter.Execute(dataContext, renderingContext))

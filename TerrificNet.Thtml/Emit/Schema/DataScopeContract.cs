@@ -43,12 +43,14 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return GetOrCreate(() => new IterableDataScopeContract(this)).RequiresEnumerable(out childScopeContract);
 		}
 
+		public Type ResultType { get; } = typeof (object);
+
 		public DataSchema CompleteSchema()
 		{
 			return _strategy != null ? _strategy.GetSchema() : DataSchema.Any;
 		}
 
-		private class LateEvalutor : IEvaluator<IEnumerable<IDataContext>>
+		private class LateEvalutor : IEvaluator<IEnumerable<object>>
 		{
 			private readonly DataScopeContract _dataScopeContract;
 
@@ -57,7 +59,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				_dataScopeContract = dataScopeContract;
 			}
 
-			public IEnumerable<IDataContext> Evaluate(IDataContext context)
+			public IEnumerable<object> Evaluate(object context)
 			{
 				//var schema = _dataScopeContract.CompleteSchema();
 				throw new NotImplementedException();
@@ -114,6 +116,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 			{
 				throw new NotSupportedException();
 			}
+
+			public Type ResultType { get; }
 
 			public abstract DataSchema GetSchema();
 		}
