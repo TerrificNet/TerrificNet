@@ -50,35 +50,35 @@ namespace TerrificNet.Thtml.Test
 			Assert.Equal(expectedString, sb.ToString());
 		}
 
-		[Theory]
-		[MemberData("TestData")]
-		public void TestExpressionEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, VTree expected, IHelperBinder helperBinder)
-		{
-			var compiler = new VTreeEmitter();
-			var method = compiler.Emit(input, dataScopeContract, helperBinder);
-			var result = method.Execute(new ObjectDataContext(data), null);
-			var expectedString = result.ToString();
+		//[Theory]
+		//[MemberData("TestData")]
+		//public void TestExpressionEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, VTree expected, IHelperBinder helperBinder)
+		//{
+		//	var compiler = new VTreeEmitter();
+		//	var method = compiler.Emit(input, dataScopeContract, helperBinder);
+		//	var result = method.Execute(new ObjectDataContext(data), null);
+		//	var expectedString = result.ToString();
 
-			// hack 
-			var helperResult = new MockContext<HelperBinderResult>();
-			helperResult.Arrange(d => d.CreateEmitter(The<IListEmitter<StreamWriterHandler>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
-				.Returns(EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write("helper output")))));
+		//	// hack 
+		//	var helperResult = new MockContext<HelperBinderResult>();
+		//	helperResult.Arrange(d => d.CreateEmitter(The<IListEmitter<StreamWriterHandler>>.IsAnyValue, The<IHelperBinder>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
+		//		.Returns(EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write("helper output")))));
 
-			var helper = new MockContext<IHelperBinder>();
-			helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(helperResult));
+		//	var helper = new MockContext<IHelperBinder>();
+		//	helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(helperResult));
 
-			var streamCompiler = new ExpressionEmitter();
-			var sb = new StringBuilder();
-			streamCompiler.Emit(input, dataScopeContract, new HelperBinderMock(helper)).Execute(new ObjectDataContext(data), null)(new StringWriter(sb));
+		//	var streamCompiler = new ExpressionEmitter();
+		//	var sb = new StringBuilder();
+		//	streamCompiler.Emit(input, dataScopeContract, new HelperBinderMock(helper)).Execute(new ObjectDataContext(data), null)(new StringWriter(sb));
 
-			Assert.Equal(expectedString, sb.ToString());
-		}
+		//	Assert.Equal(expectedString, sb.ToString());
+		//}
 
 		public static IEnumerable<object[]> TestData
 		{
 			get
 			{
-				/*yield return new object[]
+				yield return new object[]
 				{
 					"empty document",
 					new Document(),
@@ -134,7 +134,7 @@ namespace TerrificNet.Thtml.Test
 						new VElement("h1",
 							new VText("hallo"))),
 					new NullHelperBinder()
-				};*/
+				};
 
 				var obj2 = new DummyCollection
 				{
@@ -160,7 +160,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				/*var obj3 = new Dummy { Name = "value" };
+				var obj3 = new Dummy { Name = "value" };
 				yield return new object[]
 				{
 					"one element with attribute expression",
@@ -173,7 +173,7 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				/*var obj4 = new
+				var obj4 = new
 				{
 					List = new[]
 					{
@@ -253,7 +253,7 @@ namespace TerrificNet.Thtml.Test
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),
 					new NullHelperBinder()
-				};*/
+				};
 			}
 		}
 	}
