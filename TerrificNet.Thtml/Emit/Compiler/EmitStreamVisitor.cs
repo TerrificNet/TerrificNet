@@ -81,7 +81,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var scope = ScopeEmitter.Bind(DataScopeContract, memberExpression);
 
 			var evaluator = scope.RequiresString();
-            return EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write(evaluator.Evaluate(d)))));
+			return EmitterNode.AsList(EmitterNode.Lambda<StreamWriterHandler>((d, r) => (writer => writer.Write(evaluator.Evaluate(d)))));
 		}
 
 		public override IListEmitter<StreamWriterHandler> Visit(TextNode textNode)

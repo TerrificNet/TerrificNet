@@ -48,7 +48,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return _strategy != null ? _strategy.GetSchema() : DataSchema.Any;
 		}
 
-		private class LateEvalutor : IEvaluator<IEnumerable>
+		private class LateEvalutor : IEvaluator<IEnumerable<IDataContext>>
 		{
 			private readonly DataScopeContract _dataScopeContract;
 
@@ -57,7 +57,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				_dataScopeContract = dataScopeContract;
 			}
 
-			public IEnumerable Evaluate(IDataContext context)
+			public IEnumerable<IDataContext> Evaluate(IDataContext context)
 			{
 				//var schema = _dataScopeContract.CompleteSchema();
 				throw new NotImplementedException();

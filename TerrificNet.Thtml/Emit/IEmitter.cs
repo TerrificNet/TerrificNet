@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit

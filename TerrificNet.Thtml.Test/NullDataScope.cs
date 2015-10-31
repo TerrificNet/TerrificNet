@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using TerrificNet.Thtml.Emit;
 
 namespace TerrificNet.Thtml.Test
@@ -30,5 +32,7 @@ namespace TerrificNet.Thtml.Test
 			childScope = new NullDataScope();
 			return null;
 		}
+
+		public Type ResultType { get; } = null;
 	}
 }

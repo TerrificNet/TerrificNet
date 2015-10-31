@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TerrificNet.Thtml.Binding;
 
 namespace TerrificNet.Thtml.Emit
@@ -33,6 +34,8 @@ namespace TerrificNet.Thtml.Emit
 		    childScope = new DynamicDataScope();
 		    return new CastEvaluator<IEnumerable>(_evaluator);
 	    }
+
+	    public Type ResultType { get; } = null;
 
 	    public virtual IDataScopeLegacy Property(string propertyName)
         {

@@ -40,7 +40,9 @@
     <Compile Include="Binding\MemberLocator.cs" />
     <Compile Include="Binding\TypeExtensions.cs" />
     <Compile Include="Binding\TypeHelperBinder.cs" />
+    <Compile Include="Emit\Compiler\EmitExpressionVisitor.cs" />
     <Compile Include="Emit\Compiler\EmitStreamVisitor.cs" />
+    <Compile Include="Emit\Compiler\ExpressionEmitter.cs" />
     <Compile Include="Emit\Compiler\StreamEmitter.cs" />
     <Compile Include="Emit\Compiler\StreamPropertyEmitter.cs" />
     <Compile Include="Emit\Compiler\StreamWriterHandler.cs" />

@@ -1,14 +1,14 @@
-using System;
+﻿using System;
 using System.IO;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class StreamEmitter : IEmitter<Action<TextWriter>>
+	public class ExpressionEmitter : IEmitter<Action<TextWriter>>
 	{
 		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
 		{
-			var visitor = new EmitStreamVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder());
+			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder());
 			visitor.Visit(input);
 			var action = visitor.DocumentFunc;
 
@@ -17,16 +17,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private class IlEmitterRunnable : IEmitterRunnable<Action<TextWriter>>
 		{
-			private readonly IEmitterRunnable<StreamWriterHandler> _action;
+			private readonly Action<TextWriter, IDataContext> _action;
 
-			public IlEmitterRunnable(IEmitterRunnable<StreamWriterHandler> action)
+			public IlEmitterRunnable(Action<TextWriter, IDataContext> action)
 			{
 				_action = action;
 			}
 
 			public Action<TextWriter> Execute(IDataContext context, IRenderingContext renderingContext)
 			{
-				return writer => _action.Execute(context, renderingContext)(writer);
+				return writer => _action(writer, context);
 			}
 		}
 	}

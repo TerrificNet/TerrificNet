@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
@@ -10,6 +12,7 @@ namespace TerrificNet.Thtml.Emit
 		IEvaluator<string> BindString();
 		IEvaluator<bool> BindBoolean();
 		IEvaluator<IEnumerable> BindEnumerable(out IDataScopeLegacy childScope);
+		Type ResultType { get; }
 	}
 
 	public class DataScopeContractLegacyWrapper : IDataScopeContract
