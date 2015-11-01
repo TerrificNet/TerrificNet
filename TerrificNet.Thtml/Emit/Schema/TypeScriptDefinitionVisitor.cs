@@ -72,7 +72,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				Write(property.Name);
 				Write(":");
 				property.Schema.Accept(this);
-				Write(";");
+				Write("; ");
 			}
 			Write(" } ");
 		}
