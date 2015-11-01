@@ -53,7 +53,7 @@ namespace TerrificNet.Thtml.Test
 				{
 					@"interface _global {
 						property1:t1;
-						property2:t2;
+						property2?:t2;
 					} 
 					interface t2 {
 						property4:string;
@@ -75,7 +75,7 @@ namespace TerrificNet.Thtml.Test
 							new ComplexDataSchema(new []
 							{
 								new DataSchemaProperty("property4", DataSchema.String, dependentNodes)
-							}, false),
+							}, true),
 							dependentNodes)
 
 					}, false)

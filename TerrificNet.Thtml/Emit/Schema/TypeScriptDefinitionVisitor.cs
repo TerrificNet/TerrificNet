@@ -70,6 +70,9 @@ namespace TerrificNet.Thtml.Emit.Schema
 			foreach (var property in complexDataSchema.Properties)
 			{
 				Write(property.Name);
+				if (property.Schema != DataSchema.String && property.Schema.Nullable)
+					Write("?");
+
 				Write(":");
 				property.Schema.Accept(this);
 				Write("; ");
