@@ -16,5 +16,10 @@ namespace TerrificNet.Thtml.Emit.Schema
 		{
 			ItemSchema = itemSchema;
 		}
+
+		public override void Accept(IDataSchemaVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 	}
 }

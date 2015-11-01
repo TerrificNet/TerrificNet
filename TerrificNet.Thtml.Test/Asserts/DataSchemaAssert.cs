@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Test.Asserts
 				() => GenericAssert.AssertValue<SimpleDataSchema>(expected, actual, AssertSimpleDataSchema),
 				() => GenericAssert.AssertValue<IterableDataSchema>(expected, actual, AssertIterableDataSchema),
 				() => GenericAssert.AssertValue<ComplexDataSchema>(expected, actual, AssertComplexDataSchema),
-				() => GenericAssert.AssertValue<DataSchema>(expected, actual, AssertEmptyDataSchema));
+				() => GenericAssert.AssertValue<AnyDataSchema>(expected, actual, AssertEmptyDataSchema));
 		}
 
 		private static void AssertEmptyDataSchema(DataSchema expected, DataSchema actual)
