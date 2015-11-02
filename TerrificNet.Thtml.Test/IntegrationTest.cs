@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Emit.Vtree;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;

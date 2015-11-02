@@ -3,7 +3,7 @@ using System.Text;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.VDom;
 
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Emit.Vtree
 {
     internal class PropertyEmitter : ListEmitNodeVisitor<VProperty>
 	{

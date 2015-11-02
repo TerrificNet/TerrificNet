@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using LightMock;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Emit.Vtree;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Test.Asserts;

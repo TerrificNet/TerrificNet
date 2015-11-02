@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
+using TerrificNet.Thtml.Emit.Vtree;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;

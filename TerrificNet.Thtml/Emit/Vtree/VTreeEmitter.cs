@@ -1,8 +1,7 @@
-using System;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.VDom;
 
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Emit.Vtree
 {
 	public class VTreeEmitter : IEmitter<VTree, IListEmitter<VTree>, object>
 	{
