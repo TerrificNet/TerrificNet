@@ -25,12 +25,12 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 		public IDataScopeContract Property(string propertyName, SyntaxNode node)
 		{
-			return GetOrCreate(() => new ComplexDataScopeContract()).Property(propertyName, node);
+			return GetOrCreate(() => new ComplexDataScopeContract(this)).Property(propertyName, node);
 		}
 
 		public IEvaluator<string> RequiresString()
 		{
-			return GetOrCreate(() => new StringDataScopeContract()).RequiresString();
+			return GetOrCreate(() => new StringDataScopeContract(this)).RequiresString();
 		}
 
 		public IEvaluator<bool> RequiresBoolean()
@@ -43,92 +43,102 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return GetOrCreate(() => new IterableDataScopeContract(this)).RequiresEnumerable(out childScopeContract);
 		}
 
-		public Type ResultType { get; } = typeof (object);
+		public Type ResultType { get; }
 
 		public DataSchema CompleteSchema()
 		{
 			return _strategy != null ? _strategy.GetSchema() : DataSchema.Any;
 		}
 
-		private class LateEvalutor : IEvaluator<IEnumerable<object>>
+		private abstract class DataScopeContractBuildStrategy : IDataScopeContract
 		{
-			private readonly DataScopeContract _dataScopeContract;
+			protected readonly DataScopeContract DataScopeContract;
 
-			public LateEvalutor(DataScopeContract dataScopeContract)
+			protected DataScopeContractBuildStrategy(DataScopeContract dataScopeContract)
 			{
-				_dataScopeContract = dataScopeContract;
+				DataScopeContract = dataScopeContract;
 			}
 
-			public IEnumerable<object> Evaluate(object context)
+			protected abstract string Name { get; }
+
+			public virtual IDataScopeContract Property(string propertyName, SyntaxNode node)
 			{
-				//var schema = _dataScopeContract.CompleteSchema();
-				throw new NotImplementedException();
+				throw new DataContractException($"Can not access property ${propertyName} on node ${node} because ${Name} doesn't support properties.", DataScopeContract.DependentNodes.ToArray());
 			}
+
+			public virtual IEvaluator<string> RequiresString()
+			{
+				throw new DataContractException($"Can not access ${DataScopeContract.Name} as string because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
+			}
+
+			public virtual IEvaluator<bool> RequiresBoolean()
+			{
+				throw new DataContractException($"The ${DataScopeContract.Name} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
+			}
+
+			public virtual IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			{
+				throw new DataContractException($"Can not access ${DataScopeContract.Name} as iterable because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
+			}
+
+			public Type ResultType => DataScopeContract.ResultType;
+
+			public abstract DataSchema GetSchema();
 		}
 
-		private class IterableDataScopeContract : DataScopeContractBuildStrategy
+		private class IterableDataScopeContract : ComplexDataScopeContract
 		{
 			private readonly DataScopeContract _childScopeContract = new DataScopeContract("item");
 			private readonly bool _nullable;
-			private readonly DataScopeContract _dataScopeContract;
 
-			public IterableDataScopeContract(DataScopeContract dataScopeContract, bool nullable = false)
+			public IterableDataScopeContract(DataScopeContract dataScopeContract, IDictionary<string, DataScopeContract> childScopes, bool nullable = false)
+				: base(dataScopeContract, childScopes, nullable)
 			{
-				_dataScopeContract = dataScopeContract;
+			}
+
+			protected override string Name => "Iterable";
+
+			public IterableDataScopeContract(DataScopeContract dataScopeContract, bool nullable = false) : base(dataScopeContract)
+			{
 				_nullable = nullable;
 			}
 
 			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				childScopeContract = _childScopeContract;
-				return new LateEvalutor(_dataScopeContract);
-			}
-
-			public override IEvaluator<bool> RequiresBoolean()
-			{
-				throw new DataContextException("The iterable member was already called without boolean check.", _dataScopeContract.DependentNodes.ToArray());
+				return null;
 			}
 
 			public override DataSchema GetSchema()
 			{
-				return new IterableDataSchema(_childScopeContract.CompleteSchema(), _nullable);
+				return new IterableDataSchema(_childScopeContract.CompleteSchema(), GetProperties(), _nullable);
 			}
-		}
-
-		private abstract class DataScopeContractBuildStrategy : IDataScopeContract
-		{
-			public virtual IDataScopeContract Property(string propertyName, SyntaxNode node)
-			{
-				throw new NotSupportedException();
-			}
-
-			public virtual IEvaluator<string> RequiresString()
-			{
-				throw new NotSupportedException();
-			}
-
-			public virtual IEvaluator<bool> RequiresBoolean()
-			{
-				throw new NotSupportedException();
-			}
-
-			public virtual IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
-			{
-				throw new NotSupportedException();
-			}
-
-			public Type ResultType { get; }
-
-			public abstract DataSchema GetSchema();
 		}
 
 		private class ComplexDataScopeContract : DataScopeContractBuildStrategy
 		{
-			private readonly Dictionary<string, DataScopeContract> _childScopes = new Dictionary<string, DataScopeContract>();
-			private bool _nullable = false;
+			private readonly IDictionary<string, DataScopeContract> _childScopes = new Dictionary<string, DataScopeContract>();
+			private readonly bool _nullable;
+			private DataScopeContractBuildStrategy _strategy;
+
+			protected ComplexDataScopeContract(DataScopeContract dataScopeContract, IDictionary<string, DataScopeContract> childScopes, bool nullable = false) 
+				: this(dataScopeContract)
+			{
+				_childScopes = childScopes;
+				_nullable = nullable;
+			}
+
+			public ComplexDataScopeContract(DataScopeContract dataScopeContract) : base(dataScopeContract)
+			{
+			}
+
+			protected override string Name => "Object";
 
 			public override IDataScopeContract Property(string propertyName, SyntaxNode node)
 			{
+				if (_strategy != null)
+					return _strategy.Property(propertyName, node);
+
 				DataScopeContract scopeContract;
 				if (!_childScopes.TryGetValue(propertyName, out scopeContract))
 				{
@@ -140,15 +150,37 @@ namespace TerrificNet.Thtml.Emit.Schema
 				return scopeContract;
 			}
 
+			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			{
+				_strategy = new IterableDataScopeContract(DataScopeContract, _childScopes, _nullable);
+				return _strategy.RequiresEnumerable(out childScopeContract);
+			}
+
 			public override DataSchema GetSchema()
 			{
-				return new ComplexDataSchema(_childScopes.Select(kv => new DataSchemaProperty(kv.Key, kv.Value.CompleteSchema(), kv.Value.DependentNodes)), _nullable);
+				return _strategy == null ? new ComplexDataSchema(GetProperties(), _nullable) : _strategy.GetSchema();
+			}
+
+			protected IEnumerable<DataSchemaProperty> GetProperties()
+			{
+				return _childScopes.Select(kv => new DataSchemaProperty(kv.Key, kv.Value.CompleteSchema(), kv.Value.DependentNodes));
 			}
 		}
 
 		private class StringDataScopeContract : DataScopeContractBuildStrategy
 		{
+			public StringDataScopeContract(DataScopeContract dataScopeContract) : base(dataScopeContract)
+			{
+			}
+
+			protected override string Name => "String";
+
 			public override IEvaluator<string> RequiresString()
+			{
+				return null;
+			}
+
+			public override IEvaluator<bool> RequiresBoolean()
 			{
 				return null;
 			}
@@ -161,22 +193,28 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 		private class BooleanDataScopeContract : DataScopeContractBuildStrategy
 		{
-			private readonly DataScopeContract _dataScopeContract;
 			private DataScopeContractBuildStrategy _strategy;
 
-			public BooleanDataScopeContract(DataScopeContract dataScopeContract)
+			public BooleanDataScopeContract(DataScopeContract dataScopeContract) : base(dataScopeContract)
 			{
-				_dataScopeContract = dataScopeContract;
 			}
+
+			protected override string Name => "Boolean";
 
 			public override IEvaluator<bool> RequiresBoolean()
 			{
 				return null;
 			}
 
+			public override IEvaluator<string> RequiresString()
+			{
+				_strategy = new StringDataScopeContract(DataScopeContract);
+				return _strategy.RequiresString();
+			}
+
 			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
-				_strategy = new IterableDataScopeContract(_dataScopeContract, true);
+				_strategy = new IterableDataScopeContract(DataScopeContract, true);
 				return _strategy.RequiresEnumerable(out childScopeContract);
 			}
 

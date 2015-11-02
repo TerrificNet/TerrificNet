@@ -17,9 +17,9 @@ namespace TerrificNet.Thtml.Test.Asserts
 
 			GenericAssert.AssertOneOf(
 				() => GenericAssert.AssertValue<SimpleDataSchema>(expected, actual, AssertSimpleDataSchema),
-				() => GenericAssert.AssertValue<ComplexDataSchema>(expected, actual, AssertComplexDataSchem),
 				() => GenericAssert.AssertValue<IterableDataSchema>(expected, actual, AssertIterableDataSchema),
-				() => GenericAssert.AssertValue<DataSchema>(expected, actual, AssertEmptyDataSchema));
+				() => GenericAssert.AssertValue<ComplexDataSchema>(expected, actual, AssertComplexDataSchema),
+				() => GenericAssert.AssertValue<AnyDataSchema>(expected, actual, AssertEmptyDataSchema));
 		}
 
 		private static void AssertEmptyDataSchema(DataSchema expected, DataSchema actual)
@@ -34,10 +34,11 @@ namespace TerrificNet.Thtml.Test.Asserts
 
 		private static void AssertIterableDataSchema(IterableDataSchema expected, IterableDataSchema actual)
 		{
+			GenericAssert.AssertCollection(expected.Properties, actual.Properties, AssertSchemaProperty);
 			AssertSchema(expected.ItemSchema, actual.ItemSchema);
 		}
 
-		private static void AssertComplexDataSchem(ComplexDataSchema expected, ComplexDataSchema actual)
+		private static void AssertComplexDataSchema(ComplexDataSchema expected, ComplexDataSchema actual)
 		{
 			GenericAssert.AssertCollection(expected.Properties, actual.Properties, AssertSchemaProperty);
 		}

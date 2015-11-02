@@ -11,5 +11,10 @@ namespace TerrificNet.Thtml.Emit.Schema
 		}
 
 		public IReadOnlyList<DataSchemaProperty> Properties { get; }
+
+		public override void Accept(IDataSchemaVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 	}
 }
