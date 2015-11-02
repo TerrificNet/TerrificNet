@@ -7,12 +7,9 @@ namespace TerrificNet.Thtml.Emit
 {
     internal class PropertyEmitter : ListEmitNodeVisitor<VProperty>
 	{
-	    private readonly ListEmitterFactory<VPropertyValue> _propertyValueFactory;
-
 	    public PropertyEmitter(IDataScopeContract dataScopeContract, IHelperBinder<IListEmitter<VProperty>, object> helperBinder) 
 			: base(dataScopeContract, helperBinder)
         {
-	        _propertyValueFactory = new ListEmitterFactory<VPropertyValue>();
         }
 
 		public override IListEmitter<VProperty> Visit(AttributeNode attributeNode)
@@ -21,9 +18,9 @@ namespace TerrificNet.Thtml.Emit
             var valueEmitter = attributeNode.Value.Accept(valueVisitor);
 
             if (valueEmitter == null)
-                valueEmitter = _propertyValueFactory.AsList(_propertyValueFactory.Lambda((d, r) => null));
+                valueEmitter = EmitterNode<VPropertyValue>.AsList(EmitterNode<VPropertyValue>.Lambda((d, r) => null));
 
-            return Emitter.AsList(Emitter.Lambda((d, r) => new VProperty(attributeNode.Name, GetPropertyValue(valueEmitter, d, r))));
+            return EmitterNode<VProperty>.AsList(EmitterNode<VProperty>.Lambda((d, r) => new VProperty(attributeNode.Name, GetPropertyValue(valueEmitter, d, r))));
         }
 
         public override IListEmitter<VProperty> Visit(AttributeStatement attributeStatement)

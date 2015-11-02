@@ -22,17 +22,17 @@ namespace TerrificNet.Thtml.Emit
 			var scope = ScopeEmitter.Bind(DataScopeContract, memberExpression);
 
 			var evaluator = scope.RequiresString();
-			return Emitter.AsList(Emitter.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
+			return EmitterNode<VPropertyValue>.AsList(EmitterNode<VPropertyValue>.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
 		}
 
 		public override IListEmitter<VPropertyValue> Visit(CompositeAttributeContent compositeAttributeContent)
 		{
-			return Emitter.Many(compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList());
+			return EmitterNode<VPropertyValue>.Many(compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList());
 		}
 
 		public override IListEmitter<VPropertyValue> Visit(ConstantAttributeContent attributeContent)
 		{
-			return Emitter.AsList(Emitter.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text)));
+			return EmitterNode<VPropertyValue>.AsList(EmitterNode<VPropertyValue>.Lambda((d, r) => new StringVPropertyValue(attributeContent.Text)));
 		}
 
 		protected override INodeVisitor<IListEmitter<VPropertyValue>> CreateVisitor(IDataScopeContract childScopeContract)

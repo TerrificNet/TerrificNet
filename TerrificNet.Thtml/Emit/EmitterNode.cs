@@ -5,38 +5,38 @@ using System.Linq;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public class ListEmitterFactory<T> : IEmitterFactory<IListEmitter<T>, Func<object, IRenderingContext, T>, IEmitterRunnable<T>>
+	public static class EmitterNode<T>
 	{
-		public IListEmitter<T> Iterator(Func<object, IEnumerable> list, IListEmitter<T> blockEmitter)
+		public static IListEmitter<T> Iterator(Func<object, IEnumerable> list, IListEmitter<T> blockEmitter)
 		{
 			return new IteratorEmitter(list, blockEmitter);
 		}
 
-		public IListEmitter<T> Many(IEnumerable<IListEmitter<T>> emitters)
+		public static IListEmitter<T> Many(IEnumerable<IListEmitter<T>> emitters)
 		{
 			return new ManyEmitter(emitters);
 		}
 
-		public IListEmitter<T> Condition(Func<object, bool> predicate, IListEmitter<T> blockEmitter)
+		public static IListEmitter<T> Condition(Func<object, bool> predicate, IListEmitter<T> blockEmitter)
 		{
 			return new ConditionalEmitter(predicate, blockEmitter);
 		}
 
-		public IListEmitter<T> AsList(IEmitterRunnable<T> emitter)
+		public static IListEmitter<T> AsList(IEmitterRunnable<T> emitter)
 		{
 			return new ListEmitter(emitter);
 		}
 
-		public IListEmitter<T> AsList(IEnumerable<IEmitterRunnable<T>> emitter)
+		public static IListEmitter<T> AsList(IEnumerable<IEmitterRunnable<T>> emitter)
 		{
 			return new ListEmitter(emitter);
 		}
 
-		public IEmitterRunnable<T> Lambda(Func<object, IRenderingContext, T> func)
+		public static IEmitterRunnable<T> Lambda(Func<object, IRenderingContext, T> func)
 		{
 			return new LambdaEmitter(func);
 		}
-		
+
 		private class LambdaEmitter : IEmitterRunnable<T>
 		{
 			private readonly Func<object, IRenderingContext, T> _func;
@@ -101,7 +101,7 @@ namespace TerrificNet.Thtml.Emit
 				}
 			}
 		}
-		
+
 		private class ManyEmitter : IListEmitter<T>
 		{
 			private readonly IEnumerable<IListEmitter<T>> _emitters;

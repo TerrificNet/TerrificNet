@@ -136,7 +136,7 @@ namespace TerrificNet.Thtml.Test
 
 				var helperResult = new MockContext<HelperBinderResult<Expression, ExpressionHelperConfig>>();
 				helperResult.Arrange(d => d.CreateEmitter(The<ExpressionHelperConfig>.IsAnyValue, The<Expression>.IsAnyValue, The<IHelperBinder<Expression, ExpressionHelperConfig>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
-					.Returns<ExpressionHelperConfig, Expression, IHelperBinder<Expression, ExpressionHelperConfig>, IDataScopeContract>((config, expression, arg3, arg4) => EmitExpressionVisitor.Write(config.WriterParameter, "helper output"));
+					.Returns<ExpressionHelperConfig, Expression, IHelperBinder<Expression, ExpressionHelperConfig>, IDataScopeContract>((config, expression, arg3, arg4) => ExpressionHelper.Write(config.WriterParameter, "helper output"));
 
 				var helper = new MockContext<IHelperBinder<Expression, ExpressionHelperConfig>>();
 				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock<Expression, ExpressionHelperConfig>(helperResult));

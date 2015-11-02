@@ -42,17 +42,16 @@
     <Compile Include="Binding\TypeHelperBinder.cs" />
     <Compile Include="Emit\Compiler\EmitExpressionVisitor.cs" />
     <Compile Include="Emit\Compiler\ExpressionEmitter.cs" />
-    <Compile Include="Emit\Compiler\ExpressionEmitterFactory.cs" />
+    <Compile Include="Emit\Compiler\ExpressionHelper.cs" />
     <Compile Include="Emit\Compiler\ExpressionHelperConfig.cs" />
     <Compile Include="Emit\DynamicDataScope.cs" />
     <Compile Include="Emit\EmitNodeVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitorBase.cs" />
     <Compile Include="Emit\HelperBinderResult.cs" />
     <Compile Include="Emit\IDataScopeContract.cs" />
-    <Compile Include="Emit\IEmitterFactory.cs" />
     <Compile Include="Emit\IEvaluator.cs" />
     <Compile Include="Emit\ListEmitNodeVisitor.cs" />
-    <Compile Include="Emit\ListEmitterFactory.cs" />
+    <Compile Include="Emit\EmitterNode.cs" />
     <Compile Include="Emit\NodeVisitorBase.cs" />
     <Compile Include="Emit\PropertyEmitter.cs" />
     <Compile Include="Emit\PropertyValueEmitter.cs" />
@@ -123,7 +122,9 @@
     <Compile Include="VDom\VText.cs" />
     <Compile Include="VDom\VTree.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Emit\Vtree\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

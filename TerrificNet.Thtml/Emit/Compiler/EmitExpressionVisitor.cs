@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
-using TerrificNet.Thtml.VDom;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
 using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
@@ -34,9 +32,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(Document document)
 		{
-			var elements = document.ChildNodes.Select(node => node.Accept(this)).ToList();
-
-			var expression = elements.Count == 0 ? (Expression)Expression.Empty() : Expression.Block(elements);
+			var expression = Many(document.ChildNodes.Select(node => node.Accept(this)).ToList());
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");
 			var convertExpression = Expression.Assign(_dataContextParameter, Expression.ConvertChecked(inputExpression, _dataScopeContract.ResultType));
@@ -98,7 +94,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
 
 			var evaluator = scope.RequiresString();
-			var evaluateMethod = GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
+			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
 			var callExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
 			return Write(callExpression);
 		}
@@ -121,9 +117,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var child = CreateVisitor(childScopeContract);
 				var children = Many(childNodes.Select(c => c.Accept(child)).ToList());
 
-				var evaluateMethod = GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
+				var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
 				var collection = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
-				return ForEach(collection, child._dataContextParameter, children);
+				return ExpressionHelper.ForEach(collection, child._dataContextParameter, children);
 			}
 
 			var conditionalExpression = expression as ConditionalExpression;
@@ -135,7 +131,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluateMethod = GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
+				var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
 				var testExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
 
 				return Expression.IfThen(testExpression, children);
@@ -178,79 +174,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new EmitExpressionVisitor(childScopeContract, _helperBinder, _writerParameter);
 		}
 
-		private static void GetPropertyValue(TextWriter writer, IListEmitter<VPropertyValue> emitter, object dataContext, IRenderingContext renderingContext)
-		{
-			foreach (var emit in emitter.Execute(dataContext, renderingContext))
-			{
-				var stringValue = emit as StringVPropertyValue;
-				if (stringValue == null)
-					throw new Exception($"Unsupported property value {emit.GetType()}.");
-
-				writer.Write(stringValue.Value);
-			}
-		}
-
-		public static Expression ForEach(Expression collection, ParameterExpression loopVar, Expression loopContent)
-		{
-			var elementType = loopVar.Type;
-			var enumerableType = typeof(IEnumerable);
-			var enumeratorType = typeof(IEnumerator);
-
-			var enumeratorVar = Expression.Variable(enumeratorType, "enumerator");
-			var getEnumeratorCall = Expression.Call(collection, enumerableType.GetMethod("GetEnumerator"));
-			var enumeratorAssign = Expression.Assign(enumeratorVar, Expression.Convert(getEnumeratorCall, enumeratorType));
-
-			// The MoveNext method's actually on IEnumerator, not IEnumerator<T>
-			var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetMethod("MoveNext"));
-
-			var breakLabel = Expression.Label("LoopBreak");
-
-			var loop = Expression.Block(new[] { enumeratorVar },
-				enumeratorAssign,
-				Expression.Loop(
-					Expression.IfThenElse(
-						Expression.Equal(moveNextCall, Expression.Constant(true)),
-						Expression.Block(new[] { loopVar },
-							Expression.Assign(loopVar, Expression.Convert(Expression.Property(enumeratorVar, "Current"), elementType)),
-							loopContent
-						),
-						Expression.Break(breakLabel)
-					),
-				breakLabel)
-			);
-
-			return loop;
-		}
-
 		private Expression Write(Expression inputExpression)
 		{
-			return Write(_writerParameter, inputExpression);
+			return ExpressionHelper.Write(_writerParameter, inputExpression);
 		}
 
 		private Expression Write(string value)
 		{
-			return Write(_writerParameter, value);
-		}
-
-		public static Expression Write(Expression writer, Expression inputExpression)
-		{
-			return Expression.Call(writer, GetMethodInfo<TextWriter>(i => i.Write("")), inputExpression);
-		}
-
-		public static Expression Write(Expression writer, string value)
-		{
-			var param = Expression.Constant(value);
-			return Expression.Call(writer, GetMethodInfo<TextWriter>(i => i.Write("")), param);
-		}
-
-		private static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)
-		{
-			var member = expression.Body as MethodCallExpression;
-
-			if (member != null)
-				return member.Method;
-
-			throw new ArgumentException("Expression is not a method", nameof(expression));
+			return ExpressionHelper.Write(_writerParameter, value);
 		}
 	}
 }

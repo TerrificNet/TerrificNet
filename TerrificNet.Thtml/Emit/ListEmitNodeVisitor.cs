@@ -11,10 +11,7 @@ namespace TerrificNet.Thtml.Emit
 		protected ListEmitNodeVisitor(IDataScopeContract dataScopeContract, IHelperBinder<IListEmitter<TEmit>, object> helperBinder)
 			: base(dataScopeContract, helperBinder)
 		{
-			Emitter = new ListEmitterFactory<TEmit>();
 		}
-
-		protected ListEmitterFactory<TEmit> Emitter { get; }
 
 		public override IListEmitter<TEmit> Visit(Statement statement)
 		{
@@ -35,7 +32,7 @@ namespace TerrificNet.Thtml.Emit
 				var child = CreateVisitor(childScopeContract);
 				var children = childNodes.Select(c => c.Accept(child)).ToList();
 
-				return Emitter.Iterator(d => evaluator.Evaluate(d), Emitter.Many(children));
+				return EmitterNode<TEmit>.Iterator(d => evaluator.Evaluate(d), EmitterNode<TEmit>.Many(children));
 			}
 
 			var conditionalExpression = expression as ConditionalExpression;
@@ -45,7 +42,7 @@ namespace TerrificNet.Thtml.Emit
 				var evaluator = scope.RequiresBoolean();
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
-				return Emitter.Condition(d => evaluator.Evaluate(d), Emitter.Many(children));
+				return EmitterNode<TEmit>.Condition(d => evaluator.Evaluate(d), EmitterNode<TEmit>.Many(children));
 			}
 
 			var callHelperExpression = expression as CallHelperExpression;
@@ -57,7 +54,7 @@ namespace TerrificNet.Thtml.Emit
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
-				var evaluation = result.CreateEmitter(this, Emitter.Many(children), HelperBinder, DataScopeContract);
+				var evaluation = result.CreateEmitter(this, EmitterNode<TEmit>.Many(children), HelperBinder, DataScopeContract);
 				return evaluation;
 			}
 
@@ -66,7 +63,7 @@ namespace TerrificNet.Thtml.Emit
 				return contentEmitter;
 
 			var elements = childNodes.Select(childNode => childNode.Accept(this)).ToList();
-			return Emitter.Many(elements);
+			return EmitterNode<TEmit>.Many(elements);
 		}
 
 		protected abstract INodeVisitor<IListEmitter<TEmit>> CreateVisitor(IDataScopeContract childScopeContract);
