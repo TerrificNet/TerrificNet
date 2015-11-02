@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.VDom;
@@ -17,13 +16,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	internal class EmitExpressionVisitor : NodeVisitorBase<Expression>
 	{
 		private readonly IDataScopeContract _dataScopeContract;
-		private readonly IHelperBinder _helperBinder;
+		private readonly IHelperBinder<Expression, ExpressionHelperConfig> _helperBinder;
 		private readonly ParameterExpression _writerParameter = Expression.Parameter(typeof(TextWriter));
 		private readonly ParameterExpression _dataContextParameter;
 
 		public Action<TextWriter, object> DocumentFunc { get; private set; }
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder, ParameterExpression writerParameter = null)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder, ParameterExpression writerParameter = null)
 		{
 			_dataScopeContract = dataScopeContract;
 			_helperBinder = helperBinder;
@@ -91,8 +90,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(CompositeAttributeContent compositeAttributeContent)
 		{
-			var expressions = compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList();
-			return expressions.Any() ? (Expression)Expression.Block(expressions) : Expression.Empty();
+			return Many(compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList());
 		}
 
 		public override Expression Visit(MemberExpression memberExpression)
@@ -110,7 +108,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Write(textNode.Text);
 		}
 
-		protected Expression HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
+		private Expression HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
 		{
 			var iterationExpression = expression as IterationExpression;
 			if (iterationExpression != null)
@@ -121,12 +119,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var evaluator = scope.RequiresEnumerable(out childScopeContract);
 
 				var child = CreateVisitor(childScopeContract);
-				var children = childNodes.Select(c => c.Accept(child)).ToList();
-				var bodyExpression = children.Any() ? (Expression)Expression.Block(children) : Expression.Empty();
+				var children = Many(childNodes.Select(c => c.Accept(child)).ToList());
 
 				var evaluateMethod = GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
 				var collection = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
-				return ForEach(collection, child._dataContextParameter, bodyExpression);
+				return ForEach(collection, child._dataContextParameter, children);
 			}
 
 			var conditionalExpression = expression as ConditionalExpression;
@@ -136,13 +133,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
 				var evaluator = scope.RequiresBoolean();
 
-				var children = childNodes.Select(c => c.Accept(this)).ToList();
-				var childrenExpression = children.Any() ? (Expression) Expression.Block(children) : Expression.Empty();
+				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
 				var evaluateMethod = GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
 				var testExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
-				
-				return Expression.IfThen(testExpression, childrenExpression);
+
+				return Expression.IfThen(testExpression, children);
 			}
 
 			var callHelperExpression = expression as CallHelperExpression;
@@ -153,19 +149,23 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				if (result == null)
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-				var children = childNodes.Select(c => c.Accept(this)).ToList();
-				//var evaluation = result.CreateEmitter(null, _helperBinder, _dataScopeContract);
-				//return evaluation;
+				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				return Expression.Empty();
+				var config = new ExpressionHelperConfig { WriterParameter = _writerParameter };
+				var evaluation = result.CreateEmitter(config, children, _helperBinder, _dataScopeContract);
+				return evaluation;
 			}
 
 			var contentEmitter = expression.Accept(this);
 			if (contentEmitter != null)
 				return contentEmitter;
 
-			var elements = childNodes.Select(childNode => childNode.Accept(this)).ToList();
-			return elements.Any() ? (Expression)Expression.Block(elements) : Expression.Empty();
+			return Many(childNodes.Select(childNode => childNode.Accept(this)).ToList());
+		}
+
+		private static Expression Many(IReadOnlyCollection<Expression> expressions)
+		{
+			return expressions.Count > 0 ? (Expression)Expression.Block(expressions) : Expression.Empty();
 		}
 
 		private static IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
@@ -224,13 +224,23 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private Expression Write(Expression inputExpression)
 		{
-			return Expression.Call(_writerParameter, GetMethodInfo<TextWriter>(i => i.Write("")), inputExpression);
+			return Write(_writerParameter, inputExpression);
 		}
 
 		private Expression Write(string value)
 		{
+			return Write(_writerParameter, value);
+		}
+
+		public static Expression Write(Expression writer, Expression inputExpression)
+		{
+			return Expression.Call(writer, GetMethodInfo<TextWriter>(i => i.Write("")), inputExpression);
+		}
+
+		public static Expression Write(Expression writer, string value)
+		{
 			var param = Expression.Constant(value);
-			return Expression.Call(_writerParameter, GetMethodInfo<TextWriter>(i => i.Write("")), param);
+			return Expression.Call(writer, GetMethodInfo<TextWriter>(i => i.Write("")), param);
 		}
 
 		private static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)
@@ -240,7 +250,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (member != null)
 				return member.Method;
 
-			throw new ArgumentException("Expression is not a method", "expression");
+			throw new ArgumentException("Expression is not a method", nameof(expression));
 		}
 	}
 }

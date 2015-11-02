@@ -3,17 +3,8 @@ using System.Collections.Generic;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public interface IHelperBinder
-    {
-        HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments);
-    }
-
-    public abstract class HelperBinderResult
-    {
-        public HelperBinderResult()
-        {
-        }
-
-        public abstract IListEmitter<T> CreateEmitter<T>(IListEmitter<T> children, IHelperBinder helperBinder, IDataScopeContract scopeContract);
-    }
+	public interface IHelperBinder<TEmit, TConfig>
+	{
+		HelperBinderResult<TEmit, TConfig> FindByName(string helper, IDictionary<string, string> arguments);
+	}
 }

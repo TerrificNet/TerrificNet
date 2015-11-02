@@ -5,21 +5,25 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit
 {
-    internal class PropertyEmitter : EmitNodeVisitorBase<VProperty>
-    {
-        public PropertyEmitter(IDataScopeContract dataScopeContract, IHelperBinder helperBinder) : base(dataScopeContract, helperBinder)
+    internal class PropertyEmitter : ListEmitNodeVisitor<VProperty>
+	{
+	    private readonly ListEmitterFactory<VPropertyValue> _propertyValueFactory;
+
+	    public PropertyEmitter(IDataScopeContract dataScopeContract, IHelperBinder<IListEmitter<VProperty>, object> helperBinder) 
+			: base(dataScopeContract, helperBinder)
         {
+	        _propertyValueFactory = new ListEmitterFactory<VPropertyValue>();
         }
 
-        public override IListEmitter<VProperty> Visit(AttributeNode attributeNode)
+		public override IListEmitter<VProperty> Visit(AttributeNode attributeNode)
         {
-            var valueVisitor = new PropertyValueEmitter(DataScopeContract, HelperBinder);
+            var valueVisitor = new PropertyValueEmitter(DataScopeContract, null);
             var valueEmitter = attributeNode.Value.Accept(valueVisitor);
 
             if (valueEmitter == null)
-                valueEmitter = EmitterNode.AsList(EmitterNode.Lambda<VPropertyValue>((d, r) => null));
+                valueEmitter = _propertyValueFactory.AsList(_propertyValueFactory.Lambda((d, r) => null));
 
-            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VProperty(attributeNode.Name, GetPropertyValue(valueEmitter, d, r))));
+            return Emitter.AsList(Emitter.Lambda((d, r) => new VProperty(attributeNode.Name, GetPropertyValue(valueEmitter, d, r))));
         }
 
         public override IListEmitter<VProperty> Visit(AttributeStatement attributeStatement)

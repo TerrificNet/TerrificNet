@@ -80,6 +80,8 @@
     <Compile Include="DataScopeTest.cs" />
     <Compile Include="EmitterTest.cs" />
     <Compile Include="HandlebarsParserTest.cs" />
+    <Compile Include="HelperBinderMock.cs" />
+    <Compile Include="HelperBinderResultMock.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="NullDataScope.cs" />
     <Compile Include="ParserTest.cs" />

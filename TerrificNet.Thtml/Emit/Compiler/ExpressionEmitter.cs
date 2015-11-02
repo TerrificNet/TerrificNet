@@ -1,14 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class ExpressionEmitter : IEmitter<Action<TextWriter>>
+	public class ExpressionEmitter : IEmitter<Action<TextWriter>, Expression, ExpressionHelperConfig>
 	{
-		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
+		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder)
 		{
-			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder());
+			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder<Expression, ExpressionHelperConfig>());
 			visitor.Visit(input);
 			var action = visitor.DocumentFunc;
 
