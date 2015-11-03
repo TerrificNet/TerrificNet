@@ -8,12 +8,13 @@ namespace TerrificNet.Thtml.Test
 {
 	public class DataSchemaTrainingTest
 	{
-		[Fact]
+		[Fact(Skip = "Not implemented")]
 		public void TestSetOperation()
 		{
 			var contract = new DataScopeContract("_global");
-			contract.Property("p1", SyntaxNodeStub.Node1);
-			var result = contract.RequiresString();
+			var propertyContract = contract.Property("p1", SyntaxNodeStub.Node1);
+
+			var result = propertyContract.RequiresString();
 
 			result.Train(r => r.Exact(null), r => r.Any(), "Add node");
 			result.Train(r => r.Any(), r => r.Exact(null), "Remove node x");
