@@ -74,6 +74,7 @@
     <Compile Include="Asserts\TokenEqualityComparer.cs" />
     <Compile Include="Asserts\VTreeAsserts.cs" />
     <Compile Include="DataSchemaTest.cs" />
+    <Compile Include="DataSchemaTrainingTest.cs" />
     <Compile Include="DataScopeTest.cs" />
     <Compile Include="EmitterTest.cs" />
     <Compile Include="HandlebarsParserTest.cs" />

@@ -28,17 +28,17 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return GetOrCreate(() => new ComplexDataScopeContract(this)).Property(propertyName, node);
 		}
 
-		public IEvaluator<string> RequiresString()
+		public IBinding<string> RequiresString()
 		{
 			return GetOrCreate(() => new StringDataScopeContract(this)).RequiresString();
 		}
 
-		public IEvaluator<bool> RequiresBoolean()
+		public IBinding<bool> RequiresBoolean()
 		{
 			return GetOrCreate(() => new BooleanDataScopeContract(this)).RequiresBoolean();
 		}
 
-		public IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
 			return GetOrCreate(() => new IterableDataScopeContract(this)).RequiresEnumerable(out childScopeContract);
 		}
@@ -64,17 +64,17 @@ namespace TerrificNet.Thtml.Emit.Schema
 				throw new DataContractException($"Can not access property ${propertyName} on node ${node} because ${Name} doesn't support properties.", DataScopeContract.DependentNodes.ToArray());
 			}
 
-			public virtual IEvaluator<string> RequiresString()
+			public virtual IBinding<string> RequiresString()
 			{
 				throw new DataContractException($"Can not access ${DataScopeContract.Name} as string because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
-			public virtual IEvaluator<bool> RequiresBoolean()
+			public virtual IBinding<bool> RequiresBoolean()
 			{
 				throw new DataContractException($"The ${DataScopeContract.Name} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
 			}
 
-			public virtual IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public virtual IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				throw new DataContractException($"Can not access ${DataScopeContract.Name} as iterable because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
@@ -99,7 +99,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				_nullable = nullable;
 			}
 
-			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				childScopeContract = _childScopeContract;
 				return null;
@@ -146,7 +146,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				return scopeContract;
 			}
 
-			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				_strategy = new IterableDataScopeContract(DataScopeContract, _childScopes, _nullable);
 				return _strategy.RequiresEnumerable(out childScopeContract);
@@ -171,12 +171,12 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			protected override string Name => "String";
 
-			public override IEvaluator<string> RequiresString()
+			public override IBinding<string> RequiresString()
 			{
 				return null;
 			}
 
-			public override IEvaluator<bool> RequiresBoolean()
+			public override IBinding<bool> RequiresBoolean()
 			{
 				return null;
 			}
@@ -197,18 +197,18 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			protected override string Name => "Boolean";
 
-			public override IEvaluator<bool> RequiresBoolean()
+			public override IBinding<bool> RequiresBoolean()
 			{
 				return null;
 			}
 
-			public override IEvaluator<string> RequiresString()
+			public override IBinding<string> RequiresString()
 			{
 				_strategy = new StringDataScopeContract(DataScopeContract);
 				return _strategy.RequiresString();
 			}
 
-			public override IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				_strategy = new IterableDataScopeContract(DataScopeContract, true);
 				return _strategy.RequiresEnumerable(out childScopeContract);

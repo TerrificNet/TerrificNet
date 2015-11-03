@@ -64,7 +64,8 @@ namespace TerrificNet.Thtml.Emit
 		    var scope = ScopeEmitter.Bind(DataScopeContract, memberExpression);
 
             var evaluator = scope.RequiresString();
-			return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
+			var emitterNode = EmitterNode.Lambda((d, r) => new VText(evaluator.Evaluate(d)));
+			return EmitterNode.AsList(emitterNode);
 		}
 	}
 }

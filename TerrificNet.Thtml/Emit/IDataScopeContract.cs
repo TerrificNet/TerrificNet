@@ -8,8 +8,8 @@ namespace TerrificNet.Thtml.Emit
 	{
 		IDataScopeContract Property(string propertyName, SyntaxNode node);
 
-		IEvaluator<string> RequiresString();
-		IEvaluator<bool> RequiresBoolean();
-		IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract);
+		IBinding<string> RequiresString();
+		IBinding<bool> RequiresBoolean();
+		IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract);
 	}
 }

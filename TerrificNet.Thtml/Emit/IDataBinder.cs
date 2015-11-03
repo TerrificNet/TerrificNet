@@ -29,23 +29,38 @@ namespace TerrificNet.Thtml.Emit
 			return new DataScopeContractLegacyWrapper(_legacy.Property(propertyName));
 		}
 
-		public IEvaluator<string> RequiresString()
+		public IBinding<string> RequiresString()
 		{
-			return _legacy.BindString();
+			return new BindingWrapper<string>(_legacy.BindString());
 		}
 
-		public IEvaluator<bool> RequiresBoolean()
+		public IBinding<bool> RequiresBoolean()
 		{
-			return _legacy.BindBoolean();
+			return new BindingWrapper<bool>(_legacy.BindBoolean());
 		}
 
-		public IEvaluator<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
 			IDataBinder childBinder;
 			var result = _legacy.BindEnumerable(out childBinder);
 			childScopeContract = new DataScopeContractLegacyWrapper(childBinder);
 
-			return result;
+			return new BindingWrapper<IEnumerable>(result);
 		}
-	}
+
+		private class BindingWrapper<T> : IBinding<T>
+		{
+			private readonly IEvaluator<T> _evalutor;
+
+			public BindingWrapper(IEvaluator<T> evalutor)
+			{
+				_evalutor = evalutor;
+			}
+
+			public T Evaluate(IDataContext context)
+			{
+				return _evalutor.Evaluate(context);
+			}
+		}
+    }
 }
