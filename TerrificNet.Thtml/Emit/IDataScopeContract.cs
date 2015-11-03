@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
@@ -11,5 +12,7 @@ namespace TerrificNet.Thtml.Emit
 		IBinding<string> RequiresString();
 		IBinding<bool> RequiresBoolean();
 		IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract);
+
+		Type ResultType { get; }
 	}
 }

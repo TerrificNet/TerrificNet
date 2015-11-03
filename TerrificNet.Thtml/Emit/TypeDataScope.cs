@@ -14,8 +14,8 @@ namespace TerrificNet.Thtml.Emit
 
 		private TypeDataScope(Type type)
 		{
-			_dataContextParameter = Expression.Parameter(typeof(IDataContext));
-			_memberAccess = Expression.ConvertChecked(Expression.Property(_dataContextParameter, "Value"), type);
+			_dataContextParameter = Expression.Parameter(typeof(object));
+			_memberAccess = Expression.ConvertChecked(_dataContextParameter, type);
 
 			ResultType = type;
 		}
@@ -41,9 +41,9 @@ namespace TerrificNet.Thtml.Emit
 			return new TypeDataScope(obj.GetType());
 		}
 
-		private Func<IDataContext, T> CreateEvaluation<T>()
+		private Func<object, T> CreateEvaluation<T>()
 		{
-			var lambda = Expression.Lambda<Func<IDataContext, T>>(_memberAccess, _dataContextParameter);
+			var lambda = Expression.Lambda<Func<object, T>>(_memberAccess, _dataContextParameter);
 			return lambda.Compile();
 		}
 
@@ -95,14 +95,14 @@ namespace TerrificNet.Thtml.Emit
 
 		private class EvaluatorFromLambda<T> : IEvaluator<T>
 		{
-			private readonly Func<IDataContext, T> _evaluationFunc;
+			private readonly Func<object, T> _evaluationFunc;
 
-			public EvaluatorFromLambda(Func<IDataContext, T> evaluationFunc)
+			public EvaluatorFromLambda(Func<object, T> evaluationFunc)
 			{
 				_evaluationFunc = evaluationFunc;
 			}
 
-			public T Evaluate(IDataContext context)
+			public T Evaluate(object context)
 			{
 				return _evaluationFunc(context);
 			}

@@ -36,7 +36,7 @@ namespace TerrificNet.Thtml.Test
 
             Assert.NotNull(result);
             var evaluator = result.BindString();
-            var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
+            var propertyResult = evaluator.Evaluate(obj);
 
             Assert.Equal(expectedResult, propertyResult);
         }
@@ -55,7 +55,7 @@ namespace TerrificNet.Thtml.Test
 
 	        IDataBinder childScope;
             var evaluator = result.BindEnumerable(out childScope);
-            var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
+            var propertyResult = evaluator.Evaluate(obj);
 
             Assert.NotNull(propertyResult);
 
@@ -66,7 +66,7 @@ namespace TerrificNet.Thtml.Test
 
             foreach (var item in propertyResult)
             {
-                var innerResult = innerPropertyEvaluator.Evaluate(new ObjectDataContext(item));
+                var innerResult = innerPropertyEvaluator.Evaluate(item);
                 Assert.Equal(expectedResult, innerResult);
             }
         }
@@ -83,7 +83,7 @@ namespace TerrificNet.Thtml.Test
 
             Assert.NotNull(result);
             var evaluator = result.BindString();
-            var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
+            var propertyResult = evaluator.Evaluate(obj);
 
             Assert.Equal(expectedResult, propertyResult);
         }
@@ -100,7 +100,7 @@ namespace TerrificNet.Thtml.Test
 
             Assert.NotNull(result);
             var evaluator = result.BindBoolean();
-            var propertyResult = evaluator.Evaluate(new ObjectDataContext(obj));
+            var propertyResult = evaluator.Evaluate(obj);
 
             Assert.Equal(expectedResult, propertyResult);
         }

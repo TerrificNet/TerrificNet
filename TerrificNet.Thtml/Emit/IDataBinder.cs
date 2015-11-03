@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
@@ -57,10 +56,16 @@ namespace TerrificNet.Thtml.Emit
 				_evalutor = evalutor;
 			}
 
-			public T Evaluate(IDataContext context)
+			public T Evaluate(object context)
 			{
 				return _evalutor.Evaluate(context);
 			}
+
+			public void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation)
+			{
+			}
 		}
-    }
+
+		public Type ResultType => _legacy.ResultType;
+	}
 }

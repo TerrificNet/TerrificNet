@@ -5,135 +5,136 @@ using System.Linq;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public static class EmitterNode
-    {
-        public static IEmitterRunnable<T> Lambda<T>(Func<IDataContext, IRenderingContext, T> func)
-        {
-            return new LambdaEmitter<T>(func);
-        }
+	public static class EmitterNode<T>
+	{
+		public static IListEmitter<T> Iterator(Func<object, IEnumerable> list, IListEmitter<T> blockEmitter)
+		{
+			return new IteratorEmitter(list, blockEmitter);
+		}
 
-        public static IListEmitter<T> Many<T>(IEnumerable<IListEmitter<T>> emitters)
-        {
-            return new ManyEmitter<T>(emitters);
-        }
+		public static IListEmitter<T> Many(IEnumerable<IListEmitter<T>> emitters)
+		{
+			return new ManyEmitter(emitters);
+		}
 
-        public static IListEmitter<T> AsList<T>(IEmitterRunnable<T> emitter)
-        {
-            return new ListEmitter<T>(emitter);
-        }
+		public static IListEmitter<T> Condition(Func<object, bool> predicate, IListEmitter<T> blockEmitter)
+		{
+			return new ConditionalEmitter(predicate, blockEmitter);
+		}
 
-        public static IListEmitter<T> AsList<T>(IEnumerable<IEmitterRunnable<T>> emitter)
-        {
-            return new ListEmitter<T>(emitter);
-        }
+		public static IListEmitter<T> AsList(IEmitterRunnable<T> emitter)
+		{
+			return new ListEmitter(emitter);
+		}
 
-        public static IListEmitter<T> Iterator<T>(Func<IDataContext, IEnumerable> list, IListEmitter<T> blockEmitter)
-        {
-            return new IteratorEmitter<T>(list, blockEmitter);
-        }
+		public static IListEmitter<T> AsList(IEnumerable<IEmitterRunnable<T>> emitter)
+		{
+			return new ListEmitter(emitter);
+		}
 
-        public static IListEmitter<T> Condition<T>(Func<IDataContext, bool> predicate, IListEmitter<T> blockEmitter)
-        {
-            return new ConditionalEmitter<T>(predicate, blockEmitter);
-        }
+		public static IEmitterRunnable<T> Lambda(Func<object, IRenderingContext, T> func)
+		{
+			return new LambdaEmitter(func);
+		}
 
-        private class ConditionalEmitter<T> : IListEmitter<T>
-        {
-            private readonly Func<IDataContext, bool> _predicate;
-            private readonly IListEmitter<T> _blockEmitter;
+		private class LambdaEmitter : IEmitterRunnable<T>
+		{
+			private readonly Func<object, IRenderingContext, T> _func;
 
-            public ConditionalEmitter(Func<IDataContext, bool> predicate, IListEmitter<T> blockEmitter)
-            {
-                _predicate = predicate;
-                _blockEmitter = blockEmitter;
-            }
+			public LambdaEmitter(Func<object, IRenderingContext, T> func)
+			{
+				_func = func;
+			}
 
-            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
-            {
-                bool result = _predicate(context);
-                if (result)
-                    return _blockEmitter.Execute(context, renderingContext);
+			public T Execute(object context, IRenderingContext renderingContext)
+			{
+				return _func(context, renderingContext);
+			}
+		}
 
-                return Enumerable.Empty<T>();
-            }
-        }
+		private class ConditionalEmitter : IListEmitter<T>
+		{
+			private readonly Func<object, bool> _predicate;
+			private readonly IListEmitter<T> _blockEmitter;
 
-        private class IteratorEmitter<T> : IListEmitter<T>
-        {
-            private readonly Func<IDataContext, IEnumerable> _list;
-            private readonly IListEmitter<T> _blockEmitter;
+			public ConditionalEmitter(Func<object, bool> predicate, IListEmitter<T> blockEmitter)
+			{
+				_predicate = predicate;
+				_blockEmitter = blockEmitter;
+			}
 
-            public IteratorEmitter(Func<IDataContext, IEnumerable> list, IListEmitter<T> blockEmitter)
-            {
-                _list = list;
-                _blockEmitter = blockEmitter;
-            }
+			public IEnumerable<T> Execute(object context, IRenderingContext renderingContext)
+			{
+				bool result = _predicate(context);
+				if (result)
+					return _blockEmitter.Execute(context, renderingContext);
 
-            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
-            {
-                return ExecuteInternal(context, renderingContext).SelectMany(d => d.ToList()).ToList();
-            }
+				return Enumerable.Empty<T>();
+			}
+		}
 
-            private IEnumerable<IEnumerable<T>> ExecuteInternal(IDataContext context, IRenderingContext renderingContext)
-            {
-                var result = _list(context);
-                if (result == null)
-                    yield break;
+		private class IteratorEmitter : IListEmitter<T>
+		{
+			private readonly Func<object, IEnumerable> _list;
+			private readonly IListEmitter<T> _blockEmitter;
 
-                foreach (var item in result)
-                {
-                    yield return _blockEmitter.Execute(new ObjectDataContext(item), renderingContext).ToList();
-                }
-            }
-        }
+			public IteratorEmitter(Func<object, IEnumerable> list, IListEmitter<T> blockEmitter)
+			{
+				_list = list;
+				_blockEmitter = blockEmitter;
+			}
 
-        private class ListEmitter<T> : IListEmitter<T>
-        {
-            private readonly IList<IEmitterRunnable<T>> _emitter;
+			public IEnumerable<T> Execute(object context, IRenderingContext renderingContext)
+			{
+				return ExecuteInternal(context, renderingContext).SelectMany(d => d.ToList()).ToList();
+			}
 
-            public ListEmitter(IEmitterRunnable<T> emitter)
-            {
-                _emitter = new List<IEmitterRunnable<T>> { emitter };
-            }
+			private IEnumerable<IEnumerable<T>> ExecuteInternal(object context, IRenderingContext renderingContext)
+			{
+				var result = _list(context);
+				if (result == null)
+					yield break;
 
-            public ListEmitter(IEnumerable<IEmitterRunnable<T>> emitter)
-            {
-                _emitter = emitter.ToList();
-            }
+				foreach (var item in result)
+				{
+					yield return _blockEmitter.Execute(item, renderingContext).ToList();
+				}
+			}
+		}
 
-            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
-            {
-                return _emitter.Select(e => e.Execute(context, renderingContext));
-            }
-        }
+		private class ManyEmitter : IListEmitter<T>
+		{
+			private readonly IEnumerable<IListEmitter<T>> _emitters;
 
-        private class LambdaEmitter<T> : IEmitterRunnable<T>
-        {
-            private readonly Func<IDataContext, IRenderingContext, T> _func;
+			public ManyEmitter(IEnumerable<IListEmitter<T>> emitters)
+			{
+				_emitters = emitters.ToList();
+			}
 
-            public LambdaEmitter(Func<IDataContext, IRenderingContext, T> func)
-            {
-                _func = func;
-            }
+			public IEnumerable<T> Execute(object context, IRenderingContext renderingContext)
+			{
+				return _emitters.SelectMany(e => e.Execute(context, renderingContext).ToList());
+			}
+		}
 
-            public T Execute(IDataContext context, IRenderingContext renderingContext)
-            {
-                return _func(context, renderingContext);
-            }
-        }
-        private class ManyEmitter<T> : IListEmitter<T>
-        {
-            private readonly IEnumerable<IListEmitter<T>> _emitters;
+		private class ListEmitter : IListEmitter<T>
+		{
+			private readonly IList<IEmitterRunnable<T>> _emitter;
 
-            public ManyEmitter(IEnumerable<IListEmitter<T>> emitters)
-            {
-                _emitters = emitters.ToList();
-            }
+			public ListEmitter(IEmitterRunnable<T> emitter)
+			{
+				_emitter = new List<IEmitterRunnable<T>> { emitter };
+			}
 
-            public IEnumerable<T> Execute(IDataContext context, IRenderingContext renderingContext)
-            {
-                return _emitters.SelectMany(e => e.Execute(context, renderingContext).ToList());
-            }
-        }
-    }
+			public ListEmitter(IEnumerable<IEmitterRunnable<T>> emitter)
+			{
+				_emitter = emitter.ToList();
+			}
+
+			public IEnumerable<T> Execute(object context, IRenderingContext renderingContext)
+			{
+				return _emitter.Select(e => e.Execute(context, renderingContext));
+			}
+		}
+	}
 }

@@ -39,6 +39,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="dotMemory.Unit, Version=103.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.dotMemoryUnit.2.1.20150828.125449\Lib\dotMemory.Unit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="LightMock, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\LightMock.1.0.0.5\lib\portable-net40+sl50+win+wp80\LightMock.dll</HintPath>
       <Private>True</Private>
@@ -78,11 +82,14 @@
     <Compile Include="DataScopeTest.cs" />
     <Compile Include="EmitterTest.cs" />
     <Compile Include="HandlebarsParserTest.cs" />
+    <Compile Include="HelperBinderMock.cs" />
+    <Compile Include="HelperBinderResultMock.cs" />
     <Compile Include="IntegrationTest.cs" />
     <Compile Include="NullDataScope.cs" />
     <Compile Include="ParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexerTest.cs" />
+    <Compile Include="StreamEmitterTest.cs" />
     <Compile Include="Stubs\SyntaxNodeStub.cs" />
     <Compile Include="TokenFactory.cs" />
     <Compile Include="DataBinderTest.cs" />

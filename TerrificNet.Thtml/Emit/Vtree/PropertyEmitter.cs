@@ -3,23 +3,24 @@ using System.Text;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.VDom;
 
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Emit.Vtree
 {
-    internal class PropertyEmitter : EmitNodeVisitorBase<VProperty>
-    {
-        public PropertyEmitter(IDataScopeContract dataScopeContract, IHelperBinder helperBinder) : base(dataScopeContract, helperBinder)
+    internal class PropertyEmitter : ListEmitNodeVisitor<VProperty>
+	{
+	    public PropertyEmitter(IDataScopeContract dataScopeContract, IHelperBinder<IListEmitter<VProperty>, object> helperBinder) 
+			: base(dataScopeContract, helperBinder)
         {
         }
 
-        public override IListEmitter<VProperty> Visit(AttributeNode attributeNode)
+		public override IListEmitter<VProperty> Visit(AttributeNode attributeNode)
         {
-            var valueVisitor = new PropertyValueEmitter(DataScopeContract, HelperBinder);
+            var valueVisitor = new PropertyValueEmitter(DataScopeContract, null);
             var valueEmitter = attributeNode.Value.Accept(valueVisitor);
 
             if (valueEmitter == null)
-                valueEmitter = EmitterNode.AsList(EmitterNode.Lambda<VPropertyValue>((d, r) => null));
+                valueEmitter = EmitterNode<VPropertyValue>.AsList(EmitterNode<VPropertyValue>.Lambda((d, r) => null));
 
-            return EmitterNode.AsList(EmitterNode.Lambda((d, r) => new VProperty(attributeNode.Name, GetPropertyValue(valueEmitter, d, r))));
+            return EmitterNode<VProperty>.AsList(EmitterNode<VProperty>.Lambda((d, r) => new VProperty(attributeNode.Name, GetPropertyValue(valueEmitter, d, r))));
         }
 
         public override IListEmitter<VProperty> Visit(AttributeStatement attributeStatement)
@@ -27,7 +28,7 @@ namespace TerrificNet.Thtml.Emit
             return HandleStatement(attributeStatement.Expression, attributeStatement.ChildNodes);
         }
 
-        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, IDataContext dataContext, IRenderingContext renderingContext)
+        private static VPropertyValue GetPropertyValue(IListEmitter<VPropertyValue> emitter, object dataContext, IRenderingContext renderingContext)
         {
             var stringBuilder = new StringBuilder();
             foreach (var emit in emitter.Execute(dataContext, renderingContext))

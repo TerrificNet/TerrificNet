@@ -33,6 +33,6 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public Type ResultType { get; } = null;
+		public Type ResultType { get; } = typeof(object);
 	}
 }

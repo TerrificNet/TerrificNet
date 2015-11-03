@@ -43,6 +43,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return GetOrCreate(() => new IterableDataScopeContract(this)).RequiresEnumerable(out childScopeContract);
 		}
 
+		public Type ResultType { get; }
+
 		public DataSchema CompleteSchema()
 		{
 			return _strategy != null ? _strategy.GetSchema() : DataSchema.Any;
@@ -78,6 +80,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 			{
 				throw new DataContractException($"Can not access ${DataScopeContract.Name} as iterable because ${Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
+
+			public Type ResultType => DataScopeContract.ResultType;
 
 			public abstract DataSchema GetSchema();
 		}
