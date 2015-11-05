@@ -27,7 +27,8 @@ namespace TerrificNet.Thtml.Emit
 				var scope = ScopeEmitter.Bind(DataScopeContract, iterationExpression.Expression);
 
 				IDataScopeContract childScopeContract;
-				var evaluator = scope.RequiresEnumerable(out childScopeContract);
+				var binding = scope.RequiresEnumerable(out childScopeContract);
+				var evaluator = binding.CreateEvaluator();
 
 				var child = CreateVisitor(childScopeContract);
 				var children = childNodes.Select(c => c.Accept(child)).ToList();
@@ -39,7 +40,8 @@ namespace TerrificNet.Thtml.Emit
 			if (conditionalExpression != null)
 			{
 				var scope = ScopeEmitter.Bind(DataScopeContract, conditionalExpression.Expression);
-				var evaluator = scope.RequiresBoolean();
+				var binding = scope.RequiresBoolean();
+				var evaluator = binding.CreateEvaluator();
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
 				return EmitterNode<TEmit>.Condition(d => evaluator.Evaluate(d), EmitterNode<TEmit>.Many(children));

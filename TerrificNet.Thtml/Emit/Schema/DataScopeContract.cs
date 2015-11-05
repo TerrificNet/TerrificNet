@@ -11,7 +11,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 		private DataScopeContractBuildStrategy _strategy;
 		internal readonly List<SyntaxNode> DependentNodes = new List<SyntaxNode>();
 
-		public string Name { get; }
+		private string Name { get; }
 
 		public DataScopeContract(string name)
 		{

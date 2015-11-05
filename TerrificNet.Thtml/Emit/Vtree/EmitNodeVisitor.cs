@@ -51,8 +51,9 @@ namespace TerrificNet.Thtml.Emit.Vtree
 		public override IListEmitter<VTree> Visit(MemberExpression memberExpression)
 		{
 			var scope = ScopeEmitter.Bind(DataScopeContract, memberExpression);
+			var binding = scope.RequiresString();
 
-			var evaluator = scope.RequiresString();
+			var evaluator = binding.CreateEvaluator();
 			return EmitterNode<VTree>.AsList(EmitterNode<VTree>.Lambda((d, r) => new VText(evaluator.Evaluate(d))));
 		}
 

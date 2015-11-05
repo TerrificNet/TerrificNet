@@ -7,9 +7,11 @@ namespace TerrificNet.Thtml.Emit
 		T Evaluate(object context);
 	}
 
-	public interface IBinding<T> : IEvaluator<T>
+	public interface IBinding<T>
 	{
 		void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation);
+
+		IEvaluator<T> CreateEvaluator();
 	}
 
 	public class ResultGenerator<T>

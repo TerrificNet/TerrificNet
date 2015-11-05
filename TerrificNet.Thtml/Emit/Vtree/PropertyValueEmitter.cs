@@ -20,8 +20,9 @@ namespace TerrificNet.Thtml.Emit.Vtree
 		public override IListEmitter<VPropertyValue> Visit(MemberExpression memberExpression)
 		{
 			var scope = ScopeEmitter.Bind(DataScopeContract, memberExpression);
+			var binding = scope.RequiresString();
 
-			var evaluator = scope.RequiresString();
+			var evaluator = binding.CreateEvaluator();
 			return EmitterNode<VPropertyValue>.AsList(EmitterNode<VPropertyValue>.Lambda((d, r) => new StringVPropertyValue(evaluator.Evaluate(d))));
 		}
 

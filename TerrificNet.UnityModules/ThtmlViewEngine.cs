@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
+using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Emit.Vtree;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
@@ -37,7 +38,7 @@ namespace TerrificNet.UnityModules
 			else
 				scope = TypeDataScope.BinderFromType(modelType);
 
-			var emitter = CreateEmitter(templateInfo, new DataScopeContractLegacyWrapper(scope), new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
+			var emitter = CreateEmitter(templateInfo, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), scope), new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
 
 			return Task.FromResult<IView>(new ThtmlView(emitter));
 		}
@@ -211,7 +212,7 @@ namespace TerrificNet.UnityModules
 					if (partialConfig != null)
 					{
 						var res = new PartialHelperBinderResult(_templateRepository, partialConfig.Template);
-						var emitters = res.CreateEmitter(_helperBinder, new DataScopeContractLegacyWrapper(new DynamicDataScope()));
+						var emitters = res.CreateEmitter(_helperBinder, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new DynamicDataScope()));
 						yield return EmitterNode<VTree>.Lambda((c, r) => emitters.Execute(c, newCtx));
 					}
 				}
@@ -251,7 +252,7 @@ namespace TerrificNet.UnityModules
 			var context = data;
 			var binder = new DynamicDataScope();
 
-			var emitter = ThtmlViewEngine.CreateEmitter(template, new DataScopeContractLegacyWrapper(binder), helperBinder);
+			var emitter = ThtmlViewEngine.CreateEmitter(template, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), binder), helperBinder);
 			var moduleEmitter = new ModuleEmitter<VTree>((IEmitterRunnable<VTree>)emitter, context);
 			return moduleEmitter;
 		}

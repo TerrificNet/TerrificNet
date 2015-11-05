@@ -16,53 +16,58 @@ namespace TerrificNet.Thtml.Emit
 
 	public class DataScopeContractLegacyWrapper : IDataScopeContract
 	{
+		private readonly IDataScopeContract _contract;
 		private readonly IDataBinder _legacy;
 
-		public DataScopeContractLegacyWrapper(IDataBinder legacy)
+		public DataScopeContractLegacyWrapper(IDataScopeContract contract, IDataBinder legacy)
 		{
+			_contract = contract;
 			_legacy = legacy;
 		}
 
 		public IDataScopeContract Property(string propertyName, SyntaxNode node)
 		{
-			return new DataScopeContractLegacyWrapper(_legacy.Property(propertyName));
+			var propertyContract = _contract.Property(propertyName, node);
+			return new DataScopeContractLegacyWrapper(propertyContract, _legacy.Property(propertyName));
 		}
 
 		public IBinding<string> RequiresString()
 		{
-			return new BindingWrapper<string>(_legacy.BindString());
+			return new BindingWrapper<string>(() => _legacy.BindString());
 		}
 
 		public IBinding<bool> RequiresBoolean()
 		{
-			return new BindingWrapper<bool>(_legacy.BindBoolean());
+			return new BindingWrapper<bool>(() => _legacy.BindBoolean());
 		}
 
 		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
 			IDataBinder childBinder;
 			var result = _legacy.BindEnumerable(out childBinder);
-			childScopeContract = new DataScopeContractLegacyWrapper(childBinder);
+			IDataScopeContract childContract;
+			_contract.RequiresEnumerable(out childContract);
+            childScopeContract = new DataScopeContractLegacyWrapper(childContract, childBinder);
 
-			return new BindingWrapper<IEnumerable>(result);
+			return new BindingWrapper<IEnumerable>(() => result);
 		}
 
 		private class BindingWrapper<T> : IBinding<T>
 		{
-			private readonly IEvaluator<T> _evalutor;
+			private readonly Func<IEvaluator<T>> _evalutor;
 
-			public BindingWrapper(IEvaluator<T> evalutor)
+			public BindingWrapper(Func<IEvaluator<T>> evalutor)
 			{
 				_evalutor = evalutor;
 			}
 
-			public T Evaluate(object context)
-			{
-				return _evalutor.Evaluate(context);
-			}
-
 			public void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation)
 			{
+			}
+
+			public IEvaluator<T> CreateEvaluator()
+			{
+				return _evalutor();
 			}
 		}
 

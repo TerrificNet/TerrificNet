@@ -92,8 +92,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public override Expression Visit(MemberExpression memberExpression)
 		{
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
+			var binding = scope.RequiresString();
 
-			var evaluator = scope.RequiresString();
+			var evaluator = binding.CreateEvaluator();
 			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
 			var callExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
 			return Write(callExpression);
@@ -112,7 +113,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var scope = ScopeEmitter.Bind(_dataScopeContract, iterationExpression.Expression);
 
 				IDataScopeContract childScopeContract;
-				var evaluator = scope.RequiresEnumerable(out childScopeContract);
+				var binding = scope.RequiresEnumerable(out childScopeContract);
+				var evaluator = binding.CreateEvaluator();
 
 				var child = CreateVisitor(childScopeContract);
 				var children = Many(childNodes.Select(c => c.Accept(child)).ToList());
@@ -127,7 +129,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			{
 
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
-				var evaluator = scope.RequiresBoolean();
+				var binding = scope.RequiresBoolean();
+				var evaluator = binding.CreateEvaluator();
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 

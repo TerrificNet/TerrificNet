@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Emit.Vtree;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
@@ -20,7 +21,7 @@ namespace TerrificNet.Thtml.Test
             var ast = parser.Parse(tokens);
             var compiler = new VTreeEmitter();
             var dataBinder = TypeDataScope.BinderFromObject(inputObject);
-            var method = compiler.Emit(ast, new DataScopeContractLegacyWrapper(dataBinder), null);
+            var method = compiler.Emit(ast, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), dataBinder), null);
 
             var result = method.Execute(inputObject, null);
 
