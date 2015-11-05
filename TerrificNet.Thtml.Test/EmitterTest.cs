@@ -151,7 +151,7 @@ namespace TerrificNet.Thtml.Test
 				};
 
 				var result = new MockContext<HelperBinderResult<IListEmitter<VTree>, object>>();
-				result.Arrange(d => d.CreateEmitter(The<Handler>.IsAnyValue, The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder<IListEmitter<VTree>, object>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
+				result.Arrange(d => d.CreateEmitter(The<StreamOutputExpressionEmitter>.IsAnyValue, The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder<IListEmitter<VTree>, object>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
 					.Returns(EmitterNode<VTree>.AsList(EmitterNode<VTree>.Lambda((d, r) => new VText("helper output"))));
 
 				var helper = new MockContext<IHelperBinder<IListEmitter<VTree>, object>>();

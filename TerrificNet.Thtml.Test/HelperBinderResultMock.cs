@@ -13,9 +13,9 @@ namespace TerrificNet.Thtml.Test
 			_invocationContext = invocationContext;
 		}
 
-		public override TEmit CreateEmitter(Handler handler, TEmit children, IHelperBinder<TEmit, TConfig> helperBinder, IDataScopeContract scope)
+		public override TEmit CreateEmitter(IOutputExpressionEmitter outputExpressionEmitter, TEmit children, IHelperBinder<TEmit, TConfig> helperBinder, IDataScopeContract scope)
 		{
-			return _invocationContext.Invoke(f => f.CreateEmitter(handler, children, helperBinder, scope));
+			return _invocationContext.Invoke(f => f.CreateEmitter(outputExpressionEmitter, children, helperBinder, scope));
 		}
 	}
 }

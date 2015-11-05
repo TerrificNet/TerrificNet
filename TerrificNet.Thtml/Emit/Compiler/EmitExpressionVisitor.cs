@@ -14,17 +14,15 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder<Expression, ExpressionHelperConfig> _helperBinder;
-		private readonly ParameterExpression _writerParameter;
 		private readonly ParameterExpression _dataContextParameter;
-		private readonly Handler _handler;
+		private readonly IOutputExpressionEmitter _outputExpressionEmitter;
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder, ParameterExpression dataContextParameter, ParameterExpression writerParameter)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder, ParameterExpression dataContextParameter, IOutputExpressionEmitter outputExpressionEmitter)
 		{
 			_dataScopeContract = dataScopeContract;
 			_helperBinder = helperBinder;
 			_dataContextParameter = dataContextParameter;
-			_writerParameter = writerParameter;
-			_handler = new Handler(writerParameter);
+			_outputExpressionEmitter = outputExpressionEmitter;
 		}
 
 		public override Expression Visit(Document document)
@@ -34,7 +32,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(Element element)
 		{
-			var expressions = _handler.HandleElement(element, this);
+			var expressions = _outputExpressionEmitter.HandleElement(element, this);
 
 			return Expression.Block(expressions);
 		}
@@ -42,14 +40,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public override Expression Visit(AttributeNode attributeNode)
 		{
 			var valueEmitter = attributeNode.Value.Accept(this);
-			var expressions = _handler.HandleAttributeNode(attributeNode, valueEmitter);
+			var expressions = _outputExpressionEmitter.HandleAttributeNode(attributeNode, valueEmitter);
 
 			return Expression.Block(expressions);
 		}
 
 		public override Expression Visit(ConstantAttributeContent attributeContent)
 		{
-			return _handler.HandleAttributeContent(attributeContent);
+			return _outputExpressionEmitter.HandleAttributeContent(attributeContent);
 		}
 
 		public override Expression Visit(AttributeContentStatement constantAttributeContent)
@@ -81,12 +79,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var evaluator = binding.CreateEvaluator();
 			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
 			var callExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
-			return _handler.HandleCall(callExpression);
+			return _outputExpressionEmitter.HandleCall(callExpression);
 		}
 
 		public override Expression Visit(TextNode textNode)
 		{
-			return _handler.HandleTextNode(textNode);
+			return _outputExpressionEmitter.HandleTextNode(textNode);
 		}
 
 		private Expression HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
@@ -133,7 +131,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluation = result.CreateEmitter(_handler, children, _helperBinder, _dataScopeContract);
+				var evaluation = result.CreateEmitter(_outputExpressionEmitter, children, _helperBinder, _dataScopeContract);
 				return evaluation;
 			}
 
@@ -157,55 +155,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private EmitExpressionVisitor CreateVisitor(IDataScopeContract childScopeContract)
 		{
 			var dataContextParameter = Expression.Parameter(childScopeContract.ResultType);
-			return new EmitExpressionVisitor(childScopeContract, _helperBinder, dataContextParameter, _writerParameter);
+			return new EmitExpressionVisitor(childScopeContract, _helperBinder, dataContextParameter, _outputExpressionEmitter);
 		}	
-	}
-
-	public class Handler
-	{
-		private readonly ParameterExpression _writerParameter;
-
-		public Handler(ParameterExpression writerParameter)
-		{
-			_writerParameter = writerParameter;
-		}
-
-		public Expression HandleAttributeContent(ConstantAttributeContent attributeContent)
-		{
-			return Write(attributeContent.Text);
-		}
-
-		internal IEnumerable<Expression> HandleElement(Element element, EmitExpressionVisitor visitor)
-		{
-			var expressions = new List<Expression>();
-			expressions.Add(Write($"<{element.TagName}"));
-			expressions.AddRange(element.Attributes.Select(attribute => attribute.Accept(visitor)));
-			expressions.Add(Write(">"));
-			expressions.AddRange(element.ChildNodes.Select(i => i.Accept(visitor)));
-			expressions.Add(Write($"</{element.TagName}>"));
-			return expressions;
-		}
-
-		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
-		{
-			yield return Write(" " + attributeNode.Name + "=\"");
-			yield return valueEmitter;
-			yield return Write("\"");
-		}
-
-		public Expression HandleCall(Expression callExpression)
-		{
-			return ExpressionHelper.Write(_writerParameter, callExpression);
-		}
-
-		public Expression HandleTextNode(TextNode textNode)
-		{
-			return Write(textNode.Text);
-		}
-
-		private Expression Write(string value)
-		{
-			return ExpressionHelper.Write(_writerParameter, value);
-		}
 	}
 }

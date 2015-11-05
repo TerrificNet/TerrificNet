@@ -11,8 +11,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
 			var writerParameter = Expression.Parameter(typeof (TextWriter));
+			var handler = new StreamOutputExpressionEmitter(writerParameter);
 
-			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder<Expression, ExpressionHelperConfig>(), dataContextParameter, writerParameter);
+			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder<Expression, ExpressionHelperConfig>(), dataContextParameter, handler);
 			var expression = visitor.Visit(input);
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");
