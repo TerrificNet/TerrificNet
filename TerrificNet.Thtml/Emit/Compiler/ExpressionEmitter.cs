@@ -9,9 +9,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder)
 		{
-			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder<Expression, ExpressionHelperConfig>());
-			visitor.Visit(input);
-			var action = visitor.DocumentFunc;
+			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
+			var writerParameter = Expression.Parameter(typeof (TextWriter));
+
+			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder<Expression, ExpressionHelperConfig>(), dataContextParameter, writerParameter);
+			var expression = visitor.Visit(input);
+
+			var inputExpression = Expression.Parameter(typeof(object), "input");
+			var convertExpression = Expression.Assign(dataContextParameter, Expression.ConvertChecked(inputExpression, dataScopeContract.ResultType));
+			var bodyExpression = Expression.Block(new[] { dataContextParameter }, convertExpression, expression);
+			var action = Expression.Lambda<Action<TextWriter, object>>(bodyExpression, writerParameter, inputExpression).Compile();
 
 			return new IlEmitterRunnable(action);
 		}

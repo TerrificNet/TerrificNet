@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Parsing;
@@ -15,41 +14,27 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder<Expression, ExpressionHelperConfig> _helperBinder;
-		private readonly ParameterExpression _writerParameter = Expression.Parameter(typeof(TextWriter));
+		private readonly ParameterExpression _writerParameter;
 		private readonly ParameterExpression _dataContextParameter;
+		private readonly Handler _handler;
 
-		public Action<TextWriter, object> DocumentFunc { get; private set; }
-
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder, ParameterExpression writerParameter = null)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder, ParameterExpression dataContextParameter, ParameterExpression writerParameter)
 		{
 			_dataScopeContract = dataScopeContract;
 			_helperBinder = helperBinder;
-			_dataContextParameter = Expression.Variable(_dataScopeContract.ResultType, "item");
-
-			if (writerParameter != null)
-				_writerParameter = writerParameter;
+			_dataContextParameter = dataContextParameter;
+			_writerParameter = writerParameter;
+			_handler = new Handler(writerParameter);
 		}
 
 		public override Expression Visit(Document document)
 		{
-			var expression = Many(document.ChildNodes.Select(node => node.Accept(this)).ToList());
-
-			var inputExpression = Expression.Parameter(typeof(object), "input");
-			var convertExpression = Expression.Assign(_dataContextParameter, Expression.ConvertChecked(inputExpression, _dataScopeContract.ResultType));
-			var bodyExpression = Expression.Block(new[] { _dataContextParameter }, convertExpression, expression);
-			DocumentFunc = Expression.Lambda<Action<TextWriter, object>>(bodyExpression, _writerParameter, inputExpression).Compile();
-
-			return expression;
+			return Many(document.ChildNodes.Select(node => node.Accept(this)).ToList());
 		}
 
 		public override Expression Visit(Element element)
 		{
-			var expressions = new List<Expression>();
-			expressions.Add(Write($"<{element.TagName}"));
-			expressions.AddRange(element.Attributes.Select(attribute => attribute.Accept(this)));
-			expressions.Add(Write(">"));
-			expressions.AddRange(element.ChildNodes.Select(i => i.Accept(this)));
-			expressions.Add(Write($"</{element.TagName}>"));
+			var expressions = _handler.HandleElement(element, this);
 
 			return Expression.Block(expressions);
 		}
@@ -57,15 +42,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public override Expression Visit(AttributeNode attributeNode)
 		{
 			var valueEmitter = attributeNode.Value.Accept(this);
+			var expressions = _handler.HandleAttributeNode(attributeNode, valueEmitter);
 
-			return Expression.Block(Write(" " + attributeNode.Name + "=\""),
-				valueEmitter,
-				Write("\""));
+			return Expression.Block(expressions);
 		}
 
 		public override Expression Visit(ConstantAttributeContent attributeContent)
 		{
-			return Write(attributeContent.Text);
+			return _handler.HandleAttributeContent(attributeContent);
 		}
 
 		public override Expression Visit(AttributeContentStatement constantAttributeContent)
@@ -97,12 +81,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var evaluator = binding.CreateEvaluator();
 			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
 			var callExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
-			return Write(callExpression);
+			return _handler.HandleCall(callExpression);
 		}
 
 		public override Expression Visit(TextNode textNode)
 		{
-			return Write(textNode.Text);
+			return _handler.HandleTextNode(textNode);
 		}
 
 		private Expression HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
@@ -127,7 +111,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var conditionalExpression = expression as ConditionalExpression;
 			if (conditionalExpression != null)
 			{
-
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
 				var binding = scope.RequiresBoolean();
 				var evaluator = binding.CreateEvaluator();
@@ -150,8 +133,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var config = new ExpressionHelperConfig { WriterParameter = _writerParameter };
-				var evaluation = result.CreateEmitter(config, children, _helperBinder, _dataScopeContract);
+				var evaluation = result.CreateEmitter(_handler, children, _helperBinder, _dataScopeContract);
 				return evaluation;
 			}
 
@@ -174,12 +156,51 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private EmitExpressionVisitor CreateVisitor(IDataScopeContract childScopeContract)
 		{
-			return new EmitExpressionVisitor(childScopeContract, _helperBinder, _writerParameter);
+			var dataContextParameter = Expression.Parameter(childScopeContract.ResultType);
+			return new EmitExpressionVisitor(childScopeContract, _helperBinder, dataContextParameter, _writerParameter);
+		}	
+	}
+
+	public class Handler
+	{
+		private readonly ParameterExpression _writerParameter;
+
+		public Handler(ParameterExpression writerParameter)
+		{
+			_writerParameter = writerParameter;
 		}
 
-		private Expression Write(Expression inputExpression)
+		public Expression HandleAttributeContent(ConstantAttributeContent attributeContent)
 		{
-			return ExpressionHelper.Write(_writerParameter, inputExpression);
+			return Write(attributeContent.Text);
+		}
+
+		internal IEnumerable<Expression> HandleElement(Element element, EmitExpressionVisitor visitor)
+		{
+			var expressions = new List<Expression>();
+			expressions.Add(Write($"<{element.TagName}"));
+			expressions.AddRange(element.Attributes.Select(attribute => attribute.Accept(visitor)));
+			expressions.Add(Write(">"));
+			expressions.AddRange(element.ChildNodes.Select(i => i.Accept(visitor)));
+			expressions.Add(Write($"</{element.TagName}>"));
+			return expressions;
+		}
+
+		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
+		{
+			yield return Write(" " + attributeNode.Name + "=\"");
+			yield return valueEmitter;
+			yield return Write("\"");
+		}
+
+		public Expression HandleCall(Expression callExpression)
+		{
+			return ExpressionHelper.Write(_writerParameter, callExpression);
+		}
+
+		public Expression HandleTextNode(TextNode textNode)
+		{
+			return Write(textNode.Text);
 		}
 
 		private Expression Write(string value)

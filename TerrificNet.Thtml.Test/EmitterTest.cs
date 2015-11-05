@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using LightMock;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Emit.Vtree;
 using TerrificNet.Thtml.Parsing;
@@ -150,7 +151,7 @@ namespace TerrificNet.Thtml.Test
 				};
 
 				var result = new MockContext<HelperBinderResult<IListEmitter<VTree>, object>>();
-				result.Arrange(d => d.CreateEmitter(The<object>.IsAnyValue, The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder<IListEmitter<VTree>, object>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
+				result.Arrange(d => d.CreateEmitter(The<Handler>.IsAnyValue, The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder<IListEmitter<VTree>, object>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
 					.Returns(EmitterNode<VTree>.AsList(EmitterNode<VTree>.Lambda((d, r) => new VText("helper output"))));
 
 				var helper = new MockContext<IHelperBinder<IListEmitter<VTree>, object>>();

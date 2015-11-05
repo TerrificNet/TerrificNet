@@ -129,7 +129,7 @@ namespace TerrificNet.UnityModules
 			{
 			}
 
-			public override IListEmitter<VTree> CreateEmitter(object config, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scopeContract)
+			public override IListEmitter<VTree> CreateEmitter(Handler handler, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scopeContract)
 			{
 				return children;
 			}
@@ -151,7 +151,7 @@ namespace TerrificNet.UnityModules
 			_modelProvider = modelProvider;
 		}
 
-		public override IListEmitter<VTree> CreateEmitter(object sender, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scopeContract)
+		public override IListEmitter<VTree> CreateEmitter(Handler handler, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scopeContract)
 		{
 			return new PlaceholderEmitter(_key, helperBinder, _templateRepository, _moduleRepository, _modelProvider);
 		}
@@ -237,7 +237,7 @@ namespace TerrificNet.UnityModules
 			_skin = skin;
 		}
 
-		public override IListEmitter<VTree> CreateEmitter(object sender, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scope)
+		public override IListEmitter<VTree> CreateEmitter(Handler handler, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scope)
 		{
 			var moduleEmitter = CreateModuleEmitter(helperBinder, _templateRepository, _modelProvider, _module);
 			return EmitterNode<VTree>.AsList(moduleEmitter);
@@ -293,7 +293,7 @@ namespace TerrificNet.UnityModules
 			return emitter;
 		}
 
-		public override IListEmitter<VTree> CreateEmitter(object sender, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scopeContract)
+		public override IListEmitter<VTree> CreateEmitter(Handler handler, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scopeContract)
 		{
 			var emitter = CreateEmitter(helperBinder, scopeContract);
 			return EmitterNode<VTree>.AsList(emitter);

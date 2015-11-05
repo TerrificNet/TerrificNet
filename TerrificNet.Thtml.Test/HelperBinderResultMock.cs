@@ -1,5 +1,6 @@
 ﻿using LightMock;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -12,9 +13,9 @@ namespace TerrificNet.Thtml.Test
 			_invocationContext = invocationContext;
 		}
 
-		public override TEmit CreateEmitter(TConfig config, TEmit children, IHelperBinder<TEmit, TConfig> helperBinder, IDataScopeContract scope)
+		public override TEmit CreateEmitter(Handler handler, TEmit children, IHelperBinder<TEmit, TConfig> helperBinder, IDataScopeContract scope)
 		{
-			return _invocationContext.Invoke(f => f.CreateEmitter(config, children, helperBinder, scope));
+			return _invocationContext.Invoke(f => f.CreateEmitter(handler, children, helperBinder, scope));
 		}
 	}
 }

@@ -56,7 +56,7 @@ namespace TerrificNet.Thtml.Emit
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
 				var children = childNodes.Select(c => c.Accept(this)).ToList();
-				var evaluation = result.CreateEmitter(this, EmitterNode<TEmit>.Many(children), HelperBinder, DataScopeContract);
+				var evaluation = result.CreateEmitter(null, EmitterNode<TEmit>.Many(children), HelperBinder, DataScopeContract);
 				return evaluation;
 			}
 

@@ -136,8 +136,8 @@ namespace TerrificNet.Thtml.Test
 				};
 
 				var helperResult = new MockContext<HelperBinderResult<Expression, ExpressionHelperConfig>>();
-				helperResult.Arrange(d => d.CreateEmitter(The<ExpressionHelperConfig>.IsAnyValue, The<Expression>.IsAnyValue, The<IHelperBinder<Expression, ExpressionHelperConfig>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
-					.Returns<ExpressionHelperConfig, Expression, IHelperBinder<Expression, ExpressionHelperConfig>, IDataScopeContract>((config, expression, arg3, arg4) => ExpressionHelper.Write(config.WriterParameter, "helper output"));
+				helperResult.Arrange(d => d.CreateEmitter(The<Handler>.IsAnyValue, The<Expression>.IsAnyValue, The<IHelperBinder<Expression, ExpressionHelperConfig>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
+					.Returns<Handler, Expression, IHelperBinder<Expression, ExpressionHelperConfig>, IDataScopeContract>((handler, expression, arg3, arg4) => handler.HandleTextNode(new TextNode("helper output")));
 
 				var helper = new MockContext<IHelperBinder<Expression, ExpressionHelperConfig>>();
 				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock<Expression, ExpressionHelperConfig>(helperResult));
