@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 using LightMock;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
@@ -9,6 +10,8 @@ using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Test.Asserts;
 using TerrificNet.Thtml.VDom;
 using Xunit;
+using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
+using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -16,7 +19,7 @@ namespace TerrificNet.Thtml.Test
 	{
 		[Theory]
 		[MemberData("TestData")]
-		public void TestEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, VTree expected, IHelperBinder<IListEmitter<VTree>, object> helperBinder)
+		public void TestEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, VTree expected, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder)
 		{
 			var compiler = new VTreeEmitter();
 			var method = compiler.Emit(input, dataScopeContract, helperBinder);
@@ -30,14 +33,15 @@ namespace TerrificNet.Thtml.Test
 		{
 			get
 			{
-				yield return new object[]
+				var nullHelperBinder = new NullHelperBinder<Expression, ExpressionHelperConfig>();
+                yield return new object[]
 				{
 					"empty document",
 					new Document(),
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new NullDataScope()),
 					null,
 					new VNode(),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
 				yield return new object[]
@@ -51,7 +55,7 @@ namespace TerrificNet.Thtml.Test
 					new VNode(
 						new VElement("h1",
 							new VText("hallo"))),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
 				yield return new object[]
@@ -70,7 +74,7 @@ namespace TerrificNet.Thtml.Test
 							new VElement("h2", new[] { new VProperty("attr2", new StringVPropertyValue("hallo2")) }),
 							new VElement("h3", new[] { new VProperty("attr3", new StringVPropertyValue("hallo3")) })),
 						new VElement("h1", new[] { new VProperty("attr4", new StringVPropertyValue("hallo4")) })),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
 				var obj = new Dummy { Name = "hallo" };
@@ -85,7 +89,7 @@ namespace TerrificNet.Thtml.Test
 					new VNode(
 						new VElement("h1",
 							new VText("hallo"))),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
 				var obj2 = new DummyCollection
@@ -109,7 +113,7 @@ namespace TerrificNet.Thtml.Test
 								new VText("test1")),
 							new VElement("div",
 								new VText("test2")))),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
 				var obj3 = new Dummy { Name = "value" };
@@ -122,7 +126,7 @@ namespace TerrificNet.Thtml.Test
 					obj3,
 					new VNode(
 						new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null)),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
 				var obj4 = new
@@ -147,15 +151,15 @@ namespace TerrificNet.Thtml.Test
 					new VNode(
 						new VElement("h1", new VText("hallo2"))
 						),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
-				var result = new MockContext<HelperBinderResult<IListEmitter<VTree>, object>>();
-				result.Arrange(d => d.CreateEmitter(The<StreamOutputExpressionEmitter>.IsAnyValue, The<IListEmitter<VTree>>.IsAnyValue, The<IHelperBinder<IListEmitter<VTree>, object>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
-					.Returns(EmitterNode<VTree>.AsList(EmitterNode<VTree>.Lambda((d, r) => new VText("helper output"))));
+				var helperResult = new MockContext<HelperBinderResult<Expression, ExpressionHelperConfig>>();
+				helperResult.Arrange(d => d.CreateEmitter(The<VTreeOutputExpressionEmitter>.IsAnyValue, The<Expression>.IsAnyValue, The<IHelperBinder<Expression, ExpressionHelperConfig>>.IsAnyValue, The<IDataScopeContract>.IsAnyValue))
+					.Returns<VTreeOutputExpressionEmitter, Expression, IHelperBinder<Expression, ExpressionHelperConfig>, IDataScopeContract>((handler, expression, arg3, arg4) => handler.HandleTextNode(new TextNode("helper output")));
 
-				var helper = new MockContext<IHelperBinder<IListEmitter<VTree>, object>>();
-				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock<IListEmitter<VTree>, object>(result));
+				var helper = new MockContext<IHelperBinder<Expression, ExpressionHelperConfig>>();
+				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock<Expression, ExpressionHelperConfig>(helperResult));
 
 				yield return new object[]
 				{
@@ -166,7 +170,7 @@ namespace TerrificNet.Thtml.Test
 					obj3,
 					new VNode(
 						new VElement("h1", new VText("helper output"))),
-					new HelperBinderMock<IListEmitter<VTree>, object>(helper)
+					new HelperBinderMock<Expression,ExpressionHelperConfig>(helper)
 				};
 
 				var obj5 = new { Member = "member" };
@@ -185,7 +189,7 @@ namespace TerrificNet.Thtml.Test
 					obj5,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("memberhallo")) })),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 
 				var obj6 = new { Do = true };
@@ -204,7 +208,7 @@ namespace TerrificNet.Thtml.Test
 					obj6,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),
-					new NullHelperBinder<IListEmitter<VTree>, object>()
+					nullHelperBinder
 				};
 			}
 		}

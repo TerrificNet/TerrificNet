@@ -11,7 +11,7 @@ namespace TerrificNet.Thtml.VDom
 
         public VNode(IEnumerable<VTree> children)
         {
-            Children = children?.ToList() ?? new List<VTree>();
+            Children = children?.Where(c => c != null).ToList() ?? new List<VTree>();
         }
 
         public int Count => Children.Count;

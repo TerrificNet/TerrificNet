@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -18,23 +19,36 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var getEnumeratorCall = Expression.Call(collection, enumerableType.GetMethod("GetEnumerator"));
 			var enumeratorAssign = Expression.Assign(enumeratorVar, Expression.Convert(getEnumeratorCall, enumeratorType));
 
+			Expression listAssign = Expression.Empty();
+			Expression loopExpression = loopContent;
+			ParameterExpression list = null;
+			if (loopContent.Type != typeof (void))
+			{
+				var listType = typeof (List<>).MakeGenericType(loopContent.Type);
+				list = Expression.Variable(listType);
+				listAssign = Expression.Assign(list, Expression.New(listType));
+				loopExpression = Expression.Call(list, listType.GetMethod("Add", new [] { loopContent.Type }), loopContent);
+			}
+
 			// The MoveNext method's actually on IEnumerator, not IEnumerator<T>
 			var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetMethod("MoveNext"));
 
 			var breakLabel = Expression.Label("LoopBreak");
 
-			var loop = Expression.Block(new[] { enumeratorVar },
+			var loop = Expression.Block(list != null ? new[] { enumeratorVar, list } : new[] { enumeratorVar },
 				enumeratorAssign,
-				Expression.Loop(
+				listAssign,
+                Expression.Loop(
 					Expression.IfThenElse(
 						Expression.Equal(moveNextCall, Expression.Constant(true)),
 						Expression.Block(new[] { loopVar },
 							Expression.Assign(loopVar, Expression.Convert(Expression.Property(enumeratorVar, "Current"), elementType)),
-							loopContent
+							loopExpression
 							),
 						Expression.Break(breakLabel)
 						),
-					breakLabel)
+					breakLabel),
+				(Expression) list ?? Expression.Empty()
 				);
 
 			return loop;

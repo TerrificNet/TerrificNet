@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
@@ -57,7 +58,7 @@ namespace TerrificNet.UnityModules
 			var ast = parser.Parse(tokens);
 			var compiler = new VTreeEmitter();
 
-			var emitter = compiler.Emit(ast, dataScope, helperBinder);
+			var emitter = compiler.Emit(ast, dataScope, new NullHelperBinder<Expression, ExpressionHelperConfig>()); //helperBinder);
 			return emitter;
 		}
 

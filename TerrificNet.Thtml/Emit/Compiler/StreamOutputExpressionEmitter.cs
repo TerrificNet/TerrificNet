@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Write(attributeContent.Text);
 		}
 
-		public IEnumerable<Expression> HandleElement(Element element, INodeVisitor<Expression> visitor)
+		public Expression HandleElement(Element element, INodeVisitor<Expression> visitor)
 		{
 			var expressions = new List<Expression>();
 			expressions.Add(Write($"<{element.TagName}"));
@@ -27,7 +27,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			expressions.Add(Write(">"));
 			expressions.AddRange(element.ChildNodes.Select(i => i.Accept(visitor)));
 			expressions.Add(Write($"</{element.TagName}>"));
-			return expressions;
+			return Expression.Block(expressions);
 		}
 
 		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
@@ -45,6 +45,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public Expression HandleTextNode(TextNode textNode)
 		{
 			return Write(textNode.Text);
+		}
+
+		public Expression HandleDocument(List<Expression> expressions)
+		{
+			return expressions.Count > 0 ? (Expression)Expression.Block(expressions) : Expression.Empty();
+		}
+
+		public Expression HandleCompositeAttribute(CompositeAttributeContent compositeAttributeContent, INodeVisitor<Expression> visitor)
+		{
+			return Expression.Block(compositeAttributeContent.ContentParts.Select(p => p.Accept(visitor)).ToList());
 		}
 
 		private Expression Write(string value)

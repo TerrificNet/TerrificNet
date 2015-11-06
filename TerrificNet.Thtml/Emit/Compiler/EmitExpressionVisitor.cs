@@ -27,14 +27,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(Document document)
 		{
-			return Many(document.ChildNodes.Select(node => node.Accept(this)).ToList());
+			var expressions = document.ChildNodes.Select(node => node.Accept(this)).ToList();
+			return _outputExpressionEmitter.HandleDocument(expressions);
 		}
 
 		public override Expression Visit(Element element)
 		{
-			var expressions = _outputExpressionEmitter.HandleElement(element, this);
-
-			return Expression.Block(expressions);
+			return _outputExpressionEmitter.HandleElement(element, this);
 		}
 
 		public override Expression Visit(AttributeNode attributeNode)
@@ -68,7 +67,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(CompositeAttributeContent compositeAttributeContent)
 		{
-			return Many(compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList());
+			return _outputExpressionEmitter.HandleCompositeAttribute(compositeAttributeContent, this);
 		}
 
 		public override Expression Visit(MemberExpression memberExpression)
@@ -118,7 +117,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
 				var testExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
 
-				return Expression.IfThen(testExpression, children);
+				if (children.Type == typeof (void))
+					return Expression.IfThen(testExpression, children);
+
+				var returnTarget = Expression.Label(children.Type);
+
+				var ex = Expression.IfThen(testExpression, Expression.Return(returnTarget, children));
+				return Expression.Block(ex, Expression.Label(returnTarget, Expression.Constant(null, children.Type)));
 			}
 
 			var callHelperExpression = expression as CallHelperExpression;
@@ -147,7 +152,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return expressions.Count > 0 ? (Expression)Expression.Block(expressions) : Expression.Empty();
 		}
 
-		private static IDictionary<string, string> CreateDictionaryFromArguments(HelperAttribute[] attributes)
+		private static IDictionary<string, string> CreateDictionaryFromArguments(IEnumerable<HelperAttribute> attributes)
 		{
 			return attributes.ToDictionary(d => d.Name, d => d.Value);
 		}

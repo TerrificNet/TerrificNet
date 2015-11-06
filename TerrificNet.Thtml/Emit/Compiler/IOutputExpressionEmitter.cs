@@ -7,9 +7,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	public interface IOutputExpressionEmitter
 	{
 		Expression HandleAttributeContent(ConstantAttributeContent attributeContent);
-		IEnumerable<Expression> HandleElement(Element element, INodeVisitor<Expression> visitor);
+		Expression HandleElement(Element element, INodeVisitor<Expression> visitor);
 		IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter);
 		Expression HandleCall(Expression callExpression);
 		Expression HandleTextNode(TextNode textNode);
+		Expression HandleDocument(List<Expression> expressions);
+		Expression HandleCompositeAttribute(CompositeAttributeContent compositeAttributeContent, INodeVisitor<Expression> visitor);
 	}
 }

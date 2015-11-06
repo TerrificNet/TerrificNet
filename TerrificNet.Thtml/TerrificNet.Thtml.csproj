@@ -46,6 +46,7 @@
     <Compile Include="Emit\Compiler\ExpressionHelperConfig.cs" />
     <Compile Include="Emit\Compiler\IOutputExpressionEmitter.cs" />
     <Compile Include="Emit\Compiler\StreamOutputExpressionEmitter.cs" />
+    <Compile Include="Emit\Compiler\VTreeOutputExpressionEmitter.cs" />
     <Compile Include="Emit\DynamicDataScope.cs" />
     <Compile Include="Emit\Vtree\EmitNodeVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitorBase.cs" />
