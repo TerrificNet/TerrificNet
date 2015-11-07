@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit;
 
 namespace TerrificNet.Thtml.Test
@@ -22,6 +23,11 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
+		public Expression BindStringToExpression(Expression dataContext)
+		{
+			return Expression.Empty();
+		}
+
 		public IEvaluator<bool> BindBoolean()
 		{
 			return null;
@@ -33,6 +39,6 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public Type ResultType { get; } = typeof(object);
+		public Type DataContextType => typeof (object);
 	}
 }

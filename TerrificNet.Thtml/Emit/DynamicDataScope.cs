@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Binding;
+using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Emit
 {
@@ -24,6 +26,12 @@ namespace TerrificNet.Thtml.Emit
 		    return new CastEvaluator<string>(_evaluator);
 	    }
 
+	    public Expression BindStringToExpression(Expression dataContext)
+	    {
+			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
+			return Expression.Call(Expression.Constant(BindString()), evaluateMethod, dataContext);
+		}
+
 	    public IEvaluator<bool> BindBoolean()
 	    {
 			return new CastEvaluator<bool>(_evaluator);
@@ -35,7 +43,7 @@ namespace TerrificNet.Thtml.Emit
 		    return new CastEvaluator<IEnumerable>(_evaluator);
 	    }
 
-	    public Type ResultType { get; } = null;
+	    public Type DataContextType => typeof (object);
 
 	    public virtual IDataBinder Property(string propertyName)
         {

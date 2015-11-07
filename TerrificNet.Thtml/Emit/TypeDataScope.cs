@@ -9,28 +9,17 @@ namespace TerrificNet.Thtml.Emit
 {
 	public class TypeDataScope : IDataBinder
 	{
-		private readonly ParameterExpression _dataContextParameter;
-		private readonly Expression _memberAccess;
+		private readonly Func<Expression, Expression> _expressionFactory;
 
-		private TypeDataScope(Type type)
+		private TypeDataScope(Type dataContextType, Func<Expression, Expression> expressionFactory)
 		{
-			_dataContextParameter = Expression.Parameter(typeof(object));
-			_memberAccess = Expression.ConvertChecked(_dataContextParameter, type);
-
-			ResultType = type;
+			DataContextType = dataContextType;
+			_expressionFactory = expressionFactory;
 		}
-
-		private TypeDataScope(Expression expression, ParameterExpression parameter) : this(expression.Type)
-		{
-			_dataContextParameter = parameter;
-			_memberAccess = expression;
-		}
-
-		public Type ResultType { get; }
 
 		public static IDataBinder BinderFromType(Type type)
 		{
-			return new TypeDataScope(type);
+			return new TypeDataScope(type, d => d);
 		}
 
 		public static IDataBinder BinderFromObject(object obj)
@@ -38,59 +27,70 @@ namespace TerrificNet.Thtml.Emit
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj));
 
-			return new TypeDataScope(obj.GetType());
+			Type type = obj.GetType();
+			return BinderFromType(type);
 		}
 
-		private Func<object, T> CreateEvaluation<T>()
+		public Expression BindStringToExpression(Expression dataContext)
 		{
-			var lambda = Expression.Lambda<Func<object, T>>(_memberAccess, _dataContextParameter);
-			return lambda.Compile();
+			return BindExpression<string>(dataContext);
 		}
 
-		private IEvaluator<T> Bind<T>()
+		private Expression BindExpression<T>(Expression dataContext)
 		{
-			if (typeof(T) != ResultType)
-				throw new Exception($"Can not bind the ${typeof(T).Name} to type ${ResultType}.");
+			var expression = _expressionFactory(dataContext);
+			if (typeof(T) != expression.Type)
+				throw new Exception($"Can not bind the {typeof(T).Name} to type {expression.Type}.");
 
-			return new EvaluatorFromLambda<T>(CreateEvaluation<T>());
+			return expression;
 		}
 
 		public IEvaluator<bool> BindBoolean()
 		{
-			return Bind<bool>();
+			return CreateEvaluator<bool>(BindExpression<bool>);
 		}
 
 		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
 		{
-			childScope = Item();
-			return BindEnumerable();
+			var param = Expression.Parameter(typeof(object));
+			var context = Expression.Convert(param, DataContextType);
+			var expression = _expressionFactory(context);
+
+			childScope = Item(expression.Type);
+
+			var lambda = Expression.Lambda<Func<object, IEnumerable>>(expression, param);
+			return new EvaluatorFromLambda<IEnumerable>(lambda.Compile());
 		}
+
+		public Type DataContextType { get; }
 
 		public IEvaluator<string> BindString()
 		{
-			return Bind<string>();
+			return CreateEvaluator<string>(BindExpression<string>);
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable()
+		private IEvaluator<T> CreateEvaluator<T>(Func<Expression, Expression> binding)
 		{
-			if (!typeof(IEnumerable).IsAssignableFrom(ResultType) || typeof(string).IsAssignableFrom(ResultType))
-				throw new Exception($"Can not bind the enumerable to type ${ResultType}.");
-
-			return new EvaluatorFromLambda<IEnumerable>(CreateEvaluation<IEnumerable>());
+			var param = Expression.Parameter(typeof (object));
+			var context = Expression.Convert(param, DataContextType);
+			var expression = binding(context);
+			var lambda = Expression.Lambda<Func<object, T>>(expression, param);
+			return new EvaluatorFromLambda<T>(lambda.Compile());
 		}
 
 		public virtual IDataBinder Property(string propertyName)
 		{
-			return new TypeDataScope(Expression.Property(_memberAccess, propertyName), _dataContextParameter);
+			return new TypeDataScope(DataContextType, d => Expression.Property(_expressionFactory(d), propertyName));
 		}
 
-		private IDataBinder Item()
+		private static IDataBinder Item(Type resultType)
 		{
-			var enumerable = ResultType.GetInterfaces().Union(new[] { ResultType }).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+			var enumerable = resultType.GetInterfaces().Union(new[] { resultType }).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 			if (enumerable == null)
 				return null;
 
-			return new TypeDataScope(enumerable.GetGenericArguments()[0]);
+			var type = enumerable.GetGenericArguments()[0];
+			return new TypeDataScope(type, d => d);
 		}
 
 		private class EvaluatorFromLambda<T> : IEvaluator<T>

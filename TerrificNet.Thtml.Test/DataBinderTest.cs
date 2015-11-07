@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit;
 using Xunit;
 
@@ -19,7 +20,11 @@ namespace TerrificNet.Thtml.Test
         {
             get
             {
-                yield return TypeDataScope.BinderFromType;
+                yield return type =>
+                {
+	                ParameterExpression dataContextParameter = Expression.Parameter(type);
+	                return TypeDataScope.BinderFromType(dataContextParameter.Type);
+                };
                 yield return t => new DynamicDataScope();
             }
         }
@@ -41,7 +46,29 @@ namespace TerrificNet.Thtml.Test
             Assert.Equal(expectedResult, propertyResult);
         }
 
-        [Theory]
+		[Theory]
+		[MemberData("BinderFactoriesParameter")]
+		public void DataBinder_SimplePropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
+		{
+			const string expectedResult = "property";
+			var obj = new { Property = expectedResult };
+
+			var underTest = dataBinderFactory(obj.GetType());
+			var result = underTest.Property("property");
+
+			Assert.NotNull(result);
+			var dataContext = Expression.Parameter(typeof(object));
+			var evaluator = result.BindStringToExpression(Expression.Convert(dataContext, obj.GetType()));
+			Assert.Equal(typeof (string), evaluator.Type);
+
+			var eval = Expression.Lambda<Func<object, string>>(evaluator, dataContext).Compile();
+			var propertyResult = eval(obj);
+
+			Assert.Equal(expectedResult, propertyResult);
+		}
+
+
+		[Theory]
         [MemberData("BinderFactoriesParameter")]
         public void DataBinder_IterationProperty(Func<Type, IDataBinder> dataBinderFactory)
         {
@@ -111,14 +138,15 @@ namespace TerrificNet.Thtml.Test
         [InlineData(typeof(IDictionary<object, string>), typeof(KeyValuePair<object, string>))]
         public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
         {
-            var underTest = TypeDataScope.BinderFromType(interfaceType);
+	        ParameterExpression dataContextParameter = Expression.Parameter(interfaceType);
+	        var underTest = TypeDataScope.BinderFromType(dataContextParameter.Type);
 	        IDataBinder childScope;
 	        underTest.BindEnumerable(out childScope);
 
             Assert.NotNull(childScope);
             var binder = Assert.IsType<TypeDataScope>(childScope);
 
-            Assert.Equal(expectedItemType, binder.ResultType);
+            Assert.Equal(expectedItemType, binder.DataContextType);
         }
     }
 }

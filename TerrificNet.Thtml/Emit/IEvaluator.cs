@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit
 {
@@ -12,6 +13,8 @@ namespace TerrificNet.Thtml.Emit
 		void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation);
 
 		IEvaluator<T> CreateEvaluator();
+
+		Expression CreateExpression(Expression dataContext);
 	}
 
 	public class ResultGenerator<T>

@@ -37,7 +37,10 @@ namespace TerrificNet.UnityModules
 			if (modelType == typeof(object))
 				scope = new DynamicDataScope();
 			else
-				scope = TypeDataScope.BinderFromType(modelType);
+			{
+				ParameterExpression dataContextParameter = Expression.Parameter(modelType);
+				scope = TypeDataScope.BinderFromType(dataContextParameter.Type);
+			}
 
 			var emitter = CreateEmitter(templateInfo, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), scope), new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
 

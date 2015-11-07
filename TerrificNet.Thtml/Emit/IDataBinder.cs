@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
@@ -9,9 +10,11 @@ namespace TerrificNet.Thtml.Emit
 		IDataBinder Property(string propertyName);
 
 		IEvaluator<string> BindString();
+		Expression BindStringToExpression(Expression dataContext);
 		IEvaluator<bool> BindBoolean();
 		IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope);
-		Type ResultType { get; }
+
+		Type DataContextType { get; }
 	}
 
 	public class DataScopeContractLegacyWrapper : IDataScopeContract
@@ -33,12 +36,12 @@ namespace TerrificNet.Thtml.Emit
 
 		public IBinding<string> RequiresString()
 		{
-			return new BindingWrapper<string>(() => _legacy.BindString());
+			return new BindingWrapper<string>(() => _legacy.BindString(), d => _legacy.BindStringToExpression(d));
 		}
 
 		public IBinding<bool> RequiresBoolean()
 		{
-			return new BindingWrapper<bool>(() => _legacy.BindBoolean());
+			return new BindingWrapper<bool>(() => _legacy.BindBoolean(), null);
 		}
 
 		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
@@ -49,16 +52,20 @@ namespace TerrificNet.Thtml.Emit
 			_contract.RequiresEnumerable(out childContract);
             childScopeContract = new DataScopeContractLegacyWrapper(childContract, childBinder);
 
-			return new BindingWrapper<IEnumerable>(() => result);
+			return new BindingWrapper<IEnumerable>(() => result, null);
 		}
+
+		public Type ResultType => _legacy.DataContextType;
 
 		private class BindingWrapper<T> : IBinding<T>
 		{
 			private readonly Func<IEvaluator<T>> _evalutor;
+			private readonly Func<Expression, Expression> _createExpression;
 
-			public BindingWrapper(Func<IEvaluator<T>> evalutor)
+			public BindingWrapper(Func<IEvaluator<T>> evalutor, Func<Expression, Expression> createExpression)
 			{
 				_evalutor = evalutor;
+				_createExpression = createExpression;
 			}
 
 			public void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation)
@@ -69,8 +76,14 @@ namespace TerrificNet.Thtml.Emit
 			{
 				return _evalutor();
 			}
-		}
 
-		public Type ResultType => _legacy.ResultType;
+			public Expression CreateExpression(Expression dataContext)
+			{
+				if (_createExpression == null)
+					throw new NotImplementedException();
+
+				return _createExpression(dataContext);
+			}
+		}
 	}
 }
