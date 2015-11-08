@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -93,13 +92,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				IDataScopeContract childScopeContract;
 				var binding = scope.RequiresEnumerable(out childScopeContract);
-				var evaluator = binding.CreateEvaluator();
 
 				var child = CreateVisitor(childScopeContract);
 				var children = Many(childNodes.Select(c => c.Accept(child)).ToList());
 
-				var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
-				var collection = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
+				var collection = binding.CreateExpression(_dataContextParameter);
 				return ExpressionHelper.ForEach(collection, child._dataContextParameter, children);
 			}
 

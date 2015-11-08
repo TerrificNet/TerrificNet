@@ -14,6 +14,7 @@ namespace TerrificNet.Thtml.Emit
 		Expression BindBooleanToExpression(Expression dataContext);
 		IEvaluator<bool> BindBoolean();
 		IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope);
+		Expression BindEnumerableToExpression(Expression dataContext);
 
 		Type DataContextType { get; }
 	}
@@ -53,7 +54,7 @@ namespace TerrificNet.Thtml.Emit
 			_contract.RequiresEnumerable(out childContract);
             childScopeContract = new DataScopeContractLegacyWrapper(childContract, childBinder);
 
-			return new BindingWrapper<IEnumerable>(() => result, null);
+			return new BindingWrapper<IEnumerable>(() => result, d => _legacy.BindEnumerableToExpression(d));
 		}
 
 		public Type ResultType => _legacy.DataContextType;

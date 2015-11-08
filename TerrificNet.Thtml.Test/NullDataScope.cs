@@ -39,6 +39,11 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
+		public Expression BindEnumerableToExpression(Expression dataContext)
+		{
+			return Expression.Empty();
+		}
+
 		public Type DataContextType => typeof (object);
 	}
 }

@@ -35,7 +35,7 @@ namespace TerrificNet.Thtml.Emit
 	    public Expression BindBooleanToExpression(Expression dataContext)
 	    {
 			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
-			return Expression.Call(Expression.Constant(BindString()), evaluateMethod, dataContext);
+			return Expression.Call(Expression.Constant(BindBoolean()), evaluateMethod, dataContext);
 		}
 
 	    public IEvaluator<bool> BindBoolean()
@@ -48,6 +48,13 @@ namespace TerrificNet.Thtml.Emit
 		    childScope = new DynamicDataScope();
 		    return new CastEvaluator<IEnumerable>(_evaluator);
 	    }
+
+	    public Expression BindEnumerableToExpression(Expression dataContext)
+	    {
+			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
+		    IDataBinder childScope;
+			return Expression.Call(Expression.Constant(BindEnumerable(out childScope)), evaluateMethod, dataContext);
+		}
 
 	    public Type DataContextType => typeof (object);
 

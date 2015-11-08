@@ -67,6 +67,11 @@ namespace TerrificNet.Thtml.Emit
 			return new EvaluatorFromLambda<IEnumerable>(lambda.Compile());
 		}
 
+		public Expression BindEnumerableToExpression(Expression dataContext)
+		{
+			return _expressionFactory(dataContext);
+		}
+
 		public Type DataContextType { get; }
 
 		public IEvaluator<string> BindString()
