@@ -9,7 +9,7 @@ using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal class EmitExpressionVisitor : NodeVisitorBase<Expression>
+	public class EmitExpressionVisitor : NodeVisitorBase<Expression>
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder<Expression, ExpressionHelperConfig> _helperBinder;
@@ -129,7 +129,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluation = result.CreateEmitter(_outputExpressionEmitter, children, _helperBinder, _dataScopeContract);
+				var evaluation = result.CreateEmitter(new HelperBinderResult<Expression, ExpressionHelperConfig>.HelperParameters(_outputExpressionEmitter, _helperBinder, _dataScopeContract, _dataContextParameter), children);
 				return evaluation;
 			}
 

@@ -4,7 +4,7 @@ using TerrificNet.Thtml.Parsing.Handlebars;
 
 namespace TerrificNet.Thtml.Emit
 {
-    internal class NodeVisitorBase<T> : INodeVisitor<T>
+    public class NodeVisitorBase<T> : INodeVisitor<T>
     {
         public virtual T Visit(Element element)
         {
