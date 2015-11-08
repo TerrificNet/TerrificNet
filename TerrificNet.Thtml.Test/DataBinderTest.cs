@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -28,23 +29,6 @@ namespace TerrificNet.Thtml.Test
             }
         }
 
-        [Theory]
-        [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_SimpleProperty(Func<Type, IDataBinder> dataBinderFactory)
-        {
-            const string expectedResult = "property";
-            var obj = new { Property = expectedResult };
-            
-            var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property");
-
-            Assert.NotNull(result);
-            var evaluator = result.BindString();
-            var propertyResult = evaluator.Evaluate(obj);
-
-            Assert.Equal(expectedResult, propertyResult);
-        }
-
 		[Theory]
 		[MemberData("BinderFactoriesParameter")]
 		public void DataBinder_SimplePropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
@@ -56,86 +40,53 @@ namespace TerrificNet.Thtml.Test
 			var result = underTest.Property("property");
 
 			Assert.NotNull(result);
-			var propertyResult = AssertExpression<string>(obj, result.BindStringToExpression);
+			var propertyResult = AssertExpression<string>(obj, result.BindString);
 
 			Assert.Equal(expectedResult, propertyResult);
 		}
 
-	    private static T AssertExpression<T>(object obj, Func<Expression, Expression> binding)
-	    {
-		    var dataContext = Expression.Parameter(typeof (object));
-		    var evaluator = binding(Expression.Convert(dataContext, obj.GetType()));
-		    Assert.Equal(typeof (T), evaluator.Type);
+		[Theory]
+		[MemberData("BinderFactoriesParameter")]
+		public void DataBinder_IterationPropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
+		{
+			const string expectedResult = "property";
+			var obj = new { Property = new[] { new { Property2 = expectedResult } } };
 
-		    var eval = Expression.Lambda<Func<object, T>>(evaluator, dataContext).Compile();
-		    var propertyResult = eval(obj);
-		    return propertyResult;
-	    }
+			var underTest = dataBinderFactory(obj.GetType());
+			var result = underTest.Property("property");
 
+			Assert.NotNull(result);
 
-	    [Theory]
-        [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_IterationProperty(Func<Type, IDataBinder> dataBinderFactory)
-        {
-            const string expectedResult = "property";
-            var obj = new { Property = new [] { new { Property2 = expectedResult } } };
+			var childScope = result.Item();
+			var propertyResult = AssertExpression<IEnumerable>(obj, b => result.BindEnumerable(b));
 
-            var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property");
+			Assert.NotNull(propertyResult);
 
-            Assert.NotNull(result);
+			var innerPropertyResult = childScope.Property("property2");
+			var innerPropertyEvaluator = CreateEval<string>(e => innerPropertyResult.BindString(e), childScope.DataContextType);
 
-	        IDataBinder childScope;
-            var evaluator = result.BindEnumerable(out childScope);
-            var propertyResult = evaluator.Evaluate(obj);
+			foreach (var item in propertyResult)
+			{
+				var innerResult = innerPropertyEvaluator(item);
+				Assert.Equal(expectedResult, innerResult);
+			}
+		}
 
-            Assert.NotNull(propertyResult);
+		[Theory]
+		[MemberData("BinderFactoriesParameter")]
+		public void DataBinder_NestedPropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
+		{
+			const string expectedResult = "property";
+			var obj = new { Property1 = new { Property2 = expectedResult } };
 
-            var itemResult = childScope;
-            var innerPropertyResult = itemResult.Property("property2");
+			var underTest = dataBinderFactory(obj.GetType());
+			var result = underTest.Property("property1").Property("property2");
 
-            var innerPropertyEvaluator = innerPropertyResult.BindString();
+			Assert.NotNull(result);
+			var propertyResult = AssertExpression<string>(obj, e => result.BindString(e));
 
-            foreach (var item in propertyResult)
-            {
-                var innerResult = innerPropertyEvaluator.Evaluate(item);
-                Assert.Equal(expectedResult, innerResult);
-            }
-        }
-
-        [Theory]
-        [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_NestedProperty(Func<Type, IDataBinder> dataBinderFactory)
-        {
-            const string expectedResult = "property";
-            var obj = new { Property1 = new { Property2 = expectedResult } };
-
-            var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property1").Property("property2");
-
-            Assert.NotNull(result);
-            var evaluator = result.BindString();
-            var propertyResult = evaluator.Evaluate(obj);
-
-            Assert.Equal(expectedResult, propertyResult);
-        }
-
-        [Theory]
-        [MemberData("BinderFactoriesParameter")]
-        public void DataBinder_ConditionalProperty(Func<Type, IDataBinder> dataBinderFactory)
-        {
-            const bool expectedResult = true;
-            var obj = new { Property1 = true };
-
-            var underTest = dataBinderFactory(obj.GetType());
-            var result = underTest.Property("property1");
-
-            Assert.NotNull(result);
-            var evaluator = result.BindBoolean();
-            var propertyResult = evaluator.Evaluate(obj);
-
-            Assert.Equal(expectedResult, propertyResult);
-        }
+			Assert.Equal(expectedResult, propertyResult);
+		}
 
 		[Theory]
 		[MemberData("BinderFactoriesParameter")]
@@ -148,7 +99,7 @@ namespace TerrificNet.Thtml.Test
 			var result = underTest.Property("property1");
 
 			Assert.NotNull(result);
-			var propertyResult = AssertExpression<bool>(obj, result.BindBooleanToExpression);
+			var propertyResult = AssertExpression<bool>(obj, result.BindBoolean);
 
 			Assert.Equal(expectedResult, propertyResult);
 		}
@@ -161,13 +112,28 @@ namespace TerrificNet.Thtml.Test
         {
 	        ParameterExpression dataContextParameter = Expression.Parameter(interfaceType);
 	        var underTest = TypeDataScope.BinderFromType(dataContextParameter.Type);
-	        IDataBinder childScope;
-	        underTest.BindEnumerable(out childScope);
+			var childScope = underTest.Item();
 
             Assert.NotNull(childScope);
             var binder = Assert.IsType<TypeDataScope>(childScope);
 
             Assert.Equal(expectedItemType, binder.DataContextType);
         }
+
+		private static T AssertExpression<T>(object obj, Func<Expression, Expression> binding)
+		{
+			var type = obj.GetType();
+			var eval = CreateEval<T>(binding, type);
+			return eval(obj);
+		}
+
+	    private static Func<object, T> CreateEval<T>(Func<Expression, Expression> binding, Type type)
+	    {
+		    var dataContext = Expression.Parameter(typeof (object));
+		    var evaluator = binding(Expression.Convert(dataContext, type));
+
+		    var eval = Expression.Lambda<Func<object, T>>(evaluator, dataContext).Compile();
+		    return eval;
+	    }
     }
 }

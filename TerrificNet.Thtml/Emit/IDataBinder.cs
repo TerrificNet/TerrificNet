@@ -8,13 +8,11 @@ namespace TerrificNet.Thtml.Emit
 	public interface IDataBinder
 	{
 		IDataBinder Property(string propertyName);
+		IDataBinder Item();
 
-		IEvaluator<string> BindString();
-		Expression BindStringToExpression(Expression dataContext);
-		Expression BindBooleanToExpression(Expression dataContext);
-		IEvaluator<bool> BindBoolean();
-		IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope);
-		Expression BindEnumerableToExpression(Expression dataContext);
+		Expression BindString(Expression dataContext);
+		Expression BindBoolean(Expression dataContext);
+		Expression BindEnumerable(Expression dataContext);
 
 		Type DataContextType { get; }
 	}
@@ -38,45 +36,37 @@ namespace TerrificNet.Thtml.Emit
 
 		public IBinding<string> RequiresString()
 		{
-			return new BindingWrapper<string>(() => _legacy.BindString(), d => _legacy.BindStringToExpression(d));
+			return new BindingWrapper<string>(d => _legacy.BindString(d));
 		}
 
 		public IBinding<bool> RequiresBoolean()
 		{
-			return new BindingWrapper<bool>(() => _legacy.BindBoolean(), d => _legacy.BindBooleanToExpression(d));
+			return new BindingWrapper<bool>(d => _legacy.BindBoolean(d));
 		}
 
 		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
-			IDataBinder childBinder;
-			var result = _legacy.BindEnumerable(out childBinder);
+			var childBinder = _legacy.Item();
 			IDataScopeContract childContract;
 			_contract.RequiresEnumerable(out childContract);
             childScopeContract = new DataScopeContractLegacyWrapper(childContract, childBinder);
 
-			return new BindingWrapper<IEnumerable>(() => result, d => _legacy.BindEnumerableToExpression(d));
+			return new BindingWrapper<IEnumerable>(d => _legacy.BindEnumerable(d));
 		}
 
 		public Type ResultType => _legacy.DataContextType;
 
 		private class BindingWrapper<T> : IBinding<T>
 		{
-			private readonly Func<IEvaluator<T>> _evalutor;
 			private readonly Func<Expression, Expression> _createExpression;
 
-			public BindingWrapper(Func<IEvaluator<T>> evalutor, Func<Expression, Expression> createExpression)
+			public BindingWrapper(Func<Expression, Expression> createExpression)
 			{
-				_evalutor = evalutor;
 				_createExpression = createExpression;
 			}
 
 			public void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation)
 			{
-			}
-
-			public IEvaluator<T> CreateEvaluator()
-			{
-				return _evalutor();
 			}
 
 			public Expression CreateExpression(Expression dataContext)

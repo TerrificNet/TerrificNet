@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit;
 
@@ -13,33 +11,23 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public IEvaluator<string> BindString()
-		{
-			return null;
-		}
-
-		public Expression BindStringToExpression(Expression dataContext)
+		public Expression BindString(Expression dataContext)
 		{
 			return Expression.Empty();
 		}
 
-		public Expression BindBooleanToExpression(Expression dataContext)
+		public Expression BindBoolean(Expression dataContext)
 		{
 			return Expression.Empty();
 		}
 
-		public IEvaluator<bool> BindBoolean()
+		public IDataBinder Item()
 		{
-			return null;
+			IDataBinder childScope = new NullDataScope();
+			return childScope;
 		}
 
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
-		{
-			childScope = new NullDataScope();
-			return null;
-		}
-
-		public Expression BindEnumerableToExpression(Expression dataContext)
+		public Expression BindEnumerable(Expression dataContext)
 		{
 			return Expression.Empty();
 		}

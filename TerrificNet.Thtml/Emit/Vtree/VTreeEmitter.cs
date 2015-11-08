@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
@@ -23,9 +22,6 @@ namespace TerrificNet.Thtml.Emit.Vtree
 			var action = Expression.Lambda<Func<object, VTree>>(bodyExpression, inputExpression).Compile();
 
 			return new IlEmitterRunnable(action);
-			//var visitor = new EmitNodeVisitor(dataScopeContract, helperBinder ?? new NullHelperBinder<IListEmitter<VTree>, object>());
-			//input.Accept(visitor);
-			//return visitor.DocumentFunc;
 		}
 
 		private class IlEmitterRunnable : IEmitterRunnable<VTree>

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -31,12 +30,12 @@ namespace TerrificNet.Thtml.Emit
 			return BinderFromType(type);
 		}
 
-		public Expression BindStringToExpression(Expression dataContext)
+		public Expression BindString(Expression dataContext)
 		{
 			return BindExpression<string>(dataContext);
 		}
 
-		public Expression BindBooleanToExpression(Expression dataContext)
+		public Expression BindBoolean(Expression dataContext)
 		{
 			return BindExpression<bool>(dataContext);
 		}
@@ -50,43 +49,22 @@ namespace TerrificNet.Thtml.Emit
 			return expression;
 		}
 
-		public IEvaluator<bool> BindBoolean()
-		{
-			return CreateEvaluator<bool>(BindExpression<bool>);
-		}
-
-		public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+		public IDataBinder Item()
 		{
 			var param = Expression.Parameter(typeof(object));
 			var context = Expression.Convert(param, DataContextType);
 			var expression = _expressionFactory(context);
 
-			childScope = Item(expression.Type);
-
-			var lambda = Expression.Lambda<Func<object, IEnumerable>>(expression, param);
-			return new EvaluatorFromLambda<IEnumerable>(lambda.Compile());
+			var childScope = Item(expression.Type);
+			return childScope;
 		}
 
-		public Expression BindEnumerableToExpression(Expression dataContext)
+		public Expression BindEnumerable(Expression dataContext)
 		{
 			return _expressionFactory(dataContext);
 		}
 
 		public Type DataContextType { get; }
-
-		public IEvaluator<string> BindString()
-		{
-			return CreateEvaluator<string>(BindExpression<string>);
-		}
-
-		private IEvaluator<T> CreateEvaluator<T>(Func<Expression, Expression> binding)
-		{
-			var param = Expression.Parameter(typeof (object));
-			var context = Expression.Convert(param, DataContextType);
-			var expression = binding(context);
-			var lambda = Expression.Lambda<Func<object, T>>(expression, param);
-			return new EvaluatorFromLambda<T>(lambda.Compile());
-		}
 
 		public virtual IDataBinder Property(string propertyName)
 		{
@@ -101,21 +79,6 @@ namespace TerrificNet.Thtml.Emit
 
 			var type = enumerable.GetGenericArguments()[0];
 			return new TypeDataScope(type, d => d);
-		}
-
-		private class EvaluatorFromLambda<T> : IEvaluator<T>
-		{
-			private readonly Func<object, T> _evaluationFunc;
-
-			public EvaluatorFromLambda(Func<object, T> evaluationFunc)
-			{
-				_evaluationFunc = evaluationFunc;
-			}
-
-			public T Evaluate(object context)
-			{
-				return _evaluationFunc(context);
-			}
 		}
 	}
 }

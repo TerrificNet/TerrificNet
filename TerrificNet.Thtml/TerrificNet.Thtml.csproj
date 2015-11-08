@@ -48,16 +48,12 @@
     <Compile Include="Emit\Compiler\StreamOutputExpressionEmitter.cs" />
     <Compile Include="Emit\Compiler\VTreeOutputExpressionEmitter.cs" />
     <Compile Include="Emit\DynamicDataScope.cs" />
-    <Compile Include="Emit\Vtree\EmitNodeVisitor.cs" />
     <Compile Include="Emit\EmitNodeVisitorBase.cs" />
     <Compile Include="Emit\HelperBinderResult.cs" />
     <Compile Include="Emit\IDataScopeContract.cs" />
     <Compile Include="Emit\IEvaluator.cs" />
-    <Compile Include="Emit\ListEmitNodeVisitor.cs" />
     <Compile Include="Emit\EmitterNode.cs" />
     <Compile Include="Emit\NodeVisitorBase.cs" />
-    <Compile Include="Emit\Vtree\PropertyEmitter.cs" />
-    <Compile Include="Emit\Vtree\PropertyValueEmitter.cs" />
     <Compile Include="Emit\Schema\AnyDataSchema.cs" />
     <Compile Include="Emit\Schema\ComplexDataSchema.cs" />
     <Compile Include="Emit\Schema\DataContractException.cs" />

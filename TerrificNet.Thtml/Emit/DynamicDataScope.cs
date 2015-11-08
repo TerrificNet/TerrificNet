@@ -21,39 +21,45 @@ namespace TerrificNet.Thtml.Emit
             _evaluator = evaluator;
         }
 
-	    public IEvaluator<string> BindString()
+	    private IEvaluator<string> BindString()
 	    {
 		    return new CastEvaluator<string>(_evaluator);
 	    }
 
-	    public Expression BindStringToExpression(Expression dataContext)
+	    public Expression BindString(Expression dataContext)
 	    {
 			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
 			return Expression.Call(Expression.Constant(BindString()), evaluateMethod, dataContext);
 		}
 
-	    public Expression BindBooleanToExpression(Expression dataContext)
+	    public Expression BindBoolean(Expression dataContext)
 	    {
 			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
 			return Expression.Call(Expression.Constant(BindBoolean()), evaluateMethod, dataContext);
 		}
 
-	    public IEvaluator<bool> BindBoolean()
+	    private IEvaluator<bool> BindBoolean()
 	    {
 			return new CastEvaluator<bool>(_evaluator);
 		}
 
-	    public IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope)
+	    public IDataBinder Item()
 	    {
-		    childScope = new DynamicDataScope();
-		    return new CastEvaluator<IEnumerable>(_evaluator);
+		    IDataBinder childScope = new DynamicDataScope();
+		    return childScope;
 	    }
 
-	    public Expression BindEnumerableToExpression(Expression dataContext)
+	    private IEvaluator<IEnumerable> BindEnumerable2(out IDataBinder childScope)
+		{
+			childScope = new DynamicDataScope();
+			return new CastEvaluator<IEnumerable>(_evaluator);
+		}
+
+		public Expression BindEnumerable(Expression dataContext)
 	    {
-			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
+			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
 		    IDataBinder childScope;
-			return Expression.Call(Expression.Constant(BindEnumerable(out childScope)), evaluateMethod, dataContext);
+			return Expression.Call(Expression.Constant(BindEnumerable2(out childScope)), evaluateMethod, dataContext);
 		}
 
 	    public Type DataContextType => typeof (object);
@@ -63,12 +69,7 @@ namespace TerrificNet.Thtml.Emit
             return new DynamicDataScope(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }
 
-        public virtual IDataBinder Item()
-        {
-            return new DynamicDataScope();
-        }
-
-        private interface IEvaluator
+	    private interface IEvaluator
         {
             object Evaluate(object obj);
         }
