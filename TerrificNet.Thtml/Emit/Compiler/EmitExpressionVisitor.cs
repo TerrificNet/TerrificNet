@@ -75,10 +75,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
 			var binding = scope.RequiresString();
 
-			var evaluator = binding.CreateEvaluator();
-			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
-			var callExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
-			return _outputExpressionEmitter.HandleCall(callExpression);
+			var expression = binding.CreateExpression(_dataContextParameter);
+			return _outputExpressionEmitter.HandleCall(expression);
 		}
 
 		public override Expression Visit(TextNode textNode)
@@ -110,12 +108,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			{
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
 				var binding = scope.RequiresBoolean();
-				var evaluator = binding.CreateEvaluator();
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
-				var testExpression = Expression.Call(Expression.Constant(evaluator), evaluateMethod, _dataContextParameter);
+				var testExpression = binding.CreateExpression(_dataContextParameter);
 
 				if (children.Type == typeof (void))
 					return Expression.IfThen(testExpression, children);

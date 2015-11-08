@@ -13,17 +13,17 @@ namespace TerrificNet.Thtml.Test
 			return null;
 		}
 
-		public IDataBinder Item()
-		{
-			return null;
-		}
-
 		public IEvaluator<string> BindString()
 		{
 			return null;
 		}
 
 		public Expression BindStringToExpression(Expression dataContext)
+		{
+			return Expression.Empty();
+		}
+
+		public Expression BindBooleanToExpression(Expression dataContext)
 		{
 			return Expression.Empty();
 		}

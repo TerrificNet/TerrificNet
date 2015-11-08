@@ -32,6 +32,12 @@ namespace TerrificNet.Thtml.Emit
 			return Expression.Call(Expression.Constant(BindString()), evaluateMethod, dataContext);
 		}
 
+	    public Expression BindBooleanToExpression(Expression dataContext)
+	    {
+			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
+			return Expression.Call(Expression.Constant(BindString()), evaluateMethod, dataContext);
+		}
+
 	    public IEvaluator<bool> BindBoolean()
 	    {
 			return new CastEvaluator<bool>(_evaluator);

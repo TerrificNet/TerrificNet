@@ -11,6 +11,7 @@ namespace TerrificNet.Thtml.Emit
 
 		IEvaluator<string> BindString();
 		Expression BindStringToExpression(Expression dataContext);
+		Expression BindBooleanToExpression(Expression dataContext);
 		IEvaluator<bool> BindBoolean();
 		IEvaluator<IEnumerable> BindEnumerable(out IDataBinder childScope);
 
@@ -41,7 +42,7 @@ namespace TerrificNet.Thtml.Emit
 
 		public IBinding<bool> RequiresBoolean()
 		{
-			return new BindingWrapper<bool>(() => _legacy.BindBoolean(), null);
+			return new BindingWrapper<bool>(() => _legacy.BindBoolean(), d => _legacy.BindBooleanToExpression(d));
 		}
 
 		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)

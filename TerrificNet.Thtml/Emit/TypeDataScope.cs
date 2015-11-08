@@ -36,6 +36,11 @@ namespace TerrificNet.Thtml.Emit
 			return BindExpression<string>(dataContext);
 		}
 
+		public Expression BindBooleanToExpression(Expression dataContext)
+		{
+			return BindExpression<bool>(dataContext);
+		}
+
 		private Expression BindExpression<T>(Expression dataContext)
 		{
 			var expression = _expressionFactory(dataContext);

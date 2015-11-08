@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -57,18 +56,24 @@ namespace TerrificNet.Thtml.Test
 			var result = underTest.Property("property");
 
 			Assert.NotNull(result);
-			var dataContext = Expression.Parameter(typeof(object));
-			var evaluator = result.BindStringToExpression(Expression.Convert(dataContext, obj.GetType()));
-			Assert.Equal(typeof (string), evaluator.Type);
-
-			var eval = Expression.Lambda<Func<object, string>>(evaluator, dataContext).Compile();
-			var propertyResult = eval(obj);
+			var propertyResult = AssertExpression<string>(obj, result.BindStringToExpression);
 
 			Assert.Equal(expectedResult, propertyResult);
 		}
 
+	    private static T AssertExpression<T>(object obj, Func<Expression, Expression> binding)
+	    {
+		    var dataContext = Expression.Parameter(typeof (object));
+		    var evaluator = binding(Expression.Convert(dataContext, obj.GetType()));
+		    Assert.Equal(typeof (T), evaluator.Type);
 
-		[Theory]
+		    var eval = Expression.Lambda<Func<object, T>>(evaluator, dataContext).Compile();
+		    var propertyResult = eval(obj);
+		    return propertyResult;
+	    }
+
+
+	    [Theory]
         [MemberData("BinderFactoriesParameter")]
         public void DataBinder_IterationProperty(Func<Type, IDataBinder> dataBinderFactory)
         {
@@ -132,7 +137,23 @@ namespace TerrificNet.Thtml.Test
             Assert.Equal(expectedResult, propertyResult);
         }
 
-        [Theory]
+		[Theory]
+		[MemberData("BinderFactoriesParameter")]
+		public void DataBinder_ConditionalPropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
+		{
+			const bool expectedResult = true;
+			var obj = new { Property1 = true };
+
+			var underTest = dataBinderFactory(obj.GetType());
+			var result = underTest.Property("property1");
+
+			Assert.NotNull(result);
+			var propertyResult = AssertExpression<bool>(obj, result.BindBooleanToExpression);
+
+			Assert.Equal(expectedResult, propertyResult);
+		}
+
+		[Theory]
         [InlineData(typeof(List<string>), typeof(string))]
         [InlineData(typeof(IEnumerable<string>), typeof(string))]
         [InlineData(typeof(IDictionary<object, string>), typeof(KeyValuePair<object, string>))]
