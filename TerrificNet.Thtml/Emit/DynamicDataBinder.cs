@@ -1,22 +1,21 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class DynamicDataScope : IDataBinder
+    public class DynamicDataBinder : IDataBinder
     {
         private readonly IEvaluator _evaluator;
 
-        public DynamicDataScope()
+        public DynamicDataBinder()
         {
             _evaluator = new NullEvaluator();
         }
 
-        private DynamicDataScope(IEvaluator evaluator)
+        private DynamicDataBinder(IEvaluator evaluator)
         {
             _evaluator = evaluator;
         }
@@ -45,13 +44,13 @@ namespace TerrificNet.Thtml.Emit
 
 	    public IDataBinder Item()
 	    {
-		    IDataBinder childScope = new DynamicDataScope();
+		    IDataBinder childScope = new DynamicDataBinder();
 		    return childScope;
 	    }
 
 	    private IEvaluator<IEnumerable> BindEnumerable2(out IDataBinder childScope)
 		{
-			childScope = new DynamicDataScope();
+			childScope = new DynamicDataBinder();
 			return new CastEvaluator<IEnumerable>(_evaluator);
 		}
 
@@ -66,7 +65,7 @@ namespace TerrificNet.Thtml.Emit
 
 	    public virtual IDataBinder Property(string propertyName)
         {
-            return new DynamicDataScope(new PropertyReflectionEvaluator(_evaluator, propertyName));
+            return new DynamicDataBinder(new PropertyReflectionEvaluator(_evaluator, propertyName));
         }
 
 	    private interface IEvaluator
@@ -74,7 +73,12 @@ namespace TerrificNet.Thtml.Emit
             object Evaluate(object obj);
         }
 
-        private class NullEvaluator : IEvaluator
+	    private interface IEvaluator<out T>
+		{
+			T Evaluate(object context);
+		}
+
+		private class NullEvaluator : IEvaluator
         {
             public object Evaluate(object obj)
             {

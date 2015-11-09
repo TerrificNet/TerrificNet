@@ -3,11 +3,6 @@ using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public interface IEvaluator<out T>
-	{
-		T Evaluate(object context);
-	}
-
 	public interface IBinding<T>
 	{
 		void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation);

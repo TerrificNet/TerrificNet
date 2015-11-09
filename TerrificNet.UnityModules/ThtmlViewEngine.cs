@@ -35,11 +35,11 @@ namespace TerrificNet.UnityModules
 		{
 			IDataBinder scope;
 			if (modelType == typeof(object))
-				scope = new DynamicDataScope();
+				scope = new DynamicDataBinder();
 			else
 			{
 				ParameterExpression dataContextParameter = Expression.Parameter(modelType);
-				scope = TypeDataScope.BinderFromType(dataContextParameter.Type);
+				scope = TypeDataBinder.BinderFromType(dataContextParameter.Type);
 			}
 
 			var emitter = CreateEmitter(templateInfo, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), scope), new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
@@ -47,7 +47,7 @@ namespace TerrificNet.UnityModules
 			return Task.FromResult<IView>(new ThtmlView(emitter));
 		}
 
-		internal static IEmitterRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataScopeContract dataScope, IHelperBinder helperBinder)
+		internal static IRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataScopeContract dataScope, IHelperBinder helperBinder)
 		{
 			var ast = GetDocument(templateInfo);
 			var compiler = new VTreeEmitter();
@@ -73,9 +73,9 @@ namespace TerrificNet.UnityModules
 
 		private class ThtmlView : IView
 		{
-			private readonly IEmitterRunnable<VTree> _method;
+			private readonly IRunnable<VTree> _method;
 
-			public ThtmlView(IEmitterRunnable<VTree> method)
+			public ThtmlView(IRunnable<VTree> method)
 			{
 				_method = method;
 			}
@@ -207,7 +207,7 @@ namespace TerrificNet.UnityModules
 				return EmitterNode<VTree>.AsList(GetEmitters(definitions, renderingContext)).Execute(context, renderingContext);
 			}
 
-			private IEnumerable<IEmitterRunnable<VTree>> GetEmitters(IEnumerable<ViewDefinition> definitions, IRenderingContext renderingContext)
+			private IEnumerable<IRunnable<VTree>> GetEmitters(IEnumerable<ViewDefinition> definitions, IRenderingContext renderingContext)
 			{
 				foreach (var placeholderConfig in definitions)
 				{
@@ -230,7 +230,7 @@ namespace TerrificNet.UnityModules
 					if (partialConfig != null)
 					{
 						var res = new PartialHelperBinderResult(_templateRepository, partialConfig.Template);
-						var emitters = res.CreateEmitter(_helperBinder, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new DynamicDataScope()));
+						var emitters = res.CreateEmitter(_helperBinder, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new DynamicDataBinder()));
 						yield return EmitterNode<VTree>.Lambda((c, r) => emitters.Execute(c, newCtx));
 					}
 				}
@@ -266,26 +266,26 @@ namespace TerrificNet.UnityModules
 		//	return EmitterNode<VTree>.AsList(moduleEmitter);
 		//}
 
-		internal static IEmitterRunnable<VTree> CreateModuleEmitter(IHelperBinder helperBinder, IModuleRepository templateRepository, IModelProvider modelProvider, string module)
+		internal static IRunnable<VTree> CreateModuleEmitter(IHelperBinder helperBinder, IModuleRepository templateRepository, IModelProvider modelProvider, string module)
 		{
 			var moduleDescription = templateRepository.GetModuleDefinitionByIdAsync(module).Result;
 			var data = modelProvider.GetModelForModuleAsync(moduleDescription, null).Result;
 			var template = moduleDescription.DefaultTemplate;
 
 			var context = data;
-			var binder = new DynamicDataScope();
+			var binder = new DynamicDataBinder();
 
 			var emitter = ThtmlViewEngine.CreateEmitter(template, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), binder), helperBinder);
 			var moduleEmitter = new ModuleEmitter<VTree>(emitter, context);
 			return moduleEmitter;
 		}
 
-		private class ModuleEmitter<T> : IEmitterRunnable<T>
+		private class ModuleEmitter<T> : IRunnable<T>
 		{
-			private readonly IEmitterRunnable<T> _adaptee;
+			private readonly IRunnable<T> _adaptee;
 			private readonly object _dataContext;
 
-			public ModuleEmitter(IEmitterRunnable<T> adaptee, object dataContext)
+			public ModuleEmitter(IRunnable<T> adaptee, object dataContext)
 			{
 				_adaptee = adaptee;
 				_dataContext = dataContext;
@@ -314,7 +314,7 @@ namespace TerrificNet.UnityModules
 			_templateName = templateName;
 		}
 
-		internal IEmitterRunnable<VTree> CreateEmitter(IHelperBinder helperBinder, IDataScopeContract scope)
+		internal IRunnable<VTree> CreateEmitter(IHelperBinder helperBinder, IDataScopeContract scope)
 		{
 			var template = _templateRepository.GetTemplateAsync(_templateName).Result;
 			var emitter = ThtmlViewEngine.CreateEmitter(template, scope, helperBinder);

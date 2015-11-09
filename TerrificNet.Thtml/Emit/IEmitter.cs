@@ -1,11 +1,9 @@
-using System;
-using System.IO;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public interface IEmitter<out TResult, TEmit, TConfig>
+	public interface IEmitter<out TResult>
 	{
-		IEmitterRunnable<TResult> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder);
+		IRunnable<TResult> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder);
 	}
 }

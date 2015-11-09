@@ -23,9 +23,9 @@ namespace TerrificNet.Thtml.Test
                 yield return type =>
                 {
 	                ParameterExpression dataContextParameter = Expression.Parameter(type);
-	                return TypeDataScope.BinderFromType(dataContextParameter.Type);
+	                return TypeDataBinder.BinderFromType(dataContextParameter.Type);
                 };
-                yield return t => new DynamicDataScope();
+                yield return t => new DynamicDataBinder();
             }
         }
 
@@ -111,11 +111,11 @@ namespace TerrificNet.Thtml.Test
         public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
         {
 	        ParameterExpression dataContextParameter = Expression.Parameter(interfaceType);
-	        var underTest = TypeDataScope.BinderFromType(dataContextParameter.Type);
+	        var underTest = TypeDataBinder.BinderFromType(dataContextParameter.Type);
 			var childScope = underTest.Item();
 
             Assert.NotNull(childScope);
-            var binder = Assert.IsType<TypeDataScope>(childScope);
+            var binder = Assert.IsType<TypeDataBinder>(childScope);
 
             Assert.Equal(expectedItemType, binder.DataContextType);
         }

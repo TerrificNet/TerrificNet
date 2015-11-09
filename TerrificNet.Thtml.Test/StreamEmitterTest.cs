@@ -75,7 +75,7 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Element("h1",
 							new Statement(new MemberExpression("name")))),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj)),
+					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj)),
 					obj,
 					"<h1>hallo</h1>",
 					new NullHelperBinder()
@@ -94,7 +94,7 @@ namespace TerrificNet.Thtml.Test
 								new IterationExpression(new MemberExpression("items")),
 								new Element("div",
 									new Statement(new MemberExpression("name")))))),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj2)),
+					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj2)),
 					obj2,
 					"<h1><div>test1</div><div>test2</div></h1>",
 					new NullHelperBinder()
@@ -106,7 +106,7 @@ namespace TerrificNet.Thtml.Test
 					"one element with attribute expression",
 					new Document(
 						new Element("h1", new ElementPart[] { new AttributeNode("title", new AttributeContentStatement(new MemberExpression("name"))) })),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj3)),
+					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj3)),
 					obj3,
 					"<h1 title=\"value\"></h1>",
 					new NullHelperBinder()
@@ -129,7 +129,7 @@ namespace TerrificNet.Thtml.Test
 							new Statement(new ConditionalExpression(new MemberExpression("do")),
 								new Element("h1", new Statement(new MemberExpression("value"))))
 							)),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj4)),
+					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj4)),
 					obj4,
 					"<h1>hallo2</h1>",
 					new NullHelperBinder()
@@ -147,7 +147,7 @@ namespace TerrificNet.Thtml.Test
 					"one element with helper",
 					new Document(
 						new Element("h1", new Statement(new CallHelperExpression("helper")))),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj3)),
+					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj3)),
 					obj3,
 					"<h1>helper output</h1>",
 					new HelperBinderMock(helper)
@@ -165,7 +165,7 @@ namespace TerrificNet.Thtml.Test
 									new AttributeContentStatement(new MemberExpression("member")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj5)),
+					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj5)),
 					obj5,
 					"<h1 test=\"memberhallo\"></h1>",
 					new NullHelperBinder()
@@ -187,7 +187,7 @@ namespace TerrificNet.Thtml.Test
 									new ConditionalExpression(new MemberExpression("dont")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj6)),
+					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj6)),
 					obj6,
 					"<h1 test=\"hallo\" test2=\"\"></h1>",
 					new NullHelperBinder()

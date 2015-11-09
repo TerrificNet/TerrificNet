@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public class TypeDataScope : IDataBinder
+	public class TypeDataBinder : IDataBinder
 	{
 		private readonly Func<Expression, Expression> _expressionFactory;
 
-		private TypeDataScope(Type dataContextType, Func<Expression, Expression> expressionFactory)
+		private TypeDataBinder(Type dataContextType, Func<Expression, Expression> expressionFactory)
 		{
 			DataContextType = dataContextType;
 			_expressionFactory = expressionFactory;
@@ -18,7 +18,7 @@ namespace TerrificNet.Thtml.Emit
 
 		public static IDataBinder BinderFromType(Type type)
 		{
-			return new TypeDataScope(type, d => d);
+			return new TypeDataBinder(type, d => d);
 		}
 
 		public static IDataBinder BinderFromObject(object obj)
@@ -68,7 +68,7 @@ namespace TerrificNet.Thtml.Emit
 
 		public virtual IDataBinder Property(string propertyName)
 		{
-			return new TypeDataScope(DataContextType, d => Expression.Property(_expressionFactory(d), propertyName));
+			return new TypeDataBinder(DataContextType, d => Expression.Property(_expressionFactory(d), propertyName));
 		}
 
 		private static IDataBinder Item(Type resultType)
@@ -78,7 +78,7 @@ namespace TerrificNet.Thtml.Emit
 				return null;
 
 			var type = enumerable.GetGenericArguments()[0];
-			return new TypeDataScope(type, d => d);
+			return new TypeDataBinder(type, d => d);
 		}
 	}
 }

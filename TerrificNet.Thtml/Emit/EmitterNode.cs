@@ -6,17 +6,17 @@ namespace TerrificNet.Thtml.Emit
 {
 	public static class EmitterNode<T>
 	{
-		public static IListEmitter<T> AsList(IEnumerable<IEmitterRunnable<T>> emitter)
+		public static IListEmitter<T> AsList(IEnumerable<IRunnable<T>> emitter)
 		{
 			return new ListEmitter(emitter);
 		}
 
-		public static IEmitterRunnable<T> Lambda(Func<object, IRenderingContext, T> func)
+		public static IRunnable<T> Lambda(Func<object, IRenderingContext, T> func)
 		{
 			return new LambdaEmitter(func);
 		}
 
-		private class LambdaEmitter : IEmitterRunnable<T>
+		private class LambdaEmitter : IRunnable<T>
 		{
 			private readonly Func<object, IRenderingContext, T> _func;
 
@@ -33,9 +33,9 @@ namespace TerrificNet.Thtml.Emit
 
 		private class ListEmitter : IListEmitter<T>
 		{
-			private readonly IList<IEmitterRunnable<T>> _emitter;
+			private readonly IList<IRunnable<T>> _emitter;
 
-			public ListEmitter(IEnumerable<IEmitterRunnable<T>> emitter)
+			public ListEmitter(IEnumerable<IRunnable<T>> emitter)
 			{
 				_emitter = emitter.ToList();
 			}

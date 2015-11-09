@@ -5,9 +5,9 @@ using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class ExpressionEmitter : IEmitter<Action<TextWriter>, Expression, ExpressionHelperConfig>
+	public class ExpressionEmitter : IEmitter<Action<TextWriter>>
 	{
-		public IEmitterRunnable<Action<TextWriter>> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
+		public IRunnable<Action<TextWriter>> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
 		{
 			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
 			var writerParameter = Expression.Parameter(typeof (TextWriter));
@@ -24,7 +24,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new IlEmitterRunnable(action);
 		}
 
-		private class IlEmitterRunnable : IEmitterRunnable<Action<TextWriter>>
+		private class IlEmitterRunnable : IRunnable<Action<TextWriter>>
 		{
 			private readonly Action<TextWriter, object> _action;
 

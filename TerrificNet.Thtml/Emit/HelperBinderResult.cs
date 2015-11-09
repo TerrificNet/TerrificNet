@@ -7,38 +7,21 @@ namespace TerrificNet.Thtml.Emit
 	{
 		public class HelperParameters
 		{
-			private IOutputExpressionEmitter _outputExpressionEmitter;
-			private IHelperBinder _helperBinder;
-			private IDataScopeContract _scopeContract;
-			private ParameterExpression _dataContextParameter;
-
 			public HelperParameters(IOutputExpressionEmitter outputExpressionEmitter, IHelperBinder helperBinder, IDataScopeContract scopeContract, ParameterExpression dataContextParameter)
 			{
-				_outputExpressionEmitter = outputExpressionEmitter;
-				_helperBinder = helperBinder;
-				_scopeContract = scopeContract;
-				_dataContextParameter = dataContextParameter;
+				OutputExpressionEmitter = outputExpressionEmitter;
+				HelperBinder = helperBinder;
+				ScopeContract = scopeContract;
+				DataContextParameter = dataContextParameter;
 			}
 
-			public IOutputExpressionEmitter OutputExpressionEmitter
-			{
-				get { return _outputExpressionEmitter; }
-			}
+			public IOutputExpressionEmitter OutputExpressionEmitter { get; }
 
-			public IHelperBinder HelperBinder
-			{
-				get { return _helperBinder; }
-			}
+			public IHelperBinder HelperBinder { get; }
 
-			public IDataScopeContract ScopeContract
-			{
-				get { return _scopeContract; }
-			}
+			public IDataScopeContract ScopeContract { get; }
 
-			public ParameterExpression DataContextParameter
-			{
-				get { return _dataContextParameter; }
-			}
+			public ParameterExpression DataContextParameter { get; }
 		}
 
 		public abstract Expression CreateEmitter(HelperParameters helperParameters, Expression children);

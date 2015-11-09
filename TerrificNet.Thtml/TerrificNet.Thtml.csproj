@@ -47,8 +47,7 @@
     <Compile Include="Emit\Compiler\IOutputExpressionEmitter.cs" />
     <Compile Include="Emit\Compiler\StreamOutputExpressionEmitter.cs" />
     <Compile Include="Emit\Compiler\VTreeOutputExpressionEmitter.cs" />
-    <Compile Include="Emit\DynamicDataScope.cs" />
-    <Compile Include="Emit\EmitNodeVisitorBase.cs" />
+    <Compile Include="Emit\DynamicDataBinder.cs" />
     <Compile Include="Emit\HelperBinderResult.cs" />
     <Compile Include="Emit\IDataScopeContract.cs" />
     <Compile Include="Emit\IEvaluator.cs" />
@@ -68,12 +67,12 @@
     <Compile Include="Emit\Vtree\VTreeEmitter.cs" />
     <Compile Include="Emit\IDataBinder.cs" />
     <Compile Include="Emit\IEmitter.cs" />
-    <Compile Include="Emit\IEmitterRunnable.cs" />
+    <Compile Include="Emit\IRunnable.cs" />
     <Compile Include="Emit\IHelperBinder.cs" />
     <Compile Include="Emit\IListEmitter.cs" />
     <Compile Include="Emit\IRenderingContext.cs" />
     <Compile Include="Emit\NullHelperBinder.cs" />
-    <Compile Include="Emit\TypeDataScope.cs" />
+    <Compile Include="Emit\TypeDataBinder.cs" />
     <Compile Include="Hyperscript\VHyperscriptRenderer.cs" />
     <Compile Include="LexicalAnalysis\CommonGrammar.cs" />
     <Compile Include="LexicalAnalysis\HandlebarsGrammar.cs" />

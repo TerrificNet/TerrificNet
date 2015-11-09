@@ -6,9 +6,9 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit.Vtree
 {
-	public class VTreeEmitter : IEmitter<VTree, Expression, ExpressionHelperConfig>
+	public class VTreeEmitter : IEmitter<VTree>
 	{
-		public IEmitterRunnable<VTree> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
+		public IRunnable<VTree> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
 		{
 			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
 			var handler = new VTreeOutputExpressionEmitter();
@@ -24,7 +24,7 @@ namespace TerrificNet.Thtml.Emit.Vtree
 			return new IlEmitterRunnable(action);
 		}
 
-		private class IlEmitterRunnable : IEmitterRunnable<VTree>
+		private class IlEmitterRunnable : IRunnable<VTree>
 		{
 			private readonly Func<object, VTree> _action;
 
