@@ -47,12 +47,12 @@ namespace TerrificNet.UnityModules
 			return Task.FromResult<IView>(new ThtmlView(emitter));
 		}
 
-		internal static IEmitterRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataScopeContract dataScope, IHelperBinder<IListEmitter<VTree>, object> helperBinder)
+		internal static IEmitterRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataScopeContract dataScope, IHelperBinder helperBinder)
 		{
 			var ast = GetDocument(templateInfo);
 			var compiler = new VTreeEmitter();
 
-			var emitter = compiler.Emit(ast, dataScope, new NullHelperBinder<Expression, ExpressionHelperConfig>()); //helperBinder);
+			var emitter = compiler.Emit(ast, dataScope, new NullHelperBinder()); //helperBinder);
 			return emitter;
 		}
 
@@ -103,7 +103,7 @@ namespace TerrificNet.UnityModules
 		}
 	}
 
-	public class BasicHelperBinder : IHelperBinder<IListEmitter<VTree>, object>
+	public class BasicHelperBinder : IHelperBinder
 	{
 		private readonly IModuleRepository _moduleRepository;
 		private readonly ITemplateRepository _templateRepository;
@@ -116,26 +116,34 @@ namespace TerrificNet.UnityModules
 			_modelProvider = modelProvider;
 		}
 
-		public HelperBinderResult<IListEmitter<VTree>, object> FindByName(string helper, IDictionary<string, string> arguments)
+		public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
 		{
-			//if ("partial".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
-			//	return new PartialHelperBinderResult(_templateRepository, arguments["template"]);
+			if ("partial".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
+				return new PartialHelperBinderResult(_templateRepository, arguments["template"]);
 
 			if ("module".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
 				return new ModuleHelperBinderResult(_moduleRepository, _modelProvider, arguments["template"], arguments.ContainsKey("skin") ? arguments["skin"] : null);
 
-			//if ("placeholder".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
-			//	return new PlaceholderHelperBinderResult(arguments["key"], _templateRepository, _moduleRepository, _modelProvider);
+			if ("placeholder".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
+				return new PlaceholderHelperBinderResult(arguments["key"], _templateRepository, _moduleRepository, _modelProvider);
 
-			//if ("grid-cell".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
-			//	return new GridHelperBinderResult(arguments.ContainsKey("ratio") ? arguments["ratio"] : null);
+			if ("grid-cell".Equals(helper, StringComparison.InvariantCultureIgnoreCase))
+				return new GridHelperBinderResult(arguments.ContainsKey("ratio") ? arguments["ratio"] : null);
 
 			return null;
 		}
 
-		public class GridHelperBinderResult : HelperBinderResult<Expression, ExpressionHelperConfig>
+		public class GridHelperBinderResult : HelperBinderResult
 		{
 			public GridHelperBinderResult(string ration)
+			{
+			}
+
+			public void ExecuteBefore(IRenderingContext renderingContext)
+			{
+			}
+
+			public void ExecuteAfter(IRenderingContext renderingContext)
 			{
 			}
 
@@ -146,7 +154,7 @@ namespace TerrificNet.UnityModules
 		}
 	}
 
-	public class PlaceholderHelperBinderResult : HelperBinderResult<Expression, ExpressionHelperConfig>
+	public class PlaceholderHelperBinderResult : HelperBinderResult
 	{
 		private readonly string _key;
 		private readonly ITemplateRepository _templateRepository;
@@ -169,12 +177,12 @@ namespace TerrificNet.UnityModules
 		private class PlaceholderEmitter : IListEmitter<VTree>
 		{
 			private readonly string _name;
-			private readonly IHelperBinder<IListEmitter<VTree>, object> _helperBinder;
+			private readonly IHelperBinder _helperBinder;
 			private readonly ITemplateRepository _templateRepository;
 			private readonly IModuleRepository _moduleRepository;
 			private readonly IModelProvider _modelProvider;
 
-			public PlaceholderEmitter(string name, IHelperBinder<IListEmitter<VTree>, object> helperBinder, ITemplateRepository templateRepository, IModuleRepository moduleRepository, IModelProvider modelProvider)
+			public PlaceholderEmitter(string name, IHelperBinder helperBinder, ITemplateRepository templateRepository, IModuleRepository moduleRepository, IModelProvider modelProvider)
 			{
 				_name = name;
 				_helperBinder = helperBinder;
@@ -237,7 +245,7 @@ namespace TerrificNet.UnityModules
 		}
 	}
 
-	public class ModuleHelperBinderResult : HelperBinderResult<IListEmitter<VTree>, object>
+	public class ModuleHelperBinderResult : HelperBinderResult
 	{
 		private readonly IModuleRepository _templateRepository;
 		private readonly IModelProvider _modelProvider;
@@ -252,13 +260,13 @@ namespace TerrificNet.UnityModules
 			_skin = skin;
 		}
 
-		public override IListEmitter<VTree> CreateEmitter(HelperParameters helperParameters, IListEmitter<VTree> children)
-		{
-			var moduleEmitter = CreateModuleEmitter(helperParameters.HelperBinder, _templateRepository, _modelProvider, _module);
-			return EmitterNode<VTree>.AsList(moduleEmitter);
-		}
+		//public override IListEmitter<VTree> CreateEmitter(HelperParameters helperParameters, IListEmitter<VTree> children)
+		//{
+		//	var moduleEmitter = CreateModuleEmitter(helperParameters.HelperBinder, _templateRepository, _modelProvider, _module);
+		//	return EmitterNode<VTree>.AsList(moduleEmitter);
+		//}
 
-		internal static IEmitterRunnable<VTree> CreateModuleEmitter(IHelperBinder<IListEmitter<VTree>, object> helperBinder, IModuleRepository templateRepository, IModelProvider modelProvider, string module)
+		internal static IEmitterRunnable<VTree> CreateModuleEmitter(IHelperBinder helperBinder, IModuleRepository templateRepository, IModelProvider modelProvider, string module)
 		{
 			var moduleDescription = templateRepository.GetModuleDefinitionByIdAsync(module).Result;
 			var data = modelProvider.GetModelForModuleAsync(moduleDescription, null).Result;
@@ -288,9 +296,14 @@ namespace TerrificNet.UnityModules
 				return _adaptee.Execute(_dataContext, renderingContext);
 			}
 		}
+
+		public override Expression CreateEmitter(HelperParameters helperParameters, Expression children)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
-	public class PartialHelperBinderResult : HelperBinderResult<Expression, ExpressionHelperConfig>
+	public class PartialHelperBinderResult : HelperBinderResult
 	{
 		private readonly ITemplateRepository _templateRepository;
 		private readonly string _templateName;
@@ -301,18 +314,12 @@ namespace TerrificNet.UnityModules
 			_templateName = templateName;
 		}
 
-		internal IEmitterRunnable<VTree> CreateEmitter(IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scope)
+		internal IEmitterRunnable<VTree> CreateEmitter(IHelperBinder helperBinder, IDataScopeContract scope)
 		{
 			var template = _templateRepository.GetTemplateAsync(_templateName).Result;
 			var emitter = ThtmlViewEngine.CreateEmitter(template, scope, helperBinder);
 			return emitter;
 		}
-
-		//public override IListEmitter<VTree> CreateEmitter(IOutputExpressionEmitter outputExpressionEmitter, IListEmitter<VTree> children, IHelperBinder<IListEmitter<VTree>, object> helperBinder, IDataScopeContract scopeContract)
-		//{
-		//	var emitter = CreateEmitter(helperBinder, scopeContract);
-		//	return EmitterNode<VTree>.AsList(emitter);
-		//}
 
 		public override Expression CreateEmitter(HelperParameters helperParameters, Expression children)
 		{

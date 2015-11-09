@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace TerrificNet.Thtml.Emit
 {
-    public class NullHelperBinder<TEmit, TConfig> : IHelperBinder<TEmit, TConfig>
+    public class NullHelperBinder : IHelperBinder
     {
-        public HelperBinderResult<TEmit, TConfig> FindByName(string helper, IDictionary<string, string> arguments)
+        public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
         {
             return null;
         }

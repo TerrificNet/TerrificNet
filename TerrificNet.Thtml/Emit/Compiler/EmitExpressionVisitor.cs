@@ -12,11 +12,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	public class EmitExpressionVisitor : NodeVisitorBase<Expression>
 	{
 		private readonly IDataScopeContract _dataScopeContract;
-		private readonly IHelperBinder<Expression, ExpressionHelperConfig> _helperBinder;
+		private readonly IHelperBinder _helperBinder;
 		private readonly ParameterExpression _dataContextParameter;
 		private readonly IOutputExpressionEmitter _outputExpressionEmitter;
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder, ParameterExpression dataContextParameter, IOutputExpressionEmitter outputExpressionEmitter)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder, ParameterExpression dataContextParameter, IOutputExpressionEmitter outputExpressionEmitter)
 		{
 			_dataScopeContract = dataScopeContract;
 			_helperBinder = helperBinder;
@@ -129,7 +129,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluation = result.CreateEmitter(new HelperBinderResult<Expression, ExpressionHelperConfig>.HelperParameters(_outputExpressionEmitter, _helperBinder, _dataScopeContract, _dataContextParameter), children);
+				var evaluation = result.CreateEmitter(new HelperBinderResult.HelperParameters(_outputExpressionEmitter, _helperBinder, _dataScopeContract, _dataContextParameter), children);
 				return evaluation;
 			}
 

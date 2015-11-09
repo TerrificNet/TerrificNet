@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Test
 	{
 		[Theory]
 		[MemberData("TestData")]
-		public void TestEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, VTree expected, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder)
+		public void TestEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, VTree expected, IHelperBinder helperBinder)
 		{
 			var compiler = new VTreeEmitter();
 			var method = compiler.Emit(input, dataScopeContract, helperBinder);
@@ -33,7 +33,7 @@ namespace TerrificNet.Thtml.Test
 		{
 			get
 			{
-				var nullHelperBinder = new NullHelperBinder<Expression, ExpressionHelperConfig>();
+				var nullHelperBinder = new NullHelperBinder();
                 yield return new object[]
 				{
 					"empty document",
@@ -154,12 +154,12 @@ namespace TerrificNet.Thtml.Test
 					nullHelperBinder
 				};
 
-				var helperResult = new MockContext<HelperBinderResult<Expression, ExpressionHelperConfig>>();
+				var helperResult = new MockContext<HelperBinderResult>();
 				helperResult
-					.Arrange(d => d.CreateEmitter(The<HelperBinderResult<Expression, ExpressionHelperConfig>.HelperParameters>.IsAnyValue, The<Expression>.IsAnyValue))
-					.Returns<HelperBinderResult<Expression, ExpressionHelperConfig>.HelperParameters, Expression>((param, expression) => param.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
+					.Arrange(d => d.CreateEmitter(The<HelperBinderResult.HelperParameters>.IsAnyValue, The<Expression>.IsAnyValue))
+					.Returns<HelperBinderResult.HelperParameters, Expression>((param, expression) => param.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
 
-				var helper = new MockContext<IHelperBinder<Expression, ExpressionHelperConfig>>();
+				var helper = new MockContext<IHelperBinder>();
 				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock<Expression, ExpressionHelperConfig>(helperResult));
 
 				yield return new object[]
@@ -171,7 +171,7 @@ namespace TerrificNet.Thtml.Test
 					obj3,
 					new VNode(
 						new VElement("h1", new VText("helper output"))),
-					new HelperBinderMock<Expression,ExpressionHelperConfig>(helper)
+					new HelperBinderMock(helper)
 				};
 
 				var obj5 = new { Member = "member" };

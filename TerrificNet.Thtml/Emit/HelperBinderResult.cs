@@ -3,16 +3,16 @@ using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public abstract class HelperBinderResult<TEmit, TConfig>
+	public abstract class HelperBinderResult
 	{
 		public class HelperParameters
 		{
 			private IOutputExpressionEmitter _outputExpressionEmitter;
-			private IHelperBinder<TEmit, TConfig> _helperBinder;
+			private IHelperBinder _helperBinder;
 			private IDataScopeContract _scopeContract;
 			private ParameterExpression _dataContextParameter;
 
-			public HelperParameters(IOutputExpressionEmitter outputExpressionEmitter, IHelperBinder<TEmit, TConfig> helperBinder, IDataScopeContract scopeContract, ParameterExpression dataContextParameter)
+			public HelperParameters(IOutputExpressionEmitter outputExpressionEmitter, IHelperBinder helperBinder, IDataScopeContract scopeContract, ParameterExpression dataContextParameter)
 			{
 				_outputExpressionEmitter = outputExpressionEmitter;
 				_helperBinder = helperBinder;
@@ -25,7 +25,7 @@ namespace TerrificNet.Thtml.Emit
 				get { return _outputExpressionEmitter; }
 			}
 
-			public IHelperBinder<TEmit, TConfig> HelperBinder
+			public IHelperBinder HelperBinder
 			{
 				get { return _helperBinder; }
 			}
@@ -41,6 +41,6 @@ namespace TerrificNet.Thtml.Emit
 			}
 		}
 
-		public abstract TEmit CreateEmitter(HelperParameters helperParameters, TEmit children);
+		public abstract Expression CreateEmitter(HelperParameters helperParameters, Expression children);
 	}
 }

@@ -5,16 +5,16 @@ using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Test
 {
-	internal class HelperBinderResultMock<TEmit, TConfig> : HelperBinderResult<TEmit, TConfig>
+	internal class HelperBinderResultMock<TEmit, TConfig> : HelperBinderResult
 	{
-		private readonly IInvocationContext<HelperBinderResult<TEmit, TConfig>> _invocationContext;
+		private readonly IInvocationContext<HelperBinderResult> _invocationContext;
 
-		public HelperBinderResultMock(IInvocationContext<HelperBinderResult<TEmit, TConfig>> invocationContext)
+		public HelperBinderResultMock(IInvocationContext<HelperBinderResult> invocationContext)
 		{
 			_invocationContext = invocationContext;
 		}
 
-		public override TEmit CreateEmitter(HelperParameters helperParameters, TEmit children)
+		public override Expression CreateEmitter(HelperParameters helperParameters, Expression children)
 		{
 			return _invocationContext.Invoke(f => f.CreateEmitter(helperParameters, children));
 		}

@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public interface IHelperBinder<TEmit, TConfig>
+	public interface IHelperBinder
 	{
-		HelperBinderResult<TEmit, TConfig> FindByName(string helper, IDictionary<string, string> arguments);
+		HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments);
 	}
 }

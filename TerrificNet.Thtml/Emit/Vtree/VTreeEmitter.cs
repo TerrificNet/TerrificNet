@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Emit.Vtree
 {
 	public class VTreeEmitter : IEmitter<VTree, Expression, ExpressionHelperConfig>
 	{
-		public IEmitterRunnable<VTree> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder)
+		public IEmitterRunnable<VTree> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
 		{
 			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
 			var handler = new VTreeOutputExpressionEmitter();

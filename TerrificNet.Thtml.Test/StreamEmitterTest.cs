@@ -18,7 +18,7 @@ namespace TerrificNet.Thtml.Test
 	{
 		[Theory]
 		[MemberData("TestData")]
-		public void TestExpressionEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, string expected, IHelperBinder<Expression, ExpressionHelperConfig> helperBinder)
+		public void TestExpressionEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, string expected, IHelperBinder helperBinder)
 		{
 			var streamCompiler = new ExpressionEmitter();
 			var sb = new StringBuilder();
@@ -38,7 +38,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new NullDataScope()),
 					null,
 					"",
-					new NullHelperBinder<Expression, ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
 				yield return new object[]
@@ -50,7 +50,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new NullDataScope()),
 					null,
 					"<h1>hallo</h1>",
-					new NullHelperBinder<Expression, ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
 				yield return new object[]
@@ -65,7 +65,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new NullDataScope()),
 					null,
 					"<h1 attr1=\"hallo\"><h2 attr2=\"hallo2\"></h2><h3 attr3=\"hallo3\"></h3></h1><h1 attr4=\"hallo4\"></h1>",
-					new NullHelperBinder<Expression, ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
 				var obj = new Dummy { Name = "hallo" };
@@ -78,7 +78,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj)),
 					obj,
 					"<h1>hallo</h1>",
-					new NullHelperBinder<Expression, ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
 				var obj2 = new DummyCollection
@@ -97,7 +97,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj2)),
 					obj2,
 					"<h1><div>test1</div><div>test2</div></h1>",
-					new NullHelperBinder<Expression, ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
 				var obj3 = new Dummy { Name = "value" };
@@ -109,7 +109,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj3)),
 					obj3,
 					"<h1 title=\"value\"></h1>",
-					new NullHelperBinder<Expression, ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
 				var obj4 = new
@@ -132,14 +132,14 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj4)),
 					obj4,
 					"<h1>hallo2</h1>",
-					new NullHelperBinder<Expression,ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
-				var helperResult = new MockContext<HelperBinderResult<Expression, ExpressionHelperConfig>>();
-				helperResult.Arrange(d => d.CreateEmitter(The<HelperBinderResult<Expression, ExpressionHelperConfig>.HelperParameters>.IsAnyValue, The<Expression>.IsAnyValue))
-					.Returns<HelperBinderResult<Expression, ExpressionHelperConfig>.HelperParameters, Expression>((handler, expression) => handler.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
+				var helperResult = new MockContext<HelperBinderResult>();
+				helperResult.Arrange(d => d.CreateEmitter(The<HelperBinderResult.HelperParameters>.IsAnyValue, The<Expression>.IsAnyValue))
+					.Returns<HelperBinderResult.HelperParameters, Expression>((handler, expression) => handler.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
 
-				var helper = new MockContext<IHelperBinder<Expression, ExpressionHelperConfig>>();
+				var helper = new MockContext<IHelperBinder>();
 				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock<Expression, ExpressionHelperConfig>(helperResult));
 
 				yield return new object[]
@@ -150,7 +150,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj3)),
 					obj3,
 					"<h1>helper output</h1>",
-					new HelperBinderMock<Expression,ExpressionHelperConfig>(helper)
+					new HelperBinderMock(helper)
 				};
 
 				var obj5 = new { Member = "member" };
@@ -168,7 +168,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj5)),
 					obj5,
 					"<h1 test=\"memberhallo\"></h1>",
-					new NullHelperBinder<Expression,ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 
 				var obj6 = new { Do = true, Dont = false };
@@ -190,7 +190,7 @@ namespace TerrificNet.Thtml.Test
 					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataScope.BinderFromObject(obj6)),
 					obj6,
 					"<h1 test=\"hallo\" test2=\"\"></h1>",
-					new NullHelperBinder<Expression,ExpressionHelperConfig>()
+					new NullHelperBinder()
 				};
 			}
 		}
