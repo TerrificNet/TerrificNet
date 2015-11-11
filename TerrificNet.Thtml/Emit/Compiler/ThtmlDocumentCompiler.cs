@@ -15,42 +15,53 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public ThtmlDocumentCompiler(Document input, IHelperBinder helperBinder)
 		{
 			_input = input;
-			_helperBinder = helperBinder;
+			_helperBinder = helperBinder ?? new NullHelperBinder();
 		}
 
 		public IRunnable<Action<TextWriter>> CompileForTextWriter(IDataBinder dataBinder)
 		{
-			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), dataBinder);
-            var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
-			var writerParameter = Expression.Parameter(typeof (TextWriter));
+			var writerParameter = Expression.Parameter(typeof(TextWriter));
 			var handler = new StreamOutputExpressionEmitter(writerParameter);
 
-			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder ?? new NullHelperBinder(), dataBinder, dataContextParameter, handler);
-			var expression = visitor.Visit(_input);
-
-			var inputExpression = Expression.Parameter(typeof(object), "input");
-			var convertExpression = Expression.Assign(dataContextParameter, Expression.ConvertChecked(inputExpression, dataScopeContract.ResultType));
-			var bodyExpression = Expression.Block(new[] { dataContextParameter }, convertExpression, expression);
-			var action = Expression.Lambda<Action<TextWriter, object>>(bodyExpression, writerParameter, inputExpression).Compile();
-
+			var result = CreateExpression(dataBinder, handler);
+			var action = Expression.Lambda<Action<TextWriter, object>>(result.BodyExpression, writerParameter, result.InputExpression).Compile();
 			return new TextWriterRunnable(action);
 		}
 
 		public IRunnable<VTree> CompileForVTree(IDataBinder dataBinder)
 		{
-			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), dataBinder);
-            var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
 			var handler = new VTreeOutputExpressionEmitter();
+
+			var result = CreateExpression(dataBinder, handler);
+			var action = Expression.Lambda<Func<object, VTree>>(result.BodyExpression, result.InputExpression).Compile();
+			return new VTreeRunnable(action);
+		}
+
+		private ExpressionResult CreateExpression(IDataBinder dataBinder, IOutputExpressionEmitter handler)
+		{
+			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), dataBinder);
+			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
 
 			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, dataBinder, dataContextParameter, handler);
 			var expression = visitor.Visit(_input);
 
-			var inputExpression = Expression.Parameter(typeof(object), "input");
-			var convertExpression = Expression.Assign(dataContextParameter, Expression.ConvertChecked(inputExpression, dataScopeContract.ResultType));
-			var bodyExpression = Expression.Block(new[] { dataContextParameter }, convertExpression, expression);
-			var action = Expression.Lambda<Func<object, VTree>>(bodyExpression, inputExpression).Compile();
+			var inputExpression = Expression.Parameter(typeof (object), "input");
+			var convertExpression = Expression.Assign(dataContextParameter,
+				Expression.ConvertChecked(inputExpression, dataScopeContract.ResultType));
+			var bodyExpression = Expression.Block(new[] {dataContextParameter}, convertExpression, expression);
+			return new ExpressionResult(bodyExpression, inputExpression);
+		}
 
-			return new VTreeRunnable(action);
+		private class ExpressionResult
+		{
+			public Expression BodyExpression { get; }
+			public ParameterExpression InputExpression { get; }
+
+			public ExpressionResult(Expression bodyExpression, ParameterExpression inputExpression)
+			{
+				BodyExpression = bodyExpression;
+				InputExpression = inputExpression;
+			}
 		}
 
 		private class TextWriterRunnable : IRunnable<Action<TextWriter>>
