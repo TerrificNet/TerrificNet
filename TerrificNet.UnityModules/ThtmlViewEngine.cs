@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
-using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
@@ -32,26 +31,25 @@ namespace TerrificNet.UnityModules
 
 		public Task<IView> CreateViewAsync(TemplateInfo templateInfo, Type modelType, IModelBinder modelBinder)
 		{
-			IDataBinder scope;
+			IDataBinder dataBinder;
 			if (modelType == typeof(object))
-				scope = new DynamicDataBinder();
+				dataBinder = new DynamicDataBinder();
 			else
 			{
 				ParameterExpression dataContextParameter = Expression.Parameter(modelType);
-				scope = TypeDataBinder.BinderFromType(dataContextParameter.Type);
+				dataBinder = TypeDataBinder.BinderFromType(dataContextParameter.Type);
 			}
 
-			var emitter = CreateEmitter(templateInfo, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), scope), new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
+			var emitter = CreateEmitter(templateInfo, dataBinder, new BasicHelperBinder(_moduleRepository, _templateRepository, _modelProvider));
 
 			return Task.FromResult<IView>(new ThtmlView(emitter));
 		}
 
-		internal static IRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataScopeContract dataScope, IHelperBinder helperBinder)
+		internal static IRunnable<VTree> CreateEmitter(TemplateInfo templateInfo, IDataBinder dataBinder, IHelperBinder helperBinder)
 		{
 			var ast = GetDocument(templateInfo);
-			var compiler = new VTreeEmitter();
 
-			var emitter = compiler.Emit(ast, dataScope, new NullHelperBinder()); //helperBinder);
+			var emitter = new ThtmlDocumentCompiler(ast, helperBinder).CompileForVTree(dataBinder);
 			return emitter;
 		}
 
@@ -230,7 +228,7 @@ namespace TerrificNet.UnityModules
 					if (partialConfig != null)
 					{
 						var res = new PartialHelperBinderResult(_templateRepository, partialConfig.Template);
-						var emitters = res.CreateEmitter(_helperBinder, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new DynamicDataBinder()));
+						var emitters = res.CreateEmitter(_helperBinder, new DynamicDataBinder());
 						//yield return EmitterNode<VTree>.Lambda((c, r) => emitters.Execute(c, newCtx));
 					}
 				}
@@ -276,7 +274,7 @@ namespace TerrificNet.UnityModules
 			var context = data;
 			var binder = new DynamicDataBinder();
 
-			var emitter = ThtmlViewEngine.CreateEmitter(template, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), binder), helperBinder);
+			var emitter = ThtmlViewEngine.CreateEmitter(template, binder, helperBinder);
 			var moduleEmitter = new ModuleEmitter<VTree>(emitter, context);
 			return moduleEmitter;
 		}
@@ -315,16 +313,16 @@ namespace TerrificNet.UnityModules
 			_templateName = templateName;
 		}
 
-		internal IRunnable<VTree> CreateEmitter(IHelperBinder helperBinder, IDataScopeContract scope)
+		internal IRunnable<VTree> CreateEmitter(IHelperBinder helperBinder, IDataBinder dataBinder)
 		{
 			var template = _templateRepository.GetTemplateAsync(_templateName).Result;
-			var emitter = ThtmlViewEngine.CreateEmitter(template, scope, helperBinder);
+			var emitter = ThtmlViewEngine.CreateEmitter(template, dataBinder, helperBinder);
 			return emitter;
 		}
 
 		public override Expression CreateEmitter(HelperParameters helperParameters, Expression children)
 		{
-			var visitor = new EmitExpressionVisitor(helperParameters.ScopeContract, helperParameters.HelperBinder, helperParameters.DataContextParameter, helperParameters.OutputExpressionEmitter);
+			var visitor = new EmitExpressionVisitor(helperParameters.ScopeContract, helperParameters.HelperBinder, helperParameters.DataBinder, helperParameters.DataContextParameter, helperParameters.OutputExpressionEmitter);
 
 			return visitor.Visit(ThtmlViewEngine.GetDocument(_templateRepository.GetTemplateAsync(_templateName).Result));
 		}

@@ -5,37 +5,7 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class VTreeEmitter : IEmitter<VTree>
+	public class VTreeEmitter
 	{
-		public IRunnable<VTree> Emit(Document input, IDataScopeContract dataScopeContract, IHelperBinder helperBinder)
-		{
-			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
-			var handler = new VTreeOutputExpressionEmitter();
-
-			var visitor = new EmitExpressionVisitor(dataScopeContract, helperBinder, dataContextParameter, handler);
-			var expression = visitor.Visit(input);
-
-			var inputExpression = Expression.Parameter(typeof(object), "input");
-			var convertExpression = Expression.Assign(dataContextParameter, Expression.ConvertChecked(inputExpression, dataScopeContract.ResultType));
-			var bodyExpression = Expression.Block(new[] { dataContextParameter }, convertExpression, expression);
-			var action = Expression.Lambda<Func<object, VTree>>(bodyExpression, inputExpression).Compile();
-
-			return new IlEmitterRunnable(action);
-		}
-
-		private class IlEmitterRunnable : IRunnable<VTree>
-		{
-			private readonly Func<object, VTree> _action;
-
-			public IlEmitterRunnable(Func<object, VTree> action)
-			{
-				_action = action;
-			}
-
-			public VTree Execute(object data, IRenderingContext renderingContext)
-			{
-				return _action(data);
-			}
-		}
 	}
 }

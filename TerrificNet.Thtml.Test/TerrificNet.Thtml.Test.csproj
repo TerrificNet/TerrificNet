@@ -85,7 +85,7 @@
     <Compile Include="HelperBinderMock.cs" />
     <Compile Include="HelperBinderResultMock.cs" />
     <Compile Include="IntegrationTest.cs" />
-    <Compile Include="NullDataScope.cs" />
+    <Compile Include="NullDataBinder.cs" />
     <Compile Include="ParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexerTest.cs" />

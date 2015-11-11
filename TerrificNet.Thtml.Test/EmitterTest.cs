@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using LightMock;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
-using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Test.Asserts;
@@ -18,10 +17,9 @@ namespace TerrificNet.Thtml.Test
 	{
 		[Theory]
 		[MemberData("TestData")]
-		public void TestEmit(string description, Document input, IDataScopeContract dataScopeContract, object data, VTree expected, IHelperBinder helperBinder)
+		public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
 		{
-			var compiler = new VTreeEmitter();
-			var method = compiler.Emit(input, dataScopeContract, helperBinder);
+			var method = new ThtmlDocumentCompiler(input, helperBinder).CompileForVTree(dataBinder);
 
 			var result = method.Execute(data, null);
 
@@ -37,7 +35,7 @@ namespace TerrificNet.Thtml.Test
 				{
 					"empty document",
 					new Document(),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new NullDataScope()),
+					new NullDataBinder(),
 					null,
 					new VNode(),
 					nullHelperBinder
@@ -49,7 +47,7 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Element("h1",
 							new TextNode("hallo"))),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new NullDataScope()),
+					new NullDataBinder(),
 					null,
 					new VNode(
 						new VElement("h1",
@@ -66,7 +64,7 @@ namespace TerrificNet.Thtml.Test
 							new Element("h3", new ElementPart [] { new AttributeNode("attr3", new ConstantAttributeContent("hallo3")) })
 						),
 						new Element("h1", new ElementPart [] { new AttributeNode("attr4", new ConstantAttributeContent("hallo4")) })),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new NullDataScope()),
+					new NullDataBinder(),
 					null,
 					new VNode(
 						new VElement("h1", new[] { new VProperty("attr1", new StringVPropertyValue("hallo")) },
@@ -83,7 +81,7 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Element("h1",
 							new Statement(new MemberExpression("name")))),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj)),
+					TypeDataBinder.BinderFromObject(obj),
 					obj,
 					new VNode(
 						new VElement("h1",
@@ -104,7 +102,7 @@ namespace TerrificNet.Thtml.Test
 								new IterationExpression(new MemberExpression("items")),
 								new Element("div",
 									new Statement(new MemberExpression("name")))))),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj2)),
+					TypeDataBinder.BinderFromObject(obj2),
 					obj2,
 					new VNode(
 						new VElement("h1",
@@ -121,7 +119,7 @@ namespace TerrificNet.Thtml.Test
 					"one element with attribute expression",
 					new Document(
 						new Element("h1", new ElementPart[] { new AttributeNode("title", new AttributeContentStatement(new MemberExpression("name"))) })),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj3)),
+					TypeDataBinder.BinderFromObject(obj3),
 					obj3,
 					new VNode(
 						new VElement("h1", new[] { new VProperty("title", new StringVPropertyValue("value")) }, null)),
@@ -145,7 +143,7 @@ namespace TerrificNet.Thtml.Test
 							new Statement(new ConditionalExpression(new MemberExpression("do")),
 								new Element("h1", new Statement(new MemberExpression("value"))))
 						)),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj4)),
+					TypeDataBinder.BinderFromObject(obj4),
 					obj4,
 					new VNode(
 						new VElement("h1", new VText("hallo2"))
@@ -159,14 +157,14 @@ namespace TerrificNet.Thtml.Test
 					.Returns<HelperBinderResult.HelperParameters, Expression>((param, expression) => param.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
 
 				var helper = new MockContext<IHelperBinder>();
-				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock<Expression, ExpressionHelperConfig>(helperResult));
+				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(helperResult));
 
 				yield return new object[]
 				{
 					"one element with helper",
 					new Document(
 						new Element("h1", new Statement(new CallHelperExpression("helper")))),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj3)),
+					TypeDataBinder.BinderFromObject(obj3),
 					obj3,
 					new VNode(
 						new VElement("h1", new VText("helper output"))),
@@ -185,7 +183,7 @@ namespace TerrificNet.Thtml.Test
 									new AttributeContentStatement(new MemberExpression("member")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj5)),
+					TypeDataBinder.BinderFromObject(obj5),
 					obj5,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("memberhallo")) })),
@@ -204,7 +202,7 @@ namespace TerrificNet.Thtml.Test
 									new ConditionalExpression(new MemberExpression("do")),
 									new ConstantAttributeContent("hallo")))
 						})),
-					new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), TypeDataBinder.BinderFromObject(obj6)),
+					TypeDataBinder.BinderFromObject(obj6),
 					obj6,
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),

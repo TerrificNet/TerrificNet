@@ -1,11 +1,10 @@
 ﻿using System.Linq.Expressions;
 using LightMock;
 using TerrificNet.Thtml.Emit;
-using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Test
 {
-	internal class HelperBinderResultMock<TEmit, TConfig> : HelperBinderResult
+	internal class HelperBinderResultMock : HelperBinderResult
 	{
 		private readonly IInvocationContext<HelperBinderResult> _invocationContext;
 

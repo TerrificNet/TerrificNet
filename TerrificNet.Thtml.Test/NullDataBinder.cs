@@ -4,7 +4,7 @@ using TerrificNet.Thtml.Emit;
 
 namespace TerrificNet.Thtml.Test
 {
-	public class NullDataScope : IDataBinder
+	public class NullDataBinder : IDataBinder
 	{
 		public IDataBinder Property(string propertyName)
 		{
@@ -23,7 +23,7 @@ namespace TerrificNet.Thtml.Test
 
 		public IDataBinder Item()
 		{
-			IDataBinder childScope = new NullDataScope();
+			IDataBinder childScope = new NullDataBinder();
 			return childScope;
 		}
 
