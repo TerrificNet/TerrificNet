@@ -65,7 +65,7 @@ namespace TerrificNet.Thtml.Emit
 				_createExpression = createExpression;
 			}
 
-			public void Train(Func<ResultGenerator<T>, Result<T>> before, Func<ResultGenerator<T>, Result<T>> after, string operation)
+			public void Train(Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> before, Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> after, string operation)
 			{
 			}
 

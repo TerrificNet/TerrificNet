@@ -1,10 +1,9 @@
 using System;
 using System.Linq.Expressions;
-using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.VDom;
 
-namespace TerrificNet.Thtml.Emit.Vtree
+namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class VTreeEmitter : IEmitter<VTree>
 	{

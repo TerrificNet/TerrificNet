@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Emit.Schema;
-using TerrificNet.Thtml.Emit.Vtree;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
@@ -174,7 +173,7 @@ namespace TerrificNet.UnityModules
 		//	return new PlaceholderEmitter(_key, helperBinder, _templateRepository, _moduleRepository, _modelProvider);
 		//}
 
-		private class PlaceholderEmitter : IListEmitter<VTree>
+		private class PlaceholderEmitter
 		{
 			private readonly string _name;
 			private readonly IHelperBinder _helperBinder;
@@ -204,7 +203,8 @@ namespace TerrificNet.UnityModules
 				if (!definition.Placeholder.TryGetValue(_name, out definitions))
 					return Enumerable.Empty<VTree>();
 
-				return EmitterNode<VTree>.AsList(GetEmitters(definitions, renderingContext)).Execute(context, renderingContext);
+				return null;
+				//return EmitterNode<VTree>.AsList(GetEmitters(definitions, renderingContext)).Execute(context, renderingContext);
 			}
 
 			private IEnumerable<IRunnable<VTree>> GetEmitters(IEnumerable<ViewDefinition> definitions, IRenderingContext renderingContext)
@@ -223,7 +223,7 @@ namespace TerrificNet.UnityModules
 							_moduleRepository, _modelProvider,
 							moduleConfig.Module);
 
-						yield return EmitterNode<VTree>.Lambda((c, r) => moduleEmitter.Execute(c, newCtx));
+						//yield return EmitterNode<VTree>.Lambda((c, r) => moduleEmitter.Execute(c, newCtx));
 					}
 
 					var partialConfig = placeholderConfig as PageViewDefinition<object>;
@@ -231,9 +231,10 @@ namespace TerrificNet.UnityModules
 					{
 						var res = new PartialHelperBinderResult(_templateRepository, partialConfig.Template);
 						var emitters = res.CreateEmitter(_helperBinder, new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), new DynamicDataBinder()));
-						yield return EmitterNode<VTree>.Lambda((c, r) => emitters.Execute(c, newCtx));
+						//yield return EmitterNode<VTree>.Lambda((c, r) => emitters.Execute(c, newCtx));
 					}
 				}
+				yield break;
 			}
 
 
