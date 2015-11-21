@@ -1,7 +1,9 @@
-language: csharp
-solution: TerrificNet.sln
+language: CSharp
 mono:
- - latest
+  - latest
 install:
- - chmod +x ./mono/build.sh
- - ./mono/build.sh
+  - curl -sSL https://raw.githubusercontent.com/aspnet/Home/dev/dnvminstall.sh | DNX_BRANCH=dev sh && source ~/.dnx/dnvm/dnvm.sh
+  - dnvm upgrade
+  - dnu restore
+script:
+  - dnx $TRAVIS_BUILD_DIR/TerrificNet.Thtml.Test/project.json test -parallel none
