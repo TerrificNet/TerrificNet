@@ -6,4 +6,4 @@ install:
   - dnvm upgrade
   - dnu restore
 script:
-  - dnx $TRAVIS_BUILD_DIR/TerrificNet\.Thtml\.Test/project.json test -parallel none
+  - dnx --project $TRAVIS_BUILD_DIR/TerrificNet.Thtml.Test/project.json test -parallel none
