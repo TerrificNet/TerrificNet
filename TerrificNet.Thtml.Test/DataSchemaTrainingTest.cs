@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Test
 {
 	public class DataSchemaTrainingTest
 	{
-		[Fact]
+		[Fact(Skip = "Not implemented")]
 		public void TestSetOperation()
 		{
 			var contract = new DataScopeContract(BindingPathTemplate.Global);

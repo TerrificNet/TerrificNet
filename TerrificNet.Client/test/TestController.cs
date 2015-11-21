@@ -18,7 +18,7 @@ namespace TerrificNet.Client.test
         {
             var emitter = CreateEmitter(new DynamicDataBinder(), new NullHelperBinder(), template);
 
-            var vTree = emitter.Execute(TypeDataBinder.BinderFromObject(obj), null);
+            var vTree = emitter.Execute(obj, null);
             return new ObjectResult(vTree);
         }
 
