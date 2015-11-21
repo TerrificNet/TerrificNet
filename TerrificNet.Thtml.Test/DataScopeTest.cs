@@ -9,10 +9,11 @@ namespace TerrificNet.Thtml.Test
 	public class DataScopeTest
 	{
 		private readonly DataScopeContract _underTest;
+		private BindingPathTemplate _global = BindingPathTemplate.Global;
 
 		public DataScopeTest()
 		{
-			_underTest = new DataScopeContract("_global");
+			_underTest = new DataScopeContract(BindingPathTemplate.Global);
 		}
 
 		[Fact]
@@ -26,19 +27,21 @@ namespace TerrificNet.Thtml.Test
 		[Fact]
 		public void TestStringScope()
 		{
-			_underTest.RequiresString();
+			var binding = _underTest.RequiresString();
 
 			var schema = _underTest.CompleteSchema();
 			Assert.Equal(DataSchema.String, schema);
+			AssertBindingPath(binding, _global);
 		}
 
 		[Fact]
 		public void TestBooleanScope()
 		{
-			_underTest.RequiresBoolean();
+			var binding = _underTest.RequiresBoolean();
 
 			var schema = _underTest.CompleteSchema();
 			Assert.Equal(DataSchema.Boolean, schema);
+			AssertBindingPath(binding, _global);
 		}
 
 		[Fact]
@@ -47,11 +50,14 @@ namespace TerrificNet.Thtml.Test
 			var expected = new IterableDataSchema(DataSchema.String, false);
 
 			IDataScopeContract childScopeContract;
-			_underTest.RequiresEnumerable(out childScopeContract);
-			childScopeContract.RequiresString();
+			var binding = _underTest.RequiresEnumerable(out childScopeContract);
+			var childBinding = childScopeContract.RequiresString();
 
 			var schema = _underTest.CompleteSchema();
 			DataSchemaAssert.AssertSchema(expected, schema);
+
+			AssertBindingPath(binding, _global);
+			AssertBindingPath(childBinding, _global.Item());
 		}
 
 		[Fact]
@@ -180,6 +186,12 @@ namespace TerrificNet.Thtml.Test
 			var schema = _underTest.CompleteSchema();
 
 			DataSchemaAssert.AssertSchema(expected, schema);
+		}
+
+		private static void AssertBindingPath<T>(IBinding<T> binding, BindingPathTemplate expected)
+		{
+			Assert.NotNull(binding);
+			Assert.Equal(expected.ToString(), binding.Path.ToString());
 		}
 	}
 }

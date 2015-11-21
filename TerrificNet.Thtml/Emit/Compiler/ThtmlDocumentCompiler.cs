@@ -39,15 +39,15 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private ExpressionResult CreateExpression(IDataBinder dataBinder, IOutputExpressionEmitter handler)
 		{
-			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract("_global"), dataBinder);
-			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
+			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract(BindingPathTemplate.Global), dataBinder);
+			var dataContextParameter = Expression.Variable(dataBinder.DataContextType, "item");
 
 			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, dataBinder, dataContextParameter, handler);
 			var expression = visitor.Visit(_input);
 
 			var inputExpression = Expression.Parameter(typeof (object), "input");
 			var convertExpression = Expression.Assign(dataContextParameter,
-				Expression.ConvertChecked(inputExpression, dataScopeContract.ResultType));
+				Expression.ConvertChecked(inputExpression, dataBinder.DataContextType));
 			var bodyExpression = Expression.Block(new[] {dataContextParameter}, convertExpression, expression);
 			return new ExpressionResult(bodyExpression, inputExpression);
 		}

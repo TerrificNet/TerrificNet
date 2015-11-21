@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.VDom;
+using System.Reflection;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
@@ -20,7 +21,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private static Expression GetAttributeValue(Expression textExpression)
 		{
-			var constructor = typeof(StringVPropertyValue).GetConstructor(new[] { typeof(string) });
+			var constructor = typeof(StringVPropertyValue).GetMembers().OfType<ConstructorInfo>().First();
 
 			return Expression.New(constructor, textExpression);
 		}

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Schema
@@ -11,11 +12,11 @@ namespace TerrificNet.Thtml.Emit.Schema
 		private DataScopeContractBuildStrategy _strategy;
 		internal readonly List<SyntaxNode> DependentNodes = new List<SyntaxNode>();
 
-		private string Name { get; }
+		private BindingPathTemplate Path { get; }
 
-		public DataScopeContract(string name)
+		public DataScopeContract(BindingPathTemplate path)
 		{
-			Name = name;
+			Path = path;
 		}
 
 		private DataScopeContractBuildStrategy GetOrCreate(Func<DataScopeContractBuildStrategy> creation)
@@ -68,17 +69,17 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public virtual IBinding<string> RequiresString()
 			{
-				throw new DataContractException($"Can not access {DataScopeContract.Name} as string because {Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
+				throw new DataContractException($"Can not access {DataScopeContract.Path} as string because {Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IBinding<bool> RequiresBoolean()
 			{
-				throw new DataContractException($"The {DataScopeContract.Name} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
+				throw new DataContractException($"The {DataScopeContract.Path} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public virtual IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
-				throw new DataContractException($"Can not access {DataScopeContract.Name} as iterable because {Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
+				throw new DataContractException($"Can not access {DataScopeContract.Path} as iterable because {Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
 			public Type ResultType => DataScopeContract.ResultType;
@@ -88,12 +89,13 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 		private class IterableDataScopeContract : ComplexDataScopeContract
 		{
-			private readonly DataScopeContract _childScopeContract = new DataScopeContract("item");
+			private readonly DataScopeContract _childScopeContract;
 			private readonly bool _nullable;
 
 			public IterableDataScopeContract(DataScopeContract dataScopeContract, IDictionary<string, DataScopeContract> childScopes, bool nullable = false)
 				: base(dataScopeContract, childScopes, nullable)
 			{
+				_childScopeContract = new DataScopeContract(dataScopeContract.Path.Item());
 			}
 
 			protected override string Name => "Iterable";
@@ -101,12 +103,13 @@ namespace TerrificNet.Thtml.Emit.Schema
 			public IterableDataScopeContract(DataScopeContract dataScopeContract, bool nullable = false) : base(dataScopeContract)
 			{
 				_nullable = nullable;
+				_childScopeContract = new DataScopeContract(dataScopeContract.Path.Item());
 			}
 
 			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				childScopeContract = _childScopeContract;
-				return null;
+				return new Binding<IEnumerable>(DataScopeContract.Path);
 			}
 
 			public override DataSchema GetSchema()
@@ -142,7 +145,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				DataScopeContract scopeContract;
 				if (!_childScopes.TryGetValue(propertyName, out scopeContract))
 				{
-					scopeContract = new DataScopeContract(propertyName);
+					scopeContract = new DataScopeContract(DataScopeContract.Path.Property(propertyName));
 					_childScopes.Add(propertyName, scopeContract);
 				}
 
@@ -177,12 +180,12 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public override IBinding<string> RequiresString()
 			{
-				return null;
+				return new Binding<string>(DataScopeContract.Path);
 			}
 
 			public override IBinding<bool> RequiresBoolean()
 			{
-				return null;
+				return new Binding<bool>(DataScopeContract.Path);
 			}
 
 			public override DataSchema GetSchema()
@@ -203,7 +206,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public override IBinding<bool> RequiresBoolean()
 			{
-				return null;
+				return new Binding<bool>(DataScopeContract.Path);
 			}
 
 			public override IBinding<string> RequiresString()
@@ -224,5 +227,89 @@ namespace TerrificNet.Thtml.Emit.Schema
 			}
 		}
 
+		public IEnumerable<ChangeOperation> PushChange(DataSchemaProperty property, object value)
+		{
+			throw new NotImplementedException();
+		}
+
+		private class Binding<T> : IBinding<T>
+		{
+			public BindingPathTemplate Path { get; }
+
+			public Binding(BindingPathTemplate path)
+			{
+				Path = path;
+			}
+
+			public void Train(Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> before, Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> after, ChangeOperation operation)
+			{
+			}
+
+			public Expression CreateExpression(Expression dataContext)
+			{
+				throw new NotImplementedException();
+			}
+		}
+	}
+
+	public class BindingPathTemplate
+	{
+		private readonly BindingPathTemplate _parent;
+
+		private BindingPathTemplate(BindingPathTemplate parent)
+		{
+			_parent = parent;
+			Segment = null;
+		}
+
+		public static readonly BindingPathTemplate Global = new BindingPathTemplate(null);
+
+		public BindingPathTemplate Property(string property)
+		{
+			return new PropertyPathTemplate(property, this);
+		}
+
+		public BindingPathTemplate Item()
+		{
+			return new ItemPathTemplate(this);
+		}
+
+		protected virtual string Segment { get; }
+
+		public override string ToString()
+		{
+			var item = this;
+			var segments = new List<string>();
+			do
+			{
+				segments.Insert(0, item.Segment);
+			} while((item = item._parent) != null);
+
+			return string.Join("/", segments.Where(s => s != null).ToArray());
+		}
+
+		private class PropertyPathTemplate : BindingPathTemplate
+		{
+			public PropertyPathTemplate(string segment, BindingPathTemplate parent) : base(parent)
+			{
+				Segment = segment;
+			}
+
+			protected override string Segment { get; }
+		}
+
+		private class ItemPathTemplate : BindingPathTemplate
+		{
+			public ItemPathTemplate(BindingPathTemplate parent) : base(parent)
+			{
+			}
+
+			protected override string Segment => "[n]";
+		}
+	}
+
+	public abstract class ChangeOperation
+	{
+		
 	}
 }

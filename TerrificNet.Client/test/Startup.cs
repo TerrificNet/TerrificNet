@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Cors;
 using Microsoft.AspNet.Mvc.Formatters;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 
 namespace TerrificNet.Client.test

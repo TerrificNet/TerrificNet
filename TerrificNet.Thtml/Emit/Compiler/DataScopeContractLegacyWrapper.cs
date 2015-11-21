@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
@@ -24,36 +25,40 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IBinding<string> RequiresString()
 		{
-			return new BindingWrapper<string>(d => _dataBinder.BindString(d));
+			return new BindingWrapper<string>(_contract.RequiresString(), d => _dataBinder.BindString(d));
 		}
 
 		public IBinding<bool> RequiresBoolean()
 		{
-			return new BindingWrapper<bool>(d => _dataBinder.BindBoolean(d));
+			return new BindingWrapper<bool>(_contract.RequiresBoolean(), d => _dataBinder.BindBoolean(d));
 		}
 
 		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
 			var childBinder = _dataBinder.Item();
 			IDataScopeContract childContract;
-			_contract.RequiresEnumerable(out childContract);
+			var binding = _contract.RequiresEnumerable(out childContract);
 			childScopeContract = new DataScopeContractLegacyWrapper(childContract, childBinder);
 
-			return new BindingWrapper<IEnumerable>(d => _dataBinder.BindEnumerable(d));
+			return new BindingWrapper<IEnumerable>(binding, d => _dataBinder.BindEnumerable(d));
 		}
 
 		public Type ResultType => _dataBinder.DataContextType;
 
 		private class BindingWrapper<T> : IBinding<T>
 		{
+			private readonly IBinding<T> _adaptee;
 			private readonly Func<Expression, Expression> _createExpression;
 
-			public BindingWrapper(Func<Expression, Expression> createExpression)
+			public BindingWrapper(IBinding<T> adaptee, Func<Expression, Expression> createExpression)
 			{
+				_adaptee = adaptee;
 				_createExpression = createExpression;
 			}
 
-			public void Train(Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> before, Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> after, string operation)
+			public BindingPathTemplate Path => _adaptee.Path;
+
+			public void Train(Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> before, Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> after, ChangeOperation operation)
 			{
 			}
 

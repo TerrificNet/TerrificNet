@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Mvc;
 using Newtonsoft.Json.Linq;
 using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
@@ -17,11 +18,11 @@ namespace TerrificNet.Client.test
         {
             var emitter = CreateEmitter(new DynamicDataBinder(), new NullHelperBinder(), template);
 
-            var vTree = emitter.Execute(new ObjectDataContext(obj), null);
+            var vTree = emitter.Execute(TypeDataBinder.BinderFromObject(obj), null);
             return new ObjectResult(vTree);
         }
 
-        internal static IEmitterRunnable<VTree> CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
+	    private static IRunnable<VTree> CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
         {
             string template;
             using (var reader = new StreamReader(new FileStream(path, FileMode.Open)))
@@ -33,9 +34,9 @@ namespace TerrificNet.Client.test
             var tokens = lexer.Tokenize(template);
             var parser = new Parser(new HandlebarsParser());
             var ast = parser.Parse(tokens);
-            var compiler = new VTreeEmitter();
+            var compiler = new ThtmlDocumentCompiler(ast, helperBinder);
 
-            var emitter = compiler.Emit(ast, dataBinder, helperBinder);
+            var emitter = compiler.CompileForVTree(dataBinder);
             return emitter;
         }
     }

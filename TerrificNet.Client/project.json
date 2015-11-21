@@ -1,18 +1,19 @@
-﻿{
+{
   "version": "0.1-alpha",
   "authors": [ "Marco Schaelle" ],
   "title": "TerrificNet.Client",
   "description": "TerrificNet",
   "exclude": ["bower_components", "node_modules"],
-  "dependencies": {
-    "Microsoft.AspNet.Http": "1.0.0-beta8",
-    "Microsoft.AspNet.Mvc": "6.0.0-beta8",
-    "Microsoft.AspNet.Hosting": "1.0.0-beta8",
-    "Microsoft.AspNet.Server.Kestrel": "1.0.0-beta8",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta8",
-    "Microsoft.AspNet.Cors": "6.0.0-beta8",
-    "TerrificNet.Thtml": "0.1-*"
-  },
+	"dependencies": {
+		"Microsoft.AspNet.Http": "1.0.0-rc1-final",
+		"Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
+		"Microsoft.AspNet.Hosting": "1.0.0-rc1-final",
+		"Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
+		"Microsoft.AspNet.Server.WebListener": "1.0.0-rc1-final",
+		"Microsoft.AspNet.Cors": "6.0.0-rc1-final",
+		"TerrificNet.Thtml": "0.1-*",
+		"System.Runtime": "4.0.21-beta-23516"
+	},
   "commands": {
     "web ": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
     "kestrel" : "Microsoft.AspNet.Hosting --server Kestrel --server.urls http://localhost:5004"
@@ -20,9 +21,9 @@
   "frameworks": {
     "dnx451": { },
     "dnxcore50": {
-      "dependencies": {
-        "Microsoft.CSharp": "4.0.0-beta-23019"
-      }
+			"dependencies": {
+				"Microsoft.CSharp": "4.0.1-beta-23516"
+			}
     }
   }
 }

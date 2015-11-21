@@ -1,4 +1,4 @@
-﻿/// <binding AfterBuild='compile' Clean='clean' ProjectOpened='restore' />
+/// <binding />
 var gulp = require('gulp');
 var bower = require('gulp-bower');
 var tsd = require('gulp-tsd');
