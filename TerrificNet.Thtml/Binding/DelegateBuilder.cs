@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Binding
 {
     internal static class DelegateBuilder
     {
-        private static readonly MethodInfo GetValueFromDictionaryMethod = typeof(DelegateBuilder).GetMethod("GetValueFromDictionary");
+        private static readonly MethodInfo GetValueFromDictionaryMethod = typeof(DelegateBuilder).GetTypeInfo().GetMethod("GetValueFromDictionary");
         private static readonly ConcurrentDictionary<Type, MethodInfo> GetValueFromDictionaryMethodDictionary = new ConcurrentDictionary<Type, MethodInfo>();
 
         public static Func<object, object> FunctionCall(Type modelType, MethodInfo function)
@@ -49,7 +49,7 @@ namespace TerrificNet.Thtml.Binding
             var model = Expression.Parameter(typeof(object));
             var castModel = Expression.Convert(model, modelType);
 
-            var itemType = modelType.GetGenericArguments()[1];
+            var itemType = modelType.GetTypeInfo().GetGenericArguments()[1];
             var method = GetValueFromDictionaryMethodDictionary
                 .GetOrAdd(itemType, type => GetValueFromDictionaryMethod.MakeGenericMethod(type));
 

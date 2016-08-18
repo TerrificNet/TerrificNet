@@ -9,7 +9,7 @@ namespace TerrificNet.Thtml.Test
 	public class DataScopeTest
 	{
 		private readonly DataScopeContract _underTest;
-		private BindingPathTemplate _global = BindingPathTemplate.Global;
+		private readonly BindingPathTemplate _global = BindingPathTemplate.Global;
 
 		public DataScopeTest()
 		{

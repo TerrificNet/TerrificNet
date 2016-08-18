@@ -21,7 +21,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private static Expression GetAttributeValue(Expression textExpression)
 		{
-			var constructor = typeof(StringVPropertyValue).GetMembers().OfType<ConstructorInfo>().First();
+			var constructor = typeof(StringVPropertyValue).GetTypeInfo().GetMembers().OfType<ConstructorInfo>().First();
 
 			return Expression.New(constructor, textExpression);
 		}
@@ -37,7 +37,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var attributeList = attributes.Count > 0 ? (Expression)Expression.ListInit(Expression.New(typeof(List<VProperty>)), attributes) : Expression.Constant(null, typeof(IEnumerable<VProperty>));
 			var elementList = CreateElementList(elements);
 
-			var constructorInfo = typeof(VElement).GetConstructor(new[] { typeof(string), typeof(IEnumerable<VProperty>), typeof(IEnumerable<VTree>) });
+			var constructorInfo = typeof(VElement).GetTypeInfo().GetConstructor(new[] { typeof(string), typeof(IEnumerable<VProperty>), typeof(IEnumerable<VTree>) });
 
 			return Expression.New(constructorInfo, Expression.Constant(element.TagName), attributeList, elementList);
 		}
@@ -47,7 +47,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (elements.Count == 0)
 				return Expression.Constant(null, typeof (IEnumerable<VTree>));
 
-			if (elements.All(e => typeof(VTree).IsAssignableFrom(e.Type)))
+			if (elements.All(e => typeof(VTree).GetTypeInfo().IsAssignableFrom(e.Type)))
 				return Expression.ListInit(Expression.New(typeof (List<VTree>)), elements);
 
 			var expressions = new List<Expression>();
@@ -55,12 +55,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var createAssign = Expression.Assign(variable, Expression.New(typeof (List<VTree>)));
 			expressions.Add(createAssign);
 
-			var method = typeof (List<VTree>).GetMethod("Add", new[] {typeof (VTree)});
-			var methodRange = typeof(List<VTree>).GetMethod("AddRange", new[] { typeof(IEnumerable<VTree>) });
+			var method = typeof (List<VTree>).GetTypeInfo().GetMethod("Add", new[] {typeof (VTree)});
+			var methodRange = typeof(List<VTree>).GetTypeInfo().GetMethod("AddRange", new[] { typeof(IEnumerable<VTree>) });
 
 			foreach (var elem in elements)
 			{
-				if (typeof (VTree).IsAssignableFrom(elem.Type))
+				if (typeof (VTree).GetTypeInfo().IsAssignableFrom(elem.Type))
 					expressions.Add(Expression.Call(variable, method, elem));
 				else
 					expressions.Add(Expression.Call(variable, methodRange, elem));
@@ -73,7 +73,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
 		{
-			var constructor = typeof(VProperty).GetConstructor(new[] { typeof(string), typeof(VPropertyValue) });
+			var constructor = typeof(VProperty).GetTypeInfo().GetConstructor(new[] { typeof(string), typeof(VPropertyValue) });
 			yield return Expression.New(constructor, Expression.Constant(attributeNode.Name), valueEmitter);
 		}
 
@@ -89,7 +89,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private Expression HandleCompositeAttributeValue(Expression callExpression)
 		{
-			var method = typeof (StringBuilder).GetMethod("Append", new[] {typeof (string)});
+			var method = typeof (StringBuilder).GetTypeInfo().GetMethod("Append", new[] {typeof (string)});
 			return Expression.Call(_stringBuilder, method, callExpression);
 		}
 
@@ -106,14 +106,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private static Expression GetText(Expression text)
 		{
-			var constructor = typeof (VText).GetConstructor(new[] {typeof (string)});
+			var constructor = typeof (VText).GetTypeInfo().GetConstructor(new[] {typeof (string)});
 
 			return Expression.New(constructor, text);
 		}
 
 		public Expression HandleDocument(List<Expression> expressions)
 		{
-			var constructor = typeof(VNode).GetConstructor(new[] { typeof(IEnumerable<VTree>) });
+			var constructor = typeof(VNode).GetTypeInfo().GetConstructor(new[] { typeof(IEnumerable<VTree>) });
 			return Expression.New(constructor, CreateElementList(expressions));
 		}
 
@@ -126,7 +126,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_handleExpression = HandleCompositeAttributeValue;
             expressions.AddRange(compositeAttributeContent.ContentParts.Select(s => s.Accept(visitor)));
 
-			var method = typeof (StringBuilder).GetMethod("ToString", new Type[0]);
+			var method = typeof (StringBuilder).GetTypeInfo().GetMethod("ToString", new Type[0]);
 			expressions.Add(Expression.Call(_stringBuilder, method));
 
 			return GetAttributeValue(Expression.Block(new[] {_stringBuilder}, expressions));

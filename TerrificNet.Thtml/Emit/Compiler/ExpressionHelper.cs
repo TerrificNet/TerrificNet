@@ -16,7 +16,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var enumeratorType = typeof(IEnumerator);
 
 			var enumeratorVar = Expression.Variable(enumeratorType, "enumerator");
-			var getEnumeratorCall = Expression.Call(collection, enumerableType.GetMethod("GetEnumerator"));
+			var getEnumeratorCall = Expression.Call(collection, enumerableType.GetTypeInfo().GetMethod("GetEnumerator"));
 			var enumeratorAssign = Expression.Assign(enumeratorVar, Expression.Convert(getEnumeratorCall, enumeratorType));
 
 			Expression listAssign = Expression.Empty();
@@ -27,11 +27,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var listType = typeof (List<>).MakeGenericType(loopContent.Type);
 				list = Expression.Variable(listType);
 				listAssign = Expression.Assign(list, Expression.New(listType));
-				loopExpression = Expression.Call(list, listType.GetMethod("Add", new [] { loopContent.Type }), loopContent);
+				loopExpression = Expression.Call(list, listType.GetTypeInfo().GetMethod("Add", new [] { loopContent.Type }), loopContent);
 			}
 
 			// The MoveNext method's actually on IEnumerator, not IEnumerator<T>
-			var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetMethod("MoveNext"));
+			var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetTypeInfo().GetMethod("MoveNext"));
 
 			var breakLabel = Expression.Label("LoopBreak");
 

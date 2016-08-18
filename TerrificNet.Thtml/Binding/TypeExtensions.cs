@@ -31,37 +31,37 @@ namespace TerrificNet.Thtml.Binding
 
         private static bool IsNonGenericCollectionType(Type t)
         {
-            return typeof(ICollection).IsAssignableFrom(t);
+            return typeof(ICollection).GetTypeInfo().IsAssignableFrom(t);
         }
 
         public static bool HasEnumerableInterface(this Type t)
         {
-            return IsEnumerableType(t) || t.GetInterfaces().Any(IsEnumerableType);
+            return IsEnumerableType(t) || t.GetTypeInfo().GetInterfaces().Any(IsEnumerableType);
         }
 
         public static bool HasCollectionInterface(this Type t)
         {
-            return IsNonGenericCollectionType(t) || IsCollectionType(t) || t.GetInterfaces().Any(IsCollectionType);
+            return IsNonGenericCollectionType(t) || IsCollectionType(t) || t.GetTypeInfo().GetInterfaces().Any(IsCollectionType);
         }
 
         public static Type GetEnumerableInterface(this Type t)
         {
-            return IsEnumerableType(t) ? t : t.GetInterfaces().First(IsEnumerableType);
+            return IsEnumerableType(t) ? t : t.GetTypeInfo().GetInterfaces().First(IsEnumerableType);
         }
 
         public static Type GetCollectionInterface(this Type t)
         {
-            return IsNonGenericCollectionType(t) ? typeof(ICollection) : (IsCollectionType(t) ? t : t.GetInterfaces().First(IsCollectionType));
+            return IsNonGenericCollectionType(t) ? typeof(ICollection) : (IsCollectionType(t) ? t : t.GetTypeInfo().GetInterfaces().First(IsCollectionType));
         }
 
         public static Type GetDictionaryTypeWithKey(this Type t)
         {
             Type dictionaryType;
             if (IsDictionaryType(t)) dictionaryType = t;
-            else dictionaryType = t.GetInterfaces().FirstOrDefault(IsDictionaryType);
+            else dictionaryType = t.GetTypeInfo().GetInterfaces().FirstOrDefault(IsDictionaryType);
 
             if (dictionaryType == null) return null;
-            if (dictionaryType.GetGenericArguments()[0] != typeof(string)) return null;
+            if (dictionaryType.GetTypeInfo().GetGenericArguments()[0] != typeof(string)) return null;
             return dictionaryType;
         }
     }
