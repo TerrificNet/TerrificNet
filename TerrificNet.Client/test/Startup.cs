@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Mvc.Formatters;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace TerrificNet.Client.test
@@ -20,11 +21,7 @@ namespace TerrificNet.Client.test
             {
                 m.OutputFormatters.Clear();
 
-                var formatter = new JsonOutputFormatter
-                {
-                    SerializerSettings = { ContractResolver = new CamelCasePropertyNamesContractResolver() }
-                };
-
+                var formatter = new JsonOutputFormatter(new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() }, null);
                 m.OutputFormatters.Add(formatter);
             });
         }
