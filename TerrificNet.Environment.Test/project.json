@@ -1,0 +1,29 @@
+{
+   "version": "0.1-alpha",
+   "authors": [ "Marco Schaelle" ],
+   "title": "TerrificNet.Environment.Test",
+   "description": "TerrificNet",
+   "frameworks": {
+      "netstandard1.6": {
+         "type": "platform",
+         "imports": [
+            "dnxcore50",
+            "netcoreapp1.0"
+         ]
+      }
+   },
+   "testRunner": "xunit",
+   "dependencies": {
+      "Moq": "4.6.38-alpha",
+      "NETStandard.Library": "1.6.0",
+      "xunit": "2.2.0-beta2-build3300",
+      "dotnet-test-xunit": "2.2.0-preview2-build1029",
+      "TerrificNet.Environment": "0.1-alpha",
+      "TerrificNet.Test.Common": "0.1-alpha"
+   },
+
+   "runtimes": {
+      "win10-x86": {},
+      "win10-x64": {}
+   }
+}
