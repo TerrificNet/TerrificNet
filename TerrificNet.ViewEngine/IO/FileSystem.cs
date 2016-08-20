@@ -27,9 +27,6 @@ namespace TerrificNet.ViewEngine.IO
 
 		public FileSystem(string basePath)
 		{
-			if (string.IsNullOrEmpty(basePath))
-				basePath = Environment.CurrentDirectory;
-
 			_basePath = PathInfo.Create(basePath);
 			_basePathConverted = basePath;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Veil;
 
 namespace TerrificNet.ViewEngine
 {
@@ -17,7 +16,11 @@ namespace TerrificNet.ViewEngine
         }
     }
 
-    public static class ViewEngineExtension
+   public interface IModelBinder
+   {
+   }
+
+   public static class ViewEngineExtension
     {
         public static Task<IView> CreateViewAsync(this IViewEngine viewEngine, TemplateInfo templateInfo)
         {

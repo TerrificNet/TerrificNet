@@ -13,7 +13,7 @@ namespace TerrificNet.ViewEngine
             : base(id)
         {
             _content = content;
-            _eTag = GetHash(new MD5CryptoServiceProvider(), _content);
+            _eTag = GetHash(MD5.Create(), _content);
         }
 
         public override Stream Open()

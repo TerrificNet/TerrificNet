@@ -1,0 +1,25 @@
+{
+   "version": "0.1-alpha",
+   "authors": [ "Marco Schaelle" ],
+   "title": "TerrificNet.ViewEngine",
+   "description": "TerrificNet",
+   "frameworks": {
+      "netstandard1.6": {
+         "imports": "dnxcore"
+      }
+   },
+   "dependencies": {
+      "Microsoft.Extensions.Caching.Abstractions": "1.0.0",
+      "Microsoft.Framework.Runtime.Caching": "1.0.0-beta6",
+      "NETStandard.Library": "1.6.0",
+      "Newtonsoft.Json": "9.0.1",
+      "Newtonsoft.Json.Schema": "2.0.4",
+      "System.IO.Compression.ZipFile": "4.0.1",
+      "System.IO.FileSystem.Watcher": "4.0.0",
+      "System.Linq": "4.1.0",
+      "System.Linq.Expressions": "4.1.0",
+      "System.Security.Cryptography.Algorithms": "4.2.0",
+      "TerrificNet.Thtml": "0.1-alpha",
+      "TerrificNet.ViewEngine.Schema": "0.1-alpha"
+   }
+}

@@ -1,19 +1,22 @@
 ﻿using System;
-using System.Runtime.Caching;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace TerrificNet.ViewEngine.Cache
 {
 	public class MemoryCacheProvider : ICacheProvider
 	{
-		private readonly MemoryCache _cache = MemoryCache.Default;
+		private readonly IMemoryCache _cache;
+
+	   public MemoryCacheProvider(IMemoryCache cache)
+	   {
+	      _cache = cache;
+	   }
 
 		public void Set<TValue>(string key, TValue value, DateTimeOffset offset)
 		{
-			_cache.Set(key, value, new CacheItemPolicy
-			{
-				AbsoluteExpiration = DateTimeOffset.Now.AddHours(24),
-				Priority = CacheItemPriority.NotRemovable
-			});
+		   _cache.Set(key, value,
+		      new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromHours(24))
+		         .SetPriority(CacheItemPriority.NeverRemove));
 		}
 
 		public bool TryGet<TValue>(string key, out TValue value) where TValue : class

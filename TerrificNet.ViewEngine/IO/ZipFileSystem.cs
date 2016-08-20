@@ -1,148 +1,147 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace TerrificNet.ViewEngine.IO
 {
-    public class ZipFileSystem : IFileSystem
-    {
-        private readonly PathInfo _filePath;
-        private readonly PathInfo _rootPath;
-        private static readonly IPathHelper PathHelper = new ZipPathHelper();
-        private readonly ZipFile _file;
-        private readonly string _etag;
+   public class ZipFileSystem : IFileSystem
+   {
+      private readonly PathInfo _filePath;
+      private readonly PathInfo _rootPath;
+      private static readonly IPathHelper PathHelper = new ZipPathHelper();
+      private readonly ZipArchive _file;
+      private readonly string _etag;
 
-        public ZipFileSystem(string filePath, string rootPath)
-        {
-            _filePath = PathInfo.Create(filePath);
-            _rootPath = PathInfo.Create(rootPath);
-            _file = new ZipFile(filePath);
-            _etag = new FileInfo(filePath).LastWriteTimeUtc.Ticks.ToString("X8");
-        }
+      public ZipFileSystem(string filePath, string rootPath)
+      {
+         _filePath = PathInfo.Create(filePath);
+         _rootPath = PathInfo.Create(rootPath);
+         _file = ZipFile.Open(filePath, ZipArchiveMode.Read);
+         _etag = new FileInfo(filePath).LastWriteTimeUtc.Ticks.ToString("X8");
+      }
 
-        public PathInfo BasePath { get { return _filePath; } }
+      public PathInfo BasePath { get { return _filePath; } }
 
-        public bool DirectoryExists(PathInfo directory)
-        {
-            var entryName = GetFullPath(directory);
-            return _file.OfType<ZipEntry>().Any(e => e.Name.StartsWith(entryName));
-        }
+      public bool DirectoryExists(PathInfo directory)
+      {
+         var entryName = GetFullPath(directory);
+         return _file.Entries.Any(e => e.Name.StartsWith(entryName));
+      }
 
-        public IEnumerable<PathInfo> DirectoryGetFiles(PathInfo directory, string fileExtension)
-        {
-            return _file.OfType<ZipEntry>()
-                .Where(e => e.IsFile && e.Name.StartsWith(GetFullPath(directory)) && e.Name.EndsWith(string.Concat(".", fileExtension)))
-                .Select(e => PathInfo.Create(e.Name.Substring(_rootPath.ToString().Length)));
-        }
+      public IEnumerable<PathInfo> DirectoryGetFiles(PathInfo directory, string fileExtension)
+      {
+         return _file.Entries
+             .Where(e => e.Name.StartsWith(GetFullPath(directory)) && e.Name.EndsWith(string.Concat(".", fileExtension)))
+             .Select(e => PathInfo.Create(e.Name.Substring(_rootPath.ToString().Length)));
+      }
 
-		public Stream OpenRead(PathInfo filePath)
-        {
-            var file = _file.GetEntry(GetFullPath(filePath));
-            return _file.GetInputStream(file);
-        }
+      public Stream OpenRead(PathInfo filePath)
+      {
+         var file = _file.GetEntry(GetFullPath(filePath));
+         return file.Open();
+      }
 
-		public Stream OpenWrite(PathInfo filePath)
-        {
-            throw new NotSupportedException();
-        }
+      public Stream OpenWrite(PathInfo filePath)
+      {
+         throw new NotSupportedException();
+      }
 
-        public bool FileExists(PathInfo filePath)
-        {
-            var dir = _file.GetEntry(GetFullPath(filePath).ToString());
-            return dir != null;
-        }
+      public bool FileExists(PathInfo filePath)
+      {
+         var dir = _file.GetEntry(GetFullPath(filePath));
+         return dir != null;
+      }
 
-        public void RemoveFile(PathInfo filePath)
-	    {
-	        throw new NotSupportedException();
-	    }
+      public void RemoveFile(PathInfo filePath)
+      {
+         throw new NotSupportedException();
+      }
 
-        public Stream OpenReadOrCreate(PathInfo filePath)
-	    {
-            throw new NotSupportedException();
-	    }
+      public Stream OpenReadOrCreate(PathInfo filePath)
+      {
+         throw new NotSupportedException();
+      }
 
-        public IPathHelper Path
-        {
-            get { return PathHelper; }
-        }
+      public IPathHelper Path
+      {
+         get { return PathHelper; }
+      }
 
-	    public bool SupportsSubscribe
-	    {
-		    get { return false; }
-	    }
+      public bool SupportsSubscribe
+      {
+         get { return false; }
+      }
 
-        public IDisposable Subscribe(GlobPattern pattern, Action<FileChangeEventArgs> handler)
-		{
-			throw new NotSupportedException();
-	    }
+      public IDisposable Subscribe(GlobPattern pattern, Action<FileChangeEventArgs> handler)
+      {
+         throw new NotSupportedException();
+      }
 
-	    public IFileInfo GetFileInfo(PathInfo filePath)
-	    {
-		    return new ZipFileInfo(filePath, _etag);
-	    }
+      public IFileInfo GetFileInfo(PathInfo filePath)
+      {
+         return new ZipFileInfo(filePath, _etag);
+      }
 
-        public IEnumerable<IFileInfo> GetFiles(GlobPattern pattern)
-        {
-            throw new NotImplementedException();
-        }
+      public IEnumerable<IFileInfo> GetFiles(GlobPattern pattern)
+      {
+         throw new NotImplementedException();
+      }
 
-        public void CreateDirectory(PathInfo directory)
-        {
-            throw new NotSupportedException();
-        }
+      public void CreateDirectory(PathInfo directory)
+      {
+         throw new NotSupportedException();
+      }
 
-        private string GetFullPath(PathInfo path)
-        {
-            if (path == null)
-                return _rootPath.ToString();
+      private string GetFullPath(PathInfo path)
+      {
+         if (path == null)
+            return _rootPath.ToString();
 
-            return Path.Combine(_rootPath, path).ToString();
-        }
+         return Path.Combine(_rootPath, path).ToString();
+      }
 
-		private class ZipFileInfo : IFileInfo
-		{
-			public PathInfo FilePath { get; private set; }
+      private class ZipFileInfo : IFileInfo
+      {
+         public PathInfo FilePath { get; private set; }
 
-			public string Etag { get; private set; }
+         public string Etag { get; private set; }
 
-			public ZipFileInfo(PathInfo filePath, string etag)
-			{
-				FilePath = filePath;
-				Etag = etag;
-			}
-		}
+         public ZipFileInfo(PathInfo filePath, string etag)
+         {
+            FilePath = filePath;
+            Etag = etag;
+         }
+      }
 
-        private class ZipPathHelper : IPathHelper
-        {
-            public PathInfo Combine(params PathInfo[] parts)
-            {
-                return PathInfo.Combine(parts);
-                //return PathInfo.Create(PathUtility.Combine(parts.Select(s => s.ToString()).ToArray()));
-            }
+      private class ZipPathHelper : IPathHelper
+      {
+         public PathInfo Combine(params PathInfo[] parts)
+         {
+            return PathInfo.Combine(parts);
+            //return PathInfo.Create(PathUtility.Combine(parts.Select(s => s.ToString()).ToArray()));
+         }
 
-            public PathInfo GetDirectoryName(PathInfo filePath)
-            {
-                return PathInfo.Create(System.IO.Path.GetDirectoryName(filePath.ToString()));
-            }
+         public PathInfo GetDirectoryName(PathInfo filePath)
+         {
+            return PathInfo.Create(System.IO.Path.GetDirectoryName(filePath.ToString()));
+         }
 
-            public PathInfo ChangeExtension(PathInfo fileName, string extension)
-            {
-                return PathInfo.Create(System.IO.Path.ChangeExtension(fileName.ToString(), extension));
-            }
+         public PathInfo ChangeExtension(PathInfo fileName, string extension)
+         {
+            return PathInfo.Create(System.IO.Path.ChangeExtension(fileName.ToString(), extension));
+         }
 
-            public PathInfo GetFileNameWithoutExtension(PathInfo path)
-            {
-                return PathInfo.Create(System.IO.Path.GetFileNameWithoutExtension(path.ToString()));
-            }
+         public PathInfo GetFileNameWithoutExtension(PathInfo path)
+         {
+            return PathInfo.Create(System.IO.Path.GetFileNameWithoutExtension(path.ToString()));
+         }
 
-            public string GetExtension(PathInfo path)
-            {
-                return System.IO.Path.GetExtension(path.ToString());
-            }
-        }
-    }
+         public string GetExtension(PathInfo path)
+         {
+            return System.IO.Path.GetExtension(path.ToString());
+         }
+      }
+   }
 }

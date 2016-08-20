@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace TerrificNet.ViewEngine.Config
 {
-    [Serializable]
     public class ConfigurationException : Exception
     {
         public ConfigurationException()
@@ -15,12 +13,6 @@ namespace TerrificNet.ViewEngine.Config
         }
 
         public ConfigurationException(string message, Exception inner) : base(message, inner)
-        {
-        }
-
-        protected ConfigurationException(
-            SerializationInfo info,
-            StreamingContext context) : base(info, context)
         {
         }
     }
