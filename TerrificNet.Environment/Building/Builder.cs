@@ -52,7 +52,7 @@ namespace TerrificNet.Environment.Building
                         defferred?.SetDirty(source.Content);
 
                         var inMemory = existing as InMemoryProjectItem;
-                        inMemory?.SetContent((await CopyToStream(source)).GetBuffer());
+                        inMemory?.SetContent((await CopyToStream(source)).ToArray());
 
                         _project.Touch(existing);
                     }

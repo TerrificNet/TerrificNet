@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 
 namespace TerrificNet.Environment
 {
-    [Serializable]
     public class InvalidProjectFileException : Exception
     {
         public InvalidProjectFileException()
@@ -15,12 +14,6 @@ namespace TerrificNet.Environment
         }
 
         public InvalidProjectFileException(string message, Exception inner) : base(message, inner)
-        {
-        }
-
-        protected InvalidProjectFileException(
-            SerializationInfo info,
-            StreamingContext context) : base(info, context)
         {
         }
     }
