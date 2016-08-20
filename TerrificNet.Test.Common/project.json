@@ -1,0 +1,15 @@
+{
+   "version": "0.1-alpha",
+   "authors": [ "Marco Schaelle" ],
+   "title": "TerrificNet.Test.Common",
+   "description": "TerrificNet",
+   "frameworks": {
+      "netstandard1.6": {
+         "imports": "dnxcore"
+      }
+   },
+   "dependencies": {
+      "NETStandard.Library": "1.6.0",
+      "TerrificNet.ViewEngine": "0.1-alpha"
+   }
+}

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Veil;
 
 namespace TerrificNet.ViewEngine.TemplateHandler.Grid
 {

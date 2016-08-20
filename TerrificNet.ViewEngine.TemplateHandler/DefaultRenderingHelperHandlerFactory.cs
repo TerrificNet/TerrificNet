@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using TerrificNet.ViewEngine.Client;
 using TerrificNet.ViewEngine.TemplateHandler.Grid;
-using Veil.Helper;
 
 namespace TerrificNet.ViewEngine.TemplateHandler
 {
-    public class DefaultRenderingHelperHandlerFactory : IHelperHandlerFactory
-    {
+    public class DefaultRenderingHelperHandlerFactory : IHelperBinder
+   {
         private readonly ITerrificTemplateHandlerFactory _terrificTemplateHandlerFactory;
         private readonly ITemplateRepository _templateRepository;
         private readonly ISchemaProviderFactory _schemaProviderFactory;

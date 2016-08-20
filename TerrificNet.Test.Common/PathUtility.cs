@@ -14,7 +14,7 @@ namespace TerrificNet.Test.Common
 
         public static string GetFullFilename(string filename)
         {
-            string executable = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
+            string executable = new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath;
             return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(executable), filename));
         }
     }
