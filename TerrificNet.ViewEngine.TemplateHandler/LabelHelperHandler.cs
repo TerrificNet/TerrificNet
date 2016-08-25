@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using TerrificNet.ViewEngine.Client;
-using Veil;
-using Veil.Helper;
 
 namespace TerrificNet.ViewEngine.TemplateHandler
 {

@@ -2,7 +2,6 @@ using System;
 using Newtonsoft.Json;
 using TerrificNet.ViewEngine.Globalization;
 using TerrificNet.ViewEngine.TemplateHandler.UI;
-using Veil;
 
 namespace TerrificNet.ViewEngine.TemplateHandler
 {

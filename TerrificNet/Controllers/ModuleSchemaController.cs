@@ -2,13 +2,12 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web.Http;
-using Newtonsoft.Json.Schema;
+using Microsoft.AspNetCore.Mvc;
 using TerrificNet.ViewEngine;
 
 namespace TerrificNet.Controllers
 {
-    public class ModuleSchemaController : ApiController
+    public class ModuleSchemaController : Controller
     {
         private readonly IModuleRepository _moduleRepository;
         private readonly IModuleSchemaProvider _schemaProvider;
@@ -24,7 +23,7 @@ namespace TerrificNet.Controllers
         {
             var moduleDefinition = await _moduleRepository.GetModuleDefinitionByIdAsync(path).ConfigureAwait(false);
             if (moduleDefinition == null)
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Template not found");
+                return new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("Template not found") };
 
             var schema = await _schemaProvider.GetSchemaFromModuleAsync(moduleDefinition).ConfigureAwait(false);
             var message = new HttpResponseMessage

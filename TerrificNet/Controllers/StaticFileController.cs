@@ -2,14 +2,14 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
 using TerrificNet.Configuration;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.IO;
 
 namespace TerrificNet.Controllers
 {
-    public class StaticFileController : ApiController
+    public class StaticFileController : Controller
 	{
         private readonly IFileSystem _fileSystem;
 	    private readonly ServerConfiguration _serverConfiguration;
@@ -36,9 +36,9 @@ namespace TerrificNet.Controllers
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
 
 	        var eTag = new EntityTagHeaderValue(string.Concat("\"", _fileSystem.GetFileInfo(filePath).Etag, "\""));
-	        if (Request.Headers.IfNoneMatch != null)
+	        if (Request.Headers["IfNoneMatch"].Count > 0)
 	        {
-	            foreach (var noneMatch in Request.Headers.IfNoneMatch)
+	            foreach (var noneMatch in Request.Headers["IfNoneMatch"])
 	            {
 	                if (eTag.Equals(noneMatch))
 	                    return new HttpResponseMessage(HttpStatusCode.NotModified);

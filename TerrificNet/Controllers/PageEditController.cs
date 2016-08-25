@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -7,20 +6,14 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TerrificNet.AssetCompiler;
-using TerrificNet.AssetCompiler.Helpers;
-using TerrificNet.Models;
 using TerrificNet.Models.PageEditor;
-using TerrificNet.UnityModules;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Config;
-using TerrificNet.ViewEngine.IO;
 using TerrificNet.ViewEngine.TemplateHandler;
 using TerrificNet.ViewEngine.TemplateHandler.UI;
-using Veil;
 
 namespace TerrificNet.Controllers
 {
@@ -73,28 +66,6 @@ namespace TerrificNet.Controllers
 				return new HttpResponseMessage(HttpStatusCode.OK);
 			}
 			return new HttpResponseMessage(HttpStatusCode.InternalServerError);
-		}
-
-		[HttpGet]
-		public async Task<HttpResponseMessage> GetEditorAsset(string name, string app = "")
-		{
-			var assetHelper = ResolveForApp<IAssetHelper>(app);
-			var assetBundler = ResolveForApp<IAssetBundler>(app);
-			var assetCompilerFactory = ResolveForApp<IAssetCompilerFactory>(app);
-			var config = ResolveForApp<ITerrificNetConfig>(app);
-			var fileSystem = ResolveForApp<IFileSystem>(app);
-
-			var components = assetHelper.GetGlobComponentsForAsset(config.Assets[name], fileSystem.BasePath.ToString());
-			var content = await assetBundler.BundleAsync(components).ConfigureAwait(false);
-			content = ".page-editor .page, .page-editor .sidebar{" + content + "}";
-			var compiler = assetCompilerFactory.GetCompiler(name);
-			var compiledContent = await compiler.CompileAsync(content, true).ConfigureAwait(false);
-
-			var response = new HttpResponseMessage
-			{
-				Content = new StringContent(compiledContent, Encoding.Default, compiler.MimeType)
-			};
-			return response;
 		}
 
 		[HttpGet]

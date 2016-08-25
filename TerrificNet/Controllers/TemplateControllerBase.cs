@@ -4,161 +4,162 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Web.Http.Dependencies;
 using TerrificNet.Dispatcher;
 using TerrificNet.Models.ErrorHandling;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.IO;
 using TerrificNet.ViewEngine.TemplateHandler.UI;
-using Veil;
-using Veil.Parser;
 
 namespace TerrificNet.Controllers
 {
-    public class TemplateControllerBase : ApiController, IDependencyResolverAware
-    {
-        protected TemplateControllerBase()
-        {
-        }
+   public class TemplateControllerBase : Controller/*, IDependencyResolverAware*/
+   {
+      protected TemplateControllerBase()
+      {
+      }
 
-        protected async Task<HttpResponseMessage> View(PageViewDefinition viewDefinition)
-        {
-            var dependencyResolver = ((IDependencyResolverAware)this).DependencyResolver;
-            var viewEngine = (IViewEngine)dependencyResolver.GetService(typeof(IViewEngine));
+      protected async Task<HttpResponseMessage> View(PageViewDefinition viewDefinition)
+      {
+         //var dependencyResolver = ((IDependencyResolverAware)this).DependencyResolver;
+         //var viewEngine = (IViewEngine)dependencyResolver.GetService(typeof(IViewEngine));
 
-            if (viewDefinition.TemplateInfo == null)
-            {
-                var repo = (ITemplateRepository)dependencyResolver.GetService(typeof(ITemplateRepository));
-                viewDefinition.TemplateInfo = await repo.GetTemplateAsync(viewDefinition.Template).ConfigureAwait(false);
-            }
+         //if (viewDefinition.TemplateInfo == null)
+         //{
+         //    var repo = (ITemplateRepository)dependencyResolver.GetService(typeof(ITemplateRepository));
+         //    viewDefinition.TemplateInfo = await repo.GetTemplateAsync(viewDefinition.Template).ConfigureAwait(false);
+         //}
 
-            return View(viewEngine, viewDefinition);
-        }
+         //return View(viewEngine, viewDefinition);
+         throw new NotImplementedException();
+      }
 
-        protected HttpResponseMessage View(IViewEngine viewEngine, IPageViewDefinition siteDefinition)
-        {
-            var message = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content =
-                    new PushStreamContent((o, c, t) => WriteToStream(o, viewEngine, siteDefinition),
-                        new MediaTypeHeaderValue("text/html"))
-            };
-            return message;
-        }
+      protected HttpResponseMessage View(IViewEngine viewEngine, IPageViewDefinition siteDefinition)
+      {
+         //var message = new HttpResponseMessage(HttpStatusCode.OK)
+         //{
+         //    Content =
+         //        new PushStreamContent((o, c, t) => WriteToStream(o, viewEngine, siteDefinition),
+         //            new MediaTypeHeaderValue("text/html"))
+         //};
+         //return message;
+         throw new NotImplementedException();
+      }
 
-        private async Task WriteToStream(Stream outputStream, IViewEngine viewEngine, IPageViewDefinition viewDefinition)
-        {
-            using (var writer = new StreamWriter(outputStream))
-            {
-                SourceLocation errorLocation = null;
-                Exception error = null;
-                try
-                {
-                    viewDefinition.Render(viewEngine, writer);
-                }
-                catch (VeilParserException ex)
-                {
-                    error = ex;
-                    errorLocation = ex.Location;
-                }
-                catch (VeilCompilerException ex)
-                {
-                    error = ex;
-                    errorLocation = ex.Node.Location;
-                }
-                catch (Exception ex)
-                {
-                    error = ex;
-                }
-                
-                if (error != null)
-                    await GetErrorPage(writer, error, errorLocation).ConfigureAwait(false);
-            }
-        }
+      private async Task WriteToStream(Stream outputStream, IViewEngine viewEngine, IPageViewDefinition viewDefinition)
+      {
+         using (var writer = new StreamWriter(outputStream))
+         {
+            //SourceLocation errorLocation = null;
+            //Exception error = null;
+            //try
+            //{
+            //    viewDefinition.Render(viewEngine, writer);
+            //}
+            //catch (VeilParserException ex)
+            //{
+            //    error = ex;
+            //    errorLocation = ex.Location;
+            //}
+            //catch (VeilCompilerException ex)
+            //{
+            //    error = ex;
+            //    errorLocation = ex.Node.Location;
+            //}
+            //catch (Exception ex)
+            //{
+            //    error = ex;
+            //}
 
-        protected async Task GetErrorPage(StreamWriter writer, Exception error, SourceLocation location)
-        {
-            var fileSystem = new EmbeddedResourceFileSystem(typeof(WebInitializer).Assembly);
-            string content;
-            using (var reader = new StreamReader(fileSystem.OpenRead(PathInfo.Create("Core/error_partial.html"))))
-            {
-                content = await reader.ReadToEndAsync();
-            }
+            //if (error != null)
+            //    await GetErrorPage(writer, error, errorLocation).ConfigureAwait(false);
 
-            var templateInfo = new StringTemplateInfo("error", content);
+            throw new NotImplementedException();
+         }
+      }
 
-            var view = await ((IViewEngine)Resolver.GetService(typeof(IViewEngine)))
-                .CreateViewAsync(templateInfo, typeof(ErrorViewModel), StaticModelBinder.Create(typeof(ErrorViewModel))).ConfigureAwait(false);
+      //protected async Task GetErrorPage(StreamWriter writer, Exception error, SourceLocation location)
+      //{
+      //    var fileSystem = new EmbeddedResourceFileSystem(typeof(WebInitializer).Assembly);
+      //    string content;
+      //    using (var reader = new StreamReader(fileSystem.OpenRead(PathInfo.Create("Core/error_partial.html"))))
+      //    {
+      //        content = await reader.ReadToEndAsync();
+      //    }
 
-            if (location == null)
-            {
-                var modelWithoutLocation = new ErrorViewModel
-                {
-                    ErrorMessage = error.Message,
-                    Details = error.StackTrace
-                };
-                view.Render(modelWithoutLocation, new RenderingContext(writer));
-                return;
-            }
+      //    var templateInfo = new StringTemplateInfo("error", content);
 
-            var templateRepository = (ITemplateRepository)this.Resolver.GetService(typeof(ITemplateRepository));
-            var sourceTemplate = await templateRepository.GetTemplateAsync(location.TemplateId).ConfigureAwait(false);
-            string sourceTemplateSource;
+      //    var view = await ((IViewEngine)Resolver.GetService(typeof(IViewEngine)))
+      //        .CreateViewAsync(templateInfo, typeof(ErrorViewModel), StaticModelBinder.Create(typeof(ErrorViewModel))).ConfigureAwait(false);
 
-            using (var reader = new StreamReader(sourceTemplate.Open()))
-            {
-                sourceTemplateSource = await reader.ReadToEndAsync().ConfigureAwait(false);
-            }
+      //    if (location == null)
+      //    {
+      //        var modelWithoutLocation = new ErrorViewModel
+      //        {
+      //            ErrorMessage = error.Message,
+      //            Details = error.StackTrace
+      //        };
+      //        view.Render(modelWithoutLocation, new RenderingContext(writer));
+      //        return;
+      //    }
 
-            var model = new ErrorViewModel
-            {
-                TemplateId = location.TemplateId,
-                ErrorMessage = error.Message,
-                Details = error.StackTrace,
-                Before = sourceTemplateSource.Substring(0, location.Index),
-                Node = sourceTemplateSource.Substring(location.Index, location.Length),
-                After = sourceTemplateSource.Substring(location.Index + location.Length),
-                Text = HttpUtility.JavaScriptStringEncode(sourceTemplateSource),
-                Range = GetRange(sourceTemplateSource, location)
-            };
+      //    var templateRepository = (ITemplateRepository)this.Resolver.GetService(typeof(ITemplateRepository));
+      //    var sourceTemplate = await templateRepository.GetTemplateAsync(location.TemplateId).ConfigureAwait(false);
+      //    string sourceTemplateSource;
 
-            view.Render(model, new RenderingContext(writer));
-        }
+      //    using (var reader = new StreamReader(sourceTemplate.Open()))
+      //    {
+      //        sourceTemplateSource = await reader.ReadToEndAsync().ConfigureAwait(false);
+      //    }
 
-        private static ErrorRange GetRange(string sourceTemplateSource, SourceLocation location)
-        {
-            int lineNumber = 0;
-            int idx = 0;
-            int lastIdx = 0;
-            while ((idx = sourceTemplateSource.IndexOf('\n', idx)) >= 0 && idx < location.Index)
-            {
-                lineNumber++;
-                idx++;
-                lastIdx = idx;
-            }
+      //    var model = new ErrorViewModel
+      //    {
+      //        TemplateId = location.TemplateId,
+      //        ErrorMessage = error.Message,
+      //        Details = error.StackTrace,
+      //        Before = sourceTemplateSource.Substring(0, location.Index),
+      //        Node = sourceTemplateSource.Substring(location.Index, location.Length),
+      //        After = sourceTemplateSource.Substring(location.Index + location.Length),
+      //        Text = HttpUtility.JavaScriptStringEncode(sourceTemplateSource),
+      //        Range = GetRange(sourceTemplateSource, location)
+      //    };
 
-            int startLineNumber = lineNumber;
-            int startIdx = lastIdx;
-            while ((idx = sourceTemplateSource.IndexOf('\n', idx)) >= 0 && idx < location.Index + location.Length)
-            {
-                lineNumber++;
-                idx++;
-                lastIdx = idx;                
-            }
+      //    view.Render(model, new RenderingContext(writer));
+      //}
 
-            return new ErrorRange
-            {
-                StartRow = startLineNumber,
-                StartColumn = location.Index - startIdx,
-                EndRow = lineNumber,
-                EndColumn = location.Index - lastIdx + location.Length
-            };
-        }
+      //private static ErrorRange GetRange(string sourceTemplateSource, SourceLocation location)
+      //{
+      //    int lineNumber = 0;
+      //    int idx = 0;
+      //    int lastIdx = 0;
+      //    while ((idx = sourceTemplateSource.IndexOf('\n', idx)) >= 0 && idx < location.Index)
+      //    {
+      //        lineNumber++;
+      //        idx++;
+      //        lastIdx = idx;
+      //    }
 
-        protected IDependencyResolver Resolver { get { return ((IDependencyResolverAware) this).DependencyResolver; }}
+      //    int startLineNumber = lineNumber;
+      //    int startIdx = lastIdx;
+      //    while ((idx = sourceTemplateSource.IndexOf('\n', idx)) >= 0 && idx < location.Index + location.Length)
+      //    {
+      //        lineNumber++;
+      //        idx++;
+      //        lastIdx = idx;                
+      //    }
 
-        IDependencyResolver IDependencyResolverAware.DependencyResolver { get; set; }
-    }
+      //    return new ErrorRange
+      //    {
+      //        StartRow = startLineNumber,
+      //        StartColumn = location.Index - startIdx,
+      //        EndRow = lineNumber,
+      //        EndColumn = location.Index - lastIdx + location.Length
+      //    };
+      //}
+
+      //protected IDependencyResolver Resolver { get { return ((IDependencyResolverAware) this).DependencyResolver; }}
+
+      //IDependencyResolver IDependencyResolverAware.DependencyResolver { get; set; }
+   }
 }

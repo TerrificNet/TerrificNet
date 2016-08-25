@@ -11,7 +11,7 @@ namespace TerrificNet.Configuration
 
 		public static ServerConfiguration LoadConfiguration(string path)
 		{
-			using (var reader = new JsonTextReader(new StreamReader(path)))
+			using (var reader = new JsonTextReader(new StreamReader(new FileStream(path, FileMode.Open))))
 			{
 				return new JsonSerializer().Deserialize<ServerConfiguration>(reader);
 			}

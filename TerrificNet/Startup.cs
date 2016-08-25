@@ -1,149 +1,142 @@
-using System.Web.Http;
-using System.Web.Http.Dispatcher;
-using Microsoft.Practices.Unity;
-using TerrificNet.Dispatcher;
-using TerrificNet.UnityModules;
-using Unity.WebApi;
+using Microsoft.AspNetCore.Builder;
 
 namespace TerrificNet
 {
-    public class Startup
-    {
-        public void Configuration(IUnityContainer container, HttpConfiguration config)
-        {
-            config.Routes.MapHttpRoute(
-                name: "AdministrationHome",
-                routeTemplate: "web/",
-                defaults: new { controller = "Home", action = "Index", section = "web/" }
-                );
+	public class Startup
+	{
+		public void Configuration(IApplicationBuilder container)
+		{
+			container.UseMvc(rb =>
+			{
+				rb.MapRoute(
+					name: "AdministrationHome",
+					template: "web/",
+					defaults: new {controller = "Home", action = "Index", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "AdministrationModuleDetail",
-                routeTemplate: "web/module/{action}",
-                defaults: new { controller = "ModuleDetail", action = "Index", section = "web/" }
-                );
+				rb.MapRoute(
+					name: "AdministrationModuleDetail",
+					template: "web/module/{action}",
+					defaults: new {controller = "ModuleDetail", action = "Index", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "Project",
-                routeTemplate: "web/project/{app}/",
-                defaults: new { controller = "Project", action = "Index", section = "web/" }
-                );
+				rb.MapRoute(
+					name: "Project",
+					template: "web/project/{app}/",
+					defaults: new {controller = "Project", action = "Index", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "ProjectItems",
-                routeTemplate: "web/project/{app}/{projectKind}/{*id}",
-                defaults: new { controller = "ProjectItem", action = "Index", section = "web/" }
-                );
+				rb.MapRoute(
+					name: "ProjectItems",
+					template: "web/project/{app}/{projectKind}/{*id}",
+					defaults: new {controller = "ProjectItem", action = "Index", section = "web/"}
+					);
 
 
-            config.Routes.MapHttpRoute(
-                name: "AdministrationDataEdit",
-                routeTemplate: "web/edit",
-                defaults: new { controller = "DataEdit", action = "Index", section = "web/" }
-                );
+				rb.MapRoute(
+					name: "AdministrationDataEdit",
+					template: "web/edit",
+					defaults: new {controller = "DataEdit", action = "Index", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "AdministrationDataEditAdvanced",
-                routeTemplate: "web/edit_advanced",
-                defaults: new { controller = "DataEdit", action = "IndexAdvanced", section = "web/" }
-            );
+				rb.MapRoute(
+					name: "AdministrationDataEditAdvanced",
+					template: "web/edit_advanced",
+					defaults: new {controller = "DataEdit", action = "IndexAdvanced", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "PageEditor",
-                routeTemplate: "web/page_edit",
-                defaults: new { controller = "PageEdit", section = "web/" }
-            );
+				rb.MapRoute(
+					name: "PageEditor",
+					template: "web/page_edit",
+					defaults: new {controller = "PageEdit", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "PageEditorSiteBundles",
-                routeTemplate: "web/page_edit/bundle_{name}",
-                defaults: new { controller = "PageEdit", action = "GetEditorAsset", section = "web/" }
-            );
+				rb.MapRoute(
+					name: "PageEditorSiteBundles",
+					template: "web/page_edit/bundle_{name}",
+					defaults: new {controller = "PageEdit", action = "GetEditorAsset", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "PageEditorModuleInfo",
-                routeTemplate: "web/page_edit/element_info/module",
-                defaults: new { controller = "PageEdit", action = "GetModuleDefinition", section = "web/" }
-            );
+				rb.MapRoute(
+					name: "PageEditorModuleInfo",
+					template: "web/page_edit/element_info/module",
+					defaults: new {controller = "PageEdit", action = "GetModuleDefinition", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "PageEditorLayoutInfo",
-                routeTemplate: "web/page_edit/element_info/layout",
-                defaults: new { controller = "PageEdit", action = "GetLayoutDefinition", section = "web/" }
-            );
+				rb.MapRoute(
+					name: "PageEditorLayoutInfo",
+					template: "web/page_edit/element_info/layout",
+					defaults: new {controller = "PageEdit", action = "GetLayoutDefinition", section = "web/"}
+					);
 
-            config.Routes.MapHttpRoute(
-                name: "CoreFiles",
-                routeTemplate: "$tcn/{*path}",
-                defaults: new { controller = "staticfile" }
-            );
+				rb.MapRoute(
+					name: "CoreFiles",
+					template: "$tcn/{*path}",
+					defaults: new {controller = "staticfile"}
+					);
+			});
+			//foreach (var application in container.ResolveAll<TerrificNetApplication>())
+			//{
+			//	var section = application.Section;
 
-            foreach (var application in container.ResolveAll<TerrificNetApplication>())
-            {
-                var section = application.Section;
+			//	MapArea(config, application.Container, section);
+			//}
+		}
 
-                MapArea(config, application.Container, section);
-            }
-
-            config.DependencyResolver = new UnityDependencyResolver(container);
-            config.Services.Replace(typeof(IHttpControllerActivator), new ApplicationSpecificControllerActivator(config));
-
-        }
-
-        private static void MapArea(HttpConfiguration config, IUnityContainer container, string section = null)
-        {
-            config.Routes.MapHttpRoute(
-                name: "ModelRoot" + section,
-                routeTemplate: section + "model/{*path}",
-                defaults: new { controller = "model", section = section }
-                );
-            config.Routes.MapHttpRoute(
-                name: "ModuleSchemaRoot" + section,
-                routeTemplate: section + "module_schema/{*path}",
-                defaults: new { controller = "moduleschema", section = section }
-                );
-            config.Routes.MapHttpRoute(
-                name: "SchemaRoot" + section,
-                routeTemplate: section + "schema/{*path}",
-                defaults: new { controller = "schema", section = section }
-                );
-            config.Routes.MapHttpRoute(
-                name: "GenerateRoot" + section,
-                routeTemplate: section + "generate/{*path}",
-                defaults: new { controller = "generate", section = section }
-                );
-            config.Routes.MapHttpRoute(
-                name: "ClientRoot" + section,
-                routeTemplate: section + "js/{*path}",
-                defaults: new { controller = "clienttemplate", section = section }
-                );
-            config.Routes.MapHttpRoute(
-                name: "AssetsRoot" + section,
-                routeTemplate: section + "assets/{*path}",
-                defaults: new { controller = "assets", section = section }
-                );
-            config.Routes.MapHttpRoute(
-                name: "BundleRoot" + section,
-                routeTemplate: section + "bundle_{name}",
-                defaults: new { controller = "bundle", section = section }
-                );
-            config.Routes.MapHttpRoute(
-                name: section + "TemplateRoot",
-                routeTemplate: section + "{*path}",
-                defaults: new { controller = "template", section = section },
-                constraints: new { path = container.Resolve<ValidTemplateRouteConstraint>() }
-                );
-            config.Routes.MapHttpRoute(
-                name: section + "TemplateRootDefault",
-                routeTemplate: section,
-                defaults: new { controller = "template", path = "index", section = section },
-                constraints: new { path = container.Resolve<ValidTemplateRouteConstraint>() }
-                );
-            config.Routes.MapHttpRoute(
-                name: section + "StaticFile",
-                routeTemplate: section + "{*path}",
-                defaults: new { controller = "staticfile", section = section }
-                );
-        }
-    }
+		//private static void MapArea(HttpConfiguration config, IUnityContainer container, string section = null)
+		//{
+		//	rb.MapRoute(
+		//		name: "ModelRoot" + section,
+		//		template: section + "model/{*path}",
+		//		defaults: new { controller = "model", section = section }
+		//		);
+		//	rb.MapRoute(
+		//		name: "ModuleSchemaRoot" + section,
+		//		template: section + "module_schema/{*path}",
+		//		defaults: new { controller = "moduleschema", section = section }
+		//		);
+		//	rb.MapRoute(
+		//		name: "SchemaRoot" + section,
+		//		template: section + "schema/{*path}",
+		//		defaults: new { controller = "schema", section = section }
+		//		);
+		//	rb.MapRoute(
+		//		name: "GenerateRoot" + section,
+		//		template: section + "generate/{*path}",
+		//		defaults: new { controller = "generate", section = section }
+		//		);
+		//	rb.MapRoute(
+		//		name: "ClientRoot" + section,
+		//		template: section + "js/{*path}",
+		//		defaults: new { controller = "clienttemplate", section = section }
+		//		);
+		//	rb.MapRoute(
+		//		name: "AssetsRoot" + section,
+		//		template: section + "assets/{*path}",
+		//		defaults: new { controller = "assets", section = section }
+		//		);
+		//	rb.MapRoute(
+		//		name: "BundleRoot" + section,
+		//		template: section + "bundle_{name}",
+		//		defaults: new { controller = "bundle", section = section }
+		//		);
+		//	rb.MapRoute(
+		//		name: section + "TemplateRoot",
+		//		template: section + "{*path}",
+		//		defaults: new { controller = "template", section = section },
+		//		constraints: new { path = container.Resolve<ValidTemplateRouteConstraint>() }
+		//		);
+		//	rb.MapRoute(
+		//		name: section + "TemplateRootDefault",
+		//		template: section,
+		//		defaults: new { controller = "template", path = "index", section = section },
+		//		constraints: new { path = container.Resolve<ValidTemplateRouteConstraint>() }
+		//		);
+		//	rb.MapRoute(
+		//		name: section + "StaticFile",
+		//		template: section + "{*path}",
+		//		defaults: new { controller = "staticfile", section = section }
+		//		);
+		//}
+	}
 }

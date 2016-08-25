@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
-using Veil;
-using Veil.Helper;
 
 namespace TerrificNet.ViewEngine.TemplateHandler
 {
@@ -51,7 +49,7 @@ namespace TerrificNet.ViewEngine.TemplateHandler
 			//JObject
 			var jObject = src as JObject;
 			JToken jValue;
-			if (jObject != null && jObject.TryGetValue(propertyName, StringComparison.InvariantCultureIgnoreCase, out jValue))
+			if (jObject != null && jObject.TryGetValue(propertyName, StringComparison.OrdinalIgnoreCase, out jValue))
 			{
 				value = jValue.Value<TValue>();
 				return true;
@@ -66,7 +64,7 @@ namespace TerrificNet.ViewEngine.TemplateHandler
 				return true;
 			}
 
-			var property = src.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+			var property = src.GetType().GetTypeInfo().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 			if (property != null)
 			{
 				value = (TValue)property.GetValue(src, null);

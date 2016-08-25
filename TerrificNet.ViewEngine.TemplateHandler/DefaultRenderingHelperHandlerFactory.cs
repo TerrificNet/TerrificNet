@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using TerrificNet.Thtml.Emit;
+using TerrificNet.ViewEngine.Client;
 using TerrificNet.ViewEngine.TemplateHandler.Grid;
 
 namespace TerrificNet.ViewEngine.TemplateHandler
@@ -33,5 +35,10 @@ namespace TerrificNet.ViewEngine.TemplateHandler
 			yield return new GridComponentWidthHelperHandler();
             yield return new TemplateIdHelperHandler();
         }
-    }
+
+	    public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
+	    {
+		    throw new System.NotImplementedException();
+	    }
+   }
 }

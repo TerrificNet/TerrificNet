@@ -2,14 +2,14 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Client;
 using TerrificNet.ViewEngine.Client.Javascript;
 
 namespace TerrificNet.Controllers
 {
-	public class ClientTemplateController : ApiController
+	public class ClientTemplateController : Controller
 	{
 		private readonly ITemplateRepository _templateRepository;
 		private readonly IClientTemplateGeneratorFactory _clientFactory;

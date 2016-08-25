@@ -1,6 +1,7 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace TerrificNet.ViewEngine.TemplateHandler.UI
 {
@@ -52,7 +53,7 @@ namespace TerrificNet.ViewEngine.TemplateHandler.UI
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(IPageViewDefinition) || typeof(ViewDefinition).IsAssignableFrom(objectType);
+            return objectType == typeof(IPageViewDefinition) || typeof(ViewDefinition).GetTypeInfo().IsAssignableFrom(objectType);
         }
     }
 }

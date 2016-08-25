@@ -1,14 +1,23 @@
 ﻿{
-  "template": [ "components/modules/**.html", "views/_layouts/**.html", "views/_partials/**.html" ],
-  "view": [ "views/**.html.json" ],
-  "data": [ "components/modules/**.json" ],
-  "app.js": [
-    "assets/js/jquery-1.11.1.min.js",
-    "assets/js/terrific-2.1.0.js",
-    "assets/js/*.js",
-    "components/modules/*/js/*.js",
-    "components/modules/*/js/skins/*.js"
-  ],
-  "content": [ "**.jpg" ],
-  "serverConfiguration": "server.json"
+   "template": [ "components/modules/**.html", "views/_layouts/**.html", "views/_partials/**.html" ],
+   "view": [ "views/**.html.json" ],
+   "data": [ "components/modules/**.json" ],
+   "app.js": [
+      "assets/js/jquery-1.11.1.min.js",
+      "assets/js/terrific-2.1.0.js",
+      "assets/js/*.js",
+      "components/modules/*/js/*.js",
+      "components/modules/*/js/skins/*.js"
+   ],
+   "app.css": [
+      "assets/css/import/variables.*",
+      "assets/css/import/mixins.less",
+      "assets/css/cssreset.css",
+      "assets/css/normalize.css",
+      "assets/css/*.*",
+      "components/modules/*/css/*.*",
+      "components/modules/*/css/skins/*.*"
+   ],
+   "content": [ "**.jpg" ],
+   "serverConfiguration": "server.json"
 }

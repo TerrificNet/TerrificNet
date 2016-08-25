@@ -1,7 +1,7 @@
 {
    "version": "0.1-alpha",
    "authors": [ "Marco Schaelle" ],
-   "title": "TerrificNet.ViewEngine.TemplateHandler",
+   "title": "TerrificNet.ViewEngine.Client",
    "description": "TerrificNet",
    "frameworks": {
       "netstandard1.6": {
@@ -10,7 +10,6 @@
    },
     "dependencies": {
         "NETStandard.Library": "1.6.0",
-        "TerrificNet.ViewEngine": "0.1-alpha",
-        "TerrificNet.ViewEngine.Client": "0.1-alpha"
+        "TerrificNet.ViewEngine": "0.1-alpha"
     }
 }

@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Web.Http.Routing;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.Config;
 using TerrificNet.ViewEngine.IO;
 
 namespace TerrificNet
 {
-	internal class ValidTemplateRouteConstraint : IHttpRouteConstraint
+	internal class ValidTemplateRouteConstraint : IRouteConstraint
 	{
 		private readonly ITemplateRepository _templateRepository;
 		private readonly IFileSystem _fileSystem;
@@ -21,12 +23,11 @@ namespace TerrificNet
 	        _viewPathInfo = configuration.ViewPath;
 		}
 
-		public bool Match(HttpRequestMessage request, IHttpRoute route, string parameterName,
-			IDictionary<string, object> values,
-			HttpRouteDirection routeDirection)
+		public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values,
+			RouteDirection routeDirection)
 		{
 			object pathObj;
-			if (values.TryGetValue(parameterName, out pathObj))
+			if (values.TryGetValue(routeKey, out pathObj))
 			{
 				var path = pathObj as string;
 				if (!string.IsNullOrEmpty(path))

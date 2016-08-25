@@ -2,13 +2,12 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web.Http;
-using Newtonsoft.Json.Schema;
+using Microsoft.AspNetCore.Mvc;
 using TerrificNet.ViewEngine;
 
 namespace TerrificNet.Controllers
 {
-    public class SchemaController : ApiController
+    public class SchemaController : Controller
     {
         private readonly IModuleRepository _moduleRepository;
         private readonly ITemplateRepository _templateRepository;
@@ -54,7 +53,7 @@ namespace TerrificNet.Controllers
 
             }
 
-            return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Template not found");
-        }
+			return new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("Template not found") };
+		}
     }
 }

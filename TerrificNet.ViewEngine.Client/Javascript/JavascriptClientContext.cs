@@ -1,7 +1,4 @@
-using System;
-using System.ComponentModel;
 using System.IO;
-using System.Web;
 
 namespace TerrificNet.ViewEngine.Client.Javascript
 {
@@ -20,7 +17,7 @@ namespace TerrificNet.ViewEngine.Client.Javascript
 	    public void WriteLiteral(string content)
 		{
 			_writer.Write("w(\"");
-			_writer.Write(HttpUtility.JavaScriptStringEncode(content));
+			_writer.Write(content);
 			_writer.Write("\");");
 		}
 

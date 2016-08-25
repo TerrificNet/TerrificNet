@@ -1,12 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TerrificNet.ViewEngine.ViewEngines;
-using Veil;
-using Veil.Helper;
 
 namespace TerrificNet.ViewEngine.TemplateHandler.Grid
 {
-	internal class GridHelperHandler : IBlockHelperHandler
+	internal class GridHelperHandler : IHelperHandler
 	{
 		private static readonly Dictionary<string, double> DefaultRatioTable = new Dictionary<string, double>
 		{

@@ -2,12 +2,11 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Http;
-using Microsoft.Practices.Unity;
+using Microsoft.AspNetCore.Mvc;
 using TerrificNet.Models;
-using TerrificNet.UnityModules;
 using TerrificNet.ViewEngine;
 using TerrificNet.ViewEngine.TemplateHandler.UI;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TerrificNet.Controllers
 {
@@ -38,18 +37,18 @@ namespace TerrificNet.Controllers
             {
                 Applications = _applications.Select(a =>
                 {
-                    var moduleDefinitions = a.Container.Resolve<IModuleRepository>().GetAll().ToList();
+                    var moduleDefinitions = a.Container.GetRequiredService<IModuleRepository>().GetAll().ToList();
                     var templatesInModules =
                         moduleDefinitions.SelectMany(f => f.Skins.Values)
                             .Union(moduleDefinitions.Select(m => m.DefaultTemplate));
 
-                    var partials = a.Container.Resolve<ITemplateRepository>().GetAll().Except(templatesInModules);
+                    var partials = a.Container.GetRequiredService<ITemplateRepository>().GetAll().Except(templatesInModules);
 
                     return new ViewOverviewModel
                     {
                         Name = a.Name,
                         Modules = moduleDefinitions.Select(m => GetView(a.Section, m)).ToList(),
-                        Views = a.Container.Resolve<TerrificViewDefinitionRepository>().GetAll().Select(m => GetViews(a.Section, m)).ToList(),
+                        Views = a.Container.GetRequiredService<TerrificViewDefinitionRepository>().GetAll().Select(m => GetViews(a.Section, m)).ToList(),
                         Partials = partials.Select(m => GetView(a.Section, m)).ToList()
                     };
                 }).ToList()

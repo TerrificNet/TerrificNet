@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Veil;
-using Veil.Helper;
 
 namespace TerrificNet.ViewEngine.TemplateHandler
 {

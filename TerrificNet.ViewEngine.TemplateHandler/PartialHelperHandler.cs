@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Schema;
 using TerrificNet.ViewEngine.Client;
 using TerrificNet.ViewEngine.Schema;
-using Veil;
-using Veil.Helper;
 
 namespace TerrificNet.ViewEngine.TemplateHandler
 {

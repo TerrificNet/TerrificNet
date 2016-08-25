@@ -8,7 +8,7 @@ namespace TerrificNet.Configuration
         public static TerrificNetHostConfiguration LoadConfiguration(string path)
         {
             TerrificNetHostConfiguration configuration;
-            using (var reader = new JsonTextReader(new StreamReader(path)))
+            using (var reader = new JsonTextReader(new StreamReader(new FileStream(path, FileMode.Open))))
             {
                 configuration = new JsonSerializer().Deserialize<TerrificNetHostConfiguration>(reader);
             }
