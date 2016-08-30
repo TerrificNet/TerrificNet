@@ -102,11 +102,10 @@ namespace TerrificNet.Thtml.Emit.Schema
 					yield return ChangeOperation;
 			}
 		}
-
 	}
 
-   internal interface IBindingResultDescription
-   {
-      bool IsMatch(object newValue);
-   }
+	internal interface IBindingResultDescription
+	{
+		bool IsMatch(object newValue);
+	}
 }

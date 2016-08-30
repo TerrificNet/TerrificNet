@@ -9,7 +9,7 @@ using TerrificNet.ViewEngine.IO;
 
 namespace TerrificNet.Controllers
 {
-    public class StaticFileController : Controller
+    public class StaticFileController : ControllerBase
 	{
         private readonly IFileSystem _fileSystem;
 	    private readonly ServerConfiguration _serverConfiguration;

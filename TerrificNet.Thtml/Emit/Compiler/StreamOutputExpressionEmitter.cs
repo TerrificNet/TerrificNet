@@ -49,7 +49,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public Expression HandleDocument(List<Expression> expressions)
 		{
-			return expressions.Count > 0 ? (Expression)Expression.Block(expressions) : Expression.Empty();
+			return expressions.Count > 0 ? (Expression) Expression.Block(expressions) : Expression.Empty();
 		}
 
 		public Expression HandleCompositeAttribute(CompositeAttributeContent compositeAttributeContent, INodeVisitor<Expression> visitor)

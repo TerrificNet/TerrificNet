@@ -56,7 +56,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 		{
 			unchecked
 			{
-				return ((_parent?.GetHashCode() ?? 0) * 397) ^ (Segment?.GetHashCode() ?? 0);
+				return ((_parent?.GetHashCode() ?? 0)*397) ^ (Segment?.GetHashCode() ?? 0);
 			}
 		}
 
@@ -67,7 +67,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 			do
 			{
 				segments.Insert(0, item.Segment);
-			} while((item = item._parent) != null);
+			} while ((item = item._parent) != null);
 
 			return string.Join("/", segments.Where(s => s != null).ToArray());
 		}

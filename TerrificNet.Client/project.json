@@ -16,13 +16,13 @@
       "web ": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.WebListener --server.urls http://localhost:5000",
       "kestrel": "Microsoft.AspNet.Hosting --server Kestrel --server.urls http://localhost:5004"
    },
-   "frameworks": {
-      "netstandard1.6": {
-         "imports": [
-            "dotnet5.6",
-            "dnxcore50",
-            "portable-net45+win8"
-         ]
-      }
-   }
+	"frameworks": {
+		"netcoreapp1.0": {
+			"imports": [
+				"dotnet5.6",
+				"dnxcore50",
+				"portable-net45+win8"
+			]
+		}
+	}
 }

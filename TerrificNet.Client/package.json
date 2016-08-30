@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "ASP.NET",
+  "name": "aspnet",
   "devDependencies": {
     "gulp": "^3.9.0",
     "bower": "^1.6.3",

@@ -130,7 +130,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 			private readonly bool _nullable;
 			private DataScopeContractBuildStrategy _strategy;
 
-			protected ComplexDataScopeContract(DataScopeContract dataScopeContract, IDictionary<string, DataScopeContract> childScopes, bool nullable = false) 
+			protected ComplexDataScopeContract(DataScopeContract dataScopeContract, IDictionary<string, DataScopeContract> childScopes, bool nullable = false)
 				: this(dataScopeContract)
 			{
 				_childScopes = childScopes;
@@ -269,6 +269,5 @@ namespace TerrificNet.Thtml.Emit.Schema
 				throw new NotImplementedException();
 			}
 		}
-
 	}
 }

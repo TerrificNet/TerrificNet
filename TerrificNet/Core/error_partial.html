@@ -49,17 +49,16 @@
 
 {{#if range}}
 <script>
-    var editor = ace.edit("tcncontent");
-    editor.setValue("{{{text}}}");
-    editor.getSession().setMode("ace/mode/handlebars");
-    editor.getSession().selection.clearSelection();
-    editor.setReadOnly(true);
-    editor.setHighlightActiveLine(false);
-    editor.setHighlightGutterLine(false);
+   var editor = ace.edit("tcncontent");
+   editor.setValue("{{{text}}}");
+   editor.getSession().setMode("ace/mode/handlebars");
+   editor.getSession().selection.clearSelection();
+   editor.setReadOnly(true);
+   editor.setHighlightActiveLine(false);
+   editor.setHighlightGutterLine(false);
 
-    editor.session.setAnnotations([{ row: {{range.startRow}}, column: {{range.startColumn}}, text: "{{{errorMessage}}}", type: "error" }]);
+   editor.session.setAnnotations([{ row: {{range.startRow}}, column: {{range.startColumn}}, text: "{{{errorMessage}}}", type: "error" }]);
 
-    var Range = ace.require('ace/range').Range;
-    var markerId = editor.session.addMarker(new Range({{range.startRow}}, {{range.startColumn}}, {{range.endRow}}, {{range.endColumn}}), "error_marker", "line", true);
-
+   var Range = ace.require('ace/range').Range;
+   var markerId = editor.session.addMarker(new Range({{range.startRow}}, {{range.startColumn}}, {{range.endRow}}, {{range.endColumn}}), "error_marker", "line", true);
 </script>{{/if}}

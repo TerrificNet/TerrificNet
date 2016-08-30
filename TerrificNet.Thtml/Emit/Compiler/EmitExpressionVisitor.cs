@@ -112,7 +112,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var testExpression = binding.CreateExpression(_dataContextParameter);
 
-				if (children.Type == typeof (void))
+				if (children.Type == typeof(void))
 					return Expression.IfThen(testExpression, children);
 
 				var returnTarget = Expression.Label(children.Type);
@@ -144,7 +144,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private static Expression Many(IReadOnlyCollection<Expression> expressions)
 		{
-			return expressions.Count > 0 ? (Expression)Expression.Block(expressions) : Expression.Empty();
+			return expressions.Count > 0 ? (Expression) Expression.Block(expressions) : Expression.Empty();
 		}
 
 		private static IDictionary<string, string> CreateDictionaryFromArguments(IEnumerable<HelperAttribute> attributes)

@@ -4,7 +4,7 @@ using TerrificNet.ViewEngine;
 
 namespace TerrificNet.Controllers
 {
-	public class ModelController : Controller
+	public class ModelController : ControllerBase
 	{
 		private readonly IModelProvider _modelProvider;
 		private readonly IModuleRepository _moduleRepository;
@@ -22,7 +22,7 @@ namespace TerrificNet.Controllers
 			if (moduleDefinition == null)
 				return this.NotFound();
 
-			return Json(await _modelProvider.GetModelForModuleAsync(moduleDefinition, dataId).ConfigureAwait(false));
+			return new JsonResult(await _modelProvider.GetModelForModuleAsync(moduleDefinition, dataId).ConfigureAwait(false));
 		}
 
 		[HttpPut]

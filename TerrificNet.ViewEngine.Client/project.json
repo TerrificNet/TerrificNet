@@ -3,11 +3,11 @@
    "authors": [ "Marco Schaelle" ],
    "title": "TerrificNet.ViewEngine.Client",
    "description": "TerrificNet",
-   "frameworks": {
-      "netstandard1.6": {
-         "imports": "dnxcore"
-      }
-   },
+	"frameworks": {
+		"netcoreapp1.0": {
+			"imports": "dnxcore"
+		}
+	},
     "dependencies": {
         "NETStandard.Library": "1.6.0",
         "TerrificNet.ViewEngine": "0.1-alpha"

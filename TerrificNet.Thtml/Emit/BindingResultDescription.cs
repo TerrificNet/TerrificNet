@@ -9,16 +9,16 @@ namespace TerrificNet.Thtml.Emit
 		{
 		}
 
-	   public abstract bool IsMatch(IEquatable<T> value);
+		public abstract bool IsMatch(IEquatable<T> value);
 
-      public bool IsMatch(object newValue)
-	   {
-	      throw new NotImplementedException();
-	   }
+		public bool IsMatch(object newValue)
+		{
+			throw new NotImplementedException();
+		}
 
-	   public BindingResultDescription<string> Not(BindingResultDescription<string> exact)
-	   {
-	      throw new NotImplementedException();
-	   }
+		public BindingResultDescription<string> Not(BindingResultDescription<string> exact)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

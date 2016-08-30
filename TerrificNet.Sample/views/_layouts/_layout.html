@@ -1,5 +1,6 @@
 ﻿<html class="mod mod-layout">
 {{!-- Meta Head --}}
+<mixin:meta-head title="{{title}}" />
 {{ partial template="components/modules/MetaHead/metahead" }}
 
 	{{!-- Body --}}
@@ -79,6 +80,7 @@
 	</div>
 
 	{{!-- Meta Foot --}}
+	<mixin:meta-foot />
 	{{ partial template="components/modules/MetaFoot/metafoot" }}
 	</body>
 </html>

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
+using TerrificNet.Thtml.Rendering;
 using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit.Compiler
@@ -18,7 +19,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_helperBinder = helperBinder ?? new NullHelperBinder();
 		}
 
-		public IRunnable<Action<TextWriter>> CompileForTextWriter(IDataBinder dataBinder)
+		public IStreamRenderer CompileForTextWriter(IDataBinder dataBinder)
 		{
 			var writerParameter = Expression.Parameter(typeof(TextWriter));
 			var handler = new StreamOutputExpressionEmitter(writerParameter);
@@ -28,7 +29,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new TextWriterRunnable(action);
 		}
 
-		public IRunnable<VTree> CompileForVTree(IDataBinder dataBinder)
+		public IVTreeRenderer CompileForVTree(IDataBinder dataBinder)
 		{
 			var handler = new VTreeOutputExpressionEmitter();
 
@@ -45,7 +46,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, dataBinder, dataContextParameter, handler);
 			var expression = visitor.Visit(_input);
 
-			var inputExpression = Expression.Parameter(typeof (object), "input");
+			var inputExpression = Expression.Parameter(typeof(object), "input");
 			var convertExpression = Expression.Assign(dataContextParameter,
 				Expression.ConvertChecked(inputExpression, dataBinder.DataContextType));
 			var bodyExpression = Expression.Block(new[] {dataContextParameter}, convertExpression, expression);
@@ -64,7 +65,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			}
 		}
 
-		private class TextWriterRunnable : IRunnable<Action<TextWriter>>
+		private class TextWriterRunnable : IStreamRenderer
 		{
 			private readonly Action<TextWriter, object> _action;
 
@@ -73,13 +74,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_action = action;
 			}
 
-			public Action<TextWriter> Execute(object data, IRenderingContext renderingContext)
+			public void Execute(TextWriter writer, object data, IRenderingContext renderingContext)
 			{
-				return writer => _action(writer, data);
+				_action(writer, data);
 			}
 		}
 
-		private class VTreeRunnable : IRunnable<VTree>
+		private class VTreeRunnable : IVTreeRenderer
 		{
 			private readonly Func<object, VTree> _action;
 

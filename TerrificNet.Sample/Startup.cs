@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using TerrificNet.Environment;
 
 namespace TerrificNet.Sample
 {
@@ -19,12 +20,15 @@ namespace TerrificNet.Sample
 				rb.MapRoute(
 				name: "default",
 				template: "{controller}/{action}/{id?}",
-				defaults: new { controller = "Home", action = "Index" });
+				defaults: new { controller = "HomePage", action = "Index" });
 			});
+
+			app.UseDeveloperExceptionPage();
+
 			app.UseStaticFiles(new StaticFileOptions
 			{
-			   FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "views")),
-            RequestPath = "/views"
+				FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "views")),
+				RequestPath = "/static"
 			});
 		}
 	}

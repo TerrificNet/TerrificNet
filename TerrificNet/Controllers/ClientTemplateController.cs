@@ -9,7 +9,7 @@ using TerrificNet.ViewEngine.Client.Javascript;
 
 namespace TerrificNet.Controllers
 {
-	public class ClientTemplateController : Controller
+	public class ClientTemplateController : ControllerBase
 	{
 		private readonly ITemplateRepository _templateRepository;
 		private readonly IClientTemplateGeneratorFactory _clientFactory;

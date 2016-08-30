@@ -7,7 +7,7 @@ using TerrificNet.ViewEngine;
 
 namespace TerrificNet.Controllers
 {
-    public class ModuleSchemaController : Controller
+    public class ModuleSchemaController : ControllerBase
     {
         private readonly IModuleRepository _moduleRepository;
         private readonly IModuleSchemaProvider _schemaProvider;

@@ -1,4 +1,4 @@
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Rendering
 {
 	public interface IRenderingContext
 	{

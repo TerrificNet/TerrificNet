@@ -1,10 +1,11 @@
 {
    "version": "0.1-alpha",
-   "authors": [ "Marco Schaelle" ],
+   "authors": ["Marco Schaelle"],
    "title": "TerrificNet.Thtml",
    "description": "TerrificNet",
    "frameworks": {
-      "netstandard1.6": {
+      "netcoreapp1.0": {
+		
       }
    },
    "dependencies": {

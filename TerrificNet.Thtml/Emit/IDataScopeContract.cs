@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit

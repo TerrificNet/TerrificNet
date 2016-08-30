@@ -5,7 +5,7 @@ using TerrificNet.Thtml.LexicalAnalysis;
 
 namespace TerrificNet.Thtml.Test
 {
-    static internal class TokenFactory
+    internal static class TokenFactory
     {
         public static Token EmptyElement(string tagName, int position)
         {

@@ -4,18 +4,18 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-    public class ConditionalExpression : MustacheExpression
-    {
-        public MustacheExpression Expression { get; }
+	public class ConditionalExpression : MustacheExpression
+	{
+		public MustacheExpression Expression { get; }
 
-        public ConditionalExpression(MustacheExpression expression)
-        {
-            Expression = expression;
-        }
+		public ConditionalExpression(MustacheExpression expression)
+		{
+			Expression = expression;
+		}
 
-	    public override T Accept<T>(INodeVisitor<T> visitor)
-	    {
+		public override T Accept<T>(INodeVisitor<T> visitor)
+		{
 			return visitor.Visit(this);
 		}
-    }
+	}
 }

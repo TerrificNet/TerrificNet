@@ -498,6 +498,13 @@ namespace TerrificNet.Thtml.Test
                             TokenFactory.HandlebarsEnd,
                             TokenFactory.HandlebarsEnd))
                 };
+				yield return new object[]
+                {
+                    "<prefix:tagName></prefix:tagName>",
+					TokenFactory.DocumentList(
+						i => TokenFactory.ElementStart("prefix:tagName", i),
+						i => TokenFactory.ElementEnd("prefix:tagName", i))
+				};
             }
         }
     }

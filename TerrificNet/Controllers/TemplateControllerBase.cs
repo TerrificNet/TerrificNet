@@ -1,21 +1,15 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using System.Web.Http.Dependencies;
-using TerrificNet.Dispatcher;
-using TerrificNet.Models.ErrorHandling;
 using TerrificNet.ViewEngine;
-using TerrificNet.ViewEngine.IO;
 using TerrificNet.ViewEngine.TemplateHandler.UI;
 
 namespace TerrificNet.Controllers
 {
-   public class TemplateControllerBase : Controller/*, IDependencyResolverAware*/
-   {
+   public class TemplateControllerBase : ControllerBase/*, IDependencyResolverAware*/
+	{
       protected TemplateControllerBase()
       {
       }

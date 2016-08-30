@@ -1,19 +1,19 @@
 ﻿namespace TerrificNet.Thtml.VDom
 {
-    public class VText : VTree
-    {
-        public VText(string text)
-        {
-            Text = text;
-        }
+	public class VText : VTree
+	{
+		public VText(string text)
+		{
+			Text = text;
+		}
 
-        public string Text { get; }
+		public string Text { get; }
 
-        public override void Accept(IVTreeVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
+		public override void Accept(IVTreeVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 
-        public override string Type => "VirtualText";
-    }
+		public override string Type => "VirtualText";
+	}
 }

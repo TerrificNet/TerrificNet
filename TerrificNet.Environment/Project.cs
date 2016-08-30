@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TerrificNet.ViewEngine.IO;
+using IFileInfo = TerrificNet.ViewEngine.IO.IFileInfo;
+using IFileInfoAb = Microsoft.Extensions.FileProviders.IFileInfo;
 
 namespace TerrificNet.Environment
 {
@@ -65,9 +69,61 @@ namespace TerrificNet.Environment
             }
         }
 
-        public static Project FromFile(string input, IFileSystem fileSystem)
-        {
-            var jObject = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(input);
+	    private class MyDir : DirectoryInfoBase
+	    {
+		    private readonly IFileInfoAb _fileInfo;
+		    private readonly IFileProvider _provider;
+
+		    public override string Name => _fileInfo.Name;
+		    public override string FullName => _fileInfo.PhysicalPath;
+		    public override DirectoryInfoBase ParentDirectory { get; }
+
+		    public MyDir(DirectoryInfoBase parent, IFileInfoAb fileInfo, IFileProvider provider)
+		    {
+			    ParentDirectory = parent;
+			    _fileInfo = fileInfo;
+			    _provider = provider;
+		    }
+
+			public override IEnumerable<FileSystemInfoBase> EnumerateFileSystemInfos()
+			{
+				return _provider.GetDirectoryContents(_fileInfo.PhysicalPath).Select(f => new MyDir(this, f, _provider));
+			}
+
+		    public override DirectoryInfoBase GetDirectory(string path)
+		    {
+			    return new MyDir(null, _provider.GetFileInfo(path), _provider);
+		    }
+
+			private class MyFile : FileInfoBase
+			{
+				private readonly IFileInfoAb _fileInfo;
+
+				public MyFile(DirectoryInfoBase parent, IFileInfoAb fileInfo)
+				{
+					_fileInfo = fileInfo;
+				}
+
+				public override string Name => _fileInfo.Name;
+
+				public override string FullName => _fileInfo.PhysicalPath;
+
+				public override DirectoryInfoBase ParentDirectory => null;
+			}
+
+
+		    public override FileInfoBase GetFile(string path)
+		    {
+			    return new MyFile(null, _provider.GetFileInfo(path));
+		    }
+	    }
+
+
+		public static Project FromFile(string input, IFileSystem fileSystem)
+		{
+			//new Microsoft.Extensions.FileSystemGlobbing.Matcher().Execute(new MyDir(null));
+
+			var jObject = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(input);
             var project = new Project();
 
             foreach (var entry in jObject)

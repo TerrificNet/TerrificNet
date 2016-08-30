@@ -6,6 +6,7 @@ using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Rendering;
 using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Client.test
@@ -22,7 +23,7 @@ namespace TerrificNet.Client.test
             return new ObjectResult(vTree);
         }
 
-	    private static IRunnable<VTree> CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
+	    private static IVTreeRenderer CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
         {
             string template;
             using (var reader = new StreamReader(new FileStream(path, FileMode.Open)))

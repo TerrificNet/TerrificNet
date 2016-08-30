@@ -73,7 +73,7 @@ namespace TerrificNet.Thtml.Emit
 
 		private static IDataBinder Item(Type resultType)
 		{
-			var enumerable = resultType.GetTypeInfo().GetInterfaces().Union(new[] { resultType }).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+			var enumerable = resultType.GetTypeInfo().GetInterfaces().Union(new[] {resultType}).FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 			if (enumerable == null)
 				return null;
 

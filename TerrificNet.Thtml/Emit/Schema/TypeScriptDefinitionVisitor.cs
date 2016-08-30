@@ -112,7 +112,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				i++;
 				yield return "t" + i;
 			}
-			// ReSharper disable once FunctionNeverReturns
+			// ReSharper disable once IteratorNeverReturns
 		}
 	}
 }
