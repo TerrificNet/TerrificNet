@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Test
 		[MemberData("TestData")]
 		public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
 		{
-			var method = new ThtmlDocumentCompiler(input, helperBinder).CompileForVTree(dataBinder);
+			var method = new ThtmlDocumentCompiler(input, helperBinder).Compile(dataBinder, EmitterFactories.VTree);
 
 			var result = method.Execute(data, null);
 

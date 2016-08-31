@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Test
             var parser = new Parser(new HandlebarsParser());
             var ast = parser.Parse(tokens);
             var dataBinder = TypeDataBinder.BinderFromObject(inputObject);
-            var method = new ThtmlDocumentCompiler(ast, null).CompileForVTree(dataBinder);
+            var method = new ThtmlDocumentCompiler(ast, null).Compile(dataBinder, EmitterFactories.VTree);
 
             var result = method.Execute(inputObject, null);
 

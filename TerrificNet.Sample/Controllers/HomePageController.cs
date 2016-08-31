@@ -3,13 +3,11 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
-using TerrificNet.ViewEngine;
 
 namespace TerrificNet.Sample.Controllers
 {
@@ -49,7 +47,7 @@ namespace TerrificNet.Sample.Controllers
 			var helperBinder = new SimpleHelperBinder();
 
 			var compiler = new ThtmlDocumentCompiler(document, helperBinder);
-			var runnable = compiler.CompileForTextWriter(new DynamicDataBinder());
+			var runnable = compiler.Compile(new DynamicDataBinder(), EmitterFactories.Stream);
 
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{

@@ -7,7 +7,6 @@ using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Rendering;
-using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Client.test
 {
@@ -37,7 +36,7 @@ namespace TerrificNet.Client.test
             var ast = parser.Parse(tokens);
             var compiler = new ThtmlDocumentCompiler(ast, helperBinder);
 
-            var emitter = compiler.CompileForVTree(dataBinder);
+            var emitter = compiler.Compile(dataBinder, EmitterFactories.VTree);
             return emitter;
         }
     }
