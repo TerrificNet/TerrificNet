@@ -32,6 +32,6 @@ namespace TerrificNet.Thtml.Test
 			return Expression.Empty();
 		}
 
-		public Type DataContextType => typeof (object);
+		public Type ResultType => typeof (object);
 	}
 }

@@ -15,6 +15,15 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 
 		internal void Expression()
 		{
+			if (_lexerState.Can(ParentReference, TokenCategory.ParentReference))
+			{
+				_lexerState.Composite(() =>
+				{
+					_lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
+					return TokenCategory.HandlebarsExpression;
+				});
+			}
+
 			if (!_lexerState.Can(() => _commonGrammar.Name(), TokenCategory.Name))
 				return;
 
@@ -32,6 +41,19 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 				}
 				return TokenCategory.HandlebarsExpression;
 			});
+		}
+
+		private void ParentReference()
+		{
+			if (_lexerState.Can('.', TokenCategory.Dot))
+			{
+				_lexerState.Composite(() =>
+				{
+					_lexerState.Must('.', TokenCategory.Dot);
+					_lexerState.Must('/', TokenCategory.Slash);
+					return TokenCategory.ParentReference;
+				});
+			}
 		}
 
 		internal void Handlebar()

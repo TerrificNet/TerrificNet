@@ -12,6 +12,6 @@ namespace TerrificNet.Thtml.Emit
 		Expression BindBoolean(Expression dataContext);
 		Expression BindEnumerable(Expression dataContext);
 
-		Type DataContextType { get; }
+		Type ResultType { get; }
 	}
 }

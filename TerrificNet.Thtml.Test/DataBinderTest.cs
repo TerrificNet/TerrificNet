@@ -8,26 +8,26 @@ using Xunit;
 
 namespace TerrificNet.Thtml.Test
 {
-    public class DataBinderTest
-    {
-        // ReSharper disable once UnusedMember.Global
-        public static IEnumerable<object[]> BinderFactoriesParameter
-        {
-            get { return BinderFactories.Select(s => new object[] {s}); }
-        }
+	public class DataBinderTest
+	{
+		// ReSharper disable once UnusedMember.Global
+		public static IEnumerable<object[]> BinderFactoriesParameter
+		{
+			get { return BinderFactories.Select(s => new object[] { s }); }
+		}
 
-        private static IEnumerable<Func<Type, IDataBinder>> BinderFactories
-        {
-            get
-            {
-                yield return type =>
-                {
-	                ParameterExpression dataContextParameter = Expression.Parameter(type);
-	                return TypeDataBinder.BinderFromType(dataContextParameter.Type);
-                };
-                yield return t => new DynamicDataBinder();
-            }
-        }
+		private static IEnumerable<Func<Type, IDataBinder>> BinderFactories
+		{
+			get
+			{
+				yield return type =>
+				{
+					ParameterExpression dataContextParameter = Expression.Parameter(type);
+					return TypeDataBinder.BinderFromType(dataContextParameter.Type);
+				};
+				yield return t => new DynamicDataBinder();
+			}
+		}
 
 		[Theory]
 		[MemberData("BinderFactoriesParameter")]
@@ -63,7 +63,7 @@ namespace TerrificNet.Thtml.Test
 			Assert.NotNull(propertyResult);
 
 			var innerPropertyResult = childScope.Property("property2");
-			var innerPropertyEvaluator = CreateEval<string>(e => innerPropertyResult.BindString(e), childScope.DataContextType);
+			var innerPropertyEvaluator = CreateEval<string>(e => innerPropertyResult.BindString(e), childScope.ResultType);
 
 			foreach (var item in propertyResult)
 			{
@@ -105,20 +105,20 @@ namespace TerrificNet.Thtml.Test
 		}
 
 		[Theory]
-        [InlineData(typeof(List<string>), typeof(string))]
-        [InlineData(typeof(IEnumerable<string>), typeof(string))]
-        [InlineData(typeof(IDictionary<object, string>), typeof(KeyValuePair<object, string>))]
-        public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
-        {
-	        ParameterExpression dataContextParameter = Expression.Parameter(interfaceType);
-	        var underTest = TypeDataBinder.BinderFromType(dataContextParameter.Type);
+		[InlineData(typeof(List<string>), typeof(string))]
+		[InlineData(typeof(IEnumerable<string>), typeof(string))]
+		[InlineData(typeof(IDictionary<object, string>), typeof(KeyValuePair<object, string>))]
+		public void TypeDataBinder_ItemFromGeneric(Type interfaceType, Type expectedItemType)
+		{
+			ParameterExpression dataContextParameter = Expression.Parameter(interfaceType);
+			var underTest = TypeDataBinder.BinderFromType(dataContextParameter.Type);
 			var childScope = underTest.Item();
 
-            Assert.NotNull(childScope);
-            var binder = Assert.IsType<TypeDataBinder>(childScope);
+			Assert.NotNull(childScope);
+			var binder = Assert.IsType<TypeDataBinder>(childScope);
 
-            Assert.Equal(expectedItemType, binder.DataContextType);
-        }
+			Assert.Equal(expectedItemType, binder.ResultType);
+		}
 
 		private static T AssertExpression<T>(object obj, Func<Expression, Expression> binding)
 		{
@@ -127,13 +127,13 @@ namespace TerrificNet.Thtml.Test
 			return eval(obj);
 		}
 
-	    private static Func<object, T> CreateEval<T>(Func<Expression, Expression> binding, Type type)
-	    {
-		    var dataContext = Expression.Parameter(typeof (object));
-		    var evaluator = binding(Expression.Convert(dataContext, type));
+		private static Func<object, T> CreateEval<T>(Func<Expression, Expression> binding, Type type)
+		{
+			var dataContext = Expression.Parameter(typeof(object));
+			var evaluator = binding(Expression.Convert(dataContext, type));
 
-		    var eval = Expression.Lambda<Func<object, T>>(evaluator, dataContext).Compile();
-		    return eval;
-	    }
-    }
+			var eval = Expression.Lambda<Func<object, T>>(evaluator, dataContext).Compile();
+			return eval;
+		}
+	}
 }

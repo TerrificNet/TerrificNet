@@ -1,4 +1,4 @@
-﻿/// <binding AfterBuild='default' />
+/// <binding />
 var config = require("./terrific.json");
 var gulp = require("gulp");
 var concatCss = require("gulp-concat-css");

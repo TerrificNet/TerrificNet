@@ -12,7 +12,7 @@ namespace TerrificNet.Thtml.Emit
 
 		private TypeDataBinder(Type dataContextType, Func<Expression, Expression> expressionFactory)
 		{
-			DataContextType = dataContextType;
+			ResultType = dataContextType;
 			_expressionFactory = expressionFactory;
 		}
 
@@ -52,7 +52,7 @@ namespace TerrificNet.Thtml.Emit
 		public IDataBinder Item()
 		{
 			var param = Expression.Parameter(typeof(object));
-			var context = Expression.Convert(param, DataContextType);
+			var context = Expression.Convert(param, ResultType);
 			var expression = _expressionFactory(context);
 
 			var childScope = Item(expression.Type);
@@ -64,11 +64,11 @@ namespace TerrificNet.Thtml.Emit
 			return _expressionFactory(dataContext);
 		}
 
-		public Type DataContextType { get; }
+		public Type ResultType { get; }
 
 		public virtual IDataBinder Property(string propertyName)
 		{
-			return new TypeDataBinder(DataContextType, d => Expression.Property(_expressionFactory(d), propertyName));
+			return new TypeDataBinder(ResultType, d => Expression.Property(_expressionFactory(d), propertyName));
 		}
 
 		private static IDataBinder Item(Type resultType)

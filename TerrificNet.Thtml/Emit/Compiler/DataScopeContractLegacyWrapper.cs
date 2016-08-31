@@ -43,7 +43,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new BindingWrapper<IEnumerable>(binding, d => _dataBinder.BindEnumerable(d));
 		}
 
-		public Type ResultType => _dataBinder.DataContextType;
+		public Type ResultType => _dataBinder.ResultType;
 
 		private class BindingWrapper<T> : IBinding<T>
 		{
@@ -58,15 +58,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 			public BindingPathTemplate Path => _adaptee.Path;
 
-			public void Train(Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> before, Func<BindingResultDescriptionBuilder<T>, BindingResultDescription<T>> after, ChangeOperation operation)
-			{
-			}
-
 			public Expression CreateExpression(Expression dataContext)
 			{
-				if (_createExpression == null)
-					throw new NotImplementedException();
-
 				return _createExpression(dataContext);
 			}
 		}

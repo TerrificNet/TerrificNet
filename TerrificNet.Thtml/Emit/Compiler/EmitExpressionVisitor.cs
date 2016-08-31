@@ -13,15 +13,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
-		private readonly IDataBinder _dataBinder;
 		private readonly ParameterExpression _dataContextParameter;
 		private readonly IOutputExpressionEmitter _outputExpressionEmitter;
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder, IDataBinder dataBinder, ParameterExpression dataContextParameter, IOutputExpressionEmitter outputExpressionEmitter)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder, ParameterExpression dataContextParameter, IOutputExpressionEmitter outputExpressionEmitter)
 		{
 			_dataScopeContract = dataScopeContract;
 			_helperBinder = helperBinder;
-			_dataBinder = dataBinder;
 			_dataContextParameter = dataContextParameter;
 			_outputExpressionEmitter = outputExpressionEmitter;
 		}
@@ -131,7 +129,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluation = result.CreateEmitter(new HelperBinderResult.HelperParameters(_outputExpressionEmitter, _helperBinder, _dataBinder, _dataScopeContract, _dataContextParameter), children);
+				var evaluation = result.CreateEmitter(new HelperBinderResult.HelperParameters(_outputExpressionEmitter, _helperBinder, _dataScopeContract, _dataContextParameter), children);
 				return evaluation;
 			}
 
@@ -155,7 +153,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private EmitExpressionVisitor CreateVisitor(IDataScopeContract childScopeContract)
 		{
 			var dataContextParameter = Expression.Parameter(childScopeContract.ResultType);
-			return new EmitExpressionVisitor(childScopeContract, _helperBinder, _dataBinder, dataContextParameter,
+			return new EmitExpressionVisitor(childScopeContract, _helperBinder, dataContextParameter,
 				_outputExpressionEmitter);
 		}
 	}

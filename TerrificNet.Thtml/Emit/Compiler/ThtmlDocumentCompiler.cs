@@ -17,22 +17,28 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public T Compile<T>(IDataBinder dataBinder, IEmitterFactory<T> emitterFactory)
 		{
+			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract(BindingPathTemplate.Global), dataBinder);
+
+			return Compile(dataScopeContract, emitterFactory);
+		}
+
+		public T Compile<T>(IDataScopeContract dataScopeContract, IEmitterFactory<T> emitterFactory)
+		{
 			var emitter = emitterFactory.Create();
-			var result = CreateExpression(dataBinder, emitter.OutputExpressionEmitter);
+			var result = CreateExpression(emitter.OutputExpressionEmitter, dataScopeContract);
 
 			return emitter.WrapResult(result);
 		}
 
-		private CompilerResult CreateExpression(IDataBinder dataBinder, IOutputExpressionEmitter handler)
+		private CompilerResult CreateExpression(IOutputExpressionEmitter handler, IDataScopeContract dataScopeContract)
 		{
-			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract(BindingPathTemplate.Global), dataBinder);
-			var dataContextParameter = Expression.Variable(dataBinder.DataContextType, "item");
+			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
 
-			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, dataBinder, dataContextParameter, handler);
+			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, dataContextParameter, handler);
 			var expression = visitor.Visit(_input);
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");
-			var convertExpression = Expression.Assign(dataContextParameter, Expression.ConvertChecked(inputExpression, dataBinder.DataContextType));
+			var convertExpression = Expression.Assign(dataContextParameter, Expression.ConvertChecked(inputExpression, dataScopeContract.ResultType));
 			var bodyExpression = Expression.Block(new[] {dataContextParameter}, convertExpression, expression);
 			return new CompilerResult(bodyExpression, inputExpression);
 		}

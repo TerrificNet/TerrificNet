@@ -33,7 +33,6 @@ namespace TerrificNet.Sample.Controllers
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
 			string path = @"D:\projects\TerrificNet\TerrificNet.Sample\views\_layouts\_layout.html";
-			//var viewEngine = context.HttpContext.RequestServices.GetRequiredService<IViewEngine>();
 			var lexer = new Lexer();
 
 			var parser = new Parser(new HandlebarsParser());

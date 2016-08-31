@@ -61,7 +61,7 @@ namespace TerrificNet.Thtml.Emit
 			return Expression.Call(Expression.Constant(BindEnumerable2(out childScope)), evaluateMethod, dataContext);
 		}
 
-		public Type DataContextType => typeof(object);
+		public Type ResultType => typeof(object);
 
 		public virtual IDataBinder Property(string propertyName)
 		{
