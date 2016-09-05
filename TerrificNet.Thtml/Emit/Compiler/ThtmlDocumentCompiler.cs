@@ -17,24 +17,23 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public T Compile<T>(IDataBinder dataBinder, IEmitterFactory<T> emitterFactory)
 		{
-			var dataScopeContract = new DataScopeContractLegacyWrapper(new DataScopeContract(BindingPathTemplate.Global), dataBinder);
+			var dataContextParameter = Expression.Variable(dataBinder.ResultType, "item");
+			var dataScopeContract = new DataScope(new DataScopeContract(BindingPathTemplate.Global), dataBinder, dataContextParameter);
 
-			return Compile(dataScopeContract, emitterFactory);
+			return Compile(dataScopeContract, emitterFactory, dataContextParameter);
 		}
 
-		public T Compile<T>(IDataScopeContract dataScopeContract, IEmitterFactory<T> emitterFactory)
+		public T Compile<T>(IDataScopeContract dataScopeContract, IEmitterFactory<T> emitterFactory, ParameterExpression dataContextParameter)
 		{
 			var emitter = emitterFactory.Create();
-			var result = CreateExpression(emitter.OutputExpressionEmitter, dataScopeContract);
+			var result = CreateExpression(emitter.OutputExpressionEmitter, dataScopeContract, dataContextParameter);
 
 			return emitter.WrapResult(result);
 		}
 
-		private CompilerResult CreateExpression(IOutputExpressionEmitter handler, IDataScopeContract dataScopeContract)
+		private CompilerResult CreateExpression(IOutputExpressionEmitter handler, IDataScopeContract dataScopeContract, ParameterExpression dataContextParameter)
 		{
-			var dataContextParameter = Expression.Variable(dataScopeContract.ResultType, "item");
-
-			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, dataContextParameter, handler);
+			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, handler);
 			var expression = visitor.Visit(_input);
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");

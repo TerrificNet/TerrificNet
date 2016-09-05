@@ -25,21 +25,21 @@ namespace TerrificNet.Thtml.Test
 
 			VTreeAsserts.AssertTree(expected, result);
 		}
-		
+
 		public static IEnumerable<object[]> TestData
 		{
 			get
 			{
 				var nullHelperBinder = new NullHelperBinder();
-                yield return new object[]
-				{
+				yield return new object[]
+		  {
 					"empty document",
 					new Document(),
 					new NullDataBinder(),
 					null,
 					new VNode(),
 					nullHelperBinder
-				};
+		  };
 
 				yield return new object[]
 				{
@@ -128,6 +128,7 @@ namespace TerrificNet.Thtml.Test
 
 				var obj4 = new
 				{
+					Parent = "test",
 					List = new[]
 					{
 					  new { Do = false, Value = "hallo1" },
@@ -141,13 +142,39 @@ namespace TerrificNet.Thtml.Test
 					new Document(
 						new Statement(new IterationExpression(new MemberExpression("list")),
 							new Statement(new ConditionalExpression(new MemberExpression("do")),
-								new Element("h1", new Statement(new MemberExpression("value"))))
+								new Element("h1", new Statement(new ParentExpression(new MemberExpression("parent"))), new Statement(new MemberExpression("value"))))
 						)),
 					TypeDataBinder.BinderFromObject(obj4),
 					obj4,
 					new VNode(
-						new VElement("h1", new VText("hallo2"))
+						new VElement("h1", new VText("test"), new VText("hallo2"))
 						),
+					nullHelperBinder
+				};
+
+				var obj7 = new
+				{
+					Value = "1",
+					Sub = new
+					{
+						Value = "2",
+						Sub = new
+						{
+							Value = "3"
+						}
+					}
+				};
+
+				yield return new object[]
+				{
+					"text with nested expressions",
+					new Document(
+						new Statement(new MemberExpression("value")),
+						new Statement(new MemberExpression("sub", new MemberExpression("value"))),
+						new Statement(new MemberExpression("sub", new MemberExpression("sub", new MemberExpression("value"))))),
+					TypeDataBinder.BinderFromObject(obj7),
+					obj7,
+					new VNode(new VText("1"), new VText("2"), new VText("3")),
 					nullHelperBinder
 				};
 

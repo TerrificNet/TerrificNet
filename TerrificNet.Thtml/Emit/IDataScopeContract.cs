@@ -4,7 +4,7 @@ using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public interface IDataScopeContract
+	public interface IDataScopeContract : IBinding
 	{
 		IDataScopeContract Property(string propertyName, SyntaxNode node);
 
@@ -13,5 +13,6 @@ namespace TerrificNet.Thtml.Emit
 		IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract);
 
 		Type ResultType { get; }
+		IDataScopeContract Parent { get; }
 	}
 }

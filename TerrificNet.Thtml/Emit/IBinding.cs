@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml.Emit
 	{
 		BindingPathTemplate Path { get; }
 
-		Expression CreateExpression(Expression dataContext);
+		Expression Expression { get; }
 	}
 
 	public interface IBinding<T> : IBinding

@@ -18,5 +18,7 @@ namespace TerrificNet.Thtml.Parsing
 		T Visit(IterationExpression iterationExpression);
 		T Visit(ConditionalExpression conditionalExpression);
 		T Visit(MemberExpression memberExpression);
+		T Visit(ParentExpression parentExpression);
+		T Visit(SelfExpression selfExpression);
 	}
 }

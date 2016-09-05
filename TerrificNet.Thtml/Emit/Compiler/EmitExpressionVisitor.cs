@@ -13,14 +13,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
-		private readonly ParameterExpression _dataContextParameter;
 		private readonly IOutputExpressionEmitter _outputExpressionEmitter;
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder, ParameterExpression dataContextParameter, IOutputExpressionEmitter outputExpressionEmitter)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, IHelperBinder helperBinder, IOutputExpressionEmitter outputExpressionEmitter)
 		{
 			_dataScopeContract = dataScopeContract;
 			_helperBinder = helperBinder;
-			_dataContextParameter = dataContextParameter;
 			_outputExpressionEmitter = outputExpressionEmitter;
 		}
 
@@ -71,10 +69,25 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(MemberExpression memberExpression)
 		{
+			return HandleCall(memberExpression);
+		}
+
+		public override Expression Visit(ParentExpression parentExpression)
+		{
+			return HandleCall(parentExpression);
+		}
+
+		public override Expression Visit(SelfExpression selfExpression)
+		{
+			return HandleCall(selfExpression);
+		}
+
+		private Expression HandleCall(MustacheExpression memberExpression)
+		{
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
 			var binding = scope.RequiresString();
 
-			var expression = binding.CreateExpression(_dataContextParameter);
+			var expression = binding.Expression;
 			return _outputExpressionEmitter.HandleCall(expression);
 		}
 
@@ -96,8 +109,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var child = CreateVisitor(childScopeContract);
 				var children = Many(childNodes.Select(c => c.Accept(child)).ToList());
 
-				var collection = binding.CreateExpression(_dataContextParameter);
-				return ExpressionHelper.ForEach(collection, child._dataContextParameter, children);
+				var collection = binding.Expression;
+				return ExpressionHelper.ForEach(collection, (ParameterExpression) childScopeContract.Expression, children);
 			}
 
 			var conditionalExpression = expression as ConditionalExpression;
@@ -108,7 +121,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var testExpression = binding.CreateExpression(_dataContextParameter);
+				var testExpression = binding.Expression;
 
 				if (children.Type == typeof(void))
 					return Expression.IfThen(testExpression, children);
@@ -129,7 +142,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluation = result.CreateEmitter(new HelperBinderResult.HelperParameters(_outputExpressionEmitter, _helperBinder, _dataScopeContract, _dataContextParameter), children);
+				var evaluation = result.CreateEmitter(new HelperBinderResult.HelperParameters(_outputExpressionEmitter, _helperBinder, _dataScopeContract), children);
 				return evaluation;
 			}
 
@@ -152,9 +165,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private EmitExpressionVisitor CreateVisitor(IDataScopeContract childScopeContract)
 		{
-			var dataContextParameter = Expression.Parameter(childScopeContract.ResultType);
-			return new EmitExpressionVisitor(childScopeContract, _helperBinder, dataContextParameter,
-				_outputExpressionEmitter);
+			return new EmitExpressionVisitor(childScopeContract, _helperBinder, _outputExpressionEmitter);
 		}
 	}
 }

@@ -13,15 +13,17 @@ namespace TerrificNet.Thtml.Emit.Schema
 		internal readonly List<SyntaxNode> DependentNodes = new List<SyntaxNode>();
 		private readonly TrainingCollection _trainingCollection;
 
-		private BindingPathTemplate Path { get; }
+		public BindingPathTemplate Path { get; }
+		public Expression Expression { get; }
 
-		public DataScopeContract(BindingPathTemplate path) : this(path, new TrainingCollection())
+		public DataScopeContract(BindingPathTemplate path) : this(path, null, new TrainingCollection())
 		{
 		}
 
-		private DataScopeContract(BindingPathTemplate path, TrainingCollection trainingCollection)
+		private DataScopeContract(BindingPathTemplate path, IDataScopeContract parent, TrainingCollection trainingCollection)
 		{
 			Path = path;
+			Parent = parent;
 			_trainingCollection = trainingCollection;
 		}
 
@@ -52,6 +54,8 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 		public Type ResultType { get; }
 
+		public IDataScopeContract Parent { get; }
+
 		public DataSchema CompleteSchema()
 		{
 			return _strategy != null ? _strategy.GetSchema() : DataSchema.Any;
@@ -64,6 +68,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 			protected DataScopeContractBuildStrategy(DataScopeContract dataScopeContract)
 			{
 				DataScopeContract = dataScopeContract;
+				Parent = dataScopeContract.Parent;
 			}
 
 			protected abstract string Name { get; }
@@ -90,7 +95,11 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public Type ResultType => DataScopeContract.ResultType;
 
+			public IDataScopeContract Parent { get; }
+
 			public abstract DataSchema GetSchema();
+			public BindingPathTemplate Path { get; }
+			public Expression Expression { get; }
 		}
 
 		private class IterableDataScopeContract : ComplexDataScopeContract
@@ -101,7 +110,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 			public IterableDataScopeContract(DataScopeContract dataScopeContract, IDictionary<string, DataScopeContract> childScopes, bool nullable = false)
 				: base(dataScopeContract, childScopes, nullable)
 			{
-				_childScopeContract = new DataScopeContract(dataScopeContract.Path.Item(), dataScopeContract._trainingCollection);
+				_childScopeContract = new DataScopeContract(dataScopeContract.Path.Item(), dataScopeContract.Parent, dataScopeContract._trainingCollection);
 			}
 
 			protected override string Name => "Iterable";
@@ -109,7 +118,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 			public IterableDataScopeContract(DataScopeContract dataScopeContract, bool nullable = false) : base(dataScopeContract)
 			{
 				_nullable = nullable;
-				_childScopeContract = new DataScopeContract(dataScopeContract.Path.Item(), dataScopeContract._trainingCollection);
+				_childScopeContract = new DataScopeContract(dataScopeContract.Path.Item(), dataScopeContract, dataScopeContract._trainingCollection);
 			}
 
 			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
@@ -151,7 +160,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				DataScopeContract scopeContract;
 				if (!_childScopes.TryGetValue(propertyName, out scopeContract))
 				{
-					scopeContract = new DataScopeContract(DataScopeContract.Path.Property(propertyName), DataScopeContract._trainingCollection);
+					scopeContract = new DataScopeContract(DataScopeContract.Path.Property(propertyName), DataScopeContract, DataScopeContract._trainingCollection);
 					_childScopes.Add(propertyName, scopeContract);
 				}
 
@@ -266,7 +275,12 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public Expression CreateExpression(Expression dataContext)
 			{
-				throw new NotImplementedException();
+				throw new NotSupportedException();
+			}
+
+			public Expression Expression
+			{
+				get { throw new NotSupportedException(); }
 			}
 		}
 	}

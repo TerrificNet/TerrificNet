@@ -188,6 +188,23 @@ namespace TerrificNet.Thtml.Test
 			DataSchemaAssert.AssertSchema(expected, schema);
 		}
 
+		[Fact]
+		public void DataScope_AccessProperty_ParentIsSetted()
+		{
+			var childScope = _underTest.Property("test", SyntaxNodeStub.Node1);
+
+			Assert.Equal(_underTest, childScope.Parent);
+		}
+
+		[Fact]
+		public void DataScope_AccessEnumerable_ParentIsSetted()
+		{
+			IDataScopeContract childContract;
+			_underTest.RequiresEnumerable(out childContract);
+
+			Assert.Equal(_underTest, childContract.Parent);
+		}
+
 		private static void AssertBindingPath<T>(IBinding<T> binding, BindingPathTemplate expected)
 		{
 			Assert.NotNull(binding);

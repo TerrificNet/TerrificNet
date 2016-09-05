@@ -71,8 +71,24 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 			var compToken = ExpectComposite(token);
 			var expressionToken = ExpectTokenCategory(compToken, TokenCategory.HandlebarsExpression);
 
-			var memberAccess = Expression(expressionToken);
+			var memberAccess = ExpressionOrParentExpression(expressionToken);
 			return memberAccess;
+		}
+
+		private static MustacheExpression ExpressionOrParentExpression(Token current)
+		{
+			var compToken = ExpectComposite(current);
+			var parentReference = compToken.Tokens.SingleOrDefault(t => t.Category == TokenCategory.ParentReference);
+			if (parentReference != null)
+			{
+				var subExpression = ExpectTokenCategory(compToken, TokenCategory.HandlebarsExpression);
+				return new ParentExpression((AccessExpression)ExpressionOrParentExpression(subExpression));
+			}
+
+			if (compToken.Lexem == "this")
+				return new SelfExpression();
+
+			return Expression(current);
 		}
 
 		private static MustacheExpression Expression(Token current)
@@ -82,7 +98,7 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 
 			var subExpression = compToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.HandlebarsExpression);
 			if (subExpression != null)
-				return new MemberExpression(nameToken.Lexem, (MemberExpression) Expression(subExpression));
+				return new MemberExpression(nameToken.Lexem, (MemberExpression)Expression(subExpression));
 
 			var attributes = GetHelperAttributes(compToken).ToArray();
 			if (attributes.Length > 0)

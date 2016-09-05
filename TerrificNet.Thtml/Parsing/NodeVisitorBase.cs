@@ -74,5 +74,15 @@ namespace TerrificNet.Thtml.Parsing
 		{
 			throw new NotSupportedException();
 		}
+
+		public virtual T Visit(ParentExpression parentExpression)
+		{
+			throw new NotSupportedException();
+		}
+
+		public virtual T Visit(SelfExpression selfExpression)
+		{
+			throw new NotSupportedException();
+		}
 	}
 }
