@@ -12,7 +12,7 @@ namespace TerrificNet.Thtml.Binding
 			return GetBinder(model, itemName, MemberLocator.Default);
 		}
 
-		public static Func<object, object> GetBinder(object model, string itemName, IMemberLocator memberLocator)
+		private static Func<object, object> GetBinder(object model, string itemName, IMemberLocator memberLocator)
 		{
 			var binder = LateBoundCache.GetOrAdd(Tuple.Create(model.GetType(), itemName), pair =>
 			{

@@ -13,9 +13,9 @@ namespace TerrificNet.Thtml.Test
 			_invocationContext = invocationContext;
 		}
 
-		public override Expression CreateEmitter(HelperParameters helperParameters, Expression children)
+		public override Expression CreateExpression(HelperParameters helperParameters, Expression children)
 		{
-			return _invocationContext.Invoke(f => f.CreateEmitter(helperParameters, children));
+			return _invocationContext.Invoke(f => f.CreateExpression(helperParameters, children));
 		}
 	}
 }

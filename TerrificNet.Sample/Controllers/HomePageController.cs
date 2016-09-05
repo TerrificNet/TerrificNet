@@ -70,7 +70,7 @@ namespace TerrificNet.Sample.Controllers
 					_helper = helper;
 				}
 
-				public override Expression CreateEmitter(HelperParameters helperParameters, Expression children)
+				public override Expression CreateExpression(HelperParameters helperParameters, Expression children)
 				{
 					return helperParameters.OutputExpressionEmitter.HandleTextNode(new TextNode(_helper));
 				}

@@ -180,8 +180,8 @@ namespace TerrificNet.Thtml.Test
 
 				var helperResult = new MockContext<HelperBinderResult>();
 				helperResult
-					.Arrange(d => d.CreateEmitter(The<HelperBinderResult.HelperParameters>.IsAnyValue, The<Expression>.IsAnyValue))
-					.Returns<HelperBinderResult.HelperParameters, Expression>((param, expression) => param.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
+					.Arrange(d => d.CreateExpression(The<HelperParameters>.IsAnyValue, The<Expression>.IsAnyValue))
+					.Returns<HelperParameters, Expression>((param, expression) => param.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
 
 				var helper = new MockContext<IHelperBinder>();
 				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(helperResult));
