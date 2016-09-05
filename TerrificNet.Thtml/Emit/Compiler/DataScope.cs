@@ -47,8 +47,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new BindingWrapper<IEnumerable>(binding, d => _dataBinder.BindEnumerable(d), this);
 		}
 
-		public Type ResultType => _dataBinder.ResultType;
-
 		public IDataScopeContract Parent => _parent;
 
 		private class BindingWrapper<T> : IBinding<T>

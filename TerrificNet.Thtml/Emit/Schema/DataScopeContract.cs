@@ -52,8 +52,6 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return GetOrCreate(() => new IterableDataScopeContract(this)).RequiresEnumerable(out childScopeContract);
 		}
 
-		public Type ResultType { get; }
-
 		public IDataScopeContract Parent { get; }
 
 		public DataSchema CompleteSchema()
@@ -92,8 +90,6 @@ namespace TerrificNet.Thtml.Emit.Schema
 			{
 				throw new DataContractException($"Can not access {DataScopeContract.Path} as iterable because {Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
-
-			public Type ResultType => DataScopeContract.ResultType;
 
 			public IDataScopeContract Parent { get; }
 
@@ -271,11 +267,6 @@ namespace TerrificNet.Thtml.Emit.Schema
 			{
 				_collection = collection;
 				Path = path;
-			}
-
-			public Expression CreateExpression(Expression dataContext)
-			{
-				throw new NotSupportedException();
 			}
 
 			public Expression Expression
