@@ -6,8 +6,8 @@ using Xunit;
 
 namespace TerrificNet.ViewEngine.Test
 {
-    [Collection("File System")]
-    public class FileSystemTest
+	[Collection("File System")]
+	public class FileSystemTest
 	{
 		protected const string TestFilePattern = "*.*";
 		protected IFileSystem FileSystem;
@@ -20,77 +20,77 @@ namespace TerrificNet.ViewEngine.Test
 		[Fact]
 		public async Task TestWrite()
 		{
-		    var testFileName = PathInfo.Create(Path.GetRandomFileName());
-		    Assert.Equal(false, FileSystem.FileExists(testFileName));
+			var testFileName = PathInfo.Create(Path.GetRandomFileName());
+			Assert.Equal(false, FileSystem.FileExists(testFileName));
 
 			var completion = new TaskCompletionSource<FileChangeEventArgs>();
-		    using (FileSystem.Subscribe(GlobPattern.All, info => completion.SetResult(info)))
-		    {
+			using (FileSystem.Subscribe(GlobPattern.All, info => completion.SetResult(info)))
+			{
 
-		        using (var stream = new StreamWriter(FileSystem.OpenWrite(testFileName)))
-		        {
-		            stream.Write("123456");
-		        }
+				using (var stream = new StreamWriter(FileSystem.OpenWrite(testFileName)))
+				{
+					stream.Write("123456");
+				}
 
-		        await completion.Task.ConfigureAwait(false);
-		        Assert.Equal(true, FileSystem.FileExists(testFileName));
+				await completion.Task.ConfigureAwait(false);
+				Assert.Equal(true, FileSystem.FileExists(testFileName));
 
-		        FileSystem.RemoveFile(testFileName);
-		    }
+				FileSystem.RemoveFile(testFileName);
+			}
 		}
 
 		[Fact]
 		public async Task TestReWrite()
 		{
 			var completion = new TaskCompletionSource<FileChangeEventArgs>();
-		    using (FileSystem.Subscribe(GlobPattern.All, info => completion.SetResult(info)))
-		    {
+			using (FileSystem.Subscribe(GlobPattern.All, info => completion.SetResult(info)))
+			{
 
-		        var testFileName = PathInfo.Create(Path.GetRandomFileName());
-		        Assert.Equal(false, FileSystem.FileExists(testFileName));
+				var testFileName = PathInfo.Create(Path.GetRandomFileName());
+				Assert.Equal(false, FileSystem.FileExists(testFileName));
 
-		        using (var stream = new StreamWriter(FileSystem.OpenWrite(testFileName)))
-		        {
-		            stream.Write("123456");
-		        }
+				using (var stream = new StreamWriter(FileSystem.OpenWrite(testFileName)))
+				{
+					stream.Write("123456");
+				}
 
-		        await completion.Task.ConfigureAwait(false);
-		        Assert.Equal(true, FileSystem.FileExists(testFileName));
-		        completion = new TaskCompletionSource<FileChangeEventArgs>();
+				await completion.Task.ConfigureAwait(false);
+				Assert.Equal(true, FileSystem.FileExists(testFileName));
+				completion = new TaskCompletionSource<FileChangeEventArgs>();
 
-		        using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
-		        {
-		            Assert.Equal("123456", stream.ReadToEnd());
-		        }
+				using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
+				{
+					Assert.Equal("123456", stream.ReadToEnd());
+				}
 
-		        using (var stream = new StreamWriter(FileSystem.OpenWrite(testFileName)))
-		        {
-		            stream.Write("654321");
-		        }
+				using (var stream = new StreamWriter(FileSystem.OpenWrite(testFileName)))
+				{
+					stream.Write("654321");
+				}
 
-		        await completion.Task.ConfigureAwait(false);
-		        Assert.Equal(true, FileSystem.FileExists(testFileName));
-		        completion = new TaskCompletionSource<FileChangeEventArgs>();
+				await completion.Task.ConfigureAwait(false);
+				Assert.Equal(true, FileSystem.FileExists(testFileName));
+				completion = new TaskCompletionSource<FileChangeEventArgs>();
 
-		        using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
-		        {
-		            Assert.Equal("654321", stream.ReadToEnd());
-		        }
+				using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
+				{
+					Assert.Equal("654321", stream.ReadToEnd());
+				}
 
-		        FileSystem.RemoveFile(testFileName);
-		        await completion.Task.ConfigureAwait(false);
+				FileSystem.RemoveFile(testFileName);
+				await completion.Task.ConfigureAwait(false);
 
-		        try
-		        {
-		            using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
-		            {
-		            }
-		            Assert.True(false);
-		        }
-		        catch (Exception)
-		        {
-		        }
-		    }
+				try
+				{
+					using (var stream = new StreamReader(FileSystem.OpenRead(testFileName)))
+					{
+					}
+					Assert.True(false);
+				}
+				catch (Exception)
+				{
+				}
+			}
 		}
 	}
 }
