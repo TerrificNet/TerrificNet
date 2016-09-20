@@ -5,7 +5,7 @@ using Xunit;
 
 namespace TerrificNet.Thtml.Test.Asserts
 {
-    static internal class NodeAsserts
+    internal static class NodeAsserts
     {
         public static void AssertNode(Node expected, Node actual)
         {

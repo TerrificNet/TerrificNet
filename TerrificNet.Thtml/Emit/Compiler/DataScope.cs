@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal class DataScope : IDataScopeContract, IBinding
+	internal class DataScope : IDataScopeContract
 	{
 		private readonly IDataScopeContract _contract;
 		private readonly IDataBinder _dataBinder;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Test.Asserts;
+using TerrificNet.Thtml.Test.Stubs;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test
@@ -8,7 +9,7 @@ namespace TerrificNet.Thtml.Test
 	public class LexerTest
 	{
 		[Theory]
-		[MemberData("TestData")]
+		[MemberData(nameof(TestData))]
 		public void TestLexerTokenization(string input, IEnumerable<Token> expectedResult)
 		{
 			var lexer = new Lexer();

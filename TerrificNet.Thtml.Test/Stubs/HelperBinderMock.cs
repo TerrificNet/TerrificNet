@@ -2,7 +2,7 @@
 using LightMock;
 using TerrificNet.Thtml.Emit;
 
-namespace TerrificNet.Thtml.Test
+namespace TerrificNet.Thtml.Test.Stubs
 {
 	internal class HelperBinderMock : IHelperBinder
 	{

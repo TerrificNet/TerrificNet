@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Binding
 {
 	public interface IDataBinder
 	{

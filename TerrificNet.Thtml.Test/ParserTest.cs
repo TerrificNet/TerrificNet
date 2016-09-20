@@ -3,6 +3,7 @@ using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Test.Asserts;
+using TerrificNet.Thtml.Test.Stubs;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test
@@ -10,7 +11,7 @@ namespace TerrificNet.Thtml.Test
     public class ParserTest
     {
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void TestParser(IEnumerable<Token> tokens, Node expectedNode)
         {
             var parser = new Parser(new HandlebarsParser());

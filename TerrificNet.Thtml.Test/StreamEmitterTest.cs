@@ -3,10 +3,12 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Text;
 using LightMock;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Test.Stubs;
 using Xunit;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
 using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
@@ -16,7 +18,7 @@ namespace TerrificNet.Thtml.Test
 	public class StreamEmitterTest
 	{
 		[Theory]
-		[MemberData("TestData")]
+		[MemberData(nameof(TestData))]
 		public void TestExpressionEmit(string description, Document input, IDataBinder dataBinder, object data, string expected, IHelperBinder helperBinder)
 		{
 			var sb = new StringBuilder();

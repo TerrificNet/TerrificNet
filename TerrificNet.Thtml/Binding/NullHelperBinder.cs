@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using TerrificNet.Thtml.Emit;
 
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Binding
 {
 	public class NullHelperBinder : IHelperBinder
 	{

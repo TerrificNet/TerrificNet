@@ -13,7 +13,7 @@ namespace TerrificNet.Thtml.Test
 	public class DataSchemaTest
 	{
 		[Theory]
-		[MemberData("TestData")]
+		[MemberData(nameof(TestData))]
 		public void TestDataSchemaToTypescriptDefinition(string expected, DataSchema schema)
 		{
 			var builder = new StringBuilder();

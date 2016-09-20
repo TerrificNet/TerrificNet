@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Test
 	public class HandlebarsParserTest
 	{
 		[Theory]
-		[MemberData("TestData")]
+		[MemberData(nameof(TestData))]
 		public void TestParser(string input, MustacheExpression expected)
 		{
 			var underTest = new HandlebarsParser();

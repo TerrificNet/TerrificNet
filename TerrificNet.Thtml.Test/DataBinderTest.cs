@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit;
 using Xunit;
 
@@ -10,7 +11,6 @@ namespace TerrificNet.Thtml.Test
 {
 	public class DataBinderTest
 	{
-		// ReSharper disable once UnusedMember.Global
 		public static IEnumerable<object[]> BinderFactoriesParameter
 		{
 			get { return BinderFactories.Select(s => new object[] { s }); }
@@ -20,17 +20,13 @@ namespace TerrificNet.Thtml.Test
 		{
 			get
 			{
-				yield return type =>
-				{
-					ParameterExpression dataContextParameter = Expression.Parameter(type);
-					return TypeDataBinder.BinderFromType(dataContextParameter.Type);
-				};
+				yield return TypeDataBinder.BinderFromType;
 				yield return t => new DynamicDataBinder();
 			}
 		}
 
 		[Theory]
-		[MemberData("BinderFactoriesParameter")]
+		[MemberData(nameof(BinderFactoriesParameter))]
 		public void DataBinder_SimplePropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
 		{
 			const string expectedResult = "property";
@@ -46,7 +42,7 @@ namespace TerrificNet.Thtml.Test
 		}
 
 		[Theory]
-		[MemberData("BinderFactoriesParameter")]
+		[MemberData(nameof(BinderFactoriesParameter))]
 		public void DataBinder_IterationPropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
 		{
 			const string expectedResult = "property";
@@ -73,7 +69,7 @@ namespace TerrificNet.Thtml.Test
 		}
 
 		[Theory]
-		[MemberData("BinderFactoriesParameter")]
+		[MemberData(nameof(BinderFactoriesParameter))]
 		public void DataBinder_NestedPropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
 		{
 			const string expectedResult = "property";
@@ -89,7 +85,7 @@ namespace TerrificNet.Thtml.Test
 		}
 
 		[Theory]
-		[MemberData("BinderFactoriesParameter")]
+		[MemberData(nameof(BinderFactoriesParameter))]
 		public void DataBinder_ConditionalPropertyToExpression(Func<Type, IDataBinder> dataBinderFactory)
 		{
 			const bool expectedResult = true;

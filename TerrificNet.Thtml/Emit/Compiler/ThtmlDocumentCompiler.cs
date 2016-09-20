@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
 

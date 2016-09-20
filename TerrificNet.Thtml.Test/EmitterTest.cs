@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 using LightMock;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Test.Asserts;
+using TerrificNet.Thtml.Test.Stubs;
 using TerrificNet.Thtml.VDom;
 using Xunit;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
@@ -16,7 +18,7 @@ namespace TerrificNet.Thtml.Test
 	public class EmitterTest
 	{
 		[Theory]
-		[MemberData("TestData")]
+		[MemberData(nameof(TestData))]
 		public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, IHelperBinder helperBinder)
 		{
 			var method = new ThtmlDocumentCompiler(input, helperBinder).Compile(dataBinder, EmitterFactories.VTree);

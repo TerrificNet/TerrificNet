@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
@@ -11,7 +11,7 @@ namespace TerrificNet.Thtml.Test
     public class IntegrationTest
     {
         [Theory]
-        [MemberData("TestData")]
+        [MemberData(nameof(TestData))]
         public void TestFullStack(string inputTemplate, object inputObject, string expectedResult)
         {
             var lexer = new Lexer();

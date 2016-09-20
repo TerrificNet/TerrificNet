@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
-using TerrificNet.Thtml.Emit;
+using TerrificNet.Thtml.Binding;
 
-namespace TerrificNet.Thtml.Test
+namespace TerrificNet.Thtml.Test.Stubs
 {
 	public class NullDataBinder : IDataBinder
 	{

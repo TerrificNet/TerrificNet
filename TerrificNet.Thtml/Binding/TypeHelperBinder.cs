@@ -19,21 +19,17 @@ namespace TerrificNet.Thtml.Binding
 				var type = pair.Item1;
 				var name = pair.Item2;
 
-				if (name.EndsWith("()"))
-				{
-					var function =
-						memberLocator.FindMethod(type, name.Substring(0, name.Length - 2));
-					if (function != null) return DelegateBuilder.FunctionCall(type, function);
-				}
-
 				var property = memberLocator.FindProperty(type, name);
-				if (property != null) return DelegateBuilder.Property(type, property);
+				if (property != null)
+					return DelegateBuilder.Property(type, property);
 
 				var field = memberLocator.FindField(type, name);
-				if (field != null) return DelegateBuilder.Field(type, field);
+				if (field != null)
+					return DelegateBuilder.Field(type, field);
 
 				var dictionaryType = type.GetDictionaryTypeWithKey();
-				if (dictionaryType != null) return DelegateBuilder.Dictionary(dictionaryType, name);
+				if (dictionaryType != null)
+					return DelegateBuilder.Dictionary(dictionaryType, name);
 
 				return null;
 			});

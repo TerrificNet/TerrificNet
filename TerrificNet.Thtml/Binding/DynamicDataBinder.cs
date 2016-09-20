@@ -1,14 +1,17 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
-using TerrificNet.Thtml.Binding;
+using System.Reflection;
 using TerrificNet.Thtml.Emit.Compiler;
 
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Binding
 {
 	public class DynamicDataBinder : IDataBinder
 	{
 		private readonly IEvaluator _evaluator;
+		private static readonly MethodInfo EvaluateMethodString;
+		private static readonly MethodInfo EvaluateMethodBool;
+		private static readonly MethodInfo EvaluateMethodEnumerable;
 
 		public DynamicDataBinder()
 		{
@@ -20,6 +23,13 @@ namespace TerrificNet.Thtml.Emit
 			_evaluator = evaluator;
 		}
 
+		static DynamicDataBinder()
+		{
+			EvaluateMethodString = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
+			EvaluateMethodBool = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
+			EvaluateMethodEnumerable = ExpressionHelper.GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
+		}
+
 		private IEvaluator<string> BindString()
 		{
 			return new CastEvaluator<string>(_evaluator);
@@ -27,14 +37,12 @@ namespace TerrificNet.Thtml.Emit
 
 		public Expression BindString(Expression dataContext)
 		{
-			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<string>>(i => i.Evaluate(null));
-			return Expression.Call(Expression.Constant(BindString()), evaluateMethod, dataContext);
+			return Expression.Call(Expression.Constant(BindString()), EvaluateMethodString, dataContext);
 		}
 
 		public Expression BindBoolean(Expression dataContext)
 		{
-			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<bool>>(i => i.Evaluate(null));
-			return Expression.Call(Expression.Constant(BindBoolean()), evaluateMethod, dataContext);
+			return Expression.Call(Expression.Constant(BindBoolean()), EvaluateMethodBool, dataContext);
 		}
 
 		private IEvaluator<bool> BindBoolean()
@@ -56,9 +64,8 @@ namespace TerrificNet.Thtml.Emit
 
 		public Expression BindEnumerable(Expression dataContext)
 		{
-			var evaluateMethod = ExpressionHelper.GetMethodInfo<IEvaluator<IEnumerable>>(i => i.Evaluate(null));
 			IDataBinder childScope;
-			return Expression.Call(Expression.Constant(BindEnumerable2(out childScope)), evaluateMethod, dataContext);
+			return Expression.Call(Expression.Constant(BindEnumerable2(out childScope)), EvaluateMethodEnumerable, dataContext);
 		}
 
 		public Type ResultType => typeof(object);
@@ -128,20 +135,20 @@ namespace TerrificNet.Thtml.Emit
 				if (typeof(T) == typeof(string))
 				{
 					if (result == null)
-						return (T) (object) null;
+						return (T)(object)null;
 
-					return (T) (object) result.ToString();
+					return (T)(object)result.ToString();
 				}
 
 				if (typeof(T) == typeof(bool))
 				{
 					if (result is bool)
-						return (T) result;
+						return (T)result;
 
-					return (T) (object) (result != null);
+					return (T)(object)(result != null);
 				}
 
-				return (T) result;
+				return (T)result;
 			}
 		}
 	}

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace TerrificNet.Thtml.Emit
+namespace TerrificNet.Thtml.Binding
 {
 	public class TypeDataBinder : IDataBinder
 	{

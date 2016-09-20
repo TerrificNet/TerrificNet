@@ -4,7 +4,7 @@ using Xunit;
 
 namespace TerrificNet.Thtml.Test.Asserts
 {
-	static internal class GenericAssert
+	internal static class GenericAssert
 	{
 		public static void AssertOneOf(params Func<bool>[] assertions)
 		{
