@@ -286,5 +286,10 @@ namespace TerrificNet.Thtml.Test.Stubs
 		{
 			return new Token(TokenCategory.ParentReference, "../", position, position + 3);
 		}
+
+		public static Token Ad(int position)
+		{
+			return new Token(TokenCategory.Ad, "@", position, position + 1);
+		}
 	}
 }

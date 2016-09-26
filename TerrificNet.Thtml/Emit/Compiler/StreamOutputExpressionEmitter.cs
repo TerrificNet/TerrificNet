@@ -30,6 +30,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Block(expressions);
 		}
 
+		public Expression HandleElementList(List<Expression> elements)
+		{
+			return Expression.Block(elements);
+		}
+
 		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
 		{
 			yield return Write(" " + attributeNode.Name + "=\"");

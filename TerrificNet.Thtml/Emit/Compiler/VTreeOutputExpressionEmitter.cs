@@ -30,16 +30,20 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			_handleExpression = HandleAttributeValueCall;
 			var attributes = element.Attributes.Select(attribute => attribute.Accept(visitor)).ToList();
+			var attributeList = attributes.Count > 0 ? (Expression)Expression.ListInit(Expression.New(typeof(List<VProperty>)), attributes) : Expression.Constant(null, typeof(IEnumerable<VProperty>));
 
 			_handleExpression = HandleElementCall;
-			var elements = element.ChildNodes.Select(i => i.Accept(visitor)).ToList();
-
-			var attributeList = attributes.Count > 0 ? (Expression) Expression.ListInit(Expression.New(typeof(List<VProperty>)), attributes) : Expression.Constant(null, typeof(IEnumerable<VProperty>));
-			var elementList = CreateElementList(elements);
+			IReadOnlyList<Node> childNodes = element.ChildNodes;
+			var elementList = HandleElementList(childNodes.Select(i => i.Accept(visitor)).ToList());
 
 			var constructorInfo = typeof(VElement).GetTypeInfo().GetConstructor(new[] {typeof(string), typeof(IEnumerable<VProperty>), typeof(IEnumerable<VTree>)});
 
 			return Expression.New(constructorInfo, Expression.Constant(element.TagName), attributeList, elementList);
+		}
+
+		public Expression HandleElementList(List<Expression> elements)
+		{
+			return CreateElementList(elements);
 		}
 
 		private static Expression CreateElementList(IReadOnlyCollection<Expression> elements)

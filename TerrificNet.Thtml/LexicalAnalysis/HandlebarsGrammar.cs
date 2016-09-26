@@ -108,6 +108,13 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 				_lexerState.Must('}', TokenCategory.HandlebarsEnd);
 				return TokenCategory.HandlebarsEvaluateInHtml;
 			}
+			if (_lexerState.Can('@', TokenCategory.Ad))
+			{
+				_lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
+				AttributeList();
+
+				return TokenCategory.HandlebarsEvaluate;
+			}
 
 			_lexerState.Must(Expression, TokenCategory.HandlebarsExpression);
 			return TokenCategory.HandlebarsEvaluate;

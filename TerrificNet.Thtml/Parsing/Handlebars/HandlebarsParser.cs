@@ -71,6 +71,15 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 			var compToken = ExpectComposite(token);
 			var expressionToken = ExpectTokenCategory(compToken, TokenCategory.HandlebarsExpression);
 
+			var adExpression = compToken.Tokens.FirstOrDefault(t => t.Category == TokenCategory.Ad);
+			if (adExpression != null)
+			{
+				var compToken2 = ExpectComposite(expressionToken);
+				var nameToken = ExpectTokenCategory(compToken2, TokenCategory.Name);
+
+				return new CallHelperExpression(nameToken.Lexem);
+			}
+
 			var memberAccess = ExpressionOrParentExpression(expressionToken);
 			return memberAccess;
 		}

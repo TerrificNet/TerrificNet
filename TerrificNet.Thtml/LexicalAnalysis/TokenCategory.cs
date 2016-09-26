@@ -35,6 +35,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 		CommentContent,
 		Dash,
 		HandlebarsAttribute,
-		ParentReference
+		ParentReference,
+		Ad
 	}
 }

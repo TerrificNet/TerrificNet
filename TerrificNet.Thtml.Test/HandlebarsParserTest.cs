@@ -63,6 +63,11 @@ namespace TerrificNet.Thtml.Test
 				};
 				yield return new object[]
 				{
+						  "@test",
+						  new CallHelperExpression("test")
+				};
+				yield return new object[]
+				{
 					"../property1.property2 ",
 					new ParentExpression(new MemberExpression("property1", new MemberExpression("property2")))
 				};

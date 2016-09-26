@@ -331,6 +331,20 @@ namespace TerrificNet.Thtml.Test
 				};
 				yield return new object[]
 				{
+					"{{@body}}",
+					TokenFactory.DocumentList(
+								i => TokenFactory.Composite(i,
+									 TokenCategory.External,
+									 TokenFactory.HandlebarsStart,
+									 TokenFactory.HandlebarsStart,
+									 a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
+										  TokenFactory.Ad,
+										  b => TokenFactory.Expression(b, "body")),
+									 TokenFactory.HandlebarsEnd,
+									 TokenFactory.HandlebarsEnd))
+				};
+				yield return new object[]
+				{
 						  "{{e1}}{{e2}}",
 						  TokenFactory.DocumentList(
 								i => TokenFactory.HandlebarsSimple(i, "e1"),

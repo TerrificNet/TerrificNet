@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 using LightMock;
+using Moq;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
@@ -12,6 +13,7 @@ using TerrificNet.Thtml.VDom;
 using Xunit;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
 using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
+using System.Linq;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -34,14 +36,14 @@ namespace TerrificNet.Thtml.Test
 			{
 				var nullHelperBinder = new NullHelperBinder();
 				yield return new object[]
-		  {
+				{
 					"empty document",
 					new Document(),
 					new NullDataBinder(),
 					null,
 					new VNode(),
 					nullHelperBinder
-		  };
+				};
 
 				yield return new object[]
 				{
@@ -236,6 +238,31 @@ namespace TerrificNet.Thtml.Test
 					new VNode(
 						new VElement("h1", new [] { new VProperty("test", new StringVPropertyValue("hallo")) })),
 					nullHelperBinder
+				};
+
+				var resultMock = new Mock<HelperBinderResult>();
+				resultMock.Setup(r => r.CreateExpression(It.IsAny<HelperParameters>(), It.IsAny<Expression>())).Returns((HelperParameters p, Expression e) =>
+				{
+					var ex1 = p.OutputExpressionEmitter.HandleTextNode(new TextNode("test"));
+					var ex2 = p.OutputExpressionEmitter.HandleTextNode(new TextNode("test2"));
+
+					return p.OutputExpressionEmitter.HandleElementList(new[] { ex1, ex2 }.ToList());
+				});
+
+				var helperMock = new Mock<IHelperBinder>();
+				helperMock.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(resultMock.Object);
+
+				yield return new object[]
+				{
+					"one element with binder returning",
+					new Document(
+						new Element("h1", new Statement(new CallHelperExpression("helper")))),
+					new NullDataBinder(),
+					null,
+					new VNode(
+						new VElement("h1", new VText("test"), new VText("test2"))
+						),
+					helperMock.Object
 				};
 			}
 		}
