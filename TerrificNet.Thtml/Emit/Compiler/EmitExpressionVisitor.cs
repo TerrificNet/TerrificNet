@@ -11,7 +11,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class EmitExpressionVisitor : NodeVisitorBase<Expression>
 	{
-		private readonly IDataScopeContract _dataScopeContract;
+		public readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
 		private readonly IOutputExpressionEmitter _outputExpressionEmitter;
 

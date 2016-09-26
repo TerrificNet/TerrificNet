@@ -1,88 +1,83 @@
 ﻿<html class="mod mod-layout">
 {{!-- Meta Head --}}
-<mixin:meta-head title="Meine Seite - {{title}}">
-   {{body}}
-</mixin:meta-head>
+<mixin:meta-head pageTitle="{{title}}" />
 
-{{ partial template="components/modules/MetaHead/metahead" }}
-
-	{{!-- Body --}}
+{{!-- Body --}}
 <body>
-	{{!-- Off-Screen --}}
-	<div class="l-off-nav js-l-off-nav">
-		<i class="e-btn btn-m-mobile-close js-btn-m-mobile-close"></i>
-		{{ module template="components/modules/Nav" skin="mobile" }}
-		{{ module template="components/modules/LanguageSwitch" skin="mobile"}}
-		{{ module template="components/modules/Search" skin="mobile"}}
-	</div>
+   {{!-- Off-Screen --}}
+   <div class="l-off-nav js-l-off-nav">
+      <i class="e-btn btn-m-mobile-close js-btn-m-mobile-close"></i>
+      {{ module template="components/modules/Nav" skin="mobile" }}
+      {{ module template="components/modules/LanguageSwitch" skin="mobile"}}
+      {{ module template="components/modules/Search" skin="mobile"}}
+   </div>
 
-	{{!-- Page --}}
-	<div class="l-page js-l-page">
+   {{!-- Page --}}
+   <div class="l-page js-l-page">
 
-		{{!-- Header --}}
-		<header class="l-head l-wrap" role="banner">
+      {{!-- Header --}}
+      <header class="l-head l-wrap" role="banner">
 
-			<i class="e-btn btn-m-mobile js-btn-m-mobile"></i>
+         <i class="e-btn btn-m-mobile js-btn-m-mobile"></i>
 
-			<div class="l-logo">
-				{{ module template="components/modules/Logo"}}
-			</div>
+         <div class="l-logo">
+            {{ module template="components/modules/Logo"}}
+         </div>
 
-			<div class="l-service-wrapper">
+         <div class="l-service-wrapper">
 
-				<div class="l-service-top">
+            <div class="l-service-top">
 
-					<div class="l-service-search">
-						{{ module template="components/modules/Search" }}
-					</div>
+               <div class="l-service-search">
+                  {{ module template="components/modules/Search" }}
+               </div>
 
-					<div class="l-service-lang">
-						{{ module template="components/modules/LanguageSwitch" }}
-					</div>
-				</div>
+               <div class="l-service-lang">
+                  {{ module template="components/modules/LanguageSwitch" }}
+               </div>
+            </div>
 
-				<div class="l-service-bot">
-					<div class="l-nav" role="navigation">
-						{{ placeholder key="nav" }}
-					</div>
+            <div class="l-service-bot">
+               <div class="l-nav" role="navigation">
+                  {{ placeholder key="nav" }}
+               </div>
 
-				</div>
-			</div>
+            </div>
+         </div>
 
-		</header>
+      </header>
 
-		{{!-- Content --}}
-		<div class="l-content-wrapper js-l-content-wrapper">
+      {{!-- Content --}}
+      <div class="l-content-wrapper js-l-content-wrapper">
 
-			{{!-- Stage --}}
-			{{ placeholder key="stage" }}
+         {{!-- Stage --}}
+         {{ placeholder key="stage" }}
 
-			<div class="l-main-wrapper l-wrap" role="main">
-				<div class="l-main">
-					{{ placeholder key="main" }}
-				</div>
-			</div>
+         <div class="l-main-wrapper l-wrap" role="main">
+            <div class="l-main">
+               {{ placeholder key="main" }}
+            </div>
+         </div>
 
-		</div>
+      </div>
 
-		{{!-- Footer --}}
-		<footer class="l-footer-wrapper" role="contentinfo">
-			<div class="l-footer l-wrap">
-				{{ placeholder key="footer" }}
-			</div>
+      {{!-- Footer --}}
+      <footer class="l-footer-wrapper" role="contentinfo">
+         <div class="l-footer l-wrap">
+            {{ placeholder key="footer" }}
+         </div>
 
-			<div class="l-footer-bottom">
-				<div class="l-wrap">
-					{{ placeholder key="footer-info" }}
-				</div>
-			</div>
-		</footer>
+         <div class="l-footer-bottom">
+            <div class="l-wrap">
+               {{ placeholder key="footer-info" }}
+            </div>
+         </div>
+      </footer>
 
-		<button class="e-btn btn-back-top js-btn-back-top"></button>
-	</div>
+      <button class="e-btn btn-back-top js-btn-back-top"></button>
+   </div>
 
-	{{!-- Meta Foot --}}
-	<mixin:meta-foot />
-	{{ partial template="components/modules/MetaFoot/metafoot" }}
-	</body>
+   {{!-- Meta Foot --}}
+   <mixin:meta-foot />
+</body>
 </html>

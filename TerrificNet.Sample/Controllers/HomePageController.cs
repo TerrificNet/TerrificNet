@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -11,18 +10,19 @@ using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Rendering;
+using System.Linq;
 
 namespace TerrificNet.Sample.Controllers
 {
-    public class HomePageController : ControllerBase
+	public class HomePageController : ControllerBase
 	{
 		[HttpGet]
-	    public IActionResult Index()
+		public IActionResult Index()
 		{
-			return new ViewResult("asdf", new { title = "Start", body = "asdf", list = new [] { "s1", "s2" } });
-		    //return View("Gugus", new {});
-	    }
-    }
+			return new ViewResult("asdf", new { title = "Start", body = "asdf", list = new[] { "s1", "s2" } });
+			//return View("Gugus", new {});
+		}
+	}
 
 	public class ViewResult : IActionResult
 	{
@@ -70,7 +70,7 @@ namespace TerrificNet.Sample.Controllers
 			return document;
 		}
 
-		private class MixinEmitterFactory<T>  : IEmitterFactory<T>
+		private class MixinEmitterFactory<T> : IEmitterFactory<T>
 		{
 			private readonly IEmitterFactory<T> _adaptee;
 
@@ -121,12 +121,15 @@ namespace TerrificNet.Sample.Controllers
 			{
 				if (element.TagName.StartsWith("mixin:"))
 				{
-					var document = ViewResult.Parse(@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\MetaHead\metahead.html").Result;
-					//var result = element.Attributes[0].Accept(visitor);
+					var partialName = element.TagName.Remove(0, "mixin:".Length).Replace("-", "");
+					var document = ViewResult.Parse($@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\{partialName}\{partialName}.html").Result;
 
-					return visitor.Visit(document);
+					var emitVisitor = visitor as EmitExpressionVisitor;
 
-					//return _outputExpressionEmitter.HandleTextNode(new TextNode("mixin!"));
+					var subContract = element.Accept(new FillDictionaryOutputVisitor(emitVisitor._dataScopeContract));
+					var visitor2 = new EmitExpressionVisitor(subContract, null, _outputExpressionEmitter);
+
+					return visitor2.Visit(document);
 				}
 
 				return _outputExpressionEmitter.HandleElement(element, visitor);
@@ -180,35 +183,5 @@ namespace TerrificNet.Sample.Controllers
 				}
 			}
 		}
-	}
-
-	internal class AttributeDataBinder : IDataBinder
-	{
-		public IDataBinder Property(string propertyName)
-		{
-			throw new NotImplementedException();
-		}
-
-		public IDataBinder Item()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Expression BindString(Expression dataContext)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Expression BindBoolean(Expression dataContext)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Expression BindEnumerable(Expression dataContext)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Type ResultType { get; }
 	}
 }

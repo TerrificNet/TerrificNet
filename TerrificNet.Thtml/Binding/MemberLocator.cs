@@ -12,13 +12,6 @@ namespace TerrificNet.Thtml.Binding
 		{
 		}
 
-		public virtual MethodInfo FindMethod(Type modelType, string name)
-		{
-			return
-				modelType.GetRuntimeMethods()
-					.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-		}
-
 		public virtual PropertyInfo FindProperty(Type modelType, string expression)
 		{
 			return
