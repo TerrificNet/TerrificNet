@@ -19,10 +19,10 @@ namespace TerrificNet.Client.test
 
             services.AddMvc().AddMvcOptions(m =>
             {
-                m.OutputFormatters.Clear();
+                //m.OutputFormatters.Clear();
 
-                var formatter = new JsonOutputFormatter(new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() }, null);
-                m.OutputFormatters.Add(formatter);
+                //var formatter = new JsonOutputFormatter(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }, null);
+                //m.OutputFormatters.Add(formatter);
             });
         }
 

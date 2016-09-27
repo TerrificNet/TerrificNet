@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using TerrificNet.Client.test;
 
-namespace TerrificNet.Sample
+namespace TerrificNet.Client
 {
 	public class Program
 	{
