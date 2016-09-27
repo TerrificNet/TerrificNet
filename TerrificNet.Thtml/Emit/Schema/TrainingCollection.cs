@@ -33,6 +33,11 @@ namespace TerrificNet.Thtml.Emit.Schema
 			AddTraining(path, new NodeRemoveTraining(operation));
 		}
 
+		public void MoveNode(BindingPathTemplate path, ChangeOperation operation)
+		{
+			AddTraining(path, new NodeMoveTraining(operation));
+		}
+
 		private class NodeRemoveTraining : ITraining
 		{
 			private readonly ChangeOperation _operation;
@@ -67,6 +72,22 @@ namespace TerrificNet.Thtml.Emit.Schema
 			IEnumerable<ChangeOperation> IsMatch(object oldValue, object newValue);
 		}
 
+		private class NodeMoveTraining : TrainingCollection.ITraining
+		{
+			private readonly ChangeOperation _operation;
+
+			public NodeMoveTraining(ChangeOperation operation)
+			{
+				_operation = operation;
+			}
+
+			public IEnumerable<ChangeOperation> IsMatch(object oldValue, object newValue)
+			{
+				if (oldValue != null && newValue != null)
+					yield return _operation;
+			}
+		}
+
 		private class NodeAddTraining : ITraining
 		{
 			private readonly ChangeOperation _operation;
@@ -78,7 +99,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			public IEnumerable<ChangeOperation> IsMatch(object oldValue, object newValue)
 			{
-				if (newValue != null)
+				if (newValue != null && oldValue == null)
 					yield return _operation;
 			}
 		}

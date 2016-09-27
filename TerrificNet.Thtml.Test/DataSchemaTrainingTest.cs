@@ -70,9 +70,9 @@ namespace TerrificNet.Thtml.Test
 			IDataScopeContract childContract;
 			var binding = contract.RequiresEnumerable(out childContract);
 
+			binding.TrainMove(new ChangeOperationDummy("Move node"));
 			binding.TrainRemove(new ChangeOperationDummy("Remove node"));
 			binding.TrainAdd(new ChangeOperationDummy("Add node"));
-			binding.TrainMove(new ChangeOperationDummy("Move node"));
 			return contract;
 		}
 

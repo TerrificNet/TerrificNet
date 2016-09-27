@@ -267,14 +267,4 @@ namespace TerrificNet.Thtml.Test
 			}
 		}
 	}
-
-	public class Dummy
-	{
-		public string Name { get; set; }
-	}
-
-	public class DummyCollection
-	{
-		public IEnumerable<Dummy> Items { get; set; }
-	}
 }

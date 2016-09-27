@@ -23,6 +23,8 @@ namespace TerrificNet.Thtml.Emit
 
 		public static void TrainMove(this IBinding<IEnumerable> binding, ChangeOperation operation)
 		{
+			var tBinding = binding as DataScopeContract.Binding<IEnumerable>;
+			tBinding?._collection.MoveNode(tBinding.Path, operation);
 		}
 
 		public static void TrainAdd(this IBinding<IEnumerable> binding, ChangeOperation operation)

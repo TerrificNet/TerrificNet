@@ -4,6 +4,7 @@ using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Test.Stubs;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test

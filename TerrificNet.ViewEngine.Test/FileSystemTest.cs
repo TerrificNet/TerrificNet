@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using TerrificNet.ViewEngine.IO;
@@ -14,7 +15,7 @@ namespace TerrificNet.ViewEngine.Test
 
 		public FileSystemTest()
 		{
-			FileSystem = new FileSystem();
+			FileSystem = new FileSystem(Directory.GetCurrentDirectory());
 		}
 
 		[Fact]
