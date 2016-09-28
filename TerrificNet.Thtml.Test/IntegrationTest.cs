@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.Binding;
+using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
@@ -20,7 +21,7 @@ namespace TerrificNet.Thtml.Test
             var parser = new Parser(new HandlebarsParser());
             var ast = parser.Parse(tokens);
             var dataBinder = TypeDataBinder.BinderFromObject(inputObject);
-            var method = new ThtmlDocumentCompiler(ast, null).Compile(dataBinder, EmitterFactories.VTree);
+            var method = new ThtmlDocumentCompiler(ast, new CompilerExtensions()).Compile(dataBinder, EmitterFactories.VTree);
 
             var result = method.Execute(inputObject, null);
 

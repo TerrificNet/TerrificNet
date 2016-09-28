@@ -8,12 +8,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	public class ThtmlDocumentCompiler
 	{
 		private readonly Document _input;
-		private readonly IHelperBinder _helperBinder;
+		private readonly CompilerExtensions _extensions;
 
-		public ThtmlDocumentCompiler(Document input, IHelperBinder helperBinder)
+		public ThtmlDocumentCompiler(Document input, CompilerExtensions extensions)
 		{
 			_input = input;
-			_helperBinder = helperBinder ?? new NullHelperBinder();
+			_extensions = extensions;
 		}
 
 		public T Compile<T>(IDataBinder dataBinder, IEmitterFactory<T> emitterFactory)
@@ -27,14 +27,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private T Compile<T>(IDataScopeContract dataScopeContract, IEmitterFactory<T> emitterFactory)
 		{
 			var emitter = emitterFactory.Create();
-			var result = CreateExpression(emitter.OutputExpressionEmitter, dataScopeContract);
+			var result = CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter.OutputExpressionEmitter));
 
 			return emitter.WrapResult(result);
 		}
 
-		private CompilerResult CreateExpression(IOutputExpressionEmitter handler, IDataScopeContract dataScopeContract)
+		private CompilerResult CreateExpression(IDataScopeContract dataScopeContract, CompilerExtensions compilerExtensions)
 		{
-			var visitor = new EmitExpressionVisitor(dataScopeContract, _helperBinder, handler);
+			var visitor = new EmitExpressionVisitor(dataScopeContract, compilerExtensions);
 			var expression = visitor.Visit(_input);
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");

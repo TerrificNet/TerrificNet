@@ -42,7 +42,7 @@ namespace TerrificNet.Sample.Controllers
 			var document = await Parse(path);
 			var helperBinder = new SimpleHelperBinder();
 
-			var compiler = new ThtmlDocumentCompiler(document, helperBinder);
+			var compiler = new ThtmlDocumentCompiler(document, new CompilerExtensions().AddHelperBinder(helperBinder));
 			return compiler;
 		}
 
@@ -119,7 +119,7 @@ namespace TerrificNet.Sample.Controllers
 
 					var emitVisitor = visitor as EmitExpressionVisitor;
 					var subContract = ExtractConctractFromAttributes(element, emitVisitor);
-					var visitor2 = new EmitExpressionVisitor(subContract, new HelperBinderExtension(new NullHelperBinder(), children), _outputExpressionEmitter);
+					var visitor2 = new EmitExpressionVisitor(subContract, new CompilerExtensions().AddHelperBinder(new AggregatedHelperBinder(new NullHelperBinder(), new HelperBinderExtension(children))).WithEmitter(_outputExpressionEmitter));
 
 					return visitor2.Visit(document);
 				}
@@ -130,44 +130,6 @@ namespace TerrificNet.Sample.Controllers
 			public Expression HandleElementList(List<Expression> elements)
 			{
 				return _outputExpressionEmitter.HandleElementList(elements);
-			}
-
-			private class HelperBinderExtension : IHelperBinder
-			{
-				private readonly IHelperBinder _innerBinder;
-				private readonly Expression _expression;
-
-				public HelperBinderExtension(IHelperBinder innerBinder, Expression expression)
-				{
-					_innerBinder = innerBinder;
-					_expression = expression;
-				}
-
-				public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
-				{
-					if ("body".Equals(helper, StringComparison.OrdinalIgnoreCase))
-					{
-						return new ExtensionHelperBinderResult(_expression);
-					}
-
-					var result = _innerBinder.FindByName(helper, arguments);
-					return result;
-				}
-
-				private class ExtensionHelperBinderResult : HelperBinderResult
-				{
-					private readonly Expression _expression;
-
-					public ExtensionHelperBinderResult(Expression expression)
-					{
-						_expression = expression;
-					}
-
-					public override Expression CreateExpression(HelperParameters helperParameters, Expression children)
-					{
-						return _expression;
-					}
-				}
 			}
 
 			private static IDataScopeContract ExtractConctractFromAttributes(Element element, EmitExpressionVisitor emitVisitor)
@@ -221,6 +183,41 @@ namespace TerrificNet.Sample.Controllers
 				public override Expression CreateExpression(HelperParameters helperParameters, Expression children)
 				{
 					return helperParameters.OutputExpressionEmitter.HandleTextNode(new TextNode(_helper));
+				}
+			}
+		}
+
+		public class HelperBinderExtension : IHelperBinder
+		{
+			private readonly Expression _expression;
+
+			public HelperBinderExtension(Expression expression)
+			{
+				_expression = expression;
+			}
+
+			public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
+			{
+				if ("body".Equals(helper, StringComparison.OrdinalIgnoreCase))
+				{
+					return new ExtensionHelperBinderResult(_expression);
+				}
+
+				return null;
+			}
+
+			private class ExtensionHelperBinderResult : HelperBinderResult
+			{
+				private readonly Expression _expression;
+
+				public ExtensionHelperBinderResult(Expression expression)
+				{
+					_expression = expression;
+				}
+
+				public override Expression CreateExpression(HelperParameters helperParameters, Expression children)
+				{
+					return _expression;
 				}
 			}
 		}

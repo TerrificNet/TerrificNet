@@ -35,7 +35,7 @@ namespace TerrificNet.Client.test
 			var tokens = lexer.Tokenize(template);
 			var parser = new Parser(new HandlebarsParser());
 			var ast = parser.Parse(tokens);
-			var compiler = new ThtmlDocumentCompiler(ast, helperBinder);
+			var compiler = new ThtmlDocumentCompiler(ast, new CompilerExtensions().AddHelperBinder(helperBinder));
 
 			var emitter = compiler.Compile(dataBinder, EmitterFactories.VTree);
 			return emitter;
