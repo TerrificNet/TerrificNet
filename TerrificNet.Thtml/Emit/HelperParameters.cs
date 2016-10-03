@@ -1,12 +1,10 @@
-using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit.Compiler;
-using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit
 {
 	public class HelperParameters
 	{
-		public HelperParameters(IDataScopeContract scopeContract, INodeVisitor<Expression> visitor, CompilerExtensions compilerExtensions)
+		public HelperParameters(IDataScopeContract scopeContract, INodeCompilerVisitor visitor, CompilerExtensions compilerExtensions)
 		{
 			ScopeContract = scopeContract;
 			Visitor = visitor;
@@ -15,7 +13,7 @@ namespace TerrificNet.Thtml.Emit
 
 		public IDataScopeContract ScopeContract { get; }
 
-		public INodeVisitor<Expression> Visitor { get; }
+		public INodeCompilerVisitor Visitor { get; }
 
 		public CompilerExtensions CompilerExtensions { get; }
 	}

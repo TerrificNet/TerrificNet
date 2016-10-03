@@ -9,7 +9,7 @@ using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class EmitExpressionVisitor : NodeVisitorBase<Expression>
+	internal class EmitExpressionVisitor : NodeVisitorBase<Expression>, INodeCompilerVisitor
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
@@ -113,7 +113,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				IDataScopeContract childScopeContract;
 				var binding = scope.RequiresEnumerable(out childScopeContract);
 
-				var child = CreateVisitor(childScopeContract);
+				var child = ChangeContract(childScopeContract);
 				var children = Many(childNodes.Select(c => c.Accept(child)).ToList());
 
 				var collection = binding.Expression;
@@ -146,10 +146,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				if (result == null)
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-				//var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
-
-				var evaluation = result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions));
-				return evaluation;
+				return result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions));
 			}
 
 			var contentEmitter = expression.Accept(this);
@@ -169,9 +166,19 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return attributes.ToDictionary(d => d.Name, d => d.Value);
 		}
 
-		private EmitExpressionVisitor CreateVisitor(IDataScopeContract childScopeContract)
+		public INodeCompilerVisitor ChangeContract(IDataScopeContract childScopeContract)
 		{
 			return new EmitExpressionVisitor(childScopeContract, _extensions);
+		}
+
+		public INodeCompilerVisitor ChangeExtensions(CompilerExtensions extensions)
+		{
+			return new EmitExpressionVisitor(_dataScopeContract, extensions);
+		}
+
+		public Expression Visit(IEnumerable<Node> nodes)
+		{
+			return _extensions.OutputEmitter.HandleElementList(nodes.Select(i => i.Accept(this)).ToList());
 		}
 	}
 }

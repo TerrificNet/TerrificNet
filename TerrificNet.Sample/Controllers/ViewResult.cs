@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -39,10 +37,12 @@ namespace TerrificNet.Sample.Controllers
 		public static async Task<ThtmlDocumentCompiler> Compile(string path)
 		{
 			var document = await Parse(path);
-			var helperBinder = new SimpleHelperBinder();
 
-			var compiler = new ThtmlDocumentCompiler(document, CompilerExtensions.Default.AddHelperBinder(helperBinder).AddTagHelper(new MixinTagHelper()));
-			return compiler;
+			var extensions = CompilerExtensions.Default
+				.AddHelperBinder(new SimpleHelperBinder())
+				.AddTagHelper(new MixinTagHelper());
+
+			return new ThtmlDocumentCompiler(document, extensions);
 		}
 
 		public static async Task<Document> Parse(string path)
@@ -78,66 +78,8 @@ namespace TerrificNet.Sample.Controllers
 
 				public override Expression CreateExpression(HelperParameters helperParameters)
 				{
-					return helperParameters.CompilerExtensions.OutputEmitter.HandleTextNode(new TextNode(_helper));
+					return helperParameters.Visitor.Visit(new TextNode(_helper));
 				}
-			}
-		}
-
-		public class HelperBinderExtension : IHelperBinder
-		{
-			private readonly Expression _expression;
-
-			public HelperBinderExtension(Expression expression)
-			{
-				_expression = expression;
-			}
-
-			public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
-			{
-				if ("body".Equals(helper, StringComparison.OrdinalIgnoreCase))
-				{
-					return HelperBinderResult.Create(param => _expression);
-				}
-
-				return null;
-			}
-		}
-	}
-
-	public class MixinTagHelper : ITagHelper
-	{
-		public HelperBinderResult FindByName(Element element)
-		{
-			if (element.TagName.StartsWith("mixin:"))
-			{
-				var partialName = element.TagName.Remove(0, "mixin:".Length).Replace("-", "");
-				var document = ViewResult.Parse($@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\{partialName}\{partialName}.html").Result;
-
-				return new MixinHelperBinderResult(document, element);
-			}
-
-			return null;
-		}
-
-		private class MixinHelperBinderResult : HelperBinderResult
-		{
-			private readonly Element _element;
-			private readonly Document _document;
-
-			public MixinHelperBinderResult(Document document, Element element)
-			{
-				_document = document;
-				_element = element;
-			}
-
-			public override Expression CreateExpression(HelperParameters helperParameters)
-			{
-				var children2 = helperParameters.CompilerExtensions.OutputEmitter.HandleElementList(_element.ChildNodes.Select(i => i.Accept(helperParameters.Visitor)).ToList());
-
-				var subContract = _element.Accept(new FillDictionaryOutputVisitor(helperParameters.ScopeContract));
-				var visitor2 = new EmitExpressionVisitor(subContract, CompilerExtensions.Default.AddHelperBinder(new AggregatedHelperBinder(new ViewResult.HelperBinderExtension(children2))).WithEmitter(helperParameters.CompilerExtensions.OutputEmitter));
-
-				return visitor2.Visit(_document);
 			}
 		}
 	}

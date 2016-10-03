@@ -1,11 +1,12 @@
-﻿using TerrificNet.Thtml.Binding;
-using TerrificNet.Thtml.Parsing;
+﻿using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class CompilerExtensions
 	{
-		public IHelperBinder HelperBinder { get; }
+		private readonly AggregatedHelperBinder _helperBinder = new AggregatedHelperBinder();
+
+		public IHelperBinder HelperBinder => _helperBinder;
 
 		public ITagHelper TagHelper { get; }
 
@@ -15,33 +16,29 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private CompilerExtensions()
 		{
-			HelperBinder = new NullHelperBinder();
 			TagHelper = new NullTagHelper();
 		}
 
-		private CompilerExtensions(IHelperBinder helperBinder, ITagHelper tagHelper, IOutputExpressionEmitter emitter)
+		private CompilerExtensions(AggregatedHelperBinder helperBinder, ITagHelper tagHelper, IOutputExpressionEmitter emitter)
 		{
-			HelperBinder = helperBinder;
+			_helperBinder = helperBinder;
 			TagHelper = tagHelper;
 			OutputEmitter = emitter;
 		}
 
 		public CompilerExtensions AddHelperBinder(IHelperBinder helperBinder)
 		{
-			if (helperBinder == null)
-				return this;
-
-			return new CompilerExtensions(helperBinder, TagHelper, OutputEmitter);
+			return new CompilerExtensions(_helperBinder.AddBinder(helperBinder), TagHelper, OutputEmitter);
 		}
 
 		public CompilerExtensions WithEmitter(IOutputExpressionEmitter emitter)
 		{
-			return new CompilerExtensions(HelperBinder, TagHelper, emitter);
+			return new CompilerExtensions(_helperBinder, TagHelper, emitter);
 		}
 
 		public CompilerExtensions AddTagHelper(ITagHelper tagHelper)
 		{
-			return new CompilerExtensions(HelperBinder, tagHelper, OutputEmitter);
+			return new CompilerExtensions(_helperBinder, tagHelper, OutputEmitter);
 		}
 	}
 

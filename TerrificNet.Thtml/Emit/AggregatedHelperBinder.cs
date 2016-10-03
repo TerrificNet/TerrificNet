@@ -1,14 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace TerrificNet.Thtml.Emit
 {
-	public class AggregatedHelperBinder : IHelperBinder
+	internal class AggregatedHelperBinder : IHelperBinder
 	{
-		private readonly IHelperBinder[] _binders;
+		private readonly IList<IHelperBinder> _binders;
 
-		public AggregatedHelperBinder(params IHelperBinder[] binders)
+		public AggregatedHelperBinder()
 		{
-			_binders = binders;
+			_binders = new List<IHelperBinder>();
+		}
+
+		private AggregatedHelperBinder(IEnumerable<IHelperBinder> binders)
+		{
+			_binders = binders.ToList();
+		}
+
+		public AggregatedHelperBinder AddBinder(IHelperBinder binder)
+		{
+			return new AggregatedHelperBinder(new[] { binder }.Union(_binders));
 		}
 
 		public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
