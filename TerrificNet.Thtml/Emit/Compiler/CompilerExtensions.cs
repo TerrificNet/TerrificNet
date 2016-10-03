@@ -10,7 +10,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public ITagHelper TagHelper { get; }
 
-		public IOutputExpressionEmitter OutputEmitter { get; }
+		internal IOutputExpressionEmitter OutputEmitter { get; }
 
 		public static readonly CompilerExtensions Default = new CompilerExtensions();
 

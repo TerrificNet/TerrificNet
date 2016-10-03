@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TerrificNet.Sample.Core;
 
 namespace TerrificNet.Sample.Controllers
 {

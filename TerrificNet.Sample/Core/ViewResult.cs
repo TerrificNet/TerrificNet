@@ -6,11 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
-using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
-using TerrificNet.Thtml.Parsing.Handlebars;
 
-namespace TerrificNet.Sample.Controllers
+namespace TerrificNet.Sample.Core
 {
 	public class ViewResult : IActionResult
 	{
@@ -25,39 +23,20 @@ namespace TerrificNet.Sample.Controllers
 
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
-			var compiler = await Compile(_path);
+			var compilerService = new CompilerService();
+			var compilerExtensions = CompilerExtensions.Default
+				.AddHelperBinder(new SimpleHelperBinder())
+				.AddTagHelper(new MixinTagHelper(compilerService));
+
+			compilerService.Extensions = compilerExtensions;
+
+			var compiler = await compilerService.CreateCompiler(_path);
 			var runnable = compiler.Compile(new DynamicDataBinder(), EmitterFactories.VTree);
 
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
 				writer.Write(runnable.Execute(_model, null).ToString());
 			}
-		}
-
-		public static async Task<ThtmlDocumentCompiler> Compile(string path)
-		{
-			var document = await Parse(path);
-
-			var extensions = CompilerExtensions.Default
-				.AddHelperBinder(new SimpleHelperBinder())
-				.AddTagHelper(new MixinTagHelper());
-
-			return new ThtmlDocumentCompiler(document, extensions);
-		}
-
-		public static async Task<Document> Parse(string path)
-		{
-			var lexer = new Lexer();
-
-			var parser = new Parser(new HandlebarsParser());
-			string text;
-			using (var reader = new StreamReader(new FileStream(path, FileMode.Open)))
-			{
-				text = await reader.ReadToEndAsync();
-			}
-
-			var document = parser.Parse(lexer.Tokenize(text));
-			return document;
 		}
 
 		private class SimpleHelperBinder : IHelperBinder

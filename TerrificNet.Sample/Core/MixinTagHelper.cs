@@ -5,16 +5,23 @@ using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 
-namespace TerrificNet.Sample.Controllers
+namespace TerrificNet.Sample.Core
 {
 	public class MixinTagHelper : ITagHelper
 	{
+		private readonly CompilerService _compilerService;
+
+		public MixinTagHelper(CompilerService compilerService)
+		{
+			_compilerService = compilerService;
+		}
+
 		public HelperBinderResult FindByName(Element element)
 		{
 			if (element.TagName.StartsWith("mixin:"))
 			{
 				var partialName = element.TagName.Remove(0, "mixin:".Length).Replace("-", "");
-				var document = ViewResult.Parse($@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\{partialName}\{partialName}.html").Result;
+				var document = _compilerService.Parse($@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\{partialName}\{partialName}.html").Result;
 
 				return new MixinHelperBinderResult(document, element);
 			}
