@@ -30,9 +30,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Block(expressions);
 		}
 
-		public Expression HandleElementList(List<Expression> elements)
+		public Expression HandleElementList(IReadOnlyList<Expression> elements)
 		{
-			return Expression.Block(elements);
+			return elements.Count > 0 ? (Expression)Expression.Block(elements) : Expression.Empty();
 		}
 
 		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)

@@ -11,7 +11,6 @@ using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
-using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Sample.Controllers
 {
@@ -29,7 +28,7 @@ namespace TerrificNet.Sample.Controllers
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
 			var compiler = await Compile(_path);
-			var runnable = compiler.Compile(new DynamicDataBinder(), new MixinEmitterFactory<IVTreeRenderer>(EmitterFactories.VTree));
+			var runnable = compiler.Compile(new DynamicDataBinder(), EmitterFactories.VTree);
 
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
@@ -42,11 +41,11 @@ namespace TerrificNet.Sample.Controllers
 			var document = await Parse(path);
 			var helperBinder = new SimpleHelperBinder();
 
-			var compiler = new ThtmlDocumentCompiler(document, new CompilerExtensions().AddHelperBinder(helperBinder));
+			var compiler = new ThtmlDocumentCompiler(document, CompilerExtensions.Default.AddHelperBinder(helperBinder).AddTagHelper(new MixinTagHelper()));
 			return compiler;
 		}
 
-		private static async Task<Document> Parse(string path)
+		public static async Task<Document> Parse(string path)
 		{
 			var lexer = new Lexer();
 
@@ -59,109 +58,6 @@ namespace TerrificNet.Sample.Controllers
 
 			var document = parser.Parse(lexer.Tokenize(text));
 			return document;
-		}
-
-		private class MixinEmitterFactory<T> : IEmitterFactory<T>
-		{
-			private readonly IEmitterFactory<T> _adaptee;
-
-			public MixinEmitterFactory(IEmitterFactory<T> adaptee)
-			{
-				_adaptee = adaptee;
-			}
-
-			public IEmitter<T> Create()
-			{
-				return new AdapterEmitter<T>(_adaptee.Create());
-			}
-		}
-
-		private class AdapterEmitter<T> : IEmitter<T>
-		{
-			private readonly IEmitter<T> _adaptee;
-
-			public AdapterEmitter(IEmitter<T> adaptee)
-			{
-				_adaptee = adaptee;
-				this.OutputExpressionEmitter = new MixinOutputEmitter(adaptee.OutputExpressionEmitter);
-			}
-
-			public IOutputExpressionEmitter OutputExpressionEmitter { get; }
-
-			public T WrapResult(CompilerResult result)
-			{
-				return _adaptee.WrapResult(result);
-			}
-		}
-
-		private class MixinOutputEmitter : IOutputExpressionEmitter
-		{
-			private readonly IOutputExpressionEmitter _outputExpressionEmitter;
-
-			public MixinOutputEmitter(IOutputExpressionEmitter outputExpressionEmitter)
-			{
-				_outputExpressionEmitter = outputExpressionEmitter;
-			}
-
-			public Expression HandleAttributeContent(ConstantAttributeContent attributeContent)
-			{
-				return _outputExpressionEmitter.HandleAttributeContent(attributeContent);
-			}
-
-			public Expression HandleElement(Element element, INodeVisitor<Expression> visitor)
-			{
-				if (element.TagName.StartsWith("mixin:"))
-				{
-					var partialName = element.TagName.Remove(0, "mixin:".Length).Replace("-", "");
-					var document = ViewResult.Parse($@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\{partialName}\{partialName}.html").Result;
-
-					var children = _outputExpressionEmitter.HandleElementList(element.ChildNodes.Select(i => i.Accept(visitor)).ToList());
-
-					var emitVisitor = visitor as EmitExpressionVisitor;
-					var subContract = ExtractConctractFromAttributes(element, emitVisitor);
-					var visitor2 = new EmitExpressionVisitor(subContract, new CompilerExtensions().AddHelperBinder(new AggregatedHelperBinder(new NullHelperBinder(), new HelperBinderExtension(children))).WithEmitter(_outputExpressionEmitter));
-
-					return visitor2.Visit(document);
-				}
-
-				return _outputExpressionEmitter.HandleElement(element, visitor);
-			}
-
-			public Expression HandleElementList(List<Expression> elements)
-			{
-				return _outputExpressionEmitter.HandleElementList(elements);
-			}
-
-			private static IDataScopeContract ExtractConctractFromAttributes(Element element, EmitExpressionVisitor emitVisitor)
-			{
-				var subContract = element.Accept(new FillDictionaryOutputVisitor(emitVisitor._dataScopeContract));
-				return subContract;
-			}
-
-			public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
-			{
-				return _outputExpressionEmitter.HandleAttributeNode(attributeNode, valueEmitter);
-			}
-
-			public Expression HandleCall(Expression callExpression)
-			{
-				return _outputExpressionEmitter.HandleCall(callExpression);
-			}
-
-			public Expression HandleTextNode(TextNode textNode)
-			{
-				return _outputExpressionEmitter.HandleTextNode(textNode);
-			}
-
-			public Expression HandleDocument(List<Expression> expressions)
-			{
-				return _outputExpressionEmitter.HandleDocument(expressions);
-			}
-
-			public Expression HandleCompositeAttribute(CompositeAttributeContent compositeAttributeContent, INodeVisitor<Expression> visitor)
-			{
-				return _outputExpressionEmitter.HandleCompositeAttribute(compositeAttributeContent, visitor);
-			}
 		}
 
 		private class SimpleHelperBinder : IHelperBinder
@@ -180,9 +76,9 @@ namespace TerrificNet.Sample.Controllers
 					_helper = helper;
 				}
 
-				public override Expression CreateExpression(HelperParameters helperParameters, Expression children)
+				public override Expression CreateExpression(HelperParameters helperParameters)
 				{
-					return helperParameters.OutputExpressionEmitter.HandleTextNode(new TextNode(_helper));
+					return helperParameters.CompilerExtensions.OutputEmitter.HandleTextNode(new TextNode(_helper));
 				}
 			}
 		}
@@ -200,25 +96,48 @@ namespace TerrificNet.Sample.Controllers
 			{
 				if ("body".Equals(helper, StringComparison.OrdinalIgnoreCase))
 				{
-					return new ExtensionHelperBinderResult(_expression);
+					return HelperBinderResult.Create(param => _expression);
 				}
 
 				return null;
 			}
+		}
+	}
 
-			private class ExtensionHelperBinderResult : HelperBinderResult
+	public class MixinTagHelper : ITagHelper
+	{
+		public HelperBinderResult FindByName(Element element)
+		{
+			if (element.TagName.StartsWith("mixin:"))
 			{
-				private readonly Expression _expression;
+				var partialName = element.TagName.Remove(0, "mixin:".Length).Replace("-", "");
+				var document = ViewResult.Parse($@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\{partialName}\{partialName}.html").Result;
 
-				public ExtensionHelperBinderResult(Expression expression)
-				{
-					_expression = expression;
-				}
+				return new MixinHelperBinderResult(document, element);
+			}
 
-				public override Expression CreateExpression(HelperParameters helperParameters, Expression children)
-				{
-					return _expression;
-				}
+			return null;
+		}
+
+		private class MixinHelperBinderResult : HelperBinderResult
+		{
+			private readonly Element _element;
+			private readonly Document _document;
+
+			public MixinHelperBinderResult(Document document, Element element)
+			{
+				_document = document;
+				_element = element;
+			}
+
+			public override Expression CreateExpression(HelperParameters helperParameters)
+			{
+				var children2 = helperParameters.CompilerExtensions.OutputEmitter.HandleElementList(_element.ChildNodes.Select(i => i.Accept(helperParameters.Visitor)).ToList());
+
+				var subContract = _element.Accept(new FillDictionaryOutputVisitor(helperParameters.ScopeContract));
+				var visitor2 = new EmitExpressionVisitor(subContract, CompilerExtensions.Default.AddHelperBinder(new AggregatedHelperBinder(new ViewResult.HelperBinderExtension(children2))).WithEmitter(helperParameters.CompilerExtensions.OutputEmitter));
+
+				return visitor2.Visit(_document);
 			}
 		}
 	}

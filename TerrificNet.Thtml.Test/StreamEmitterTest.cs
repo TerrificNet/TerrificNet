@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Text;
-using LightMock;
+using Moq;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
@@ -22,7 +22,7 @@ namespace TerrificNet.Thtml.Test
 		public void TestExpressionEmit(string description, Document input, IDataBinder dataBinder, object data, string expected, IHelperBinder helperBinder)
 		{
 			var sb = new StringBuilder();
-			new ThtmlDocumentCompiler(input, new CompilerExtensions().AddHelperBinder(helperBinder)).Compile(dataBinder, EmitterFactories.Stream).Execute(new StringWriter(sb), data, null);
+			new ThtmlDocumentCompiler(input, CompilerExtensions.Default.AddHelperBinder(helperBinder)).Compile(dataBinder, EmitterFactories.Stream).Execute(new StringWriter(sb), data, null);
 
 			Assert.Equal(expected, sb.ToString());
 		}
@@ -135,12 +135,12 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
-				var helperResult = new MockContext<HelperBinderResult>();
-				helperResult.Arrange(d => d.CreateExpression(The<HelperParameters>.IsAnyValue, The<Expression>.IsAnyValue))
-					.Returns<HelperParameters, Expression>((handler, expression) => handler.OutputExpressionEmitter.HandleTextNode(new TextNode("helper output")));
+				var helperResult = new Mock<HelperBinderResult>();
+				helperResult.Setup(d => d.CreateExpression(It.IsAny<HelperParameters>()))
+					.Returns<HelperParameters>(handler => handler.CompilerExtensions.OutputEmitter.HandleTextNode(new TextNode("helper output")));
 
-				var helper = new MockContext<IHelperBinder>();
-				helper.Arrange(h => h.FindByName("helper", The<IDictionary<string, string>>.IsAnyValue)).Returns(new HelperBinderResultMock(helperResult));
+				var helper = new Mock<IHelperBinder>();
+				helper.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(helperResult.Object);
 
 				yield return new object[]
 				{
@@ -150,7 +150,7 @@ namespace TerrificNet.Thtml.Test
 					TypeDataBinder.BinderFromObject(obj3),
 					obj3,
 					"<h1>helper output</h1>",
-					new HelperBinderMock(helper)
+					helper.Object
 				};
 
 				var obj5 = new { Member = "member" };

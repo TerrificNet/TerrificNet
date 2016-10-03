@@ -41,7 +41,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.New(constructorInfo, Expression.Constant(element.TagName), attributeList, elementList);
 		}
 
-		public Expression HandleElementList(List<Expression> elements)
+		public Expression HandleElementList(IReadOnlyList<Expression> elements)
 		{
 			return CreateElementList(elements);
 		}

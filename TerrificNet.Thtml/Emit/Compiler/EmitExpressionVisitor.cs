@@ -11,7 +11,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class EmitExpressionVisitor : NodeVisitorBase<Expression>
 	{
-		public readonly IDataScopeContract _dataScopeContract;
+		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
 		private readonly IOutputExpressionEmitter _outputExpressionEmitter;
 		private readonly CompilerExtensions _extensions;
@@ -32,6 +32,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(Element element)
 		{
+			var tagResult = _extensions.TagHelper.FindByName(element);
+			if (tagResult != null)
+			{
+				return tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions));
+			}
 			return _outputExpressionEmitter.HandleElement(element, this);
 		}
 
@@ -137,14 +142,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var callHelperExpression = expression as CallHelperExpression;
 			if (callHelperExpression != null)
 			{
-				var result = _helperBinder.FindByName(callHelperExpression.Name,
-					CreateDictionaryFromArguments(callHelperExpression.Attributes));
+				var result = _helperBinder.FindByName(callHelperExpression.Name, CreateDictionaryFromArguments(callHelperExpression.Attributes));
 				if (result == null)
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
+				//var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
 
-				var evaluation = result.CreateExpression(new HelperParameters(_outputExpressionEmitter, _helperBinder, _dataScopeContract), children);
+				var evaluation = result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions));
 				return evaluation;
 			}
 
