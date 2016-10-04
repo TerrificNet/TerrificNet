@@ -1,5 +1,9 @@
 ﻿{
-   "template": [ "components/modules/**.html", "views/_layouts/**.html", "views/_partials/**.html" ],
+   "template": [
+      "components/modules/**.html",
+      "views/_layouts/**.html",
+      "views/_partials/**.html"
+   ],
    "view": [ "views/**.html.json" ],
    "data": [ "components/modules/**.json" ],
    "app.js": [

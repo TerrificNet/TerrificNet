@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq.Expressions;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TerrificNet.Thtml.Binding;
-using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
-using TerrificNet.Thtml.Parsing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TerrificNet.Sample.Core
 {
@@ -23,12 +20,7 @@ namespace TerrificNet.Sample.Core
 
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
-			var compilerService = new CompilerService();
-			var compilerExtensions = CompilerExtensions.Default
-				.AddHelperBinder(new SimpleHelperBinder())
-				.AddTagHelper(new MixinTagHelper(compilerService));
-
-			compilerService.Extensions = compilerExtensions;
+			var compilerService = context.HttpContext.RequestServices.GetRequiredService<CompilerService>();
 
 			var compiler = await compilerService.CreateCompiler(_path);
 			var runnable = compiler.Compile(new DynamicDataBinder(), EmitterFactories.VTree);
@@ -36,29 +28,6 @@ namespace TerrificNet.Sample.Core
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
 				writer.Write(runnable.Execute(_model, null).ToString());
-			}
-		}
-
-		private class SimpleHelperBinder : IHelperBinder
-		{
-			public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
-			{
-				return new SimpleHelperBinderResult(helper);
-			}
-
-			private class SimpleHelperBinderResult : HelperBinderResult
-			{
-				private readonly string _helper;
-
-				public SimpleHelperBinderResult(string helper)
-				{
-					_helper = helper;
-				}
-
-				public override Expression CreateExpression(HelperParameters helperParameters)
-				{
-					return helperParameters.Visitor.Visit(new TextNode(_helper));
-				}
 			}
 		}
 	}

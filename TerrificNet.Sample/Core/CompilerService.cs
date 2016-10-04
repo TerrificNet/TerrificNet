@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using TerrificNet.Thtml.Emit.Compiler;
@@ -9,7 +10,14 @@ namespace TerrificNet.Sample.Core
 {
 	public class CompilerService
 	{
-		internal CompilerExtensions Extensions { get; set; }
+		private readonly Func<CompilerExtensions> _extensionsProvider;
+
+		private CompilerExtensions Extensions => _extensionsProvider();
+
+		public CompilerService(Func<CompilerExtensions> extensionsProvider)
+		{
+			_extensionsProvider = extensionsProvider;
+		}
 
 		public async Task<ThtmlDocumentCompiler> CreateCompiler(string path)
 		{

@@ -8,7 +8,7 @@ namespace TerrificNet.Sample.Controllers
 		[HttpGet]
 		public IActionResult Index()
 		{
-			return new ViewResult("asdf", new { title = "Start", body = "asdf", list = new[] { "s1", "s2" } });
+			return new ViewResult("Index", new { title = "Start", body = "asdf", list = new[] { "s1", "s2" } });
 		}
 	}
 }
