@@ -29,6 +29,6 @@
       "Microsoft.Extensions.Configuration.Json": "1.0.0",
       "Microsoft.NETCore.App": "1.0.1",
       "NETStandard.Library": "1.6.0",
-      "TerrificNet": "0.1-alpha"
+      "TerrificNet.Mvc.Core": "1.0.0"
    }
 }

@@ -6,7 +6,7 @@ using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 
-namespace TerrificNet.Sample.Core
+namespace TerrificNet.Mvc.Core
 {
 	public class CompilerService
 	{

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TerrificNet.Sample.Core;
+using TerrificNet.Mvc.Core;
 
 namespace TerrificNet.Sample.Controllers
 {
@@ -8,7 +8,11 @@ namespace TerrificNet.Sample.Controllers
 		[HttpGet]
 		public IActionResult Index()
 		{
-			return new ViewResult("Index", new { title = "Start", body = "asdf", list = new[] { "s1", "s2" } });
+			return new ViewResult("Index", new
+			{
+				title = "Start",
+				list = new[] { "s1", "s2" }
+			});
 		}
 	}
 }

@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Parsing;
 
-namespace TerrificNet.Sample.Core
+namespace TerrificNet.Mvc.Core
 {
-	internal class SimpleHelperBinder : IHelperBinder
+	public class SimpleHelperBinder : IHelperBinder
 	{
 		public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
 		{

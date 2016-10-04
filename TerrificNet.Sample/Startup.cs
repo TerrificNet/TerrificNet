@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using TerrificNet.Environment;
-using TerrificNet.Sample.Core;
-using TerrificNet.Thtml.Emit.Compiler;
+using TerrificNet.Mvc.Core;
 
 namespace TerrificNet.Sample
 {
@@ -13,12 +11,7 @@ namespace TerrificNet.Sample
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddMvcCore();
-
-			services.AddSingleton(s => CompilerExtensions.Default
-				.AddHelperBinder(new SimpleHelperBinder())
-				.AddTagHelper(new MixinTagHelper(s.GetRequiredService<CompilerService>())));
-
-			services.AddSingleton(s => new CompilerService(s.GetRequiredService<CompilerExtensions>));
+			services.AddTerrificNet();
 		}
 
 		public void Configure(IApplicationBuilder app)

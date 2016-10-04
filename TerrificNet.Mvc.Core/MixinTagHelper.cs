@@ -5,7 +5,7 @@ using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 
-namespace TerrificNet.Sample.Core
+namespace TerrificNet.Mvc.Core
 {
 	public class MixinTagHelper : ITagHelper
 	{

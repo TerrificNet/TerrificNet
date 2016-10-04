@@ -5,7 +5,7 @@ using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Compiler;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TerrificNet.Sample.Core
+namespace TerrificNet.Mvc.Core
 {
 	public class ViewResult : IActionResult
 	{
@@ -27,7 +27,7 @@ namespace TerrificNet.Sample.Core
 
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
-				writer.Write(runnable.Execute(_model, null).ToString());
+				writer.Write((string) runnable.Execute(_model, null).ToString());
 			}
 		}
 	}
