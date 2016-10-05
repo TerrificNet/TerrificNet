@@ -7,6 +7,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		public static IEmitterFactory<IStreamRenderer> Stream { get; } = new EmitterFactory<IStreamRenderer>(() => new StreamEmitter());
 		public static IEmitterFactory<IVTreeRenderer> VTree { get; } = new EmitterFactory<IVTreeRenderer>(() => new VTreeEmitter());
+		public static IEmitterFactory<IIncrementalDomTemplate> IncrementalDomScript { get; } = new EmitterFactory<IIncrementalDomTemplate>(() => new IncrementalDomEmitter());
 
 		private class EmitterFactory<T> : IEmitterFactory<T>
 		{

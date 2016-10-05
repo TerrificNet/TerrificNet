@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using TerrificNet.Thtml.Binding;
@@ -23,7 +24,40 @@ namespace TerrificNet.Client.test
 			return new ObjectResult(vTree);
 		}
 
+		[HttpPost("incremental")]
+		public string GetIncrementalDom([FromQuery] string template, [FromBody] JToken obj)
+		{
+			var compiler = CreateCompiler(new NullHelperBinder(), template);
+			var emitter = compiler.Compile(new DynamicDataBinder(), EmitterFactories.IncrementalDomScript);
+
+			var builder = new StringBuilder();
+
+			var mapping = new JavascriptMethodMapping
+			{
+				ElementClose = "c",
+				ElementOpen = "o",
+				ElementVoid = "v",
+				ElementOpenEnd = "e",
+				ElementOpenStart = "s",
+				Text = "t",
+				Attr = "a"
+			};
+
+			using (var renderer = new JavascriptIncrementalDomRenderer(new StringWriter(builder), mapping))
+			{
+				emitter.Render(renderer, obj);
+			}
+
+			return builder.ToString();
+		}
+
 		private static IVTreeRenderer CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
+		{
+			var compiler = CreateCompiler(helperBinder, path);
+			return compiler.Compile(dataBinder, EmitterFactories.VTree);
+		}
+
+		private static ThtmlDocumentCompiler CreateCompiler(IHelperBinder helperBinder, string path)
 		{
 			string template;
 			using (var reader = new StreamReader(new FileStream(path, FileMode.Open)))
@@ -36,9 +70,7 @@ namespace TerrificNet.Client.test
 			var parser = new Parser(new HandlebarsParser());
 			var ast = parser.Parse(tokens);
 			var compiler = new ThtmlDocumentCompiler(ast, CompilerExtensions.Default.AddHelperBinder(helperBinder));
-
-			var emitter = compiler.Compile(dataBinder, EmitterFactories.VTree);
-			return emitter;
+			return compiler;
 		}
 	}
 }

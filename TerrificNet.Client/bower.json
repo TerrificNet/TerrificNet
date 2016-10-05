@@ -1,11 +1,12 @@
 {
-  "name": "ASP.NET",
-  "private": true,
-  "devDependencies": {
-    
-  },
-  "dependencies": {
-    "jquery": "^2.1.4",
-    "virtual-dom": "^2.1.1"
-  }
+   "name": "ASP.NET",
+   "private": true,
+   "devDependencies": {
+
+   },
+   "dependencies": {
+      "jquery": "^2.1.4",
+      "virtual-dom": "^2.1.1",
+      "incremental-dom": "^0.5.1"
+   }
 }

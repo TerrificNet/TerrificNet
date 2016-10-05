@@ -22,7 +22,8 @@ namespace TerrificNet.Thtml.Test
 		public void TestExpressionEmit(string description, Document input, IDataBinder dataBinder, object data, string expected, IHelperBinder helperBinder)
 		{
 			var sb = new StringBuilder();
-			new ThtmlDocumentCompiler(input, CompilerExtensions.Default.AddHelperBinder(helperBinder)).Compile(dataBinder, EmitterFactories.Stream).Execute(new StringWriter(sb), data, null);
+			new ThtmlDocumentCompiler(input, CompilerExtensions.Default.AddHelperBinder(helperBinder)).Compile(dataBinder, EmitterFactories.Stream)
+				.Execute(new StringWriter(sb), data, null);
 
 			Assert.Equal(expected, sb.ToString());
 		}

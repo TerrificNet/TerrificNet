@@ -9,6 +9,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public static class ExpressionHelper
 	{
+		private static readonly MethodInfo WriteMethodInfo = GetMethodInfo<TextWriter>(i => i.Write(""));
+
 		public static Expression ForEach(Expression collection, ParameterExpression loopVar, Expression loopContent)
 		{
 			var elementType = loopVar.Type;
@@ -56,13 +58,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public static Expression Write(Expression writer, Expression inputExpression)
 		{
-			return Expression.Call(writer, GetMethodInfo<TextWriter>(i => i.Write("")), inputExpression);
+			return Expression.Call(writer, WriteMethodInfo, inputExpression);
 		}
 
 		public static Expression Write(Expression writer, string value)
 		{
 			var param = Expression.Constant(value);
-			return Expression.Call(writer, GetMethodInfo<TextWriter>(i => i.Write("")), param);
+			return Expression.Call(writer, WriteMethodInfo, param);
 		}
 
 		public static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)

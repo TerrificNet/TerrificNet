@@ -1,18 +1,21 @@
 ﻿{
-  "version": "v4",
-  "repo": "borisyankov/DefinitelyTyped",
-  "ref": "master",
-  "path": "typings",
-  "bundle": "typings/tsd.d.ts",
-  "installed": {
-    "jasmine/jasmine.d.ts": {
-      "commit": "ff104ed7cc13a3eb2e89f46242c4dbdbbe66665e"
-    },
-    "jquery/jquery.d.ts": {
-      "commit": "0de1592ef9e3144b925287ca0494f621e12b01c6"
-    },
-    "es6-promise/es6-promise.d.ts": {
-      "commit": "35119c83fe214d18c7e370a678cd85dfcfbfa42a"
-    }
-  }
+   "version": "v4",
+   "repo": "borisyankov/DefinitelyTyped",
+   "ref": "master",
+   "path": "typings",
+   "bundle": "typings/tsd.d.ts",
+   "installed": {
+      "jasmine/jasmine.d.ts": {
+         "commit": "ff104ed7cc13a3eb2e89f46242c4dbdbbe66665e"
+      },
+      "jquery/jquery.d.ts": {
+         "commit": "0de1592ef9e3144b925287ca0494f621e12b01c6"
+      },
+      "es6-promise/es6-promise.d.ts": {
+         "commit": "35119c83fe214d18c7e370a678cd85dfcfbfa42a"
+      },
+      "incremental-dom/incremental-dom.d.ts": {
+         "commit": "aa8bfeaf005cefa122ada8533d8c93f80c58ae5c"
+      }
+   }
 }
