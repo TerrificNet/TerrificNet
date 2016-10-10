@@ -1,5 +1,4 @@
-﻿/// <reference path="../typings/tsd.d.ts" />
-import idom = require("incremental-dom");
+﻿import * as idom from "incremental-dom";
 
 export class IncrementalView {
    private rootElement: Node;
@@ -17,7 +16,7 @@ export class IncrementalView {
    }
 
    executeFuncFromTemplate(template: string): any {
-      var render = new Function(`return function(o, c, t, v, e, s, a) { ${template} }`)();
+      const render = new Function(`return function(o, c, t, v, e, s, a) { ${template} }`)();
       this.executeFunc(render);
    }
 

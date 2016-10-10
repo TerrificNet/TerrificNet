@@ -1,20 +1,25 @@
 {
    "version": "1.0.0",
    "name": "aspnet",
+   "dependencies": {
+      "es6-promise": "^4.0.5",
+      "incremental-dom": "^0.5.1",
+      "virtual-dom": "^2.1.1"
+   },
    "devDependencies": {
       "gulp": "^3.9.0",
-      "bower": "^1.6.3",
-      "gulp-bower": "^0.0.10",
       "gulp-debug": "^2.0.1",
       "gulp-inject": "^1.2.0",
       "gulp-sourcemaps": "^1.5.1",
       "gulp-tslint": "^1.4.4",
-      "gulp-typescript": "^2.5.0",
+      "gulp-typescript": "^3.0.2",
       "gulp-rimraf": "^0.1.1",
       "gulp-jasmine": "^2.1.0",
       "gulp-jasmine-browser": "^0.2.3",
+      "gulp-watch": "^4.3.10",
       "gulp-dnx": "^0.2.0",
       "gulp-uglify": "^1.4.2",
+      "gulp-typings": "^2.0.4",
       "jquery": "^2.1.4",
       "jasmine": "^2.3.2",
       "del": "^2.0.2",
@@ -23,10 +28,11 @@
       "vinyl-source-stream": "^1.1.0",
       "tsify": "^0.12.2",
       "vinyl-buffer": "^1.0.0",
-      "tsd": "^0.6.5",
       "es6-promise": "^3.0.2",
-      "gulp-tsd": "^0.0.4",
       "phantomjs": "^1.9.18",
-      "incremental-dom": "^0.5.1"
+      "incremental-dom": "^0.5.1",
+      "virtual-dom": "^2.1.1",
+      "ts-loader": "^0.9.0",
+      "webpack-stream": "^3.2.0"
    }
 }

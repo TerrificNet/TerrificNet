@@ -168,3 +168,4 @@ typings
 wwwroot
 built
 *.dg
+/TerrificNet.Client/dist

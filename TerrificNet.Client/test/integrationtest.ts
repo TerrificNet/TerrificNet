@@ -1,9 +1,8 @@
-﻿/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="../typings_custom/virtual-dom.d.ts" />
+﻿import * as thtml from "view";
+import * as ihtml from "incrementalView";
+import * as http from "http";
 
-import thtml = require("../src/view");
-import ihtml = require("../src/incrementalView");
-import http = require("../src/http");
+import * as vdom from "virtual-dom"
 
 function handleFail(done: () => void): (data: any) => void {
    return data => {
@@ -17,22 +16,22 @@ var root = "http://localhost:5000/";
 describe("integration test", () => {
 
    var url = root + "test?template=test/Templates/simple.html";
-
+   
    it("simple.html", done => {
 
       var data = { url: "http://terrific.net", content: "Test" };
       var data2 = { url: "http://terrific2.net", content: "Test2" };
 
       var fail = handleFail(done);
-
-      thtml.View.createFromVDom(http.post<VTree>(url, data)).then(view => {
+      
+      thtml.View.createFromVDom(http.post<vdom.VTree>(url, data)).then(view => {
 
          var a = view.node.children[0];
          expect(a).not.toBeNull();
          expect(a.getAttribute("href")).toBe(data.url);
          expect(a.firstChild.nodeValue).toBe(data.content);
 
-         view.updateAsync(http.post<VTree>(url, data2)).then(() => {
+         view.updateAsync(http.post<vdom.VTree>(url, data2)).then(() => {
 
             var a2 = view.node.children[0];
             expect(a2).toBe(a);
@@ -55,11 +54,10 @@ describe("integration test incremental dom", () => {
 
       var url = root + "test/incremental?template=test/Templates/simple.html";
 
-      http.post(url, data, false).then(template => {
-         console.log(template);
-
-         view.executeFuncFromTemplate(String(template));
-
+      http.post<string>(url, data, false).then(template => {
+         
+         view.executeFuncFromTemplate(template);
+         
          var node = (rootNode.children[0]) as HTMLElement;
 
          var a = node.children[0];
@@ -67,7 +65,8 @@ describe("integration test incremental dom", () => {
          expect(a.getAttribute("href")).toBe(data.url);
          expect(a.firstChild.nodeValue).toBe(data.content);
 
-         http.post(url, data2, false).then(template2 => {
+         http.post<string>(url, data2, false).then(template2 => {
+
             view.executeFuncFromTemplate(String(template2));
 
             node = (rootNode.children[0]) as HTMLElement;

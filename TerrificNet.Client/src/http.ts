@@ -1,6 +1,4 @@
-﻿/// <reference path="../typings/tsd.d.ts" />
-
-import rsvp = require("es6-promise");
+﻿import * as rsvp from "es6-promise";
 
 export function get<T>(url: string): Promise<T> {
    return execute<T>(url, null, "GET");
@@ -19,8 +17,7 @@ function execute<T>(url: string, data: Object, method: string, json: boolean = t
       req.onload = () => {
          if (req.status === 200) {
             resolve(json ? JSON.parse(req.response) : req.response);
-         }
-         else {
+         } else {
             reject(Error(req.statusText));
          }
       };

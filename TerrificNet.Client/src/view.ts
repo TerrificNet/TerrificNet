@@ -1,15 +1,10 @@
-﻿/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="../typings_custom/virtual-dom.d.ts" />
-
-import createElement = require("virtual-dom/create-element");
-import diff = require("virtual-dom/diff");
-import patch = require("virtual-dom/patch");
+﻿import * as vdom from "virtual-dom"
 
 export class View {
-   private tree: VTree;
+   private tree: vdom.VTree;
    private currentNode: HTMLElement;
 
-   constructor(node: HTMLElement, tree: VTree) {
+   constructor(node: HTMLElement, tree: vdom.VTree) {
       this.currentNode = node;
       this.tree = tree;
    }
@@ -18,22 +13,22 @@ export class View {
       return this.currentNode;
    }
 
-   update(treeCurrent: VNode) {
-      const patches = diff(this.tree, treeCurrent.children[0]);
+   update(treeCurrent: vdom.VNode) {
+      const patches = vdom.diff(this.tree, treeCurrent.children[0]);
       this.tree = treeCurrent.children[0];
-      this.currentNode = (patch(this.currentNode, patches) as HTMLElement);
+      this.currentNode = (vdom.patch(this.currentNode, patches) as HTMLElement);
    }
 
-   updateAsync(treePromise: Promise<VNode>): Promise<View> {
-      return treePromise.then((treeResult: VNode) => {
+   updateAsync(treePromise: Promise<vdom.VNode>): Promise<View> {
+      return treePromise.then((treeResult: vdom.VNode) => {
          this.update(treeResult);
          return this;
       });
    }
 
-   static createFromVDom(treePromise: Promise<VNode>): Promise<View> {
-      return treePromise.then((treeResult: VNode) => {
-         var element = createElement(treeResult.children[0]) as HTMLElement;
+   static createFromVDom(treePromise: Promise<vdom.VNode>): Promise<View> {
+      return treePromise.then((treeResult: vdom.VNode) => {
+         var element = vdom.create(treeResult.children[0] as vdom.VNode) as HTMLElement;
 
          return new View(element, treeResult.children[0]);
       });

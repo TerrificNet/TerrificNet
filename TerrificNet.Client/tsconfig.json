@@ -1,9 +1,17 @@
 ﻿{
-  "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "sourceMap": true,
-    "noImplicitAny": true
-  },
-  "files": [ "test/integrationtest.ts", "src/request.ts", "src/view.ts", "src/incrementalView.ts" ]
+   "compilerOptions": {
+      "target": "es5",
+      "module": "commonjs",
+      "sourceMap": true,
+      "noImplicitAny": true,
+      "outDir": "dist",
+      "baseUrl": ".",
+      "paths": {
+         "*": [
+            "*",
+            "src/*"
+         ]
+      }
+   },
+   "filesGlob": [ "test/*.ts", "src/*.ts" ]
 }
