@@ -9,25 +9,28 @@ namespace TerrificNet.Mvc.Core
 {
 	public class ViewResult : IActionResult
 	{
+		private readonly string _viewName;
 		private readonly object _model;
-		private readonly string _path;
 
 		public ViewResult(string viewName, object model)
 		{
+			_viewName = viewName;
 			_model = model;
-			_path = @"D:\projects\TerrificNet\TerrificNet.Sample\views\_layouts\_layout.html";
 		}
 
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
 			var compilerService = context.HttpContext.RequestServices.GetRequiredService<CompilerService>();
+			var viewDiscovery = context.HttpContext.RequestServices.GetRequiredService<IViewDiscovery>();
 
-			var compiler = await compilerService.CreateCompiler(_path);
-			var runnable = compiler.Compile(new DynamicDataBinder(), EmitterFactories.VTree);
+			var viewPath = viewDiscovery.FindView(_viewName);
+
+			var compiler = await compilerService.CreateCompiler(viewPath);
+			var runnable = compiler.Compile(TypeDataBinder.BinderFromObject(_model), EmitterFactories.VTree);
 
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
-				writer.Write((string) runnable.Execute(_model, null).ToString());
+				writer.Write(runnable.Execute(_model, null).ToString());
 			}
 		}
 	}

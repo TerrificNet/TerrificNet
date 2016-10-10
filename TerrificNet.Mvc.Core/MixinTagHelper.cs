@@ -10,18 +10,20 @@ namespace TerrificNet.Mvc.Core
 	public class MixinTagHelper : ITagHelper
 	{
 		private readonly CompilerService _compilerService;
+		private readonly IViewDiscovery _viewDiscovery;
 
-		public MixinTagHelper(CompilerService compilerService)
+		public MixinTagHelper(CompilerService compilerService, IViewDiscovery viewDiscovery)
 		{
 			_compilerService = compilerService;
+			_viewDiscovery = viewDiscovery;
 		}
 
 		public HelperBinderResult FindByName(Element element)
 		{
 			if (element.TagName.StartsWith("mixin:"))
 			{
-				var partialName = element.TagName.Remove(0, "mixin:".Length).Replace("-", "");
-				var document = _compilerService.Parse($@"D:\projects\TerrificNet\TerrificNet.Sample\components\modules\{partialName}\{partialName}.html").Result;
+				var partialName = element.TagName.Remove(0, "mixin:".Length);
+				var document = _compilerService.Parse(_viewDiscovery.FindPartial(partialName)).Result;
 
 				return new MixinHelperBinderResult(document, element);
 			}

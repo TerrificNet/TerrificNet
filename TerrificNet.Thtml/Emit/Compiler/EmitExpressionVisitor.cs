@@ -114,7 +114,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var binding = scope.RequiresEnumerable(out childScopeContract);
 
 				var child = ChangeContract(childScopeContract);
-				var children = Many(childNodes.Select(c => c.Accept(child)).ToList());
+				var children = childNodes.Select(c => c.Accept(child)).ToList();
 
 				var collection = binding.Expression;
 				return ExpressionHelper.ForEach(collection, (ParameterExpression) childScopeContract.Expression, children);

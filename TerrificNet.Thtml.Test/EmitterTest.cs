@@ -279,6 +279,20 @@ namespace TerrificNet.Thtml.Test
 						),
 					CompilerExtensions.Default.AddTagHelper(tagHelper.Object)
 				};
+
+				var listObj = new List<string> {"t1", "t2"};
+				yield return new object[]
+				{
+					"iterator over self",
+					new Document(
+						new Statement(new IterationExpression(new SelfExpression()),
+							new TextNode("pre"), new Element("div", new Statement(new SelfExpression())))
+						),
+					TypeDataBinder.BinderFromObject(listObj),
+					listObj,
+					new VNode(new VText("pre"), new VElement("div", new VText("t1")), new VText("pre"), new VElement("div", new VText("t2"))),
+					compilerExtensions
+				};
 			}
 		}
 	}

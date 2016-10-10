@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
@@ -11,7 +13,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		private static readonly MethodInfo WriteMethodInfo = GetMethodInfo<TextWriter>(i => i.Write(""));
 
-		public static Expression ForEach(Expression collection, ParameterExpression loopVar, Expression loopContent)
+		public static Expression ForEach(Expression collection, ParameterExpression loopVar, List<Expression> loopContent)
 		{
 			var elementType = loopVar.Type;
 			var enumerableType = typeof(IEnumerable);
@@ -22,14 +24,18 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var enumeratorAssign = Expression.Assign(enumeratorVar, Expression.Convert(getEnumeratorCall, enumeratorType));
 
 			Expression listAssign = Expression.Empty();
-			Expression loopExpression = loopContent;
+			Expression loopExpression = Expression.Block(loopContent);
 			ParameterExpression list = null;
-			if (loopContent.Type != typeof(void))
+			var loopExpressionType = GetRootType(loopContent.Select(l => l.Type));
+
+			if (loopExpressionType != typeof(void))
 			{
-				var listType = typeof(List<>).MakeGenericType(loopContent.Type);
+				var listType = typeof(List<>).MakeGenericType(loopExpressionType);
 				list = Expression.Variable(listType);
 				listAssign = Expression.Assign(list, Expression.New(listType));
-				loopExpression = Expression.Call(list, listType.GetTypeInfo().GetMethod("Add", new[] {loopContent.Type}), loopContent);
+
+				var methodInfo = listType.GetTypeInfo().GetMethod("Add", new[] {loopExpressionType});
+				loopExpression = Expression.Block(loopContent.Select(e => Expression.Call(list, methodInfo, e)));
 			}
 
 			// The MoveNext method's actually on IEnumerator, not IEnumerator<T>
@@ -54,6 +60,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			);
 
 			return loop;
+		}
+
+		private static Type GetRootType(IEnumerable<Type> types)
+		{
+			if (types.All(e => typeof(void) == e))
+				return typeof(void);
+
+			return typeof(VTree);
 		}
 
 		public static Expression Write(Expression writer, Expression inputExpression)

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq.Expressions;
 using System.Text;
 using Moq;
 using TerrificNet.Thtml.Binding;
@@ -193,6 +192,21 @@ namespace TerrificNet.Thtml.Test
 					"<h1 test=\"hallo\" test2=\"\"></h1>",
 					new NullHelperBinder()
 				};
+
+				var obj7 = new List<string> { "t1", "t2" };
+				yield return new object[]
+				{
+					"one iterator with list as datasource",
+					new Document(
+						new Statement(new IterationExpression(new SelfExpression()),
+							new Element("div", new Statement(new SelfExpression())))
+						),
+					TypeDataBinder.BinderFromObject(obj7),
+					obj7,
+					"<div>t1</div><div>t2</div>",
+					new NullHelperBinder()
+				};
+
 			}
 		}
 	}
