@@ -130,13 +130,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var testExpression = binding.Expression;
 
-				if (children.Type == typeof(void))
-					return Expression.IfThen(testExpression, children);
-
-				var returnTarget = Expression.Label(children.Type);
-
-				var ex = Expression.IfThen(testExpression, Expression.Return(returnTarget, children));
-				return Expression.Block(ex, Expression.Label(returnTarget, Expression.Constant(null, children.Type)));
+				return Expression.IfThen(testExpression, children);
 			}
 
 			var callHelperExpression = expression as CallHelperExpression;
