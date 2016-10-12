@@ -12,7 +12,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public StreamEmitter()
 		{
 			_writerParameter = Expression.Parameter(typeof(TextWriter));
-			OutputExpressionEmitter = new StreamOutputExpressionEmitter(_writerParameter);
+			OutputExpressionEmitter = new VTreeOutputExpressionEmitter(new StreamBuilderExpression(_writerParameter));
 		}
 
 		public IOutputExpressionEmitter OutputExpressionEmitter { get; }

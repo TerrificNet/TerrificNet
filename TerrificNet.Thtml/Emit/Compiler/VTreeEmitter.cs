@@ -12,7 +12,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public VTreeEmitter()
 		{
 			_builderParameter = Expression.Parameter(typeof(IVDomBuilder));
-			OutputExpressionEmitter = new VTreeOutputExpressionEmitter(_builderParameter);
+			OutputExpressionEmitter = new VTreeOutputExpressionEmitter(new VDomOutputExpressionBuilder(_builderParameter));
 		}
 
 		public IOutputExpressionEmitter OutputExpressionEmitter { get; }

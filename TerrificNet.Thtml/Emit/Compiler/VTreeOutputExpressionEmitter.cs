@@ -7,11 +7,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class VTreeOutputExpressionEmitter : IOutputExpressionEmitter
 	{
-		private readonly VDomBuilderExpression _builder;
+		private readonly IOutputExpressionBuilder _builder;
 
-		public VTreeOutputExpressionEmitter(Expression builderParameter)
+		internal VTreeOutputExpressionEmitter(IOutputExpressionBuilder expressionBuilder)
 		{
-			_builder = new VDomBuilderExpression(builderParameter);
+			_builder = expressionBuilder;
 		}
 
 		public Expression HandleAttributeContent(ConstantAttributeContent attributeContent)

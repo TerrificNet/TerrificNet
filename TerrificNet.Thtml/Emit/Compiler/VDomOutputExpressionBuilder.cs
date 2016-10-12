@@ -3,11 +3,11 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal class VDomBuilderExpression
+	internal class VDomOutputExpressionBuilder : IOutputExpressionBuilder
 	{
 		private readonly Expression _instance;
 
-		public VDomBuilderExpression(Expression instance)
+		public VDomOutputExpressionBuilder(Expression instance)
 		{
 			_instance = instance;
 		}
