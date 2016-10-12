@@ -24,16 +24,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var expressions = new List<Expression>();
 			if (element.Attributes.Count > 0)
 			{
-				expressions.Add(_builder.ElementOpenStart(Expression.Constant(element.TagName)));
+				expressions.Add(_builder.ElementOpenStart(element.TagName));
 				expressions.AddRange(element.Attributes.Select(attribute => attribute.Accept(visitor)));
 				expressions.Add(_builder.ElementOpenEnd());
 			}
 			else
-				expressions.Add(_builder.ElementOpen(Expression.Constant(element.TagName)));
+				expressions.Add(_builder.ElementOpen(element.TagName));
 
 			expressions.AddRange(element.ChildNodes.Select(i => i.Accept(visitor)));
 
-			expressions.Add(_builder.ElementClose());
+			expressions.Add(_builder.ElementClose(element.TagName));
 
 			return Expression.Block(expressions);
 		}
@@ -45,7 +45,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
 		{
-			yield return _builder.PropertyStart(Expression.Constant(attributeNode.Name));
+			yield return _builder.PropertyStart(attributeNode.Name);
 			yield return valueEmitter;
 			yield return _builder.PropertyEnd();
 		}

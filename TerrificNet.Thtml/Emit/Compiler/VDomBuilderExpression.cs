@@ -12,10 +12,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_instance = instance;
 		}
 
-		public Expression ElementOpenStart(Expression tagName)
+		public Expression ElementOpenStart(string tagName)
 		{
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.ElementOpenStart(null));
-			return Expression.Call(_instance, method, tagName);
+			return Expression.Call(_instance, method, Expression.Constant(tagName));
 		}
 
 		public Expression ElementOpenEnd()
@@ -24,22 +24,22 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Call(_instance, method);
 		}
 
-		public Expression ElementOpen(Expression tagName)
+		public Expression ElementOpen(string tagName)
 		{
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.ElementOpen(null));
-			return Expression.Call(_instance, method, tagName);
+			return Expression.Call(_instance, method, Expression.Constant(tagName));
 		}
 
-		public Expression ElementClose()
+		public Expression ElementClose(string tagName)
 		{
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.ElementClose());
 			return Expression.Call(_instance, method);
 		}
 
-		public Expression PropertyStart(Expression propertyName)
+		public Expression PropertyStart(string propertyName)
 		{
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.PropertyStart(null));
-			return Expression.Call(_instance, method, propertyName);
+			return Expression.Call(_instance, method, Expression.Constant(propertyName));
 		}
 
 		public Expression PropertyEnd()
