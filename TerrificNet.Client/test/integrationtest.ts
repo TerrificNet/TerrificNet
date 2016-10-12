@@ -1,8 +1,8 @@
-﻿import * as thtml from "view";
-import * as ihtml from "incrementalView";
-import * as http from "http";
+﻿/// <reference path="../typings/index.d.ts" />
 
-import * as vdom from "virtual-dom"
+import * as tn from "../index"
+
+import * as vdom from "virtual-dom";
 
 function handleFail(done: () => void): (data: any) => void {
    return data => {
@@ -24,14 +24,14 @@ describe("integration test", () => {
 
       var fail = handleFail(done);
       
-      thtml.View.createFromVDom(http.post<vdom.VTree>(url, data)).then(view => {
+      tn.View.createFromVDom(tn.post<vdom.VTree>(url, data)).then(view => {
 
          var a = view.node.children[0];
          expect(a).not.toBeNull();
          expect(a.getAttribute("href")).toBe(data.url);
          expect(a.firstChild.nodeValue).toBe(data.content);
 
-         view.updateAsync(http.post<vdom.VTree>(url, data2)).then(() => {
+         view.updateAsync(tn.post<vdom.VTree>(url, data2)).then(() => {
 
             var a2 = view.node.children[0];
             expect(a2).toBe(a);
@@ -50,11 +50,11 @@ describe("integration test incremental dom", () => {
       var data2 = { url: "http://terrific2.net", content: "Test2" };
 
       var rootNode = document.createElement("div");
-      var view = new ihtml.IncrementalView(rootNode);
+      var view = new tn.IncrementalView(rootNode);
 
       var url = root + "test/incremental?template=test/Templates/simple.html";
 
-      http.post<string>(url, data, false).then(template => {
+      tn.post<string>(url, data, false).then(template => {
          
          view.executeFuncFromTemplate(template);
          
@@ -65,7 +65,7 @@ describe("integration test incremental dom", () => {
          expect(a.getAttribute("href")).toBe(data.url);
          expect(a.firstChild.nodeValue).toBe(data.content);
 
-         http.post<string>(url, data2, false).then(template2 => {
+         tn.post<string>(url, data2, false).then(template2 => {
 
             view.executeFuncFromTemplate(String(template2));
 

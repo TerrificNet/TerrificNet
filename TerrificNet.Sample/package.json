@@ -4,9 +4,13 @@
    "devDependencies": {
       "gulp": "3.9.1",
       "gulp-concat-css": "2.3.0",
-      "gulp-less": "3.1.0",
-      "gulp-sass": "2.3.2"   
+      "gulp-sass": "2.3.2",
+      "webpack-stream": "^3.2.0",
+      "webpack": "^1.13.2",
+      "ts-loader": "^0.9.0",
+      "typescript": "^2.0.3"
    },
-   "dependencies": {
-   }
+   "dependencies": { 
+      "terrific-net": "file:../TerrificNet.Client"
+   } 
 }

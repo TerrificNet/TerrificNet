@@ -1,9 +1,11 @@
 ﻿using System.IO;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Compiler;
 using Microsoft.Extensions.DependencyInjection;
+using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Mvc.Core
 {
@@ -20,14 +22,45 @@ namespace TerrificNet.Mvc.Core
 
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
-			var compilerService = context.HttpContext.RequestServices.GetRequiredService<CompilerService>();
-			var viewDiscovery = context.HttpContext.RequestServices.GetRequiredService<IViewDiscovery>();
+			var runnable = await CreateAsync(EmitterFactories.VTree, context);
+			Render(context, runnable);
+		}
+
+		private async Task<T> CreateAsync<T>(IEmitterFactory<T> emitterFactory, ActionContext actionContext)
+		{
+			var compiler = await GetCompiler(actionContext);
+			return compiler.Compile(GetDataBinder(), emitterFactory);
+		}
+
+		public object Execute(IEmitter emitter, ActionContext actionContext)
+		{
+			var func = Create(emitter, actionContext).Compile();
+			return func.DynamicInvoke(_model);
+		}
+
+		public LambdaExpression Create(IEmitter emitter, ActionContext actionContext)
+		{
+			var compiler = GetCompiler(actionContext).Result;
+			return emitter.CreateExpression(compiler.Compile(GetDataBinder(), emitter));
+		}
+
+		private IDataBinder GetDataBinder()
+		{
+			return TypeDataBinder.BinderFromObject(_model);
+		}
+
+		private async Task<ThtmlDocumentCompiler> GetCompiler(ActionContext actionContext)
+		{
+			var compilerService = actionContext.HttpContext.RequestServices.GetRequiredService<CompilerService>();
+			var viewDiscovery = actionContext.HttpContext.RequestServices.GetRequiredService<IViewDiscovery>();
 
 			var viewPath = viewDiscovery.FindView(_viewName);
 
-			var compiler = await compilerService.CreateCompiler(viewPath);
-			var runnable = compiler.Compile(TypeDataBinder.BinderFromObject(_model), EmitterFactories.VTree);
+			return await compilerService.CreateCompiler(viewPath);
+		}
 
+		private void Render(ActionContext context, IVTreeRenderer runnable)
+		{
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
 				writer.Write(runnable.Execute(_model, null).ToString());

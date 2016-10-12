@@ -11,7 +11,7 @@ export class IncrementalView {
       idom.patch(this.rootElement, () => this.render(data));
    }
 
-   executeFunc(renderFunc: (o: Function, c: Function, t: Function, v: Function, e: Function, s: Function, a: Function) => void) {
+   executeFunc(renderFunc: (o: Function, c: Function, t: Function, v: Function, e: Function, s: Function, a: Function) => void): void {
       idom.patch(this.rootElement, () => renderFunc(idom.elementOpen, idom.elementClose, idom.text, idom.elementVoid, idom.elementOpenEnd, idom.elementOpenStart, idom.attr));
    }
 

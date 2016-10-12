@@ -1,4 +1,4 @@
-﻿import * as vdom from "virtual-dom"
+﻿import * as vdom from "virtual-dom";
 
 export class View {
    private tree: vdom.VTree;
@@ -19,7 +19,7 @@ export class View {
       this.currentNode = (vdom.patch(this.currentNode, patches) as HTMLElement);
    }
 
-   updateAsync(treePromise: Promise<vdom.VNode>): Promise<View> {
+   updateAsync(treePromise: Promise<vdom.VNode>): Promise<this> {
       return treePromise.then((treeResult: vdom.VNode) => {
          this.update(treeResult);
          return this;

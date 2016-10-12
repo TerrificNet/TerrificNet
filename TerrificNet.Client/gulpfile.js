@@ -13,10 +13,10 @@ var watch = require('gulp-watch');
 var JasminePlugin = require('gulp-jasmine-browser/webpack/jasmine-plugin');
 
 gulp.task('default', function () {
-   return gulp.src('test/integrationtest.ts')
+   return gulp.src('src/*.ts')
      .pipe(webpack({
         output: {
-           filename: 'main.js'
+           filename: 'index.js'
         },
         devtool: 'source-map',
         resolve: {
@@ -29,7 +29,7 @@ gulp.task('default', function () {
            ]
         }
      }))
-     .pipe(gulp.dest('dist/'));
+     .pipe(gulp.dest('dist/npm/'));
 });
 
 gulp.task("install_typings", function () {
@@ -37,6 +37,11 @@ gulp.task("install_typings", function () {
        .pipe(gulpTypings());
 
    return stream;
+});
+
+gulp.task("build-npm", ["default"], function() {
+   
+
 });
 
 gulp.task('test', function () {

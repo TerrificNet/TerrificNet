@@ -169,3 +169,4 @@ wwwroot
 built
 *.dg
 /TerrificNet.Client/dist
+/TerrificNet.Client/terrific-net-1.0.0.tgz

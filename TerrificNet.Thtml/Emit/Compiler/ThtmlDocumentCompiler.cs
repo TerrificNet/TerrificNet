@@ -18,18 +18,31 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public T Compile<T>(IDataBinder dataBinder, IEmitterFactory<T> emitterFactory)
 		{
-			var dataContextParameter = Expression.Variable(dataBinder.ResultType, "item");
-			var dataScopeContract = new DataScope(new DataScopeContract(BindingPathTemplate.Global), dataBinder, dataContextParameter);
-
-			return Compile(dataScopeContract, emitterFactory);
+			var dataScopeContract = CreateDataScope(dataBinder);
+			return Compile(dataScopeContract, emitterFactory.Create());
 		}
 
-		private T Compile<T>(IDataScopeContract dataScopeContract, IEmitterFactory<T> emitterFactory)
+		public CompilerResult Compile(IDataBinder dataBinder, IEmitter emitter)
 		{
-			var emitter = emitterFactory.Create();
-			var result = CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter.OutputExpressionEmitter));
+			var dataScopeContract = CreateDataScope(dataBinder);
+			return CreateCompilerResult(dataScopeContract, emitter);
+		}
 
+		private T Compile<T>(IDataScopeContract dataScopeContract, IEmitter<T> emitter)
+		{
+			var result = CreateCompilerResult(dataScopeContract, emitter);
 			return emitter.WrapResult(result);
+		}
+
+		private CompilerResult CreateCompilerResult(IDataScopeContract dataScopeContract, IEmitter emitter)
+		{
+			return CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter));
+		}
+
+		private static DataScope CreateDataScope(IDataBinder dataBinder)
+		{
+			var dataContextParameter = Expression.Variable(dataBinder.ResultType, "item");
+			return new DataScope(new DataScopeContract(BindingPathTemplate.Global), dataBinder, dataContextParameter);
 		}
 
 		private CompilerResult CreateExpression(IDataScopeContract dataScopeContract, CompilerExtensions compilerExtensions)

@@ -16,9 +16,21 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IVTreeRenderer WrapResult(CompilerResult result)
 		{
-			var action = Expression.Lambda<Func<object, VTree>>(result.BodyExpression, result.InputExpression).Compile();
+			var action = CreateLambda(result).Compile();
 			return new VTreeRenderer(action);
 		}
+
+		public LambdaExpression CreateExpression(CompilerResult result)
+		{
+			return CreateLambda(result);
+		}
+
+		private static Expression<Func<object, VTree>> CreateLambda(CompilerResult result)
+		{
+			return Expression.Lambda<Func<object, VTree>>(result.BodyExpression, result.InputExpression);
+		}
+
+		public Type ExpressionType => typeof(VTree);
 
 		private class VTreeRenderer : IVTreeRenderer
 		{

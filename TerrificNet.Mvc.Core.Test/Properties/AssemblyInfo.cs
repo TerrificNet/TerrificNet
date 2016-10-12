@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TerrificNet.Mvc.Core")]
+[assembly: AssemblyProduct("TerrificNet.Mvc.Core.Test")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -16,6 +16,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b52445d5-f50b-4652-9beb-acb44c4beceb")]
-
-[assembly: InternalsVisibleTo("TerrificNet.Mvc.Core.Test")]
+[assembly: Guid("cd6e6aa0-d448-44a1-9b9f-35d0f5dc47fd")]

@@ -1,52 +1,46 @@
-﻿using TerrificNet.Thtml.Parsing;
-
-namespace TerrificNet.Thtml.Emit.Compiler
+﻿namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class CompilerExtensions
 	{
 		private readonly AggregatedHelperBinder _helperBinder = new AggregatedHelperBinder();
 
+		private readonly AggregatedTagHelper _tagHelper = new AggregatedTagHelper();
+
 		public IHelperBinder HelperBinder => _helperBinder;
 
-		public ITagHelper TagHelper { get; }
+		public ITagHelper TagHelper => _tagHelper;
 
 		internal IOutputExpressionEmitter OutputEmitter { get; }
+
+		public IEmitter Emitter { get; }
 
 		public static readonly CompilerExtensions Default = new CompilerExtensions();
 
 		private CompilerExtensions()
 		{
-			TagHelper = new NullTagHelper();
 		}
 
-		private CompilerExtensions(AggregatedHelperBinder helperBinder, ITagHelper tagHelper, IOutputExpressionEmitter emitter)
+		private CompilerExtensions(AggregatedHelperBinder helperBinder, AggregatedTagHelper tagHelper, IEmitter emitter)
 		{
 			_helperBinder = helperBinder;
-			TagHelper = tagHelper;
-			OutputEmitter = emitter;
+			Emitter = emitter;
+			_tagHelper = tagHelper;
+			OutputEmitter = emitter?.OutputExpressionEmitter;
 		}
 
 		public CompilerExtensions AddHelperBinder(IHelperBinder helperBinder)
 		{
-			return new CompilerExtensions(_helperBinder.AddBinder(helperBinder), TagHelper, OutputEmitter);
+			return new CompilerExtensions(_helperBinder.AddBinder(helperBinder), _tagHelper, Emitter);
 		}
 
-		public CompilerExtensions WithEmitter(IOutputExpressionEmitter emitter)
+		public CompilerExtensions WithEmitter(IEmitter emitter)
 		{
-			return new CompilerExtensions(_helperBinder, TagHelper, emitter);
+			return new CompilerExtensions(_helperBinder, _tagHelper, emitter);
 		}
 
 		public CompilerExtensions AddTagHelper(ITagHelper tagHelper)
 		{
-			return new CompilerExtensions(_helperBinder, tagHelper, OutputEmitter);
-		}
-	}
-
-	public class NullTagHelper : ITagHelper
-	{
-		public HelperBinderResult FindByName(Element element)
-		{
-			return null;
+			return new CompilerExtensions(_helperBinder, _tagHelper.AddHelper(tagHelper), Emitter);
 		}
 	}
 }

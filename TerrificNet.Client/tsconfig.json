@@ -1,6 +1,8 @@
 ﻿{
    "compilerOptions": {
       "target": "es5",
+      "declaration": true,
+      "declarationDir": "dist",
       "module": "commonjs",
       "sourceMap": true,
       "noImplicitAny": true,
@@ -8,10 +10,10 @@
       "baseUrl": ".",
       "paths": {
          "*": [
-            "*",
-            "src/*"
+            "typings/globals/*"
          ]
       }
    },
-   "filesGlob": [ "test/*.ts", "src/*.ts" ]
+   "filesGlob": ["src/*.ts", "test/*.ts"],
+   "files": ["index.ts", "test/integrationtest.ts"]
 }

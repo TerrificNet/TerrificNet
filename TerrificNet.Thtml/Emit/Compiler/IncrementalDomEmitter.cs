@@ -18,9 +18,21 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IIncrementalDomTemplate WrapResult(CompilerResult result)
 		{
-			var action = Expression.Lambda<Action<IIncrementalDomRenderer, object>>(result.BodyExpression, _parameterExpression, result.InputExpression).Compile();
+			var action = CreateLambda(result).Compile();
 			return new IncrementDomTemplate(action);
 		}
+
+		public LambdaExpression CreateExpression(CompilerResult result)
+		{
+			return CreateLambda(result);
+		}
+
+		private Expression<Action<IIncrementalDomRenderer, object>> CreateLambda(CompilerResult result)
+		{
+			return Expression.Lambda<Action<IIncrementalDomRenderer, object>>(result.BodyExpression, _parameterExpression, result.InputExpression);
+		}
+
+		public Type ExpressionType => typeof(void);
 
 		private class IncrementDomTemplate : IIncrementalDomTemplate
 		{

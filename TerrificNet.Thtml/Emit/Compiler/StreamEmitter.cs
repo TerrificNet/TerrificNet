@@ -19,9 +19,21 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IStreamRenderer WrapResult(CompilerResult result)
 		{
-			var action = Expression.Lambda<Action<TextWriter, object>>(result.BodyExpression, _writerParameter, result.InputExpression).Compile();
+			var action = CreateLambda(result).Compile();
 			return new StreamRenderer(action);
 		}
+
+		public LambdaExpression CreateExpression(CompilerResult result)
+		{
+			return CreateLambda(result);
+		}
+
+		private Expression<Action<TextWriter, object>> CreateLambda(CompilerResult result)
+		{
+			return Expression.Lambda<Action<TextWriter, object>>(result.BodyExpression, _writerParameter, result.InputExpression);
+		}
+
+		public Type ExpressionType => typeof(void);
 
 		private class StreamRenderer : IStreamRenderer
 		{

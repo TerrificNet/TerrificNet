@@ -1,0 +1,16 @@
+﻿{
+   "compilerOptions": {
+      "target": "es5",
+      "module": "commonjs",
+      "outDir": "dist",
+      "sourceMap": true,
+      "baseUrl": ".",
+      "paths": {
+         "*": [
+            "*",
+            "src/*"
+         ]
+      }
+   },
+   "filesGlob": ["*.ts"]
+}

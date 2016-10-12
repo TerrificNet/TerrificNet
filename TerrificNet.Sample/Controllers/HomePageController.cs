@@ -10,8 +10,7 @@ namespace TerrificNet.Sample.Controllers
 		{
 			return new ViewResult("Index", new
 			{
-				title = "Start",
-				list = new[] { "s1", "s2" }
+				title = "Start"
 			});
 		}
 	}

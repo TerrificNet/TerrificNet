@@ -7,16 +7,24 @@ namespace TerrificNet.Sample.Controllers
 {
 	public class TodoController
 	{
-		[HttpGet]
-		public IActionResult Index()
-		{
-			var list = new List<TodoItem>
+		private static List<TodoItem> _model = new List<TodoItem>
 			{
 				new TodoItem { Id = "1", Description = "test1" },
 				new TodoItem { Id = "2", Description = "test2", IsDone = true },
 				new TodoItem { Id = "3", Description = "test3" }
 			};
-			return new ViewResult("todo", list);
+
+		[HttpGet]
+		public IActionResult Index()
+		{
+			return new ViewResult("todo", _model);
+		}
+
+		[HttpPost]
+		public IActionResult Add(string description)
+		{
+			_model.Add(new TodoItem {Description = description});
+			return Index();
 		}
 	}
 }
