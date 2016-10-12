@@ -32,10 +32,10 @@ namespace TerrificNet.Mvc.Core
 			return compiler.Compile(GetDataBinder(), emitterFactory);
 		}
 
-		public object Execute(IEmitter emitter, ActionContext actionContext)
+		public void Execute(IEmitter emitter, ActionContext actionContext)
 		{
 			var func = Create(emitter, actionContext).Compile();
-			return func.DynamicInvoke(_model);
+			func.DynamicInvoke(_model);
 		}
 
 		public LambdaExpression Create(IEmitter emitter, ActionContext actionContext)

@@ -7,9 +7,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class VTreeEmitter : IEmitter<IVTreeRenderer>
 	{
+		private readonly ParameterExpression _builderParameter;
+
 		public VTreeEmitter()
 		{
-			OutputExpressionEmitter = new VTreeOutputExpressionEmitter();
+			_builderParameter = Expression.Parameter(typeof(IVDomBuilder));
+			OutputExpressionEmitter = new VTreeOutputExpressionEmitter(_builderParameter);
 		}
 
 		public IOutputExpressionEmitter OutputExpressionEmitter { get; }
@@ -22,28 +25,31 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public LambdaExpression CreateExpression(CompilerResult result)
 		{
-			return CreateLambda(result);
+			return Expression.Lambda(Expression.Invoke(CreateLambda(result), _builderParameter, result.InputExpression), result.InputExpression);
 		}
 
-		private static Expression<Func<object, VTree>> CreateLambda(CompilerResult result)
+		private Expression<Action<IVDomBuilder, object>> CreateLambda(CompilerResult result)
 		{
-			return Expression.Lambda<Func<object, VTree>>(result.BodyExpression, result.InputExpression);
+			return Expression.Lambda<Action<IVDomBuilder, object>>(result.BodyExpression, _builderParameter, result.InputExpression);
 		}
 
 		public Type ExpressionType => typeof(VTree);
 
 		private class VTreeRenderer : IVTreeRenderer
 		{
-			private readonly Func<object, VTree> _action;
+			private readonly Action<IVDomBuilder, object> _action;
 
-			public VTreeRenderer(Func<object, VTree> action)
+			public VTreeRenderer(Action<IVDomBuilder, object> action)
 			{
 				_action = action;
 			}
 
 			public VTree Execute(object data, IRenderingContext renderingContext)
 			{
-				return _action(data);
+				var builder = new VDomBuilder();
+				_action(builder, data);
+
+				return builder.ToDom();
 			}
 		}
 	}

@@ -75,7 +75,7 @@ namespace TerrificNet.Mvc.Core.Test
 
 			var result = underTest.CreateExpressionFromViewResult(inputExpression, emitter);
 			Assert.NotNull(result);
-			Assert.Equal(typeof(VTree), result.Type);
+			Assert.Equal(typeof(void), result.Type);
 		}
 
 		private class TestController
