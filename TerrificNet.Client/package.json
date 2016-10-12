@@ -2,7 +2,6 @@
    "version": "1.0.0",
    "name": "terrific-net",
    "dependencies": {
-      "@types/es6-promise": "0.0.32",
       "es6-promise": "^4.0.5",
       "incremental-dom": "^0.5.1",
       "virtual-dom": "^2.1.1"

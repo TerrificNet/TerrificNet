@@ -1,6 +1,7 @@
 {
    "name": "terrific-net",
    "globalDependencies": {
+      "es6-promise": "github:DefinitelyTyped/DefinitelyTyped/es6-promise/es6-promise.d.ts#35119c83fe214d18c7e370a678cd85dfcfbfa42a",
       "jasmine": "github:DefinitelyTyped/DefinitelyTyped/jasmine/jasmine.d.ts#ff104ed7cc13a3eb2e89f46242c4dbdbbe66665e",
       "virtual-dom": "registry:dt/virtual-dom#2.0.1+20160317120654",
       "incremental-dom": "github:DefinitelyTyped/DefinitelyTyped/incremental-dom/incremental-dom.d.ts#aa8bfeaf005cefa122ada8533d8c93f80c58ae5c"

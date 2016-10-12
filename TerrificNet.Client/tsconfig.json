@@ -10,9 +10,13 @@
       "baseUrl": ".",
       "paths": {
          "*": [
+            "*",
             "typings/globals/*"
          ]
-      }
+      },
+      "typeRoots": [
+         "node_modules/@types"
+      ]
    },
    "filesGlob": ["src/*.ts", "test/*.ts"],
    "files": ["index.ts", "test/integrationtest.ts"]

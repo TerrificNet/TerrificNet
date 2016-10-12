@@ -48,7 +48,7 @@ gulp.task('test', function () {
 
    var plugin = new JasminePlugin();
 
-   return gulp.src('test/integrationtest.ts')
+   return gulp.src(['src/*.ts', 'test/*ts'])
    .pipe(webpack({
       output: {
          filename: 'main.js'
@@ -61,7 +61,7 @@ gulp.task('test', function () {
       },
       module: {
          loaders: [
-             { test: /\.ts$/, loader: 'ts-loader' }
+             { test: /\.ts$/, loader: 'ts-loader', exclude:"/node_modules/" }
          ]
       },
       plugins: [plugin]
