@@ -4,18 +4,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using TerrificNet.Thtml.Parsing;
-using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class IncrementalDomOutputEmitter : IOutputExpressionEmitter
 	{
-		private readonly ParameterExpression _renderer;
 		private Func<Expression, Expression> _handleExpression;
+		private readonly IncrementalDomRendererExpressionBuilder _expressionBuilder;
 
-		public IncrementalDomOutputEmitter(ParameterExpression renderer)
+		public IncrementalDomOutputEmitter(Expression renderer)
 		{
-			_renderer = renderer;
+			_expressionBuilder = new IncrementalDomRendererExpressionBuilder(renderer);
 			_handleExpression = HandleElementCall;
 		}
 
@@ -37,14 +36,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 			if (element.ChildNodes.Count > 0)
 			{
-				expressions.Add(Expression.Call(_renderer, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementOpen(null, null, null, null)), Expression.Constant(element.TagName), Expression.Constant(null, typeof(string)), staticAttributeList, attributeList));
+				expressions.Add(_expressionBuilder.ElementOpen(element.TagName, staticAttributeList, attributeList));
 				expressions.AddRange(element.ChildNodes.Select(i => i.Accept(visitor)));
-				expressions.Add(Expression.Call(_renderer, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementClose(null)), Expression.Constant(element.TagName)));
+				expressions.Add(_expressionBuilder.ElementClose(element.TagName));
 
 				return Expression.Block(expressions);
 			}
 
-			return Expression.Call(_renderer, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementVoid(null, null, null, null)), Expression.Constant(element.TagName), Expression.Constant(null, typeof(string)), staticAttributeList, attributeList);
+			return _expressionBuilder.ElementVoid(element.TagName, staticAttributeList, attributeList);
 		}
 
 		private static Expression CreateAttributeDictionary(INodeVisitor<Expression> visitor, IEnumerable<ElementPart> attributes)
@@ -80,17 +79,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private Expression HandleElementCall(Expression callExpression)
 		{
-			return Expression.Call(_renderer, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Text(null)), callExpression);
+			return _expressionBuilder.Text(callExpression);
 		}
 
-		private Expression HandleAttributeCall(Expression callExpression)
+		private static Expression HandleAttributeCall(Expression callExpression)
 		{
 			return callExpression;
 		}
 
 		public Expression HandleTextNode(TextNode textNode)
 		{
-			return Expression.Call(_renderer, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Text(null)), Expression.Constant(textNode.Text));
+			return _expressionBuilder.Text(Expression.Constant(textNode.Text));
 		}
 
 		public Expression HandleDocument(List<Expression> expressions)
