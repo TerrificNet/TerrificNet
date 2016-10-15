@@ -10,6 +10,10 @@ namespace TerrificNet.Thtml.Test.Stubs
 
 		private class DummySyntaxNode : SyntaxNode
 		{
+			protected override bool CheckIfIsFixed()
+			{
+				return true;
+			}
 		}
 	}
 }

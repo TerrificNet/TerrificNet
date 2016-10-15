@@ -3,6 +3,7 @@ namespace TerrificNet.Thtml.Parsing
 	public class AttributeNode : ElementPart
 	{
 		public string Name { get; }
+
 		public AttributeContent Value { get; }
 
 		public AttributeNode(string name, AttributeContent value)
@@ -18,6 +19,11 @@ namespace TerrificNet.Thtml.Parsing
 		public override T Accept<T>(INodeVisitor<T> visitor)
 		{
 			return visitor.Visit(this);
+		}
+
+		protected override bool CheckIfIsFixed()
+		{
+			return Value.IsFixed;
 		}
 	}
 }

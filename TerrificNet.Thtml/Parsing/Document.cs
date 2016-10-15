@@ -26,5 +26,10 @@ namespace TerrificNet.Thtml.Parsing
 		{
 			return visitor.Visit(this);
 		}
+
+		protected override bool CheckIfIsFixed()
+		{
+			return ChildNodes.All(n => n.IsFixed);
+		}
 	}
 }
