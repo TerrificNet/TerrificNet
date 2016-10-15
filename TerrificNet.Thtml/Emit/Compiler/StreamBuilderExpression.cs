@@ -1,4 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
@@ -11,8 +14,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_instance = instance;
 		}
 
-		public Expression ElementOpenStart(string tagName)
+		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
+			if (staticProperties.Count > 0)
+			{
+				var sb = CreateStaticProperties(tagName, staticProperties);
+				ExpressionHelper.Write(_instance, sb.ToString());
+			}
 			return ExpressionHelper.Write(_instance, $"<{tagName}");
 		}
 
@@ -21,9 +29,23 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return ExpressionHelper.Write(_instance, ">");
 		}
 
-		public Expression ElementOpen(string tagName)
+		public Expression ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
+			if (staticProperties.Count > 0)
+			{
+				var sb = CreateStaticProperties(tagName, staticProperties);
+				sb.Append(">");
+
+				return ExpressionHelper.Write(_instance, sb.ToString());
+			}
 			return ExpressionHelper.Write(_instance, $"<{tagName}>");
+		}
+
+		private static StringBuilder CreateStaticProperties(string tagName, IReadOnlyDictionary<string, string> staticProperties)
+		{
+			var sb = new StringBuilder($"<{tagName}");
+			staticProperties.Aggregate(sb, (b, a) => b.Append(" ").Append(a.Key).Append("=\"").Append(a.Value).Append("\""));
+			return sb;
 		}
 
 		public Expression ElementClose(string tagName)

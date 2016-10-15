@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit.Compiler
@@ -12,10 +13,25 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_instance = instance;
 		}
 
-		public Expression ElementOpenStart(string tagName)
+		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.ElementOpenStart(null));
-			return Expression.Call(_instance, method, Expression.Constant(tagName));
+			var elementOpenStart = Expression.Call(_instance, method, Expression.Constant(tagName));
+
+			if (staticProperties.Count > 0)
+			{
+				var expressions = new List<Expression> { elementOpenStart };
+				foreach (var property in staticProperties)
+				{
+					expressions.Add(PropertyStart(property.Key));
+					expressions.Add(Value(Expression.Constant(property.Value)));
+					expressions.Add(PropertyEnd());
+				}
+
+				return Expression.Block(expressions);
+			}
+
+			return elementOpenStart;
 		}
 
 		public Expression ElementOpenEnd()
@@ -24,8 +40,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Call(_instance, method);
 		}
 
-		public Expression ElementOpen(string tagName)
+		public Expression ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
+			if (staticProperties.Count > 0)
+			{
+				return Expression.Block(ElementOpenStart(tagName, staticProperties), ElementOpenEnd());
+			}
+
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.ElementOpen(null));
 			return Expression.Call(_instance, method, Expression.Constant(tagName));
 		}

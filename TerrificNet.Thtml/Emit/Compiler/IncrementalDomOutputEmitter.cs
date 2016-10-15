@@ -58,7 +58,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				return Expression.ElementInit(addMethod, Expression.Property(ex, "Key"), Expression.Property(ex, "Value"));
 			}).ToList();
 
-			return attrExpressions.Count > 0 ? (Expression) Expression.ListInit(Expression.New(type), attrExpressions) : nullDictionaryExpression;
+			return attrExpressions.Count > 0 ? (Expression)Expression.ListInit(Expression.New(type), attrExpressions) : nullDictionaryExpression;
 		}
 
 		public Expression HandleElementList(IReadOnlyList<Expression> elements)
