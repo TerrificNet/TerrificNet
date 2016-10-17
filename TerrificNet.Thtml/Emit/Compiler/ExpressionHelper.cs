@@ -59,7 +59,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Call(writer, WriteMethodInfo, param);
 		}
 
+		public static MethodInfo GetMethodInfo<T, TOut>(Expression<Func<T, TOut>> expression)
+		{
+			return GetMethodInfoInternal(expression);
+		}
+
 		public static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)
+		{
+			return GetMethodInfoInternal(expression);
+		}
+
+		private static MethodInfo GetMethodInfoInternal(LambdaExpression expression)
 		{
 			var member = expression.Body as MethodCallExpression;
 

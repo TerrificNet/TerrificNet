@@ -1,4 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
@@ -17,7 +20,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_extensions = extensions;
 		}
 
-		public IViewTemplate<T> Compile<T>(IDataBinder dataBinder, IEmitterFactory<T> emitterFactory)
+		public IViewTemplate<T> Compile<T>(IDataBinder dataBinder, EmitterFactory<T> emitterFactory)
 		{
 			var dataScopeContract = CreateDataScope(dataBinder);
 			return Compile(dataScopeContract, emitterFactory.Create());
@@ -26,13 +29,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public IViewTemplate Compile(IDataBinder dataBinder, IEmitter emitter)
 		{
 			var dataScopeContract = CreateDataScope(dataBinder);
-			return emitter.CreateTemplate(CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter)));
+			return CreateTemplate(emitter, CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter)));
 		}
 
-		private IViewTemplate<T> Compile<T>(IDataScopeContract dataScopeContract, IEmitter<T> emitter)
+		private IViewTemplate<T> Compile<T>(IDataScopeContract dataScopeContract, Emitter<T> emitter)
 		{
 			var result = CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter));
-			return emitter.WrapResult(result);
+			return (IViewTemplate<T>) CreateTemplate(emitter, result);
 		}
 
 		private static DataScope CreateDataScope(IDataBinder dataBinder)
@@ -51,6 +54,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var convertExpression = Expression.Assign(dataScopeContract.Expression, Expression.ConvertChecked(inputExpression, dataScopeContract.Expression.Type));
 			var bodyExpression = Expression.Block(new[] {(ParameterExpression)dataScopeContract.Expression}, convertExpression, expression);
 			return new CompilerResult(bodyExpression, inputExpression);
+		}
+
+		private static IViewTemplate CreateTemplate(IEmitter emitter, CompilerResult result)
+		{
+			var expression = Expression.Lambda(result.BodyExpression, emitter.RendererExpression, result.InputExpression);
+
+			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(Template<>).MakeGenericType(emitter.RendererExpression.Type).GetTypeInfo().GetConstructors().First(), expression));
+			var action = creationExpression.Compile();
+
+			return action();
 		}
 	}
 }

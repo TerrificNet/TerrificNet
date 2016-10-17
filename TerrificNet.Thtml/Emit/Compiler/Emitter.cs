@@ -4,14 +4,9 @@ using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class Emitter<TRenderer> : IEmitter<TRenderer>
+	public class Emitter<TRenderer> : IEmitter
 	{
 		public ParameterExpression RendererExpression { get; }
-
-		public IViewTemplate CreateTemplate(CompilerResult result)
-		{
-			return WrapResult(result);
-		}
 
 		public Emitter(Func<ParameterExpression, IOutputExpressionBuilder> builderFactory)
 		{
@@ -19,42 +14,26 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			ExpressionBuilder = builderFactory(RendererExpression);
 		}
 
-		public IViewTemplate<TRenderer> WrapResult(CompilerResult result)
-		{
-			var action = CreateLambda(result).Compile();
-			return new Template((r, d, c) => action(r, d));
-		}
-
 		public IOutputExpressionBuilder ExpressionBuilder { get; }
+	}
 
-		public LambdaExpression CreateExpression(CompilerResult result)
+	public class Template<TRenderer> : IViewTemplate<TRenderer>
+	{
+		private readonly Action<TRenderer, object> _action;
+
+		public Template(Action<TRenderer, object> action)
 		{
-			return CreateLambda(result);
+			_action = action;
 		}
 
-		private Expression<Action<TRenderer, object>> CreateLambda(CompilerResult result)
+		public void Execute(TRenderer renderer, object data, IRenderingContext renderingContext)
 		{
-			return Expression.Lambda<Action<TRenderer, object>>(result.BodyExpression, RendererExpression, result.InputExpression);
+			_action(renderer, data);
 		}
 
-		private class Template : IViewTemplate<TRenderer>
+		public void Execute(object renderer, object data, IRenderingContext renderingContext)
 		{
-			private readonly Action<TRenderer, object, IRenderingContext> _action;
-
-			public Template(Action<TRenderer, object, IRenderingContext> action)
-			{
-				_action = action;
-			}
-
-			public void Execute(TRenderer renderer, object data, IRenderingContext renderingContext)
-			{
-				_action(renderer, data, renderingContext);
-			}
-
-			public void Execute(object renderer, object data, IRenderingContext renderingContext)
-			{
-				_action((TRenderer) renderer, data, renderingContext);
-			}
+			_action((TRenderer) renderer, data);
 		}
 	}
 }

@@ -198,7 +198,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Block(nodes.Select(i => i.Accept(this)));
 		}
 
-		private static IReadOnlyDictionary<string, string> CreateAttributeDictionary(List<ElementPart> staticAttributeNodes)
+		private static IReadOnlyDictionary<string, string> CreateAttributeDictionary(IEnumerable<ElementPart> staticAttributeNodes)
 		{
 			var dict = new Dictionary<string, string>();
 

@@ -26,7 +26,7 @@ namespace TerrificNet.Mvc.Core
 			Render(context, runnable);
 		}
 
-		private async Task<IViewTemplate<T>> CreateAsync<T>(IEmitterFactory<T> emitterFactory, ActionContext actionContext)
+		private async Task<IViewTemplate<T>> CreateAsync<T>(EmitterFactory<T> emitterFactory, ActionContext actionContext)
 		{
 			var compiler = await GetCompiler(actionContext);
 			return compiler.Compile(GetDataBinder(), emitterFactory);

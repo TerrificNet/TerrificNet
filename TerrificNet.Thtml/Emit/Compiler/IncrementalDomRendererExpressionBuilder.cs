@@ -59,7 +59,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			else
 			{
 				var addMethod = ExpressionHelper.GetMethodInfo<StringBuilder>(b => b.Append(""));
-				var toString = ExpressionHelper.GetMethodInfo<StringBuilder>(b => b.ToString());
+				var toString = ExpressionHelper.GetMethodInfo<StringBuilder, string>(b => b.ToString());
 				var variable = Expression.Variable(typeof(StringBuilder));
 				var block = new List<Expression>();
 				block.Add(Expression.Assign(variable, Expression.New(typeof(StringBuilder))));
