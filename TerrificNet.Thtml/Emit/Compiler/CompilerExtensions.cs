@@ -10,7 +10,7 @@
 
 		public ITagHelper TagHelper => _tagHelper;
 
-		internal IOutputExpressionEmitter OutputEmitter { get; }
+		internal VTreeOutputExpressionEmitter OutputEmitter { get; }
 
 		public IEmitter Emitter { get; }
 

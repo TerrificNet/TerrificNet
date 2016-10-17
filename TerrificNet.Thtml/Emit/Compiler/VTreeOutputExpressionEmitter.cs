@@ -6,7 +6,7 @@ using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class VTreeOutputExpressionEmitter : IOutputExpressionEmitter
+	public class VTreeOutputExpressionEmitter
 	{
 		private readonly IOutputExpressionBuilder _builder;
 

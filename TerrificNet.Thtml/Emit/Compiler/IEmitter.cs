@@ -5,7 +5,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public interface IEmitter
 	{
-		IOutputExpressionEmitter OutputExpressionEmitter { get; }
+		VTreeOutputExpressionEmitter OutputExpressionEmitter { get; }
 
 		LambdaExpression CreateExpression(CompilerResult result);
 

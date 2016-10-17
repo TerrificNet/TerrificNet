@@ -13,7 +13,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
-		private readonly IOutputExpressionEmitter _outputExpressionEmitter;
+		private readonly VTreeOutputExpressionEmitter _outputExpressionEmitter;
 		private readonly CompilerExtensions _extensions;
 
 		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions)

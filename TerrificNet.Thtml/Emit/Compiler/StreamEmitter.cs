@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			OutputExpressionEmitter = new VTreeOutputExpressionEmitter(new StreamBuilderExpression(_writerParameter));
 		}
 
-		public IOutputExpressionEmitter OutputExpressionEmitter { get; }
+		public VTreeOutputExpressionEmitter OutputExpressionEmitter { get; }
 
 		public IStreamRenderer WrapResult(CompilerResult result)
 		{
