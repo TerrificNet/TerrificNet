@@ -171,7 +171,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public Expression Visit(IEnumerable<Node> nodes)
 		{
-			return _extensions.OutputEmitter.HandleElementList(nodes.Select(i => i.Accept(this)).ToList());
+			return Expression.Block(nodes.Select(i => i.Accept(this)));
 		}
 	}
 }

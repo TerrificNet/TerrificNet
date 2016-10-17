@@ -12,6 +12,7 @@ using Xunit;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
 using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -183,7 +184,7 @@ namespace TerrificNet.Thtml.Test
 				var helperResult = new Mock<HelperBinderResult>();
 				helperResult
 					.Setup(d => d.CreateExpression(It.IsAny<HelperParameters>()))
-					.Returns<HelperParameters>(param => param.CompilerExtensions.OutputEmitter.HandleTextNode(new TextNode("helper output")));
+					.Returns<HelperParameters>(param => new TextNode("helper output").Accept(param.Visitor));
 
 				var helper = new Mock<IHelperBinder>();
 				helper.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(helperResult.Object);
@@ -241,10 +242,10 @@ namespace TerrificNet.Thtml.Test
 				var resultMock = new Mock<HelperBinderResult>();
 				resultMock.Setup(r => r.CreateExpression(It.IsAny<HelperParameters>())).Returns((HelperParameters p) =>
 				{
-					var ex1 = p.CompilerExtensions.OutputEmitter.HandleTextNode(new TextNode("test"));
-					var ex2 = p.CompilerExtensions.OutputEmitter.HandleTextNode(new TextNode("test2"));
+					var ex1 = new TextNode("test").Accept(p.Visitor);
+					var ex2 = new TextNode("test2").Accept(p.Visitor);
 
-					return p.CompilerExtensions.OutputEmitter.HandleElementList(new[] { ex1, ex2 }.ToList());
+					return Expression.Block(ex1, ex2);
 				});
 
 				var helperMock = new Mock<IHelperBinder>();
