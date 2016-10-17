@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -17,6 +18,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			_parameterExpression = parameterExpression;
 		}
+
+		public Type ParameterType => typeof(IIncrementalDomRenderer);
 
 		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{

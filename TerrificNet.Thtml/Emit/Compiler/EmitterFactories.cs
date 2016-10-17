@@ -1,13 +1,15 @@
 ﻿using System;
+using System.IO;
 using TerrificNet.Thtml.Rendering;
+using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public static class EmitterFactories
 	{
-		public static IEmitterFactory<IStreamRenderer> Stream { get; } = new EmitterFactory<IStreamRenderer>(() => new StreamEmitter());
-		public static IEmitterFactory<IVTreeRenderer> VTree { get; } = new EmitterFactory<IVTreeRenderer>(() => new VTreeEmitter());
-		public static IEmitterFactory<IIncrementalDomTemplate> IncrementalDomScript { get; } = new EmitterFactory<IIncrementalDomTemplate>(() => new IncrementalDomEmitter());
+		public static IEmitterFactory<IViewTemplate<TextWriter>> Stream { get; } = new EmitterFactory<IViewTemplate<TextWriter>>(() => new Emitter<TextWriter>(p => new StreamBuilderExpression(p)));
+		public static IEmitterFactory<IViewTemplate<IVDomBuilder>> VTree { get; } = new EmitterFactory<IViewTemplate<IVDomBuilder>>(() => new Emitter<IVDomBuilder>(p => new VDomOutputExpressionBuilder(p)));
+		public static IEmitterFactory<IViewTemplate<IIncrementalDomRenderer>> IncrementalDomScript { get; } = new EmitterFactory<IViewTemplate<IIncrementalDomRenderer>>(() => new Emitter<IIncrementalDomRenderer>(p => new IncrementalDomRendererExpressionBuilder(p)));
 
 		private class EmitterFactory<T> : IEmitterFactory<T>
 		{

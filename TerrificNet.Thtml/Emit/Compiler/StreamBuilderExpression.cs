@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -13,6 +15,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			_instance = instance;
 		}
+
+		public Type ParameterType => typeof(TextWriter);
 
 		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{

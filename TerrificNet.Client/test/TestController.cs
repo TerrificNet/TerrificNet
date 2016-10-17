@@ -55,7 +55,7 @@ namespace TerrificNet.Client.test
 			return builder.ToString();
 		}
 
-		private static IVTreeRenderer CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
+		private static IViewTemplate<IVDomBuilder> CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
 		{
 			var compiler = CreateCompiler(helperBinder, path);
 			return compiler.Compile(dataBinder, EmitterFactories.VTree);

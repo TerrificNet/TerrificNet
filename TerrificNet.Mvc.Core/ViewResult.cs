@@ -60,7 +60,7 @@ namespace TerrificNet.Mvc.Core
 			return await compilerService.CreateCompiler(viewPath);
 		}
 
-		private void Render(ActionContext context, IVTreeRenderer runnable)
+		private void Render(ActionContext context, IViewTemplate<IVDomBuilder> runnable)
 		{
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{

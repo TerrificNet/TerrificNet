@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.VDom;
 
@@ -12,6 +13,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			_instance = instance;
 		}
+
+		public Type ParameterType => typeof(IVDomBuilder);
 
 		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
