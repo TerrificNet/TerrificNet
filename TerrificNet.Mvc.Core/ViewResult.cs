@@ -32,16 +32,16 @@ namespace TerrificNet.Mvc.Core
 			return compiler.Compile(GetDataBinder(), emitterFactory);
 		}
 
-		public void Execute(IEmitter emitter, object renderer, ActionContext actionContext)
+		public void Execute(IOutputExpressionBuilder output, object renderer, ActionContext actionContext)
 		{
-			var func = Create(emitter, actionContext);
+			var func = Create(output, actionContext);
 			func.Execute(renderer, _model, null);
 		}
 
-		private IViewTemplate Create(IEmitter emitter, ActionContext actionContext)
+		private IViewTemplate Create(IOutputExpressionBuilder output, ActionContext actionContext)
 		{
 			var compiler = GetCompiler(actionContext).Result;
-			return compiler.Compile(GetDataBinder(), emitter);
+			return compiler.Compile(GetDataBinder(), output);
 		}
 
 		private IDataBinder GetDataBinder()

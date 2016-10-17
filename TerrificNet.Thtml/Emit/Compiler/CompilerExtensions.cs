@@ -10,9 +10,7 @@
 
 		public ITagHelper TagHelper => _tagHelper;
 
-		internal IOutputExpressionBuilder ExpressionBuilder { get; }
-
-		public IEmitter Emitter { get; }
+		public IOutputExpressionBuilder ExpressionBuilder { get; }
 
 		public static readonly CompilerExtensions Default = new CompilerExtensions();
 
@@ -20,27 +18,26 @@
 		{
 		}
 
-		private CompilerExtensions(AggregatedHelperBinder helperBinder, AggregatedTagHelper tagHelper, IEmitter emitter)
+		private CompilerExtensions(AggregatedHelperBinder helperBinder, AggregatedTagHelper tagHelper, IOutputExpressionBuilder output)
 		{
 			_helperBinder = helperBinder;
-			Emitter = emitter;
 			_tagHelper = tagHelper;
-			ExpressionBuilder = emitter?.ExpressionBuilder;
+			ExpressionBuilder = output;
 		}
 
 		public CompilerExtensions AddHelperBinder(IHelperBinder helperBinder)
 		{
-			return new CompilerExtensions(_helperBinder.AddBinder(helperBinder), _tagHelper, Emitter);
+			return new CompilerExtensions(_helperBinder.AddBinder(helperBinder), _tagHelper, ExpressionBuilder);
 		}
 
-		public CompilerExtensions WithEmitter(IEmitter emitter)
+		public CompilerExtensions WithOutput(IOutputExpressionBuilder output)
 		{
-			return new CompilerExtensions(_helperBinder, _tagHelper, emitter);
+			return new CompilerExtensions(_helperBinder, _tagHelper, output);
 		}
 
 		public CompilerExtensions AddTagHelper(ITagHelper tagHelper)
 		{
-			return new CompilerExtensions(_helperBinder, _tagHelper.AddHelper(tagHelper), Emitter);
+			return new CompilerExtensions(_helperBinder, _tagHelper.AddHelper(tagHelper), ExpressionBuilder);
 		}
 	}
 }

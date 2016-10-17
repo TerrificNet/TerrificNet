@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -9,28 +7,26 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	internal class StreamBuilderExpression : IOutputExpressionBuilder
 	{
-		private readonly Expression _instance;
-
 		public StreamBuilderExpression(Expression instance)
 		{
-			_instance = instance;
+			InstanceExpression = instance;
 		}
 
-		public Type ParameterType => typeof(TextWriter);
+		public Expression InstanceExpression { get; }
 
 		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
 			if (staticProperties.Count > 0)
 			{
 				var sb = CreateStaticProperties(tagName, staticProperties);
-				ExpressionHelper.Write(_instance, sb.ToString());
+				ExpressionHelper.Write(InstanceExpression, sb.ToString());
 			}
-			return ExpressionHelper.Write(_instance, $"<{tagName}");
+			return ExpressionHelper.Write(InstanceExpression, $"<{tagName}");
 		}
 
 		public Expression ElementOpenEnd()
 		{
-			return ExpressionHelper.Write(_instance, ">");
+			return ExpressionHelper.Write(InstanceExpression, ">");
 		}
 
 		public Expression ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties)
@@ -40,9 +36,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var sb = CreateStaticProperties(tagName, staticProperties);
 				sb.Append(">");
 
-				return ExpressionHelper.Write(_instance, sb.ToString());
+				return ExpressionHelper.Write(InstanceExpression, sb.ToString());
 			}
-			return ExpressionHelper.Write(_instance, $"<{tagName}>");
+			return ExpressionHelper.Write(InstanceExpression, $"<{tagName}>");
 		}
 
 		private static StringBuilder CreateStaticProperties(string tagName, IReadOnlyDictionary<string, string> staticProperties)
@@ -54,22 +50,22 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public Expression ElementClose(string tagName)
 		{
-			return ExpressionHelper.Write(_instance, $"</{tagName}>");
+			return ExpressionHelper.Write(InstanceExpression, $"</{tagName}>");
 		}
 
 		public Expression PropertyStart(string propertyName)
 		{
-			return ExpressionHelper.Write(_instance, $" {propertyName}=\"");
+			return ExpressionHelper.Write(InstanceExpression, $" {propertyName}=\"");
 		}
 
 		public Expression PropertyEnd()
 		{
-			return ExpressionHelper.Write(_instance, $"\"");
+			return ExpressionHelper.Write(InstanceExpression, $"\"");
 		}
 
 		public Expression Value(Expression value)
 		{
-			return ExpressionHelper.Write(_instance, value);
+			return ExpressionHelper.Write(InstanceExpression, value);
 		}
 	}
 }

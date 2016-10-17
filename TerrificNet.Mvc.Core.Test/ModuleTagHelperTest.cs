@@ -73,7 +73,7 @@ namespace TerrificNet.Mvc.Core.Test
 
 			var emitter = EmitterFactories.VTree.Create();
 
-			var result = underTest.CreateExpressionFromViewResult(inputExpression, emitter);
+			var result = underTest.CreateExpressionFromViewResult(inputExpression, emitter.ExpressionBuilder);
 			Assert.NotNull(result);
 			Assert.Equal(typeof(void), result.Type);
 		}

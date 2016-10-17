@@ -22,20 +22,20 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IViewTemplate<T> Compile<T>(IDataBinder dataBinder, EmitterFactory<T> emitterFactory)
 		{
-			var dataScopeContract = CreateDataScope(dataBinder);
-			return Compile(dataScopeContract, emitterFactory.Create());
+			var emitter = emitterFactory.Create();
+			return (IViewTemplate<T>) Compile(dataBinder, emitter);
 		}
 
 		public IViewTemplate Compile(IDataBinder dataBinder, IEmitter emitter)
 		{
 			var dataScopeContract = CreateDataScope(dataBinder);
-			return CreateTemplate(emitter, CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter)));
+			return CreateTemplate(CreateExpression(dataScopeContract, _extensions.WithOutput(emitter.ExpressionBuilder)), emitter.ExpressionBuilder);
 		}
 
-		private IViewTemplate<T> Compile<T>(IDataScopeContract dataScopeContract, Emitter<T> emitter)
+		public IViewTemplate Compile(IDataBinder dataBinder, IOutputExpressionBuilder output)
 		{
-			var result = CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter));
-			return (IViewTemplate<T>) CreateTemplate(emitter, result);
+			var dataScopeContract = CreateDataScope(dataBinder);
+			return CreateTemplate(CreateExpression(dataScopeContract, _extensions.WithOutput(output)), output);
 		}
 
 		private static DataScope CreateDataScope(IDataBinder dataBinder)
@@ -56,11 +56,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new CompilerResult(bodyExpression, inputExpression);
 		}
 
-		private static IViewTemplate CreateTemplate(IEmitter emitter, CompilerResult result)
+		private static IViewTemplate CreateTemplate(CompilerResult result, IOutputExpressionBuilder output)
 		{
-			var expression = Expression.Lambda(result.BodyExpression, emitter.RendererExpression, result.InputExpression);
+			var expression = Expression.Lambda(result.BodyExpression, (ParameterExpression)output.InstanceExpression, result.InputExpression);
 
-			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(Template<>).MakeGenericType(emitter.RendererExpression.Type).GetTypeInfo().GetConstructors().First(), expression));
+			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(Template<>).MakeGenericType(output.InstanceExpression.Type).GetTypeInfo().GetConstructors().First(), expression));
 			var action = creationExpression.Compile();
 
 			return action();

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public interface IOutputExpressionBuilder
 	{
-		Type ParameterType { get; }
+		Expression InstanceExpression { get; }
 
 		Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties);
 		Expression ElementOpenEnd();

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -9,34 +8,32 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	internal class IncrementalDomRendererExpressionBuilder : IOutputExpressionBuilder
 	{
-		private readonly Expression _parameterExpression;
-
 		private readonly List<Expression> _propertyValueExpressions = new List<Expression>();
 		private string _propertyName;
 
 		public IncrementalDomRendererExpressionBuilder(Expression parameterExpression)
 		{
-			_parameterExpression = parameterExpression;
+			InstanceExpression = parameterExpression;
 		}
 
-		public Type ParameterType => typeof(IIncrementalDomRenderer);
+		public Expression InstanceExpression { get; }
 
 		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
 			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementOpenStart(null, null, null, null));
-			return Expression.Call(_parameterExpression, methodInfo, Expression.Constant(tagName), Expression.Constant(null, typeof(string)), Expression.Constant(staticProperties), Expression.Constant(null, typeof(Dictionary<string, string>)));
+			return Expression.Call(InstanceExpression, methodInfo, Expression.Constant(tagName), Expression.Constant(null, typeof(string)), Expression.Constant(staticProperties), Expression.Constant(null, typeof(Dictionary<string, string>)));
 		}
 
 		public Expression ElementOpenEnd()
 		{
 			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementOpenEnd());
-			return Expression.Call(_parameterExpression, methodInfo);
+			return Expression.Call(InstanceExpression, methodInfo);
 		}
 
 		public Expression ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
 			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementOpen(null, null, null, null));
-			return Expression.Call(_parameterExpression, methodInfo, Expression.Constant(tagName), Expression.Constant(null, typeof(string)), Expression.Constant(staticProperties), Expression.Constant(null, typeof(Dictionary<string, string>)));
+			return Expression.Call(InstanceExpression, methodInfo, Expression.Constant(tagName), Expression.Constant(null, typeof(string)), Expression.Constant(staticProperties), Expression.Constant(null, typeof(Dictionary<string, string>)));
 		}
 
 		public Expression PropertyStart(string propertyName)
@@ -73,7 +70,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_propertyName = null;
 			_propertyValueExpressions.Clear();
 
-			return Expression.Call(_parameterExpression, methodInfo, propertyNameExpression, valueExpression);
+			return Expression.Call(InstanceExpression, methodInfo, propertyNameExpression, valueExpression);
 		}
 
 		public Expression Value(Expression value)
@@ -85,17 +82,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			}
 
 			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Text(null));
-			return Expression.Call(_parameterExpression, methodInfo, value);
+			return Expression.Call(InstanceExpression, methodInfo, value);
 		}
 
 		public Expression ElementClose(string tagName)
 		{
-			return Expression.Call(_parameterExpression, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementClose(null)), Expression.Constant(tagName));
+			return Expression.Call(InstanceExpression, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementClose(null)), Expression.Constant(tagName));
 		}
 
 		public MethodCallExpression ElementOpen(string tagName, Expression staticAttributeList, Expression attributeList)
 		{
-			return Expression.Call(_parameterExpression, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementOpen(null, null, null, null)), Expression.Constant(tagName), Expression.Constant(null, typeof(string)), staticAttributeList, attributeList);
+			return Expression.Call(InstanceExpression, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementOpen(null, null, null, null)), Expression.Constant(tagName), Expression.Constant(null, typeof(string)), staticAttributeList, attributeList);
 		}
 	}
 }

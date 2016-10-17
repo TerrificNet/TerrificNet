@@ -55,15 +55,15 @@ namespace TerrificNet.Mvc.Core
 			public override Expression CreateExpression(HelperParameters helperParameters)
 			{
 				var viewResult = CreateViewResultExpression();
-				return CreateExpressionFromViewResult(viewResult, helperParameters.CompilerExtensions.Emitter);
+				return CreateExpressionFromViewResult(viewResult, helperParameters.CompilerExtensions.ExpressionBuilder);
 			}
 
-			internal Expression CreateExpressionFromViewResult(Expression actionResultExpression, IEmitter emitter)
+			internal Expression CreateExpressionFromViewResult(Expression actionResultExpression, IOutputExpressionBuilder emitter)
 			{
 				var actionContext = new ActionContext(_accessor.HttpContext, new RouteData(), ActionDescriptor);
 
 				var viewResultExpression = Expression.ConvertChecked(actionResultExpression, typeof(ViewResult));
-				var convertedExpression = Expression.Call(viewResultExpression, typeof(ViewResult).GetMethod("Execute"), Expression.Constant(emitter), emitter.RendererExpression, Expression.Constant(actionContext));
+				var convertedExpression = Expression.Call(viewResultExpression, typeof(ViewResult).GetMethod("Execute"), Expression.Constant(emitter), emitter.InstanceExpression, Expression.Constant(actionContext));
 
 				return convertedExpression;
 			}

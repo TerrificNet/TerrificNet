@@ -6,12 +6,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class Emitter<TRenderer> : IEmitter
 	{
-		public ParameterExpression RendererExpression { get; }
-
 		public Emitter(Func<ParameterExpression, IOutputExpressionBuilder> builderFactory)
 		{
-			RendererExpression = Expression.Parameter(typeof(TRenderer));
-			ExpressionBuilder = builderFactory(RendererExpression);
+			ExpressionBuilder = builderFactory(Expression.Parameter(typeof(TRenderer)));
 		}
 
 		public IOutputExpressionBuilder ExpressionBuilder { get; }
