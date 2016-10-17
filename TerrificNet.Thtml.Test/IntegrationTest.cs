@@ -22,7 +22,7 @@ namespace TerrificNet.Thtml.Test
 			var parser = new Parser(new HandlebarsParser());
 			var ast = parser.Parse(tokens);
 			var dataBinder = TypeDataBinder.BinderFromObject(inputObject);
-			var method = new ThtmlDocumentCompiler(ast, CompilerExtensions.Default).Compile(dataBinder, EmitterFactories.VTree);
+			var method = new ThtmlDocumentCompiler(ast, CompilerExtensions.Default).Compile(dataBinder, OutputFactories.VTree);
 
 			var builder = new VDomBuilder();
 			method.Execute(builder, inputObject, null);

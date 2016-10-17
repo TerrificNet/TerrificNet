@@ -22,11 +22,11 @@ namespace TerrificNet.Mvc.Core
 
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
-			var runnable = await CreateAsync(EmitterFactories.VTree, context);
+			var runnable = await CreateAsync(OutputFactories.VTree, context);
 			Render(context, runnable);
 		}
 
-		private async Task<IViewTemplate<T>> CreateAsync<T>(EmitterFactory<T> emitterFactory, ActionContext actionContext)
+		private async Task<IViewTemplate<T>> CreateAsync<T>(OutputExpressionBuilderFactory<T> emitterFactory, ActionContext actionContext)
 		{
 			var compiler = await GetCompiler(actionContext);
 			return compiler.Compile(GetDataBinder(), emitterFactory);

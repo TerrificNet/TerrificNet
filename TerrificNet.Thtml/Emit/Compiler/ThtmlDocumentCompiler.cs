@@ -20,16 +20,15 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_extensions = extensions;
 		}
 
-		public IViewTemplate<T> Compile<T>(IDataBinder dataBinder, EmitterFactory<T> emitterFactory)
+		public IViewTemplate<T> Compile<T>(IDataBinder dataBinder, OutputExpressionBuilderFactory<T> emitterFactory)
 		{
-			var emitter = emitterFactory.Create();
-			return (IViewTemplate<T>) Compile(dataBinder, emitter);
+			return (IViewTemplate<T>)Compile(dataBinder, (IOutputExpressionBuilderFactory)emitterFactory);
 		}
 
-		public IViewTemplate Compile(IDataBinder dataBinder, IEmitter emitter)
+		private IViewTemplate Compile(IDataBinder dataBinder, IOutputExpressionBuilderFactory output)
 		{
 			var dataScopeContract = CreateDataScope(dataBinder);
-			return CreateTemplate(CreateExpression(dataScopeContract, _extensions.WithOutput(emitter.ExpressionBuilder)), emitter.ExpressionBuilder);
+			return CreateTemplate(CreateExpression(dataScopeContract, _extensions.WithOutput(output.CreateExpressionBuilder())), output.CreateExpressionBuilder());
 		}
 
 		public IViewTemplate Compile(IDataBinder dataBinder, IOutputExpressionBuilder output)
@@ -52,7 +51,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var inputExpression = Expression.Parameter(typeof(object), "input");
 
 			var convertExpression = Expression.Assign(dataScopeContract.Expression, Expression.ConvertChecked(inputExpression, dataScopeContract.Expression.Type));
-			var bodyExpression = Expression.Block(new[] {(ParameterExpression)dataScopeContract.Expression}, convertExpression, expression);
+			var bodyExpression = Expression.Block(new[] { (ParameterExpression)dataScopeContract.Expression }, convertExpression, expression);
 			return new CompilerResult(bodyExpression, inputExpression);
 		}
 

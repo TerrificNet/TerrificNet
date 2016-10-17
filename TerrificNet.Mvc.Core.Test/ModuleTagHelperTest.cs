@@ -71,9 +71,9 @@ namespace TerrificNet.Mvc.Core.Test
 			var inputExpression = Expression.Constant(viewResult, typeof(IActionResult));
 			var underTest = new ModuleTagHelper.ModuleTagHelperBinderResult(_controllerActionDescriptor, _controllerFactory, _accessor);
 
-			var emitter = EmitterFactories.VTree.Create();
+			var output = OutputFactories.VTree.CreateExpressionBuilder();
 
-			var result = underTest.CreateExpressionFromViewResult(inputExpression, emitter.ExpressionBuilder);
+			var result = underTest.CreateExpressionFromViewResult(inputExpression, output);
 			Assert.NotNull(result);
 			Assert.Equal(typeof(void), result.Type);
 		}

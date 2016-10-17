@@ -32,7 +32,7 @@ namespace TerrificNet.Client.test
 		public string GetIncrementalDom([FromQuery] string template, [FromBody] JToken obj)
 		{
 			var compiler = CreateCompiler(new NullHelperBinder(), template);
-			var emitter = compiler.Compile(new DynamicDataBinder(), EmitterFactories.IncrementalDomScript);
+			var emitter = compiler.Compile(new DynamicDataBinder(), OutputFactories.IncrementalDomScript);
 
 			var builder = new StringBuilder();
 
@@ -58,7 +58,7 @@ namespace TerrificNet.Client.test
 		private static IViewTemplate<IVDomBuilder> CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
 		{
 			var compiler = CreateCompiler(helperBinder, path);
-			return compiler.Compile(dataBinder, EmitterFactories.VTree);
+			return compiler.Compile(dataBinder, OutputFactories.VTree);
 		}
 
 		private static ThtmlDocumentCompiler CreateCompiler(IHelperBinder helperBinder, string path)

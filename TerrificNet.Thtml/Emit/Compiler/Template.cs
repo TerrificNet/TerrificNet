@@ -1,19 +1,8 @@
 ﻿using System;
-using System.Linq.Expressions;
 using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class Emitter<TRenderer> : IEmitter
-	{
-		public Emitter(Func<ParameterExpression, IOutputExpressionBuilder> builderFactory)
-		{
-			ExpressionBuilder = builderFactory(Expression.Parameter(typeof(TRenderer)));
-		}
-
-		public IOutputExpressionBuilder ExpressionBuilder { get; }
-	}
-
 	public class Template<TRenderer> : IViewTemplate<TRenderer>
 	{
 		private readonly Action<TRenderer, object> _action;

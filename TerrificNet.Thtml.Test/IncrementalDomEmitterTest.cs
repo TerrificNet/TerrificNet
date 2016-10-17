@@ -102,7 +102,7 @@ namespace TerrificNet.Thtml.Test
 		private static void Test(Document document, IEnumerable<Expression<Action<IIncrementalDomRenderer>>> expressions, object data)
 		{
 			var compiler = new ThtmlDocumentCompiler(document, CompilerExtensions.Default);
-			var renderer = compiler.Compile(new DynamicDataBinder(), EmitterFactories.IncrementalDomScript);
+			var renderer = compiler.Compile(new DynamicDataBinder(), OutputFactories.IncrementalDomScript);
 
 			var sequence = new MockSequence();
 			var mock = new Mock<IIncrementalDomRenderer>(MockBehavior.Strict);
