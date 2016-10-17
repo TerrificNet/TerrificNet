@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal interface IOutputExpressionBuilder
+	public interface IOutputExpressionBuilder
 	{
 		Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties);
 		Expression ElementOpenEnd();

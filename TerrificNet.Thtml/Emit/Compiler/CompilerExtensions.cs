@@ -10,7 +10,7 @@
 
 		public ITagHelper TagHelper => _tagHelper;
 
-		internal VTreeOutputExpressionEmitter OutputEmitter { get; }
+		internal IOutputExpressionBuilder ExpressionBuilder { get; }
 
 		public IEmitter Emitter { get; }
 
@@ -25,7 +25,7 @@
 			_helperBinder = helperBinder;
 			Emitter = emitter;
 			_tagHelper = tagHelper;
-			OutputEmitter = emitter?.OutputExpressionEmitter;
+			ExpressionBuilder = emitter?.ExpressionBuilder;
 		}
 
 		public CompilerExtensions AddHelperBinder(IHelperBinder helperBinder)

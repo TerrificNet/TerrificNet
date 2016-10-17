@@ -11,10 +11,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public IncrementalDomEmitter()
 		{
 			_parameterExpression = Expression.Parameter(typeof(IIncrementalDomRenderer));
-			OutputExpressionEmitter = new VTreeOutputExpressionEmitter(new IncrementalDomRendererExpressionBuilder(_parameterExpression));
+			ExpressionBuilder = new IncrementalDomRendererExpressionBuilder(_parameterExpression);
 		}
 
-		public VTreeOutputExpressionEmitter OutputExpressionEmitter { get; }
+		public IOutputExpressionBuilder ExpressionBuilder { get; }
 
 		public IIncrementalDomTemplate WrapResult(CompilerResult result)
 		{

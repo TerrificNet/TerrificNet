@@ -13,21 +13,21 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
-		private readonly VTreeOutputExpressionEmitter _outputExpressionEmitter;
 		private readonly CompilerExtensions _extensions;
+		private readonly IOutputExpressionBuilder _expressionBuilder;
 
 		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions)
 		{
 			_dataScopeContract = dataScopeContract;
 			_extensions = extensions;
 			_helperBinder = _extensions.HelperBinder;
-			_outputExpressionEmitter = _extensions.OutputEmitter;
+			_expressionBuilder = _extensions.ExpressionBuilder;
 		}
 
 		public override Expression Visit(Document document)
 		{
 			var expressions = document.ChildNodes.Select(node => node.Accept(this)).ToList();
-			return _outputExpressionEmitter.HandleDocument(expressions);
+			return Expression.Block(expressions);
 		}
 
 		public override Expression Visit(Element element)
@@ -37,19 +37,44 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			{
 				return tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions));
 			}
-			return _outputExpressionEmitter.HandleElement(element, this);
+
+			var expressions = new List<Expression>();
+			var staticAttributeNodes = element.Attributes.Where(e => e.IsFixed).ToList();
+			var staticAttributeList = CreateAttributeDictionary(staticAttributeNodes);
+			var attributeList = element.Attributes.Except(staticAttributeNodes).ToList();
+
+			if (attributeList.Count > 0)
+			{
+				expressions.Add(_expressionBuilder.ElementOpenStart(element.TagName, staticAttributeList));
+				expressions.AddRange(element.Attributes.Select(attribute => attribute.Accept(this)));
+				expressions.Add(_expressionBuilder.ElementOpenEnd());
+			}
+			else
+				expressions.Add(_expressionBuilder.ElementOpen(element.TagName, staticAttributeList));
+
+			expressions.AddRange(element.ChildNodes.Select(i => i.Accept(this)));
+
+			expressions.Add(_expressionBuilder.ElementClose(element.TagName));
+
+			return Expression.Block(expressions);
 		}
 
 		public override Expression Visit(AttributeNode attributeNode)
 		{
-			var expressions = _outputExpressionEmitter.HandleAttributeNode(attributeNode, this);
+			var expressions1 = new List<Expression>
+			{
+				_expressionBuilder.PropertyStart(attributeNode.Name),
+				attributeNode.Value.Accept(this),
+				_expressionBuilder.PropertyEnd()
+			};
+			var expressions = (IEnumerable<Expression>) expressions1;
 
 			return Expression.Block(expressions);
 		}
 
 		public override Expression Visit(ConstantAttributeContent attributeContent)
 		{
-			return _outputExpressionEmitter.HandleAttributeContent(attributeContent);
+			return _expressionBuilder.Value(Expression.Constant(attributeContent.Text));
 		}
 
 		public override Expression Visit(AttributeContentStatement constantAttributeContent)
@@ -70,7 +95,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(CompositeAttributeContent compositeAttributeContent)
 		{
-			return _outputExpressionEmitter.HandleCompositeAttribute(compositeAttributeContent, this);
+			return Expression.Block(compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList());
 		}
 
 		public override Expression Visit(MemberExpression memberExpression)
@@ -94,12 +119,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var binding = scope.RequiresString();
 
 			var expression = binding.Expression;
-			return _outputExpressionEmitter.HandleCall(expression);
+			return _expressionBuilder.Value(expression);
 		}
 
 		public override Expression Visit(TextNode textNode)
 		{
-			return _outputExpressionEmitter.HandleTextNode(textNode);
+			return _expressionBuilder.Value(Expression.Constant(textNode.Text));
 		}
 
 		private Expression HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
@@ -172,6 +197,19 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public Expression Visit(IEnumerable<Node> nodes)
 		{
 			return Expression.Block(nodes.Select(i => i.Accept(this)));
+		}
+
+		private static IReadOnlyDictionary<string, string> CreateAttributeDictionary(List<ElementPart> staticAttributeNodes)
+		{
+			var dict = new Dictionary<string, string>();
+
+			var visitor = new AttributeDictionaryVisitor(dict);
+			foreach (var node in staticAttributeNodes)
+			{
+				node.Accept(visitor);
+			}
+
+			return dict;
 		}
 	}
 }
