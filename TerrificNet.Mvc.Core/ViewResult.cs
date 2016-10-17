@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TerrificNet.Thtml.Binding;
@@ -27,22 +26,22 @@ namespace TerrificNet.Mvc.Core
 			Render(context, runnable);
 		}
 
-		private async Task<T> CreateAsync<T>(IEmitterFactory<T> emitterFactory, ActionContext actionContext)
+		private async Task<IViewTemplate<T>> CreateAsync<T>(IEmitterFactory<T> emitterFactory, ActionContext actionContext)
 		{
 			var compiler = await GetCompiler(actionContext);
 			return compiler.Compile(GetDataBinder(), emitterFactory);
 		}
 
-		public void Execute(IEmitter emitter, ActionContext actionContext)
+		public void Execute(IEmitter emitter, object renderer, ActionContext actionContext)
 		{
-			var func = Create(emitter, actionContext).Compile();
-			func.DynamicInvoke(_model);
+			var func = Create(emitter, actionContext);
+			func.Execute(renderer, _model, null);
 		}
 
-		public LambdaExpression Create(IEmitter emitter, ActionContext actionContext)
+		private IViewTemplate Create(IEmitter emitter, ActionContext actionContext)
 		{
 			var compiler = GetCompiler(actionContext).Result;
-			return emitter.CreateExpression(compiler.Compile(GetDataBinder(), emitter));
+			return compiler.Compile(GetDataBinder(), emitter);
 		}
 
 		private IDataBinder GetDataBinder()

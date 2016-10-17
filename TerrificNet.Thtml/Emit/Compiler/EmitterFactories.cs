@@ -7,9 +7,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public static class EmitterFactories
 	{
-		public static IEmitterFactory<IViewTemplate<TextWriter>> Stream { get; } = new EmitterFactory<IViewTemplate<TextWriter>>(() => new Emitter<TextWriter>(p => new StreamBuilderExpression(p)));
-		public static IEmitterFactory<IViewTemplate<IVDomBuilder>> VTree { get; } = new EmitterFactory<IViewTemplate<IVDomBuilder>>(() => new Emitter<IVDomBuilder>(p => new VDomOutputExpressionBuilder(p)));
-		public static IEmitterFactory<IViewTemplate<IIncrementalDomRenderer>> IncrementalDomScript { get; } = new EmitterFactory<IViewTemplate<IIncrementalDomRenderer>>(() => new Emitter<IIncrementalDomRenderer>(p => new IncrementalDomRendererExpressionBuilder(p)));
+		public static IEmitterFactory<TextWriter> Stream { get; } = new EmitterFactory<TextWriter>(() => new Emitter<TextWriter>(p => new StreamBuilderExpression(p)));
+		public static IEmitterFactory<IVDomBuilder> VTree { get; } = new EmitterFactory<IVDomBuilder>(() => new Emitter<IVDomBuilder>(p => new VDomOutputExpressionBuilder(p)));
+		public static IEmitterFactory<IIncrementalDomRenderer> IncrementalDomScript { get; } = new EmitterFactory<IIncrementalDomRenderer>(() => new Emitter<IIncrementalDomRenderer>(p => new IncrementalDomRendererExpressionBuilder(p)));
 
 		private class EmitterFactory<T> : IEmitterFactory<T>
 		{

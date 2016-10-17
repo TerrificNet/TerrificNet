@@ -63,9 +63,9 @@ namespace TerrificNet.Mvc.Core
 				var actionContext = new ActionContext(_accessor.HttpContext, new RouteData(), ActionDescriptor);
 
 				var viewResultExpression = Expression.ConvertChecked(actionResultExpression, typeof(ViewResult));
-				var convertedExpression = Expression.Call(viewResultExpression, typeof(ViewResult).GetMethod("Execute"), Expression.Constant(emitter), Expression.Constant(actionContext));
+				var convertedExpression = Expression.Call(viewResultExpression, typeof(ViewResult).GetMethod("Execute"), Expression.Constant(emitter), emitter.RendererExpression, Expression.Constant(actionContext));
 
-				return Expression.ConvertChecked(convertedExpression, emitter.ExpressionType);
+				return convertedExpression;
 			}
 
 			internal Expression CreateViewResultExpression()

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
@@ -9,11 +9,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		LambdaExpression CreateExpression(CompilerResult result);
 
-		Type ExpressionType { get; }
+		ParameterExpression RendererExpression { get; }
+
+		IViewTemplate CreateTemplate(CompilerResult result);
 	}
 
-	public interface IEmitter<out TResult> : IEmitter
+	public interface IEmitter<in TRenderer> : IEmitter
 	{
-		TResult WrapResult(CompilerResult result);
+		IViewTemplate<TRenderer> WrapResult(CompilerResult result);
 	}
 }

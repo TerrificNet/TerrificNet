@@ -4,14 +4,19 @@ using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class Emitter<TRenderer> : IEmitter<IViewTemplate<TRenderer>>
+	public class Emitter<TRenderer> : IEmitter<TRenderer>
 	{
-		private readonly ParameterExpression _rendererExpression;
+		public ParameterExpression RendererExpression { get; }
+
+		public IViewTemplate CreateTemplate(CompilerResult result)
+		{
+			return WrapResult(result);
+		}
 
 		public Emitter(Func<ParameterExpression, IOutputExpressionBuilder> builderFactory)
 		{
-			_rendererExpression = Expression.Parameter(typeof(TRenderer));
-			ExpressionBuilder = builderFactory(_rendererExpression);
+			RendererExpression = Expression.Parameter(typeof(TRenderer));
+			ExpressionBuilder = builderFactory(RendererExpression);
 		}
 
 		public IViewTemplate<TRenderer> WrapResult(CompilerResult result)
@@ -29,10 +34,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private Expression<Action<TRenderer, object>> CreateLambda(CompilerResult result)
 		{
-			return Expression.Lambda<Action<TRenderer, object>>(result.BodyExpression, _rendererExpression, result.InputExpression);
+			return Expression.Lambda<Action<TRenderer, object>>(result.BodyExpression, RendererExpression, result.InputExpression);
 		}
-
-		public Type ExpressionType => typeof(void);
 
 		private class Template : IViewTemplate<TRenderer>
 		{
@@ -46,6 +49,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			public void Execute(TRenderer renderer, object data, IRenderingContext renderingContext)
 			{
 				_action(renderer, data, renderingContext);
+			}
+
+			public void Execute(object renderer, object data, IRenderingContext renderingContext)
+			{
+				_action((TRenderer) renderer, data, renderingContext);
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 ﻿namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public interface IEmitterFactory<out TResult>
+	public interface IEmitterFactory<in TResult>
 	{
 		IEmitter<TResult> Create();
 	}

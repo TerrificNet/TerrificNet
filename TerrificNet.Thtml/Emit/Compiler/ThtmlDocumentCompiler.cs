@@ -17,27 +17,22 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_extensions = extensions;
 		}
 
-		public T Compile<T>(IDataBinder dataBinder, IEmitterFactory<T> emitterFactory)
+		public IViewTemplate<T> Compile<T>(IDataBinder dataBinder, IEmitterFactory<T> emitterFactory)
 		{
 			var dataScopeContract = CreateDataScope(dataBinder);
 			return Compile(dataScopeContract, emitterFactory.Create());
 		}
 
-		public CompilerResult Compile(IDataBinder dataBinder, IEmitter emitter)
+		public IViewTemplate Compile(IDataBinder dataBinder, IEmitter emitter)
 		{
 			var dataScopeContract = CreateDataScope(dataBinder);
-			return CreateCompilerResult(dataScopeContract, emitter);
+			return emitter.CreateTemplate(CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter)));
 		}
 
-		private T Compile<T>(IDataScopeContract dataScopeContract, IEmitter<T> emitter)
+		private IViewTemplate<T> Compile<T>(IDataScopeContract dataScopeContract, IEmitter<T> emitter)
 		{
-			var result = CreateCompilerResult(dataScopeContract, emitter);
+			var result = CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter));
 			return emitter.WrapResult(result);
-		}
-
-		private CompilerResult CreateCompilerResult(IDataScopeContract dataScopeContract, IEmitter emitter)
-		{
-			return CreateExpression(dataScopeContract, _extensions.WithEmitter(emitter));
 		}
 
 		private static DataScope CreateDataScope(IDataBinder dataBinder)
