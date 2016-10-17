@@ -9,6 +9,7 @@ using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Rendering;
+using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Client.test
 {
@@ -20,7 +21,10 @@ namespace TerrificNet.Client.test
 		{
 			var emitter = CreateEmitter(new DynamicDataBinder(), new NullHelperBinder(), template);
 
-			var vTree = emitter.Execute(obj, null);
+			var builder = new VDomBuilder();
+			emitter.Execute(builder, obj, null);
+			var vTree = builder.ToDom();
+
 			return new ObjectResult(vTree);
 		}
 
@@ -45,7 +49,7 @@ namespace TerrificNet.Client.test
 
 			using (var renderer = new JavascriptIncrementalDomRenderer(new StringWriter(builder), mapping))
 			{
-				emitter.Render(renderer, obj);
+				emitter.Execute(renderer, obj, null);
 			}
 
 			return builder.ToString();

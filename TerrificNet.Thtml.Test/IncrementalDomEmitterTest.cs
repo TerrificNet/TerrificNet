@@ -111,7 +111,7 @@ namespace TerrificNet.Thtml.Test
 				mock.InSequence(sequence).Setup(expr);
 			}
 
-			renderer.Render(mock.Object, data);
+			renderer.Execute(mock.Object, data, null);
 
 			mock.VerifyAll();
 		}

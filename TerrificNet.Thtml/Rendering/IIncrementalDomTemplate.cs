@@ -1,7 +1,6 @@
 ﻿namespace TerrificNet.Thtml.Rendering
 {
-	public interface IIncrementalDomTemplate
+	public interface IIncrementalDomTemplate : IViewTemplate<IIncrementalDomRenderer>
 	{
-		void Render(IIncrementalDomRenderer renderer, object data);
 	}
 }

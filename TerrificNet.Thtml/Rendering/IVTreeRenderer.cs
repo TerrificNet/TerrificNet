@@ -2,8 +2,7 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Rendering
 {
-	public interface IVTreeRenderer
+	public interface IVTreeRenderer : IViewTemplate<IVDomBuilder>
 	{
-		VTree Execute(object data, IRenderingContext renderingContext);
 	}
 }

@@ -2,6 +2,7 @@
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
+using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
@@ -51,6 +52,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var expression = visitor.Visit(_input);
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");
+
 			var convertExpression = Expression.Assign(dataScopeContract.Expression, Expression.ConvertChecked(inputExpression, dataScopeContract.Expression.Type));
 			var bodyExpression = Expression.Block(new[] {(ParameterExpression)dataScopeContract.Expression}, convertExpression, expression);
 			return new CompilerResult(bodyExpression, inputExpression);

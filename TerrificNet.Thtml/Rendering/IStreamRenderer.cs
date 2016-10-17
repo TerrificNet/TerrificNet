@@ -2,8 +2,7 @@ using System.IO;
 
 namespace TerrificNet.Thtml.Rendering
 {
-	public interface IStreamRenderer
+	public interface IStreamRenderer : IViewTemplate<TextWriter>
 	{
-		void Execute(TextWriter textWriter, object data, IRenderingContext renderingContext);
 	}
 }

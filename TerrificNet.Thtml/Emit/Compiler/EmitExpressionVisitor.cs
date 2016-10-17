@@ -61,13 +61,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(AttributeNode attributeNode)
 		{
-			var expressions1 = new List<Expression>
+			var expressions = new List<Expression>
 			{
 				_expressionBuilder.PropertyStart(attributeNode.Name),
 				attributeNode.Value.Accept(this),
 				_expressionBuilder.PropertyEnd()
 			};
-			var expressions = (IEnumerable<Expression>) expressions1;
 
 			return Expression.Block(expressions);
 		}

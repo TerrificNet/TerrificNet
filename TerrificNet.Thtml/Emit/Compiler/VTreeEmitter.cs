@@ -44,12 +44,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_action = action;
 			}
 
-			public VTree Execute(object data, IRenderingContext renderingContext)
+			public void Execute(IVDomBuilder domBuilder, object data, IRenderingContext renderingContext)
 			{
-				var builder = new VDomBuilder();
-				_action(builder, data);
-
-				return builder.ToDom();
+				_action(domBuilder, data);
 			}
 		}
 	}

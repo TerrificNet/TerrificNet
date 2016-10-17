@@ -43,7 +43,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_action = action;
 			}
 
-			public void Render(IIncrementalDomRenderer renderer, object data)
+			public void Execute(IIncrementalDomRenderer renderer, object data, IRenderingContext renderingContext)
 			{
 				_action(renderer, data);
 			}

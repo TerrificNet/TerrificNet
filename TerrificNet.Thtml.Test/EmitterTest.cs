@@ -23,8 +23,9 @@ namespace TerrificNet.Thtml.Test
 		public void TestEmit(string description, Document input, IDataBinder dataBinder, object data, VTree expected, CompilerExtensions compilerExtensions)
 		{
 			var method = new ThtmlDocumentCompiler(input, compilerExtensions).Compile(dataBinder, EmitterFactories.VTree);
-
-			var result = method.Execute(data, null);
+			var builder = new VDomBuilder();
+			method.Execute(builder, data, null);
+			var result = builder.ToDom();
 
 			VTreeAsserts.AssertTree(expected, result);
 		}
@@ -281,7 +282,7 @@ namespace TerrificNet.Thtml.Test
 					CompilerExtensions.Default.AddTagHelper(tagHelper.Object)
 				};
 
-				var listObj = new List<string> {"t1", "t2"};
+				var listObj = new List<string> { "t1", "t2" };
 				yield return new object[]
 				{
 					"iterator over self",
