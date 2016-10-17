@@ -18,7 +18,8 @@ namespace TerrificNet.Thtml.Test
 			var document = new Document(new Element("div"));
 			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
 			{
-				s => s.ElementVoid("div", null, null, null)
+				s => s.ElementOpen("div", null, It.IsAny<Dictionary<string, string>>(), null),
+				s => s.ElementClose("div")
 			};
 			object data = null;
 
@@ -31,8 +32,9 @@ namespace TerrificNet.Thtml.Test
 			var document = new Document(new Element("div", new Element("a")));
 			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
 			{
-				s => s.ElementOpen("div", null, null, null),
-				s => s.ElementVoid("a", null, null, null),
+				s => s.ElementOpen("div", null, It.IsAny<Dictionary<string, string>>(), null),
+				s => s.ElementOpen("a", null, It.IsAny<Dictionary<string, string>>(), null),
+				s => s.ElementClose("a"),
 				s => s.ElementClose("div")
 			};
 			object data = null;
@@ -46,7 +48,8 @@ namespace TerrificNet.Thtml.Test
 			var document = new Document(new Element("div", new [] { new AttributeNode("test", new ConstantAttributeContent("blau")) }));
 			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
 			{
-				s => s.ElementVoid("div", null, new Dictionary<string, string> { { "test", "blau" }}, null),
+				s => s.ElementOpen("div", null, new Dictionary<string, string> { { "test", "blau" }}, null),
+				s => s.ElementClose("div")
 			};
 			object data = null;
 
@@ -61,7 +64,10 @@ namespace TerrificNet.Thtml.Test
 			var document = new Document(new Element("div", new[] { new AttributeNode("test", new AttributeContentStatement(new Parsing.Handlebars.MemberExpression("value"))) }));
 			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
 			{
-				s => s.ElementVoid("div", null, null, new Dictionary<string, string> { { "test", "blau" }})
+				s => s.ElementOpenStart("div", null, It.IsAny<Dictionary<string, string>>(), null),
+				s => s.Attr("test", "blau"),
+				s => s.ElementOpenEnd(),
+				s => s.ElementClose("div")
 			};
 
 			Test(document, expectedCalls, data);

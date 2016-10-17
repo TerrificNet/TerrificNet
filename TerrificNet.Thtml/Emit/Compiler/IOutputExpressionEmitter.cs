@@ -9,7 +9,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		Expression HandleAttributeContent(ConstantAttributeContent attributeContent);
 		Expression HandleElement(Element element, INodeVisitor<Expression> visitor);
 		Expression HandleElementList(IReadOnlyList<Expression> elements);
-		IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter);
+		IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, INodeVisitor<Expression> valueEmitter);
 		Expression HandleCall(Expression callExpression);
 		Expression HandleTextNode(TextNode textNode);
 		Expression HandleDocument(List<Expression> expressions);

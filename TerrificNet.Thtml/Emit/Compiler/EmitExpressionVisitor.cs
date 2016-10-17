@@ -42,8 +42,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(AttributeNode attributeNode)
 		{
-			var valueEmitter = attributeNode.Value.Accept(this);
-			var expressions = _outputExpressionEmitter.HandleAttributeNode(attributeNode, valueEmitter);
+			var expressions = _outputExpressionEmitter.HandleAttributeNode(attributeNode, this);
 
 			return Expression.Block(expressions);
 		}

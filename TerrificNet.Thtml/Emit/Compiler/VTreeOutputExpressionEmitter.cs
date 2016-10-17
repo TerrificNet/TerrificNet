@@ -61,10 +61,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return Expression.Block(elements);
 		}
 
-		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, Expression valueEmitter)
+		public IEnumerable<Expression> HandleAttributeNode(AttributeNode attributeNode, INodeVisitor<Expression> visitor)
 		{
 			yield return _builder.PropertyStart(attributeNode.Name);
-			yield return valueEmitter;
+			yield return attributeNode.Value.Accept(visitor);
 			yield return _builder.PropertyEnd();
 		}
 

@@ -41,7 +41,7 @@ namespace TerrificNet.Thtml.Rendering
 			_output.Write("(\"");
 			_output.Write(name);
 			_output.Write("\",\"");
-			_output.Write(value);
+			WriteEncoded(value);
 			_output.Write("\"");
 			_output.Write(");");
 		}
@@ -79,6 +79,7 @@ namespace TerrificNet.Thtml.Rendering
 		public void ElementOpenEnd()
 		{
 			_output.Write(_mapping.ElementOpenEnd);
+			_output.Write("();");
 		}
 
 		public void ElementClose(string tagName)
