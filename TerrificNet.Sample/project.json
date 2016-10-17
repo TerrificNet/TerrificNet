@@ -5,18 +5,16 @@
 	"description": "TerrificNet",
 	"frameworks": {
 		"netcoreapp1.0": {
-			"imports": [
-				"dotnet5.6",
-				"portable-net45+win8"
-			]
-		}
+         "dependencies": {
+            "Microsoft.NETCore.App": {
+               "type": "platform",
+               "version": "1.0.0"
+            }
+         }
+      }
 	},
 	"buildOptions": {
 		"emitEntryPoint": true
-	},
-	"runtimes": {
-		"win10-x86": {},
-		"win10-x64": {}
 	},
 	"commands": {
 		"web": "Microsoft.AspNetCore.Hosting --server Microsoft.AspNetCore.Server.Kestrel --server.urls http://localhost:5000"
@@ -27,7 +25,6 @@
       "Microsoft.AspNetCore.Server.Kestrel": "1.0.1",
       "Microsoft.AspNetCore.StaticFiles": "1.0.0",
       "Microsoft.Extensions.Configuration.Json": "1.0.0",
-      "Microsoft.NETCore.App": "1.0.1",
       "NETStandard.Library": "1.6.0",
       "TerrificNet.Mvc.Core": "1.0.0"
    }

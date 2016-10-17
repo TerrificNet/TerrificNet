@@ -4,12 +4,13 @@
    "title": "TerrificNet.Environment.Test",
    "description": "TerrificNet",
    "frameworks": {
-      "netstandard1.6": {
-         "type": "platform",
-         "imports": [
-            "dnxcore50",
-            "netcoreapp1.0"
-         ]
+      "netcoreapp1.0": {
+         "dependencies": {
+            "Microsoft.NETCore.App": {
+               "type": "platform",
+               "version": "1.0.0"
+            }
+         }
       }
    },
    "testRunner": "xunit",
@@ -20,10 +21,5 @@
       "dotnet-test-xunit": "2.2.0-preview2-build1029",
       "TerrificNet.Environment": "0.1-alpha",
       "TerrificNet.Test.Common": "0.1-alpha"
-   },
-
-   "runtimes": {
-      "win10-x86": {},
-      "win10-x64": {}
    }
 }

@@ -5,8 +5,13 @@
 	"description": "TerrificNet",
 	"frameworks": {
 		"netcoreapp1.0": {
-			"imports": "dnxcore"
-		}
+         "dependencies": {
+            "Microsoft.NETCore.App": {
+               "type": "platform",
+               "version": "1.0.0"
+            }
+         }
+      }
 	},
    "dependencies": {
       "NETStandard.Library": "1.6.0",

@@ -5,8 +5,13 @@
    "description": "TerrificNet",
 	"frameworks": {
 		"netcoreapp1.0": {
-			"imports": [ "aspnet50", "dnxcore50" ]
-		}
+         "dependencies": {
+            "Microsoft.NETCore.App": {
+               "type": "platform",
+               "version": "1.0.0"
+            }
+         }
+      }
 	},
    "dependencies": {
       "Microsoft.AspNetCore.Cors": "1.0.0",
