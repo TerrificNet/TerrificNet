@@ -45,19 +45,21 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private CompilerResult CreateExpression(IDataScopeContract dataScopeContract, CompilerExtensions compilerExtensions)
 		{
-			var visitor = new EmitExpressionVisitor(dataScopeContract, compilerExtensions);
+			var renderingContextExpression = Expression.Parameter(typeof(IRenderingContext));
+
+			var visitor = new EmitExpressionVisitor(dataScopeContract, compilerExtensions, renderingContextExpression);
 			var expression = visitor.Visit(_input);
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");
 
 			var convertExpression = Expression.Assign(dataScopeContract.Expression, Expression.ConvertChecked(inputExpression, dataScopeContract.Expression.Type));
 			var bodyExpression = Expression.Block(new[] { (ParameterExpression)dataScopeContract.Expression }, convertExpression, expression);
-			return new CompilerResult(bodyExpression, inputExpression);
+			return new CompilerResult(bodyExpression, inputExpression, renderingContextExpression);
 		}
 
 		private static IViewTemplate CreateTemplate(CompilerResult result, IOutputExpressionBuilder output)
 		{
-			var expression = Expression.Lambda(result.BodyExpression, (ParameterExpression)output.InstanceExpression, result.InputExpression);
+			var expression = Expression.Lambda(result.BodyExpression, (ParameterExpression)output.InstanceExpression, result.InputExpression, result.RenderingContextExpression);
 
 			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(Template<>).MakeGenericType(output.InstanceExpression.Type).GetTypeInfo().GetConstructors().First(), expression));
 			var action = creationExpression.Compile();

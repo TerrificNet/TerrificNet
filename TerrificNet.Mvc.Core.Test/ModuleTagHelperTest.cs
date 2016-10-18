@@ -10,6 +10,7 @@ using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using Xunit;
 using System.Reflection;
+using TerrificNet.Thtml.Rendering;
 using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Mvc.Core.Test
@@ -45,7 +46,7 @@ namespace TerrificNet.Mvc.Core.Test
 		{
 			var element = new Element("mod:test");
 
-			var underTest = new ModuleTagHelper(_controllerFactory, _actionCollection, _accessor);
+			var underTest = new ModuleTagHelper(_actionCollection);
 			var result = underTest.FindByName(element);
 
 			Assert.NotNull(result);
@@ -56,8 +57,9 @@ namespace TerrificNet.Mvc.Core.Test
 		[Fact]
 		public void ModuleTagHelperBinderResult_CreateExpression_ReturnsResult()
 		{
-			var underTest = new ModuleTagHelper.ModuleTagHelperBinderResult(_controllerActionDescriptor, _controllerFactory, _accessor);
-			var result = underTest.CreateViewResultExpression();
+			var underTest = new ModuleTagHelper.ModuleTagHelperBinderResult(_controllerActionDescriptor);
+			var parameter = Expression.Parameter(typeof(IRenderingContext));
+			var result = underTest.CreateViewResultExpression(parameter);
 
 			Assert.NotNull(result);
 			Assert.Equal(typeof(IActionResult), result.Type);
@@ -69,11 +71,11 @@ namespace TerrificNet.Mvc.Core.Test
 			var viewResult = new ViewResult("test", new object());
 
 			var inputExpression = Expression.Constant(viewResult, typeof(IActionResult));
-			var underTest = new ModuleTagHelper.ModuleTagHelperBinderResult(_controllerActionDescriptor, _controllerFactory, _accessor);
+			var underTest = new ModuleTagHelper.ModuleTagHelperBinderResult(_controllerActionDescriptor);
 
-			var output = OutputFactories.VTree.CreateExpressionBuilder();
+			var parameter = Expression.Parameter(typeof(IRenderingContext));
 
-			var result = underTest.CreateExpressionFromViewResult(inputExpression, output);
+			var result = underTest.CreateExpressionFromViewResult(inputExpression, parameter);
 			Assert.NotNull(result);
 			Assert.Equal(typeof(void), result.Type);
 		}

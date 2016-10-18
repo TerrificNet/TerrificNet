@@ -22,26 +22,26 @@ namespace TerrificNet.Mvc.Core
 
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
-			var runnable = await CreateAsync(OutputFactories.VTree, context);
+			var builder = context.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilder>();
+
+			var runnable = await CreateAsync(builder, context);
 			Render(context, runnable);
 		}
 
-		private async Task<IViewTemplate<T>> CreateAsync<T>(OutputExpressionBuilderFactory<T> emitterFactory, ActionContext actionContext)
+		public async Task ExecuteChildResultAsync(ActionContext context)
+		{
+			var builder = context.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilder>();
+
+			var runnable = await CreateAsync(builder, context);
+
+			var renderer = context.HttpContext.Features.Get<VDomBuilder>();
+			runnable.Execute(renderer, _model, new MvcRenderingContext(context));
+		}
+
+		private async Task<IViewTemplate> CreateAsync(IOutputExpressionBuilder emitterFactory, ActionContext actionContext)
 		{
 			var compiler = await GetCompiler(actionContext);
 			return compiler.Compile(GetDataBinder(), emitterFactory);
-		}
-
-		public void Execute(IOutputExpressionBuilder output, object renderer, ActionContext actionContext)
-		{
-			var func = Create(output, actionContext);
-			func.Execute(renderer, _model, null);
-		}
-
-		private IViewTemplate Create(IOutputExpressionBuilder output, ActionContext actionContext)
-		{
-			var compiler = GetCompiler(actionContext).Result;
-			return compiler.Compile(GetDataBinder(), output);
 		}
 
 		private IDataBinder GetDataBinder()
@@ -59,12 +59,13 @@ namespace TerrificNet.Mvc.Core
 			return await compilerService.CreateCompiler(viewPath);
 		}
 
-		private void Render(ActionContext context, IViewTemplate<IVDomBuilder> runnable)
+		private void Render(ActionContext context, IViewTemplate runnable)
 		{
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
 				var builder = new VDomBuilder();
-				runnable.Execute(builder, _model, null);
+				context.HttpContext.Features.Set(builder);
+				runnable.Execute(builder, _model, new MvcRenderingContext(context));
 				var vTree = builder.ToDom();
 
 				writer.Write(vTree.ToString());

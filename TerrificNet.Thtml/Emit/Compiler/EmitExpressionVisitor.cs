@@ -14,12 +14,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
 		private readonly CompilerExtensions _extensions;
+		private readonly Expression _renderingContextExpression;
 		private readonly IOutputExpressionBuilder _expressionBuilder;
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions, Expression renderingContextExpression)
 		{
 			_dataScopeContract = dataScopeContract;
 			_extensions = extensions;
+			_renderingContextExpression = renderingContextExpression;
 			_helperBinder = _extensions.HelperBinder;
 			_expressionBuilder = _extensions.ExpressionBuilder;
 		}
@@ -35,7 +37,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var tagResult = _extensions.TagHelper.FindByName(element);
 			if (tagResult != null)
 			{
-				return tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions));
+				return tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
 			}
 
 			var expressions = new List<Expression>();
@@ -163,7 +165,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				if (result == null)
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-				return result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions));
+				return result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
 			}
 
 			var contentEmitter = expression.Accept(this);
@@ -185,12 +187,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public INodeCompilerVisitor ChangeContract(IDataScopeContract childScopeContract)
 		{
-			return new EmitExpressionVisitor(childScopeContract, _extensions);
+			return new EmitExpressionVisitor(childScopeContract, _extensions, _renderingContextExpression);
 		}
 
 		public INodeCompilerVisitor ChangeExtensions(CompilerExtensions extensions)
 		{
-			return new EmitExpressionVisitor(_dataScopeContract, extensions);
+			return new EmitExpressionVisitor(_dataScopeContract, extensions, _renderingContextExpression);
 		}
 
 		public Expression Visit(IEnumerable<Node> nodes)

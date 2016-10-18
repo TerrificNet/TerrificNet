@@ -8,22 +8,19 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using TerrificNet.Thtml.Emit;
-using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
+using TerrificNet.Thtml.Rendering;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TerrificNet.Mvc.Core
 {
 	public class ModuleTagHelper : ITagHelper
 	{
-		private readonly IControllerFactory _controllerFactory;
 		private readonly IActionDescriptorCollectionProvider _actionCollection;
-		private readonly IHttpContextAccessor _accessor;
 
-		public ModuleTagHelper(IControllerFactory controllerFactory, IActionDescriptorCollectionProvider actionCollection, IHttpContextAccessor accessor)
+		public ModuleTagHelper(IActionDescriptorCollectionProvider actionCollection)
 		{
-			_controllerFactory = controllerFactory;
 			_actionCollection = actionCollection;
-			_accessor = accessor;
 		}
 
 		public HelperBinderResult FindByName(Element element)
@@ -32,7 +29,7 @@ namespace TerrificNet.Mvc.Core
 			{
 				var name = element.TagName.Remove(0, "mod:".Length);
 				var actionDescriptor = FindActionDescriptor(name);
-				return new ModuleTagHelperBinderResult(actionDescriptor, _controllerFactory, _accessor);
+				return new ModuleTagHelperBinderResult(actionDescriptor);
 			}
 
 			return null;
@@ -40,46 +37,52 @@ namespace TerrificNet.Mvc.Core
 
 		internal class ModuleTagHelperBinderResult : HelperBinderResult
 		{
-			private readonly IControllerFactory _controllerFactory;
-			private readonly IHttpContextAccessor _accessor;
-
 			internal ControllerActionDescriptor ActionDescriptor { get; }
 
-			public ModuleTagHelperBinderResult(ControllerActionDescriptor actionDescriptor, IControllerFactory controllerFactory, IHttpContextAccessor accessor)
+			public ModuleTagHelperBinderResult(ControllerActionDescriptor actionDescriptor)
 			{
-				_controllerFactory = controllerFactory;
-				_accessor = accessor;
 				ActionDescriptor = actionDescriptor;
 			}
 
 			public override Expression CreateExpression(HelperParameters helperParameters)
 			{
-				var viewResult = CreateViewResultExpression();
-				return CreateExpressionFromViewResult(viewResult, helperParameters.CompilerExtensions.ExpressionBuilder);
+				var viewResult = CreateViewResultExpression(helperParameters.RenderingContextExpression);
+				return CreateExpressionFromViewResult(viewResult, helperParameters.RenderingContextExpression);
 			}
 
-			internal Expression CreateExpressionFromViewResult(Expression actionResultExpression, IOutputExpressionBuilder emitter)
+			internal Expression CreateExpressionFromViewResult(Expression actionResultExpression, Expression renderingContextExpression)
 			{
-				var actionContext = new ActionContext(_accessor.HttpContext, new RouteData(), ActionDescriptor);
-
 				var viewResultExpression = Expression.ConvertChecked(actionResultExpression, typeof(ViewResult));
-				var convertedExpression = Expression.Call(viewResultExpression, typeof(ViewResult).GetMethod("Execute"), Expression.Constant(emitter), emitter.InstanceExpression, Expression.Constant(actionContext));
+				var methodInfo = typeof(ModuleTagHelperBinderResult).GetTypeInfo().GetMethod("ExecuteResult");
+				var convertedExpression = Expression.Call(methodInfo, viewResultExpression, renderingContextExpression, Expression.Constant(ActionDescriptor));
 
 				return convertedExpression;
 			}
 
-			internal Expression CreateViewResultExpression()
+			public static void ExecuteResult(ViewResult viewResult, IRenderingContext renderingContext, ControllerActionDescriptor controllerActionDescriptor)
+			{
+				var mvcContext = (MvcRenderingContext) renderingContext;
+				var httpContext = mvcContext.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+				var actionContext = new ActionContext(httpContext, new RouteData(), controllerActionDescriptor);
+
+				viewResult.ExecuteChildResultAsync(actionContext).Wait();
+			}
+
+			internal Expression CreateViewResultExpression(Expression renderingContextExpression)
 			{
 				var info = GetType().GetTypeInfo().GetMethod("Invoke");
 
-				var createExpression = Expression.Call(Expression.Constant(this), info, Expression.Constant(ActionDescriptor));
+				var createExpression = Expression.Call(info, Expression.Constant(ActionDescriptor), renderingContextExpression);
 				return Expression.Call(Expression.ConvertChecked(createExpression, ActionDescriptor.MethodInfo.DeclaringType), ActionDescriptor.MethodInfo);
 			}
 
-			public object Invoke(ControllerActionDescriptor actionDescriptor)
+			public static object Invoke(ControllerActionDescriptor actionDescriptor, IRenderingContext renderingContext)
 			{
-				var controllerContext = new ControllerContext { ActionDescriptor = actionDescriptor, HttpContext = _accessor.HttpContext };
-				var controller = _controllerFactory.CreateController(controllerContext);
+				var mvcRenderingContext = (MvcRenderingContext) renderingContext;
+				var httpContext = mvcRenderingContext.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+				var controllerContext = new ControllerContext { ActionDescriptor = actionDescriptor, HttpContext = httpContext };
+				var controllerFactory = mvcRenderingContext.ServiceProvider.GetRequiredService<IControllerFactory>();
+				var controller = controllerFactory.CreateController(controllerContext);
 
 				return controller;
 			}
