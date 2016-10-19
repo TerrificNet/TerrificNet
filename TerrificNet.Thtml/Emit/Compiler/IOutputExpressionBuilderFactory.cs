@@ -1,7 +1,9 @@
-﻿namespace TerrificNet.Thtml.Emit.Compiler
+﻿using System.Linq.Expressions;
+
+namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public interface IOutputExpressionBuilderFactory
 	{
-		IOutputExpressionBuilder CreateExpressionBuilder();
+		IOutputExpressionBuilder CreateExpressionBuilder(Expression parameter);
 	}
 }

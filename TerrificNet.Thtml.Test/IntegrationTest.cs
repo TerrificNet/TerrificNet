@@ -5,6 +5,7 @@ using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Rendering;
 using TerrificNet.Thtml.Test.Stubs;
 using TerrificNet.Thtml.VDom;
 using Xunit;
@@ -25,7 +26,7 @@ namespace TerrificNet.Thtml.Test
 			var method = new ThtmlDocumentCompiler(ast, CompilerExtensions.Default).Compile(dataBinder, OutputFactories.VTree);
 
 			var builder = new VDomBuilder();
-			method.Execute(builder, inputObject, null);
+			method.Execute(inputObject, new RenderingContext(new VDomOutput(builder)));
 			var result = builder.ToDom();
 
 			Assert.Equal(expectedResult, result.ToString());

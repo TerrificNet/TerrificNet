@@ -22,7 +22,7 @@ namespace TerrificNet.Mvc.Core
 
 		public async Task ExecuteResultAsync(ActionContext context)
 		{
-			var builder = context.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilder>();
+			var builder = context.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilderFactory>();
 
 			var runnable = await CreateAsync(builder, context);
 			Render(context, runnable);
@@ -30,15 +30,15 @@ namespace TerrificNet.Mvc.Core
 
 		public async Task ExecuteChildResultAsync(ActionContext context)
 		{
-			var builder = context.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilder>();
+			var builder = context.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilderFactory>();
 
 			var runnable = await CreateAsync(builder, context);
 
 			var renderer = context.HttpContext.Features.Get<VDomBuilder>();
-			runnable.Execute(renderer, _model, new MvcRenderingContext(context));
+			runnable.Execute(_model, new MvcRenderingContext(new VDomOutput(renderer), context));
 		}
 
-		private async Task<IViewTemplate> CreateAsync(IOutputExpressionBuilder emitterFactory, ActionContext actionContext)
+		private async Task<IViewTemplate> CreateAsync(IOutputExpressionBuilderFactory emitterFactory, ActionContext actionContext)
 		{
 			var compiler = await GetCompiler(actionContext);
 			return compiler.Compile(GetDataBinder(), emitterFactory);
@@ -65,7 +65,7 @@ namespace TerrificNet.Mvc.Core
 			{
 				var builder = new VDomBuilder();
 				context.HttpContext.Features.Set(builder);
-				runnable.Execute(builder, _model, new MvcRenderingContext(context));
+				runnable.Execute(_model, new MvcRenderingContext(new VDomOutput(builder), context));
 				var vTree = builder.ToDom();
 
 				writer.Write(vTree.ToString());

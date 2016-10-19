@@ -7,6 +7,7 @@ using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
+using TerrificNet.Thtml.Rendering;
 using TerrificNet.Thtml.Test.Stubs;
 using Xunit;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
@@ -22,7 +23,7 @@ namespace TerrificNet.Thtml.Test
 		{
 			var sb = new StringBuilder();
 			new ThtmlDocumentCompiler(input, CompilerExtensions.Default.AddHelperBinder(helperBinder)).Compile(dataBinder, OutputFactories.Stream)
-				.Execute(new StringWriter(sb), data, null);
+				.Execute(data, new RenderingContext(new TextWriterOutput(new StringWriter(sb))));
 
 			Assert.Equal(expected, sb.ToString());
 		}

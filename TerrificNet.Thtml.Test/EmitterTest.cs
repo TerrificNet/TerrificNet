@@ -11,8 +11,8 @@ using TerrificNet.Thtml.VDom;
 using Xunit;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
 using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
-using System.Linq;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Test
 {
@@ -24,7 +24,7 @@ namespace TerrificNet.Thtml.Test
 		{
 			var method = new ThtmlDocumentCompiler(input, compilerExtensions).Compile(dataBinder, OutputFactories.VTree);
 			var builder = new VDomBuilder();
-			method.Execute(builder, data, null);
+			method.Execute(data, new RenderingContext(new VDomOutput(builder)));
 			var result = builder.ToDom();
 
 			VTreeAsserts.AssertTree(expected, result);

@@ -22,7 +22,7 @@ namespace TerrificNet.Client.test
 			var emitter = CreateEmitter(new DynamicDataBinder(), new NullHelperBinder(), template);
 
 			var builder = new VDomBuilder();
-			emitter.Execute(builder, obj, null);
+			emitter.Execute(obj, new RenderingContext(new VDomOutput(builder)));
 			var vTree = builder.ToDom();
 
 			return new ObjectResult(vTree);
@@ -49,13 +49,13 @@ namespace TerrificNet.Client.test
 
 			using (var renderer = new JavascriptIncrementalDomRenderer(new StringWriter(builder), mapping))
 			{
-				emitter.Execute(renderer, obj, null);
+				emitter.Execute(obj, new RenderingContext(new IncrementalDomOutput(renderer)));
 			}
 
 			return builder.ToString();
 		}
 
-		private static IViewTemplate<IVDomBuilder> CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
+		private static IViewTemplate CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
 		{
 			var compiler = CreateCompiler(helperBinder, path);
 			return compiler.Compile(dataBinder, OutputFactories.VTree);

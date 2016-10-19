@@ -5,16 +5,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class OutputExpressionBuilderFactory<TRenderer> : IOutputExpressionBuilderFactory
 	{
-		private readonly IOutputExpressionBuilder _expressionBuilder;
+		private readonly Func<Expression, IOutputExpressionBuilder> _builderFactory;
 
-		public OutputExpressionBuilderFactory(Func<ParameterExpression, IOutputExpressionBuilder> builderFactory)
+		public OutputExpressionBuilderFactory(Func<Expression, IOutputExpressionBuilder> builderFactory)
 		{
-			_expressionBuilder = builderFactory(Expression.Parameter(typeof(TRenderer)));
+			_builderFactory = builderFactory;
 		}
 
-		public IOutputExpressionBuilder CreateExpressionBuilder()
+		public IOutputExpressionBuilder CreateExpressionBuilder(Expression parameter)
 		{
-			return _expressionBuilder;
+			return _builderFactory(Expression.ConvertChecked(parameter, typeof(TRenderer)));
 		}
 	}
 }

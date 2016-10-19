@@ -3,23 +3,21 @@ using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class Template<TRenderer> : IViewTemplate<TRenderer>
+	public class Template : IViewTemplate
 	{
-		private readonly Action<TRenderer, object, IRenderingContext> _action;
+		private readonly Action<object, IRenderingContext> _action;
 
-		public Template(Action<TRenderer, object, IRenderingContext> action)
+		public Template(Action<object, IRenderingContext> action)
 		{
 			_action = action;
 		}
 
-		public void Execute(TRenderer renderer, object data, IRenderingContext renderingContext)
+		public void Execute(object data, IRenderingContext renderingContext)
 		{
-			_action(renderer, data, renderingContext);
-		}
+			if (renderingContext == null)
+				throw new ArgumentNullException(nameof(renderingContext));
 
-		public void Execute(object renderer, object data, IRenderingContext renderingContext)
-		{
-			_action((TRenderer) renderer, data, renderingContext);
+			_action(data, renderingContext);
 		}
 	}
 }

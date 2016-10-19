@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using TerrificNet.Thtml.Emit.Compiler;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -18,7 +19,6 @@ namespace TerrificNet.Mvc.Core
 
 			services.AddSingleton(s => new CompilerService(s.GetRequiredService<CompilerExtensions>));
 			services.AddTransient<IOutputExpressionBuilderFactory>(p => OutputFactories.VTree);
-			services.AddTransient(p => p.GetRequiredService<IOutputExpressionBuilderFactory>().CreateExpressionBuilder());
 
 			// TODO: remove and replace with property HttpContext calls
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
