@@ -9,7 +9,7 @@ namespace TerrificNet.Thtml.Formatting
 	{
 		public static OutputExpressionBuilderFactory<TextWriterOutputBuilder> Text { get; } = new OutputExpressionBuilderFactory<TextWriterOutputBuilder>(p => new TextWriterOutputExpressionBuilder(AccessInnerProperty(p)));
 		public static OutputExpressionBuilderFactory<VDomOutputBuilder> VTree { get; } = new OutputExpressionBuilderFactory<VDomOutputBuilder>(p => new VDomOutputExpressionBuilder(AccessInnerProperty(p)));
-		public static OutputExpressionBuilderFactory<IncrementalDomOutput> IncrementalDomScript { get; } = new OutputExpressionBuilderFactory<IncrementalDomOutput>(p => new IncrementalDomRendererExpressionBuilder(AccessInnerProperty(p)));
+		public static OutputExpressionBuilderFactory<IncrementalDomOutputBuilder> IncrementalDomScript { get; } = new OutputExpressionBuilderFactory<IncrementalDomOutputBuilder>(p => new IncrementalDomOutputExpressionBuilder(AccessInnerProperty(p)));
 
 		private static MemberExpression AccessInnerProperty(Expression p)
 		{

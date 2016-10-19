@@ -20,17 +20,17 @@ namespace TerrificNet.Thtml.Rendering
 			Dispose(false);
 		}
 
-		public void ElementVoid(string tagName, string key, Dictionary<string, string> staticPropertyValuePairs, Dictionary<string, string> propertyValuePairs)
+		public void ElementVoid(string tagName, string key, IReadOnlyDictionary<string, string> staticPropertyValuePairs, IReadOnlyDictionary<string, string> propertyValuePairs)
 		{
 			Element(_mapping.ElementVoid, tagName, key, staticPropertyValuePairs, propertyValuePairs);
 		}
 
-		public void ElementOpen(string tagName, string key, Dictionary<string, string> staticPropertyValuePairs, Dictionary<string, string> propertyValuePairs)
+		public void ElementOpen(string tagName, string key, IReadOnlyDictionary<string, string> staticPropertyValuePairs, IReadOnlyDictionary<string, string> propertyValuePairs)
 		{
 			Element(_mapping.ElementOpen, tagName, key, staticPropertyValuePairs, propertyValuePairs);
 		}
 
-		public void ElementOpenStart(string tagName, string key, Dictionary<string, string> staticPropertyValuePairs, Dictionary<string, string> propertyValuePairs)
+		public void ElementOpenStart(string tagName, string key, IReadOnlyDictionary<string, string> staticPropertyValuePairs, IReadOnlyDictionary<string, string> propertyValuePairs)
 		{
 			Element(_mapping.ElementOpenStart, tagName, key, staticPropertyValuePairs, propertyValuePairs);
 		}
@@ -90,7 +90,7 @@ namespace TerrificNet.Thtml.Rendering
 			_output.Write("\");");
 		}
 
-		private void Element(string methodName, string tagName, string key, Dictionary<string, string> staticPropertyValuePairs, Dictionary<string, string> propertyValuePairs)
+		private void Element(string methodName, string tagName, string key, IReadOnlyDictionary<string, string> staticPropertyValuePairs, IReadOnlyDictionary<string, string> propertyValuePairs)
 		{
 			_output.Write(methodName);
 			_output.Write("(\"");
@@ -116,7 +116,7 @@ namespace TerrificNet.Thtml.Rendering
 			_output.Write(");");
 		}
 
-		private void Attributes(TextWriter output, Dictionary<string, string> staticPropertyValuePairs)
+		private void Attributes(TextWriter output, IReadOnlyDictionary<string, string> staticPropertyValuePairs)
 		{
 			foreach (var attr in staticPropertyValuePairs)
 			{

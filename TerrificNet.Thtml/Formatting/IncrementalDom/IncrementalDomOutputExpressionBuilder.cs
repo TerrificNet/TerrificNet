@@ -7,12 +7,12 @@ using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Formatting.IncrementalDom
 {
-	internal class IncrementalDomRendererExpressionBuilder : IOutputExpressionBuilder
+	internal class IncrementalDomOutputExpressionBuilder : IOutputExpressionBuilder
 	{
 		private readonly List<Expression> _propertyValueExpressions = new List<Expression>();
 		private string _propertyName;
 
-		public IncrementalDomRendererExpressionBuilder(Expression parameterExpression)
+		public IncrementalDomOutputExpressionBuilder(Expression parameterExpression)
 		{
 			InstanceExpression = parameterExpression;
 		}

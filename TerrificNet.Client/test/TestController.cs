@@ -52,7 +52,7 @@ namespace TerrificNet.Client.test
 
 			using (var renderer = new JavascriptIncrementalDomRenderer(new StringWriter(builder), mapping))
 			{
-				emitter.Execute(obj, new RenderingContext(new IncrementalDomOutput(renderer)));
+				emitter.Execute(obj, new RenderingContext(new IncrementalDomOutputBuilder(renderer)));
 			}
 
 			return builder.ToString();

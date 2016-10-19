@@ -110,7 +110,7 @@ namespace TerrificNet.Thtml.Test
 			var mock = new Mock<IIncrementalDomRenderer>(MockBehavior.Strict);
 			mock.InSequence(expressions);
 
-			renderer.Execute(data, new RenderingContext(new IncrementalDomOutput(mock.Object)));
+			renderer.Execute(data, new RenderingContext(new IncrementalDomOutputBuilder(mock.Object)));
 
 			mock.VerifyAll();
 		}
