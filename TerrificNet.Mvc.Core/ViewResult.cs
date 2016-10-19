@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Compiler;
 using Microsoft.Extensions.DependencyInjection;
+using TerrificNet.Thtml.Formatting;
+using TerrificNet.Thtml.Formatting.VDom;
 using TerrificNet.Thtml.Rendering;
 using TerrificNet.Thtml.VDom;
 

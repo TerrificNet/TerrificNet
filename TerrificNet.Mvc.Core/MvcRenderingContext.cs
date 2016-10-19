@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
-using TerrificNet.Thtml.Emit.Compiler;
+using TerrificNet.Thtml.Formatting;
 using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Mvc.Core

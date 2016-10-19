@@ -1,6 +1,9 @@
 ﻿using System.Linq.Expressions;
+using TerrificNet.Thtml.Formatting.IncrementalDom;
+using TerrificNet.Thtml.Formatting.Text;
+using TerrificNet.Thtml.Formatting.VDom;
 
-namespace TerrificNet.Thtml.Emit.Compiler
+namespace TerrificNet.Thtml.Formatting
 {
 	public static class OutputFactories
 	{

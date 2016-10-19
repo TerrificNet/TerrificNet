@@ -4,6 +4,8 @@ using System.Linq.Expressions;
 using Moq;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Compiler;
+using TerrificNet.Thtml.Formatting;
+using TerrificNet.Thtml.Formatting.IncrementalDom;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Rendering;
 using Xunit;

@@ -1,20 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using TerrificNet.Thtml.Rendering;
+using System.IO;
 
-namespace TerrificNet.Thtml.Emit.Compiler
+namespace TerrificNet.Thtml.Formatting.Text
 {
-	public class IncrementalDomOutput : IOutputBuilder
+	public class TextWriterOutput : IOutputBuilder
 	{
-		private readonly IIncrementalDomRenderer _adaptee;
+		private readonly TextWriter _adaptee;
 
-		public IncrementalDomOutput(IIncrementalDomRenderer adaptee)
+		public TextWriterOutput(TextWriter adaptee)
 		{
 			_adaptee = adaptee;
-			Inner = _adaptee;
+			Inner = adaptee;
 		}
 
-		internal IIncrementalDomRenderer Inner { get; }
+		internal TextWriter Inner { get; }
 
 		public void ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using TerrificNet.Thtml.Binding;
-using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
+using TerrificNet.Thtml.Formatting;
+using TerrificNet.Thtml.Formatting.VDom;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;

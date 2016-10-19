@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace TerrificNet.Thtml.Emit.Compiler
+namespace TerrificNet.Thtml.Formatting
 {
 	public interface IOutputExpressionBuilder
 	{
-		Expression InstanceExpression { get; }
-
 		Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties);
 		Expression ElementOpenEnd();
 		Expression ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties);

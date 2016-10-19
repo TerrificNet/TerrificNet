@@ -1,4 +1,6 @@
-﻿namespace TerrificNet.Thtml.Emit.Compiler
+﻿using TerrificNet.Thtml.Formatting;
+
+namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public class CompilerExtensions
 	{

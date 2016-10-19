@@ -5,6 +5,8 @@ using Moq;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
+using TerrificNet.Thtml.Formatting;
+using TerrificNet.Thtml.Formatting.Text;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using TerrificNet.Thtml.Rendering;

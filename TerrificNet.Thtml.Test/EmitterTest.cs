@@ -12,6 +12,8 @@ using Xunit;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;
 using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Formatting;
+using TerrificNet.Thtml.Formatting.VDom;
 using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Test

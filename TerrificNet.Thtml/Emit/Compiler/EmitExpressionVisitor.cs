@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Formatting;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Parsing.Handlebars;
 using ConditionalExpression = TerrificNet.Thtml.Parsing.Handlebars.ConditionalExpression;

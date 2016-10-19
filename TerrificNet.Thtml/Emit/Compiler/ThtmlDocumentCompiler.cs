@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Schema;
+using TerrificNet.Thtml.Formatting;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Rendering;
 
@@ -51,7 +52,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			var expression = Expression.Lambda(result.BodyExpression, result.InputExpression, result.RenderingContextExpression);
 
-			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(Template).GetTypeInfo().GetConstructors().First(), expression));
+			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(CompiledTemplate).GetTypeInfo().GetConstructors().First(), expression));
 			var action = creationExpression.Compile();
 
 			return action();

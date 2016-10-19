@@ -2,9 +2,10 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Rendering;
 
-namespace TerrificNet.Thtml.Emit.Compiler
+namespace TerrificNet.Thtml.Formatting.IncrementalDom
 {
 	internal class IncrementalDomRendererExpressionBuilder : IOutputExpressionBuilder
 	{

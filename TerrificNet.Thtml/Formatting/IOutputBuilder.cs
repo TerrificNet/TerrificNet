@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TerrificNet.Thtml.Emit.Compiler
+namespace TerrificNet.Thtml.Formatting
 {
 	public interface IOutputBuilder
 	{
