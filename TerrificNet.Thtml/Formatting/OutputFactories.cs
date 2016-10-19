@@ -7,7 +7,7 @@ namespace TerrificNet.Thtml.Formatting
 {
 	public static class OutputFactories
 	{
-		public static OutputExpressionBuilderFactory<TextWriterOutput> Stream { get; } = new OutputExpressionBuilderFactory<TextWriterOutput>(p => new StreamBuilderExpression(AccessInnerProperty(p)));
+		public static OutputExpressionBuilderFactory<TextWriterOutputBuilder> Text { get; } = new OutputExpressionBuilderFactory<TextWriterOutputBuilder>(p => new TextWriterOutputExpressionBuilder(AccessInnerProperty(p)));
 		public static OutputExpressionBuilderFactory<VDomOutputBuilder> VTree { get; } = new OutputExpressionBuilderFactory<VDomOutputBuilder>(p => new VDomOutputExpressionBuilder(AccessInnerProperty(p)));
 		public static OutputExpressionBuilderFactory<IncrementalDomOutput> IncrementalDomScript { get; } = new OutputExpressionBuilderFactory<IncrementalDomOutput>(p => new IncrementalDomRendererExpressionBuilder(AccessInnerProperty(p)));
 

@@ -6,9 +6,9 @@ using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Formatting.Text
 {
-	internal class StreamBuilderExpression : IOutputExpressionBuilder
+	internal class TextWriterOutputExpressionBuilder : IOutputExpressionBuilder
 	{
-		public StreamBuilderExpression(Expression instance)
+		public TextWriterOutputExpressionBuilder(Expression instance)
 		{
 			InstanceExpression = instance;
 		}
@@ -17,10 +17,12 @@ namespace TerrificNet.Thtml.Formatting.Text
 
 		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
-			if (staticProperties.Count > 0)
+			if (staticProperties != null && staticProperties.Count > 0)
 			{
-				var sb = CreateStaticProperties(tagName, staticProperties);
-				ExpressionHelper.Write(InstanceExpression, sb.ToString());
+				var stringBuilder = new StringBuilder();
+				AddStaticProperties(stringBuilder, tagName, staticProperties);
+
+				return ExpressionHelper.Write(InstanceExpression, stringBuilder.ToString());
 			}
 			return ExpressionHelper.Write(InstanceExpression, $"<{tagName}");
 		}
@@ -32,21 +34,21 @@ namespace TerrificNet.Thtml.Formatting.Text
 
 		public Expression ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
-			if (staticProperties.Count > 0)
+			if (staticProperties != null && staticProperties.Count > 0)
 			{
-				var sb = CreateStaticProperties(tagName, staticProperties);
-				sb.Append(">");
+				var stringBuilder = new StringBuilder();
+				AddStaticProperties(stringBuilder, tagName, staticProperties);
+				stringBuilder.Append(">");
 
-				return ExpressionHelper.Write(InstanceExpression, sb.ToString());
+				return ExpressionHelper.Write(InstanceExpression, stringBuilder.ToString());
 			}
 			return ExpressionHelper.Write(InstanceExpression, $"<{tagName}>");
 		}
 
-		private static StringBuilder CreateStaticProperties(string tagName, IReadOnlyDictionary<string, string> staticProperties)
+		private static void AddStaticProperties(StringBuilder builder, string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
-			var sb = new StringBuilder($"<{tagName}");
-			staticProperties.Aggregate(sb, (b, a) => b.Append(" ").Append(a.Key).Append("=\"").Append(a.Value).Append("\""));
-			return sb;
+			builder.Append($"<{tagName}");
+			staticProperties.Aggregate(builder, (b, a) => b.Append(" ").Append(a.Key).Append("=\"").Append(a.Value).Append("\""));
 		}
 
 		public Expression ElementClose(string tagName)
