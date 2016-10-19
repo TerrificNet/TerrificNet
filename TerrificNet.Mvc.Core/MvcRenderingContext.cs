@@ -7,15 +7,15 @@ namespace TerrificNet.Mvc.Core
 {
 	public class MvcRenderingContext : IRenderingContext
 	{
-		private readonly ActionContext _context;
-
-		public MvcRenderingContext(IOutputBuilder outputBuilder, ActionContext context)
+		public MvcRenderingContext(IOutputBuilder outputBuilder, ActionContext actionContext)
 		{
-			_context = context;
+			ActionContext = actionContext;
 			OutputBuilder = outputBuilder;
 		}
 
-		public IServiceProvider ServiceProvider => _context.HttpContext.RequestServices;
+		public ActionContext ActionContext { get; }
+
+		public IServiceProvider ServiceProvider => ActionContext.HttpContext.RequestServices;
 
 		public IOutputBuilder OutputBuilder { get; }
 

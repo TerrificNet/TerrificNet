@@ -64,8 +64,9 @@ namespace TerrificNet.Mvc.Core
 				var mvcContext = (MvcRenderingContext) renderingContext;
 				var httpContext = mvcContext.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
 				var actionContext = new ActionContext(httpContext, new RouteData(), controllerActionDescriptor);
+				var childRenderingContext = new MvcRenderingContext(mvcContext.OutputBuilder, actionContext);
 
-				viewResult.ExecuteChildResultAsync(actionContext).Wait();
+				viewResult.ExecuteChildResultAsync(childRenderingContext).Wait();
 			}
 
 			internal Expression CreateViewResultExpression(Expression renderingContextExpression)

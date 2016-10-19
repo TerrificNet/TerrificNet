@@ -28,14 +28,12 @@ namespace TerrificNet.Mvc.Core
 			Render(context, runnable);
 		}
 
-		public async Task ExecuteChildResultAsync(ActionContext context)
+		public async Task ExecuteChildResultAsync(MvcRenderingContext context)
 		{
-			var builder = context.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilderFactory>();
+			var builder = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IOutputExpressionBuilderFactory>();
 
-			var runnable = await CreateAsync(builder, context);
-
-			var renderer = context.HttpContext.Features.Get<VDomBuilder>();
-			runnable.Execute(_model, new MvcRenderingContext(new VDomOutput(renderer), context));
+			var runnable = await CreateAsync(builder, context.ActionContext);
+			runnable.Execute(_model, context);
 		}
 
 		private async Task<IViewTemplate> CreateAsync(IOutputExpressionBuilderFactory emitterFactory, ActionContext actionContext)
@@ -64,7 +62,6 @@ namespace TerrificNet.Mvc.Core
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
 				var builder = new VDomBuilder();
-				context.HttpContext.Features.Set(builder);
 				runnable.Execute(_model, new MvcRenderingContext(new VDomOutput(builder), context));
 				var vTree = builder.ToDom();
 
