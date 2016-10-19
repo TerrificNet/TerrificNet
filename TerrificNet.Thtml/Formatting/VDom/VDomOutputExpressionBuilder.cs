@@ -19,7 +19,7 @@ namespace TerrificNet.Thtml.Formatting.VDom
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.ElementOpenStart(null));
 			var elementOpenStart = Expression.Call(InstanceExpression, method, Expression.Constant(tagName));
 
-			if (staticProperties.Count > 0)
+			if (staticProperties != null && staticProperties.Count > 0)
 			{
 				var expressions = new List<Expression> { elementOpenStart };
 				foreach (var property in staticProperties)

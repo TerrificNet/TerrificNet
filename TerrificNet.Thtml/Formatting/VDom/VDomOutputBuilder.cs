@@ -3,11 +3,11 @@ using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Thtml.Formatting.VDom
 {
-	public class VDomOutput : IOutputBuilder
+	public class VDomOutputBuilder : IOutputBuilder
 	{
 		private readonly IVDomBuilder _adaptee;
 
-		public VDomOutput(IVDomBuilder adaptee)
+		public VDomOutputBuilder(IVDomBuilder adaptee)
 		{
 			_adaptee = adaptee;
 			Inner = _adaptee;
@@ -18,11 +18,14 @@ namespace TerrificNet.Thtml.Formatting.VDom
 		public void ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
 			_adaptee.ElementOpenStart(tagName);
-			foreach (var prop in staticProperties)
+			if (staticProperties != null)
 			{
-				_adaptee.PropertyStart(prop.Key);
-				_adaptee.Value(prop.Value);
-				_adaptee.PropertyEnd();
+				foreach (var prop in staticProperties)
+				{
+					_adaptee.PropertyStart(prop.Key);
+					_adaptee.Value(prop.Value);
+					_adaptee.PropertyEnd();
+				}
 			}
 		}
 

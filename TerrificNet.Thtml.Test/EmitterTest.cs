@@ -26,7 +26,7 @@ namespace TerrificNet.Thtml.Test
 		{
 			var method = new ThtmlDocumentCompiler(input, compilerExtensions).Compile(dataBinder, OutputFactories.VTree);
 			var builder = new VDomBuilder();
-			method.Execute(data, new RenderingContext(new VDomOutput(builder)));
+			method.Execute(data, new RenderingContext(new VDomOutputBuilder(builder)));
 			var result = builder.ToDom();
 
 			VTreeAsserts.AssertTree(expected, result);

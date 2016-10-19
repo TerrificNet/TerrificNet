@@ -25,7 +25,7 @@ namespace TerrificNet.Client.test
 			var emitter = CreateEmitter(new DynamicDataBinder(), new NullHelperBinder(), template);
 
 			var builder = new VDomBuilder();
-			emitter.Execute(obj, new RenderingContext(new VDomOutput(builder)));
+			emitter.Execute(obj, new RenderingContext(new VDomOutputBuilder(builder)));
 			var vTree = builder.ToDom();
 
 			return new ObjectResult(vTree);

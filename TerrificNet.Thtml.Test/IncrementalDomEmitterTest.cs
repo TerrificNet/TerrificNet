@@ -8,6 +8,7 @@ using TerrificNet.Thtml.Formatting;
 using TerrificNet.Thtml.Formatting.IncrementalDom;
 using TerrificNet.Thtml.Parsing;
 using TerrificNet.Thtml.Rendering;
+using TerrificNet.Thtml.Test.Extensions;
 using Xunit;
 
 namespace TerrificNet.Thtml.Test
@@ -106,12 +107,8 @@ namespace TerrificNet.Thtml.Test
 			var compiler = new ThtmlDocumentCompiler(document, CompilerExtensions.Default);
 			var renderer = compiler.Compile(new DynamicDataBinder(), OutputFactories.IncrementalDomScript);
 
-			var sequence = new MockSequence();
 			var mock = new Mock<IIncrementalDomRenderer>(MockBehavior.Strict);
-			foreach (var expr in expressions)
-			{
-				mock.InSequence(sequence).Setup(expr);
-			}
+			mock.InSequence(expressions);
 
 			renderer.Execute(data, new RenderingContext(new IncrementalDomOutput(mock.Object)));
 

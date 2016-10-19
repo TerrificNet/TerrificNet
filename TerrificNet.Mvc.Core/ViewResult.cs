@@ -64,7 +64,7 @@ namespace TerrificNet.Mvc.Core
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
 				var builder = new VDomBuilder();
-				runnable.Execute(_model, new MvcRenderingContext(new VDomOutput(builder), context));
+				runnable.Execute(_model, new MvcRenderingContext(new VDomOutputBuilder(builder), context));
 				var vTree = builder.ToDom();
 
 				writer.Write(vTree.ToString());
