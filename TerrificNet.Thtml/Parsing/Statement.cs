@@ -18,6 +18,11 @@ namespace TerrificNet.Thtml.Parsing
 			return visitor.Visit(this);
 		}
 
+		public override void Accept(INodeVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
+
 		protected override bool CheckIfIsFixed()
 		{
 			return false;

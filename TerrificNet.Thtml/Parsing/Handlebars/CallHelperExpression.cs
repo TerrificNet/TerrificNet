@@ -15,5 +15,10 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 		{
 			return visitor.Visit(this);
 		}
+
+		public override void Accept(INodeVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
 	}
 }

@@ -21,4 +21,24 @@ namespace TerrificNet.Thtml.Parsing
 		T Visit(ParentExpression parentExpression);
 		T Visit(SelfExpression selfExpression);
 	}
+
+	public interface INodeVisitor
+	{
+		void Visit(Element element);
+		void Visit(TextNode textNode);
+		void Visit(Statement statement);
+		void Visit(AttributeNode attributeNode);
+		void Visit(AttributeContentStatement constantAttributeContent);
+		void Visit(ConstantAttributeContent attributeContent);
+		void Visit(Document document);
+		void Visit(CompositeAttributeContent compositeAttributeContent);
+		void Visit(CallHelperExpression callHelperExpression);
+		void Visit(UnconvertedExpression unconvertedExpression);
+		void Visit(AttributeStatement attributeStatement);
+		void Visit(IterationExpression iterationExpression);
+		void Visit(ConditionalExpression conditionalExpression);
+		void Visit(MemberExpression memberExpression);
+		void Visit(ParentExpression parentExpression);
+		void Visit(SelfExpression selfExpression);
+	}
 }

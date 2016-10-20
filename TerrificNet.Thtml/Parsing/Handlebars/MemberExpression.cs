@@ -1,15 +1,5 @@
 namespace TerrificNet.Thtml.Parsing.Handlebars
 {
-	public abstract class AccessExpression : MustacheExpression
-	{
-		protected AccessExpression(AccessExpression subExpression)
-		{
-			SubExpression = subExpression;
-		}
-
-		public AccessExpression SubExpression { get; }
-	}
-
 	public class MemberExpression : AccessExpression
 	{
 		public string Name { get; }
@@ -22,6 +12,11 @@ namespace TerrificNet.Thtml.Parsing.Handlebars
 		public override T Accept<T>(INodeVisitor<T> visitor)
 		{
 			return visitor.Visit(this);
+		}
+
+		public override void Accept(INodeVisitor visitor)
+		{
+			visitor.Visit(this);
 		}
 	}
 }

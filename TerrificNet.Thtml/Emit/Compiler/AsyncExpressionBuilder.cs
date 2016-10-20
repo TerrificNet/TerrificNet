@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public class AsyncExpressionBuilder
+	public class AsyncExpressionBuilder : IExpressionBuilder
 	{
 		private readonly List<AsyncState> _states = new List<AsyncState>();
 		private AsyncState _currentState;
