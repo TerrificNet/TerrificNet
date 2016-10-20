@@ -18,20 +18,18 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var enumeratorType = typeof(IEnumerator);
 
 			var enumeratorVar = Expression.Variable(enumeratorType, "enumerator");
-			var getEnumeratorCall = Expression.Call(collection, enumerableType.GetTypeInfo().GetMethod("GetEnumerator"));
+			var getEnumeratorCall = Expression.Call(collection, enumerableType.GetTypeInfo().GetMethod(nameof(IEnumerable.GetEnumerator)));
 			var enumeratorAssign = Expression.Assign(enumeratorVar, Expression.Convert(getEnumeratorCall, enumeratorType));
 
-			Expression listAssign = Expression.Empty();
 			Expression loopExpression = Expression.Block(loopContent);
 
 			// The MoveNext method's actually on IEnumerator, not IEnumerator<T>
-			var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetTypeInfo().GetMethod("MoveNext"));
+			var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetTypeInfo().GetMethod(nameof(IEnumerator.MoveNext)));
 
 			var breakLabel = Expression.Label("LoopBreak");
 
 			var loop = Expression.Block(new[] {enumeratorVar},
 				enumeratorAssign,
-				listAssign,
 				Expression.Loop(
 					Expression.IfThenElse(
 						Expression.Equal(moveNextCall, Expression.Constant(true)),
