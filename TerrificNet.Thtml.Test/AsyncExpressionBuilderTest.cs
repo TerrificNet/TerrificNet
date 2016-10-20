@@ -23,12 +23,12 @@ namespace TerrificNet.Thtml.Test
 			var mock = new Mock(underTest);
 			training(mock);
 
-			var result = underTest.Complete();
+			var result = underTest.Compile();
+			var resultTask = result();
 
-			Assert.NotNull(result);
-			Assert.Equal(typeof(Task), result.Type);
+			mock.NotifyAll();
 
-			await ExecuteResult(result);
+			await resultTask;
 
 			mock.Verify();
 		}
@@ -61,12 +61,6 @@ namespace TerrificNet.Thtml.Test
 			obj.TrainAsync();
 		}
 
-		private static Task ExecuteResult(Expression result)
-		{
-			var exec = Expression.Lambda<Func<Task>>(result).Compile();
-			return exec();
-		}
-
 		private class MethodDataAttribute : DataAttribute
 		{
 			private readonly string _action;
@@ -90,11 +84,23 @@ namespace TerrificNet.Thtml.Test
 			private readonly MethodCallExpression _syncCall;
 			private readonly MethodCallExpression _asyncCall;
 
+			private readonly Queue<TaskCompletionSource<object>> _asyncSources = new Queue<TaskCompletionSource<object>>();
+
 			public Mock(AsyncExpressionBuilder builder)
 			{
 				_builder = builder;
-				_syncCall = Expression.Call(Expression.Constant(this), typeof(Mock).GetTypeInfo().GetMethod("Do"));
-				_asyncCall = Expression.Call(Expression.Constant(this), typeof(Mock).GetTypeInfo().GetMethod("DoAsync"));
+				_syncCall = Expression.Call(Expression.Constant(this), typeof(Mock).GetTypeInfo().GetMethod(nameof(Do)));
+				_asyncCall = Expression.Call(Expression.Constant(this), typeof(Mock).GetTypeInfo().GetMethod(nameof(DoAsync)));
+			}
+
+			public void NotifyAll()
+			{
+				while (_asyncSources.Count > 0)
+				{
+					var result = _expected.Dequeue();
+					Assert.Equal("async", result);
+					_asyncSources.Dequeue().SetResult(null);
+				}
 			}
 
 			public void TrainSync()
@@ -107,6 +113,7 @@ namespace TerrificNet.Thtml.Test
 			{
 				_builder.Add(_asyncCall);
 				_expected.Enqueue("async");
+				_asyncSources.Enqueue(new TaskCompletionSource<object>());
 			}
 
 			public void Do()
@@ -116,8 +123,7 @@ namespace TerrificNet.Thtml.Test
 
 			public Task DoAsync()
 			{
-				Assert.Equal("async", _expected.Dequeue());
-				return Task.CompletedTask;
+				return _asyncSources.Peek().Task;
 			}
 
 			public void Verify()
