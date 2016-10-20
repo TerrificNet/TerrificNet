@@ -16,6 +16,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly ParameterExpression _currentStateExpression = Expression.Parameter(typeof(int));
 		private readonly ParameterExpression _stateMachine = Expression.Parameter(typeof(AsyncViewStateMachine));
 
+		private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+
 		public AsyncExpressionBuilder()
 		{
 			_currentState = new AsyncState(-1);
@@ -23,17 +25,23 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		}
 
 		public void Add(Expression expression)
-		{
-			if (expression.Type == typeof(void))
-				_currentState.Expressions.Add(expression);
-			else if (IsTask(expression))
+		{				
+			if (IsTask(expression))
 			{
 				_currentState.Expressions.Add(AwaitExpression(_currentState.Id + 1, expression));
 				_currentState = new AsyncState(_currentState.Id + 1);
 				_states.Add(_currentState);
 			}
 			else
-				throw new ArgumentException("Only expressions with result void or Task are supported");
+				_currentState.Expressions.Add(expression);
+		}
+
+		public ParameterExpression DefineVariable(Type type)
+		{
+			var variable = Expression.Variable(type);
+			_variables.Add(variable);
+
+			return variable;
 		}
 
 		private Expression AwaitExpression(int nextState, Expression awaiterExpression)
@@ -50,7 +58,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_states[_states.Count - 1].Expressions.Add(tailCall);
 
 			var switchExpression = Expression.Switch(_currentStateExpression, _states.Select(e => GetSwitchCase(e, breakExpression)).ToArray());
-			var bodyExpression = Expression.Block(switchExpression, Expression.Label(breakTarget));
+			var bodyExpression = Expression.Block(_variables, switchExpression, Expression.Label(breakTarget));
 
 			var lambda = Expression.Lambda<Action<int, AsyncViewStateMachine>>(bodyExpression, _currentStateExpression, _stateMachine);
 			var action = lambda.Compile();
@@ -61,7 +69,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private static SwitchCase GetSwitchCase(AsyncState state, GotoExpression breakExpression)
 		{
-			return Expression.SwitchCase(Expression.Block(state.Expressions.Union(new [] { breakExpression })), Expression.Constant(state.Id));
+			return Expression.SwitchCase(Expression.Block(state.Expressions.Concat(new [] { breakExpression })), Expression.Constant(state.Id));
 		}
 
 		private static bool IsTask(Expression expression)

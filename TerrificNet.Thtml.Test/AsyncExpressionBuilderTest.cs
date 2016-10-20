@@ -33,6 +33,35 @@ namespace TerrificNet.Thtml.Test
 			mock.Verify();
 		}
 
+		[Fact]
+		public async Task AsyncExpressionBuilder_LabelBeforeAwait()
+		{
+			var underTest = new AsyncExpressionBuilder();
+			var mock = new Mock(underTest, /*"async", */"sync", "sync", "sync", "sync");
+
+			//mock.AddAsync();
+
+			var variable = underTest.DefineVariable(typeof(int));
+			var labelTarget = Expression.Label("gugus");
+			underTest.Add(Expression.Assign(variable, Expression.Constant(0)));
+			underTest.Add(Expression.Label(labelTarget));
+			underTest.Add(Expression.Assign(variable, Expression.Increment(variable)));
+
+			mock.AddSync();
+			mock.AddSync();
+
+			underTest.Add(Expression.Condition(Expression.Equal(variable, Expression.Constant(1)), Expression.Goto(labelTarget), Expression.Empty()));
+
+			var result = underTest.Compile();
+			var awaiter = result();
+
+			mock.NotifyAll();
+
+			await awaiter;
+
+			mock.Verify();
+		}
+
 		private static void OnlySyncCall(Mock obj)
 		{
 			obj.TrainSync();
@@ -93,6 +122,11 @@ namespace TerrificNet.Thtml.Test
 				_asyncCall = Expression.Call(Expression.Constant(this), typeof(Mock).GetTypeInfo().GetMethod(nameof(DoAsync)));
 			}
 
+			public Mock(AsyncExpressionBuilder builder, params string[] expected) : this(builder)
+			{
+				_expected = new Queue<string>(expected);
+			}
+
 			public void NotifyAll()
 			{
 				while (_asyncSources.Count > 0)
@@ -105,15 +139,25 @@ namespace TerrificNet.Thtml.Test
 
 			public void TrainSync()
 			{
-				_builder.Add(_syncCall);
+				AddSync();
 				_expected.Enqueue("sync");
+			}
+
+			public void AddSync()
+			{
+				_builder.Add(_syncCall);
 			}
 
 			public void TrainAsync()
 			{
-				_builder.Add(_asyncCall);
+				AddAsync();
 				_expected.Enqueue("async");
 				_asyncSources.Enqueue(new TaskCompletionSource<object>());
+			}
+
+			public void AddAsync()
+			{
+				_builder.Add(_asyncCall);
 			}
 
 			public void Do()
@@ -123,6 +167,14 @@ namespace TerrificNet.Thtml.Test
 
 			public Task DoAsync()
 			{
+				if (_asyncSources.Count == 0)
+				{
+					var completionSource = new TaskCompletionSource<object>();
+					_asyncSources.Enqueue(completionSource);
+
+					return completionSource.Task;
+				}
+
 				return _asyncSources.Peek().Task;
 			}
 
