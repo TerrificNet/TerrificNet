@@ -37,17 +37,15 @@ namespace TerrificNet.Thtml.Test
 		public async Task AsyncExpressionBuilder_LabelBeforeAwait()
 		{
 			var underTest = new AsyncExpressionBuilder();
-			var mock = new Mock(underTest, /*"async", */"sync", "sync", "sync", "sync");
+			var mock = new Mock(underTest, /*"async", */"async", "sync", "async", "sync");
 
-			//mock.AddAsync();
-
-			var variable = underTest.DefineVariable(typeof(int));
+			var variable = underTest.DefineIntVariable();
 			var labelTarget = Expression.Label("gugus");
 			underTest.Add(Expression.Assign(variable, Expression.Constant(0)));
 			underTest.Add(Expression.Label(labelTarget));
 			underTest.Add(Expression.Assign(variable, Expression.Increment(variable)));
 
-			mock.AddSync();
+			mock.AddAsync();
 			mock.AddSync();
 
 			underTest.Add(Expression.Condition(Expression.Equal(variable, Expression.Constant(1)), Expression.Goto(labelTarget), Expression.Empty()));

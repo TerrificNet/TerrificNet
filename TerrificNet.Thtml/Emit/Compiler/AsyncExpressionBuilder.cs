@@ -16,7 +16,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly ParameterExpression _currentStateExpression = Expression.Parameter(typeof(int));
 		private readonly ParameterExpression _stateMachine = Expression.Parameter(typeof(AsyncViewStateMachine));
 
-		private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+		private int _variableIndex;
 
 		public AsyncExpressionBuilder()
 		{
@@ -36,12 +36,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_currentState.Expressions.Add(expression);
 		}
 
-		public ParameterExpression DefineVariable(Type type)
+		public Expression DefineIntVariable()
 		{
-			var variable = Expression.Variable(type);
-			_variables.Add(variable);
+			var stack = Expression.PropertyOrField(_stateMachine, nameof(AsyncViewStateMachine.IntVariables));
+			var ex = Expression.Property(stack, "Item", Expression.Constant(_variableIndex));
+			_variableIndex++;
 
-			return variable;
+			return ex;
 		}
 
 		private Expression AwaitExpression(int nextState, Expression awaiterExpression)
@@ -58,7 +59,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_states[_states.Count - 1].Expressions.Add(tailCall);
 
 			var switchExpression = Expression.Switch(_currentStateExpression, _states.Select(e => GetSwitchCase(e, breakExpression)).ToArray());
-			var bodyExpression = Expression.Block(_variables, switchExpression, Expression.Label(breakTarget));
+			var bodyExpression = Expression.Block(switchExpression, Expression.Label(breakTarget));
 
 			var lambda = Expression.Lambda<Action<int, AsyncViewStateMachine>>(bodyExpression, _currentStateExpression, _stateMachine);
 			var action = lambda.Compile();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			_action = action;
 		}
+
+		public Dictionary<int, int> IntVariables = new Dictionary<int, int>();
 
 		public Task Start(CancellationToken cancellationToken)
 		{
