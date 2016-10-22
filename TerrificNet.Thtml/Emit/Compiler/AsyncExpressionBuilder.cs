@@ -36,10 +36,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_currentState.Expressions.Add(expression);
 		}
 
-		public Expression DefineIntVariable()
+		public Expression DefineVariable(Type type)
 		{
-			var stack = Expression.PropertyOrField(_stateMachine, nameof(AsyncViewStateMachine.IntVariables));
-			var ex = Expression.Property(stack, "Item", Expression.Constant(_variableIndex));
+			var call = Expression.Call(_stateMachine,
+				typeof(AsyncViewStateMachine).GetTypeInfo()
+					.GetMethod(nameof(AsyncViewStateMachine.GetValues))
+					.MakeGenericMethod(type));
+
+			var ex = Expression.Property(call, "Item", Expression.Constant(_variableIndex));
 			_variableIndex++;
 
 			return ex;

@@ -11,12 +11,28 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private TaskCompletionSource<object> _builder;
 		private int _state;
 
+		private static readonly Dictionary<Type, object> _values = new Dictionary<Type, object>();
+
 		public AsyncViewStateMachine(Action<int, AsyncViewStateMachine> action)
 		{
 			_action = action;
 		}
 
 		public Dictionary<int, int> IntVariables = new Dictionary<int, int>();
+
+		public Dictionary<int, T> GetValues<T>()
+		{
+			object ret;
+			if (!_values.TryGetValue(typeof(T), out ret))
+			{
+				var dictionary = new Dictionary<int, T>();
+				_values.Add(typeof(T), dictionary);
+
+				return dictionary;
+			}
+
+			return ret as Dictionary<int, T>;
+		}
 
 		public Task Start(CancellationToken cancellationToken)
 		{

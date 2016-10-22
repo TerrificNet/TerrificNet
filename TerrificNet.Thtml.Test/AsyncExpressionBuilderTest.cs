@@ -39,7 +39,7 @@ namespace TerrificNet.Thtml.Test
 			var underTest = new AsyncExpressionBuilder();
 			var mock = new Mock(underTest, /*"async", */"async", "sync", "async", "sync");
 
-			var variable = underTest.DefineIntVariable();
+			var variable = underTest.DefineVariable(typeof(int));
 			var labelTarget = Expression.Label("gugus");
 			underTest.Add(Expression.Assign(variable, Expression.Constant(0)));
 			underTest.Add(Expression.Label(labelTarget));
