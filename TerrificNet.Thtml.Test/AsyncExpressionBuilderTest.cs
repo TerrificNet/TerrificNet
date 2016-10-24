@@ -60,6 +60,36 @@ namespace TerrificNet.Thtml.Test
 			mock.Verify();
 		}
 
+		[Fact]
+		public async Task AsyncExpressionBuilder_ForeachIterator()
+		{
+			var underTest = new AsyncExpressionBuilder();
+			var mock = new Mock(underTest, "async", "sync", "async", "sync", "async", "sync");
+
+			var list = new List<string> { "1", "2", "3" };
+
+			var collection = Expression.Constant(list);
+			var item = Expression.Parameter(typeof(string));
+
+			Action<Expression> loop = ex =>
+			{
+				mock.AddAsync();
+				mock.AddSync();
+			};
+
+			underTest.Foreach(collection, loop);
+
+			var result = underTest.Compile();
+			var awaiter = result();
+
+			mock.NotifyAll();
+
+			await awaiter;
+
+			mock.Verify();
+		}
+
+
 		private static void OnlySyncCall(Mock obj)
 		{
 			obj.TrainSync();

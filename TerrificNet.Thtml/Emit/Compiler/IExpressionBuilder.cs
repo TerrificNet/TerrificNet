@@ -1,9 +1,12 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public interface IExpressionBuilder
 	{
 		void Add(Expression expression);
+
+		Expression DefineVariable(Type type);
 	}
 }
