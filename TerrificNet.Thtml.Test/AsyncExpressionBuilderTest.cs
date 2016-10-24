@@ -39,7 +39,9 @@ namespace TerrificNet.Thtml.Test
 			var underTest = new AsyncExpressionBuilder();
 			var mock = new Mock(underTest, /*"async", */"async", "sync", "async", "sync");
 
-			var variable = underTest.DefineVariable(typeof(int));
+			Type type = typeof(int);
+			var variable = Expression.Parameter(type);
+			underTest.DefineVariable(variable);
 			var labelTarget = Expression.Label("gugus");
 			underTest.Add(Expression.Assign(variable, Expression.Constant(0)));
 			underTest.Add(Expression.Label(labelTarget));
@@ -69,7 +71,6 @@ namespace TerrificNet.Thtml.Test
 			var list = new List<string> { "1", "2", "3" };
 
 			var collection = Expression.Constant(list);
-			var item = Expression.Parameter(typeof(string));
 
 			Action<Expression> loop = ex =>
 			{
@@ -77,7 +78,7 @@ namespace TerrificNet.Thtml.Test
 				mock.AddSync();
 			};
 
-			underTest.Foreach(collection, loop);
+			underTest.Foreach(collection, loop, Expression.Parameter(typeof(string)));
 
 			var result = underTest.Compile();
 			var awaiter = result();

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
@@ -7,6 +6,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	{
 		void Add(Expression expression);
 
-		Expression DefineVariable(Type type);
+		void DefineVariable(ParameterExpression expression);
 	}
 }

@@ -16,9 +16,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly ParameterExpression _currentStateExpression = Expression.Parameter(typeof(int));
 		private readonly ParameterExpression _stateMachine = Expression.Parameter(typeof(AsyncViewStateMachine));
 
-		private IncrementalTypeBuilder _stateBuilder = new IncrementalTypeBuilder(typeof(object));
-
-		private int _variableIndex;
+		private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
 
 		public AsyncExpressionBuilder()
 		{
@@ -27,7 +25,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		}
 
 		public void Add(Expression expression)
-		{				
+		{
 			if (IsTask(expression))
 			{
 				_currentState.Expressions.Add(AwaitExpression(_currentState.Id + 1, expression));
@@ -38,36 +36,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_currentState.Expressions.Add(expression);
 		}
 
-		private class VariablePlaceholder
+		public void DefineVariable(ParameterExpression expression)
 		{
-			public VariablePlaceholder(FieldInfo field)
-			{
-				Field = field;
-			}
-
-			public FieldInfo Field { get; }
-		}
-
-		private class VariablePlaceholder<T> : VariablePlaceholder
-		{
-			public VariablePlaceholder(FieldInfo field) : base(field)
-			{
-			}
-
-			public T Value { get; set; }
-		}
-
-		public Expression DefineVariable(Type type)
-		{
-			FieldInfo fieldInfo;
-			_stateBuilder = _stateBuilder.AddField(type, out fieldInfo);
-
-			var placeholderType = typeof(VariablePlaceholder<>).MakeGenericType(type);
-			var placeHolder = Activator.CreateInstance(placeholderType, fieldInfo);
-			var placeHolderExpression = Expression.Constant(placeHolder);
-
-			var propertyInfo = placeholderType.GetTypeInfo().GetProperty(nameof(VariablePlaceholder<object>.Value));
-			return Expression.Property(placeHolderExpression, propertyInfo);
+			_variables.Add(expression);
 		}
 
 		private Expression AwaitExpression(int nextState, Expression awaiterExpression)
@@ -77,8 +48,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public Func<Task> Compile()
 		{
-			var stateType = _stateBuilder.Type;
-			var stateExpression = Expression.Variable(_stateBuilder.Type);
+			var stateBuilder = new IncrementalTypeBuilder(typeof(object));
+			var variableStates = new Dictionary<ParameterExpression, FieldInfoReference>();
+			foreach (var variable in _variables)
+			{
+				var fieldReference = stateBuilder.AddField(variable.Type);
+				variableStates.Add(variable, fieldReference);
+			}
+
+			var stateBuilderType = stateBuilder.Complete().Type;
+			var stateType = stateBuilderType;
+			var stateExpression = Expression.Variable(stateBuilderType);
 
 			var assignStateExpression = Expression.Assign(stateExpression, Expression.Convert(Expression.PropertyOrField(_stateMachine, "State"), stateType));
 
@@ -88,10 +68,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var tailCall = Expression.Call(_stateMachine, typeof(AsyncViewStateMachine).GetTypeInfo().GetMethod(nameof(AsyncViewStateMachine.Complete)));
 			_states[_states.Count - 1].Expressions.Add(tailCall);
 
-			var visitor = new ReplaceVariablePlaceholderVisitor(stateExpression);
+			var visitor = new ReplaceVariablePlaceholderVisitor(stateExpression, variableStates);
 
 			var switchExpression = Expression.Switch(_currentStateExpression, _states.Select(e => GetSwitchCase(e, breakExpression, visitor)).ToArray());
-			var bodyExpression = Expression.Block(new [] { stateExpression }, assignStateExpression, switchExpression, Expression.Label(breakTarget));
+			var bodyExpression = Expression.Block(new[] { stateExpression }, assignStateExpression, switchExpression, Expression.Label(breakTarget));
 
 			var lambda = Expression.Lambda<Action<int, AsyncViewStateMachine>>(bodyExpression, _currentStateExpression, _stateMachine);
 			var action = lambda.Compile();
@@ -104,7 +84,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 			var stateExpressions = state.Expressions.Select(e => ReplaceVariablePlaceholder(e, visitor));
 
-			return Expression.SwitchCase(Expression.Block(stateExpressions.Concat(new [] { breakExpression })), Expression.Constant(state.Id));
+			return Expression.SwitchCase(Expression.Block(stateExpressions.Concat(new[] { breakExpression })), Expression.Constant(state.Id));
 		}
 
 		private static Expression ReplaceVariablePlaceholder(Expression expression, ExpressionVisitor visitor)
@@ -115,23 +95,23 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private class ReplaceVariablePlaceholderVisitor : ExpressionVisitor
 		{
 			private readonly Expression _stateExpression;
+			private readonly Dictionary<ParameterExpression, FieldInfoReference> _variableStates;
 
-			public ReplaceVariablePlaceholderVisitor(Expression stateExpression)
+			public ReplaceVariablePlaceholderVisitor(Expression stateExpression, Dictionary<ParameterExpression, FieldInfoReference> variableStates)
 			{
 				_stateExpression = stateExpression;
+				_variableStates = variableStates;
 			}
 
-			protected override Expression VisitMember(MemberExpression node)
+			protected override Expression VisitParameter(ParameterExpression node)
 			{
-				if (node.Member.DeclaringType.IsConstructedGenericType && node.Member.DeclaringType.GetGenericTypeDefinition() == typeof(VariablePlaceholder<>))
+				FieldInfoReference reference;
+				if (_variableStates.TryGetValue(node, out reference))
 				{
-					var constExpression = node.Expression as ConstantExpression;
-					var placeholder = constExpression.Value as VariablePlaceholder;
-
-					return Expression.Field(_stateExpression, placeholder.Field);
+					return Expression.Field(_stateExpression, reference.FieldInfo);
 				}
 
-				return base.VisitMember(node);
+				return base.VisitParameter(node);
 			}
 		}
 

@@ -7,29 +7,30 @@ namespace TerrificNet.Thtml.Emit.Compiler
 {
 	public static class ExpressionBuilderExtensions
 	{
-		public static void Foreach(this IExpressionBuilder builder, Expression collection, Action<Expression> loopBuilder)
+		public static void Foreach(this IExpressionBuilder builder, Expression collection, Action<Expression> loopBuilder, ParameterExpression loopVar)
 		{
-			var elementType = typeof(object);
+			var elementType = loopVar.Type;
 			var enumerableType = typeof(IEnumerable);
 			var enumeratorType = typeof(IEnumerator);
 
-			var enumeratorVar = builder.DefineVariable(enumeratorType);
+			var enumeratorExpression = Expression.Parameter(enumeratorType);
+			builder.DefineVariable(enumeratorExpression);
 			var getEnumeratorCall = Expression.Call(collection, enumerableType.GetTypeInfo().GetMethod(nameof(IEnumerable.GetEnumerator)));
 
 			// The MoveNext method's actually on IEnumerator, not IEnumerator<T>
-			var moveNextCall = Expression.Call(enumeratorVar, typeof(IEnumerator).GetTypeInfo().GetMethod(nameof(IEnumerator.MoveNext)));
+			var moveNextCall = Expression.Call(enumeratorExpression, typeof(IEnumerator).GetTypeInfo().GetMethod(nameof(IEnumerator.MoveNext)));
 
 			var nextLabel = Expression.Label("Next");
 			var breakLabel = Expression.Label("LoopBreak");
 
-			builder.Add(Expression.Assign(enumeratorVar, Expression.Convert(getEnumeratorCall, enumeratorType)));
+			builder.Add(Expression.Assign(enumeratorExpression, Expression.Convert(getEnumeratorCall, enumeratorType)));
 
 			builder.Add(Expression.Label(nextLabel));
 			var condition = Expression.IfThen(Expression.Equal(moveNextCall, Expression.Constant(false)), Expression.Goto(breakLabel));
 			builder.Add(condition);
 
-			var loopVar = builder.DefineVariable(elementType);
-			builder.Add(Expression.Assign(loopVar, Expression.Convert(Expression.Property(enumeratorVar, "Current"), elementType)));
+			builder.DefineVariable(loopVar);
+			builder.Add(Expression.Assign(loopVar, Expression.Convert(Expression.Property(enumeratorExpression, "Current"), elementType)));
 
 			loopBuilder(loopVar);
 
