@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using TerrificNet.Thtml.Emit.Compiler;
@@ -29,8 +30,12 @@ namespace TerrificNet.Thtml.Test
 
 			var parameter = Expression.Parameter(resultBuilder.Type);
 			var expression = Expression.Field(parameter, fieldInfo);
+			var lambda = Expression.Lambda(expression, parameter);
 
 			Assert.Equal(typeof(string), expression.Type);
+
+			lambda.Compile();
+
 		}
 
 	}

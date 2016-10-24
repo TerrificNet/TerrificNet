@@ -24,9 +24,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var typeBuilder = moduleBuilder.DefineType("Test", TypeAttributes.Class | TypeAttributes.Public, Type);
 			var fieldBuilder = typeBuilder.DefineField("Gugus", type, FieldAttributes.Public);
 
-			field = fieldBuilder;
+			var resultType = typeBuilder.CreateTypeInfo().AsType();
+			field = resultType.GetRuntimeField(fieldBuilder.Name);
 
-			return new IncrementalTypeBuilder(typeBuilder.CreateTypeInfo().AsType());
+			return new IncrementalTypeBuilder(resultType);
 		}
 
 		public Type Type { get; }
