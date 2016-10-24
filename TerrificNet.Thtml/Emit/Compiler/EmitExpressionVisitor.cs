@@ -17,14 +17,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly CompilerExtensions _extensions;
 		private readonly Expression _renderingContextExpression;
 		private readonly IOutputExpressionBuilder _expressionBuilder;
+		private readonly IExpressionBuilder _exBuilder;
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions, Expression renderingContextExpression)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions, Expression renderingContextExpression, IExpressionBuilder expressionBuilder)
 		{
 			_dataScopeContract = dataScopeContract;
 			_extensions = extensions;
 			_renderingContextExpression = renderingContextExpression;
 			_helperBinder = _extensions.HelperBinder;
 			_expressionBuilder = _extensions.ExpressionBuilder;
+			_exBuilder = expressionBuilder;
 		}
 
 		public override Expression Visit(Document document)
@@ -188,12 +190,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public INodeCompilerVisitor ChangeContract(IDataScopeContract childScopeContract)
 		{
-			return new EmitExpressionVisitor(childScopeContract, _extensions, _renderingContextExpression);
+			return new EmitExpressionVisitor(childScopeContract, _extensions, _renderingContextExpression, _exBuilder);
 		}
 
 		public INodeCompilerVisitor ChangeExtensions(CompilerExtensions extensions)
 		{
-			return new EmitExpressionVisitor(_dataScopeContract, extensions, _renderingContextExpression);
+			return new EmitExpressionVisitor(_dataScopeContract, extensions, _renderingContextExpression, _exBuilder);
 		}
 
 		public Expression Visit(IEnumerable<Node> nodes)

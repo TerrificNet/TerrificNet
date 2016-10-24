@@ -48,6 +48,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public Func<Task> Compile()
 		{
+			var start = BuildExpression();
+
+			var lambda = Expression.Lambda<Func<Task>>(start);
+			var action = lambda.Compile();
+
+			return action;
+		}
+
+		public Expression BuildExpression()
+		{
 			var stateBuilder = new IncrementalTypeBuilder(typeof(object));
 			var variableStates = new Dictionary<ParameterExpression, FieldInfoReference>();
 			foreach (var variable in _variables)
@@ -60,24 +70,32 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var stateType = stateBuilderType;
 			var stateExpression = Expression.Variable(stateBuilderType);
 
-			var assignStateExpression = Expression.Assign(stateExpression, Expression.Convert(Expression.PropertyOrField(_stateMachine, "State"), stateType));
+			var assignStateExpression = Expression.Assign(stateExpression,
+				Expression.Convert(Expression.PropertyOrField(_stateMachine, "State"), stateType));
 
 			var breakTarget = Expression.Label();
 			var breakExpression = Expression.Break(breakTarget);
 
-			var tailCall = Expression.Call(_stateMachine, typeof(AsyncViewStateMachine).GetTypeInfo().GetMethod(nameof(AsyncViewStateMachine.Complete)));
+			var tailCall = Expression.Call(_stateMachine,
+				typeof(AsyncViewStateMachine).GetTypeInfo().GetMethod(nameof(AsyncViewStateMachine.Complete)));
 			_states[_states.Count - 1].Expressions.Add(tailCall);
 
 			var visitor = new ReplaceVariablePlaceholderVisitor(stateExpression, variableStates);
 
-			var switchExpression = Expression.Switch(_currentStateExpression, _states.Select(e => GetSwitchCase(e, breakExpression, visitor)).ToArray());
-			var bodyExpression = Expression.Block(new[] { stateExpression }, assignStateExpression, switchExpression, Expression.Label(breakTarget));
+			var switchExpression = Expression.Switch(_currentStateExpression,
+				_states.Select(e => GetSwitchCase(e, breakExpression, visitor)).ToArray());
+			var bodyExpression = Expression.Block(new[] {stateExpression}, assignStateExpression, switchExpression,
+				Expression.Label(breakTarget));
+			var actionBody = Expression.Lambda<Action<int, AsyncViewStateMachine>>(bodyExpression, _currentStateExpression,
+				_stateMachine);
 
-			var lambda = Expression.Lambda<Action<int, AsyncViewStateMachine>>(bodyExpression, _currentStateExpression, _stateMachine);
-			var action = lambda.Compile();
-			var state = new AsyncViewStateMachine(Activator.CreateInstance(stateType), action);
+			var stateObjExpression = Expression.New(stateType);
+			var asyncStateMachineExpression = Expression.New(
+				typeof(AsyncViewStateMachine).GetTypeInfo().GetConstructors().First(), stateObjExpression, actionBody);
 
-			return () => state.Start(new CancellationToken());
+			var start = Expression.Call(asyncStateMachineExpression, typeof(AsyncViewStateMachine).GetTypeInfo().GetMethod("Start"),
+				Expression.Constant(new CancellationToken()));
+			return start;
 		}
 
 		private static SwitchCase GetSwitchCase(AsyncState state, GotoExpression breakExpression, ExpressionVisitor visitor)
