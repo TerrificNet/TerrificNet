@@ -31,8 +31,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(Document document)
 		{
-			var expressions = document.ChildNodes.Select(node => node.Accept(this)).ToList();
-			return Expression.Block(expressions);
+			foreach (var child in document.ChildNodes)
+				child.Accept(this);
+
+			return null;
 		}
 
 		public override Expression Visit(Element element)
@@ -40,45 +42,46 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var tagResult = _extensions.TagHelper.FindByName(element);
 			if (tagResult != null)
 			{
-				return tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
+				tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
+				return null;
 			}
 
-			var expressions = new List<Expression>();
 			var staticAttributeNodes = element.Attributes.Where(e => e.IsFixed).ToList();
 			var staticAttributeList = CreateAttributeDictionary(staticAttributeNodes);
 			var attributeList = element.Attributes.Except(staticAttributeNodes).ToList();
 
 			if (attributeList.Count > 0)
 			{
-				expressions.Add(_expressionBuilder.ElementOpenStart(element.TagName, staticAttributeList));
-				expressions.AddRange(element.Attributes.Select(attribute => attribute.Accept(this)));
-				expressions.Add(_expressionBuilder.ElementOpenEnd());
+				_exBuilder.Add(_expressionBuilder.ElementOpenStart(element.TagName, staticAttributeList));
+				foreach (var attr in element.Attributes)
+					attr.Accept(this);
+
+				_exBuilder.Add(_expressionBuilder.ElementOpenEnd());
 			}
 			else
-				expressions.Add(_expressionBuilder.ElementOpen(element.TagName, staticAttributeList));
+				_exBuilder.Add(_expressionBuilder.ElementOpen(element.TagName, staticAttributeList));
 
-			expressions.AddRange(element.ChildNodes.Select(i => i.Accept(this)));
+			foreach (var child in element.ChildNodes)
+				child.Accept(this);
 
-			expressions.Add(_expressionBuilder.ElementClose(element.TagName));
+			_exBuilder.Add(_expressionBuilder.ElementClose(element.TagName));
 
-			return Expression.Block(expressions);
+			return null;
 		}
 
 		public override Expression Visit(AttributeNode attributeNode)
 		{
-			var expressions = new List<Expression>
-			{
-				_expressionBuilder.PropertyStart(attributeNode.Name),
-				attributeNode.Value.Accept(this),
-				_expressionBuilder.PropertyEnd()
-			};
+			_exBuilder.Add(_expressionBuilder.PropertyStart(attributeNode.Name));
+			attributeNode.Value.Accept(this);
+			_exBuilder.Add(_expressionBuilder.PropertyEnd());
 
-			return Expression.Block(expressions);
+			return null;
 		}
 
 		public override Expression Visit(ConstantAttributeContent attributeContent)
 		{
-			return _expressionBuilder.Value(Expression.Constant(attributeContent.Text));
+			_exBuilder.Add(_expressionBuilder.Value(Expression.Constant(attributeContent.Text)));
+			return null;
 		}
 
 		public override Expression Visit(AttributeContentStatement constantAttributeContent)
@@ -94,12 +97,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override Expression Visit(UnconvertedExpression unconvertedExpression)
 		{
-			return unconvertedExpression.Expression.Accept(this);
+			_exBuilder.Add(unconvertedExpression.Expression.Accept(this));
+			return null;
 		}
 
 		public override Expression Visit(CompositeAttributeContent compositeAttributeContent)
 		{
-			return Expression.Block(compositeAttributeContent.ContentParts.Select(p => p.Accept(this)).ToList());
+			foreach (var part in compositeAttributeContent.ContentParts)
+				part.Accept(this);
+
+			return null;
 		}
 
 		public override Expression Visit(MemberExpression memberExpression)
@@ -123,12 +130,15 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var binding = scope.RequiresString();
 
 			var expression = binding.Expression;
-			return _expressionBuilder.Value(expression);
+			_exBuilder.Add(_expressionBuilder.Value(expression));
+
+			return null;
 		}
 
 		public override Expression Visit(TextNode textNode)
 		{
-			return _expressionBuilder.Value(Expression.Constant(textNode.Text));
+			_exBuilder.Add(_expressionBuilder.Value(Expression.Constant(textNode.Text)));
+			return null;
 		}
 
 		private Expression HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
@@ -141,11 +151,18 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				IDataScopeContract childScopeContract;
 				var binding = scope.RequiresEnumerable(out childScopeContract);
 
-				var child = ChangeContract(childScopeContract);
-				var children = childNodes.Select(c => c.Accept(child)).ToList();
+				Action<Expression> childrenAction = l =>
+				{
+					var child = ChangeContract(childScopeContract);
+					foreach (var child2 in childNodes)
+						child2.Accept(child);
+				};
 
 				var collection = binding.Expression;
-				return ExpressionHelper.ForEach(collection, (ParameterExpression) childScopeContract.Expression, children);
+
+				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) childScopeContract.Expression);
+
+				return null;
 			}
 
 			var conditionalExpression = expression as ConditionalExpression;
@@ -153,12 +170,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			{
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
 				var binding = scope.RequiresBoolean();
-
-				var children = Many(childNodes.Select(c => c.Accept(this)).ToList());
-
 				var testExpression = binding.Expression;
 
-				return Expression.IfThen(testExpression, children);
+				Action children = () =>
+				{
+					foreach (var c in childNodes)
+						c.Accept(this);
+				};
+
+				_exBuilder.IfThen(testExpression, children);
+				return null;
 			}
 
 			var callHelperExpression = expression as CallHelperExpression;
@@ -168,19 +189,18 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				if (result == null)
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-				return result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
+				result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
+				return null;
 			}
 
 			var contentEmitter = expression.Accept(this);
 			if (contentEmitter != null)
 				return contentEmitter;
 
-			return Many(childNodes.Select(childNode => childNode.Accept(this)).ToList());
-		}
+			foreach (var child in childNodes)
+				child.Accept(this);
 
-		private static Expression Many(IReadOnlyCollection<Expression> expressions)
-		{
-			return expressions.Count > 0 ? (Expression) Expression.Block(expressions) : Expression.Empty();
+			return null;
 		}
 
 		private static IDictionary<string, string> CreateDictionaryFromArguments(IEnumerable<HelperAttribute> attributes)
@@ -200,7 +220,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public Expression Visit(IEnumerable<Node> nodes)
 		{
-			return Expression.Block(nodes.Select(i => i.Accept(this)));
+			foreach (var node in nodes)
+				node.Accept(this);
+
+			return null;
 		}
 
 		private static IReadOnlyDictionary<string, string> CreateAttributeDictionary(IEnumerable<ElementPart> staticAttributeNodes)

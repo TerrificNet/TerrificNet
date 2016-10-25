@@ -37,5 +37,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			builder.Add(Expression.Goto(nextLabel));
 			builder.Add(Expression.Label(breakLabel));
 		}
+
+		public static void IfThen(this IExpressionBuilder builder, Expression testExpression, Action body)
+		{
+			var breakLabel = Expression.Label("End");
+
+			var condition = Expression.IfThen(Expression.Not(testExpression), Expression.Goto(breakLabel));
+			builder.Add(condition);
+
+			body();
+
+			builder.Add(Expression.Label(breakLabel));
+		}
 	}
 }

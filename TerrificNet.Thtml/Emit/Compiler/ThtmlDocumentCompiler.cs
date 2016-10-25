@@ -38,10 +38,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private CompilerResult CreateExpression(IDataScopeContract dataScopeContract, CompilerExtensions compilerExtensions, ParameterExpression renderingContextExpression)
 		{
-			IExpressionBuilder expressionBuilder = new AsyncExpressionBuilder();
+			IExpressionBuilder expressionBuilder = new ExpressionBuilder();
 			var visitor = new EmitExpressionVisitor(dataScopeContract, compilerExtensions, renderingContextExpression, expressionBuilder);
-			var expression = visitor.Visit(_input);
-			//var expression = expressionBuilder.BuildExpression();
+			visitor.Visit(_input);
+			var expression = expressionBuilder.BuildExpression();
 
 			var inputExpression = Expression.Parameter(typeof(object), "input");
 

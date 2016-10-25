@@ -245,10 +245,10 @@ namespace TerrificNet.Thtml.Test
 				var resultMock = new Mock<HelperBinderResult>();
 				resultMock.Setup(r => r.CreateExpression(It.IsAny<HelperParameters>())).Returns((HelperParameters p) =>
 				{
-					var ex1 = new TextNode("test").Accept(p.Visitor);
-					var ex2 = new TextNode("test2").Accept(p.Visitor);
+					new TextNode("test").Accept(p.Visitor);
+					new TextNode("test2").Accept(p.Visitor);
 
-					return Expression.Block(ex1, ex2);
+					return null;
 				});
 
 				var helperMock = new Mock<IHelperBinder>();
