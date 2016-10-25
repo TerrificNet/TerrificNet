@@ -5,12 +5,13 @@ namespace TerrificNet.Thtml.Emit
 {
 	public class HelperParameters
 	{
-		public HelperParameters(IDataScopeContract scopeContract, INodeCompilerVisitor visitor, CompilerExtensions compilerExtensions, Expression renderingContextExpression)
+		public HelperParameters(IDataScopeContract scopeContract, INodeCompilerVisitor visitor, CompilerExtensions compilerExtensions, Expression renderingContextExpression, IExpressionBuilder expressionBuilder)
 		{
 			ScopeContract = scopeContract;
 			Visitor = visitor;
 			CompilerExtensions = compilerExtensions;
 			RenderingContextExpression = renderingContextExpression;
+			ExpressionBuilder = expressionBuilder;
 		}
 
 		public IDataScopeContract ScopeContract { get; }
@@ -20,5 +21,7 @@ namespace TerrificNet.Thtml.Emit
 		public CompilerExtensions CompilerExtensions { get; }
 
 		public Expression RenderingContextExpression { get; }
+
+		public IExpressionBuilder ExpressionBuilder { get; }
 	}
 }

@@ -187,7 +187,7 @@ namespace TerrificNet.Thtml.Test
 				var helperResult = new Mock<HelperBinderResult>();
 				helperResult
 					.Setup(d => d.CreateExpression(It.IsAny<HelperParameters>()))
-					.Returns<HelperParameters>(param => new TextNode("helper output").Accept(param.Visitor));
+					.Callback<HelperParameters>(param => new TextNode("helper output").Accept(param.Visitor));
 
 				var helper = new Mock<IHelperBinder>();
 				helper.Setup(h => h.FindByName("helper", It.IsAny<IDictionary<string, string>>())).Returns(helperResult.Object);
@@ -243,12 +243,10 @@ namespace TerrificNet.Thtml.Test
 				};
 
 				var resultMock = new Mock<HelperBinderResult>();
-				resultMock.Setup(r => r.CreateExpression(It.IsAny<HelperParameters>())).Returns((HelperParameters p) =>
+				resultMock.Setup(r => r.CreateExpression(It.IsAny<HelperParameters>())).Callback((HelperParameters p) =>
 				{
 					new TextNode("test").Accept(p.Visitor);
 					new TextNode("test2").Accept(p.Visitor);
-
-					return null;
 				});
 
 				var helperMock = new Mock<IHelperBinder>();

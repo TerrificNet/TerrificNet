@@ -4,10 +4,10 @@ using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	public interface INodeCompilerVisitor : INodeVisitor<Expression>
+	public interface INodeCompilerVisitor : INodeVisitor
 	{
 		INodeCompilerVisitor ChangeContract(IDataScopeContract childScopeContract);
 		INodeCompilerVisitor ChangeExtensions(CompilerExtensions extensions);
-		Expression Visit(IEnumerable<Node> nodes);
+		void Visit(IEnumerable<Node> nodes);
 	}
 }

@@ -1,29 +1,28 @@
 using System;
-using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit
 {
 	public abstract class HelperBinderResult
 	{
-		public abstract Expression CreateExpression(HelperParameters helperParameters);
+		public abstract void CreateExpression(HelperParameters helperParameters);
 
-		public static HelperBinderResult Create(Func<HelperParameters, Expression> action)
+		public static HelperBinderResult Create(Action<HelperParameters> action)
 		{
 			return new HelperBinderResultAction(action);
 		}
 
 		private class HelperBinderResultAction : HelperBinderResult
 		{
-			private readonly Func<HelperParameters, Expression> _action;
+			private readonly Action<HelperParameters> _action;
 
-			public HelperBinderResultAction(Func<HelperParameters, Expression> action)
+			public HelperBinderResultAction(Action<HelperParameters> action)
 			{
 				_action = action;
 			}
 
-			public override Expression CreateExpression(HelperParameters helperParameters)
+			public override void CreateExpression(HelperParameters helperParameters)
 			{
-				return _action(helperParameters);
+				_action(helperParameters);
 			}
 		}
 	}

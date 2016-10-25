@@ -10,7 +10,7 @@ using MemberExpression = TerrificNet.Thtml.Parsing.Handlebars.MemberExpression;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal class EmitExpressionVisitor : NodeVisitorBase<Expression>, INodeCompilerVisitor
+	internal class EmitExpressionVisitor : NodeVisitorBase, INodeCompilerVisitor
 	{
 		private readonly IDataScopeContract _dataScopeContract;
 		private readonly IHelperBinder _helperBinder;
@@ -29,21 +29,19 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_exBuilder = expressionBuilder;
 		}
 
-		public override Expression Visit(Document document)
+		public override void Visit(Document document)
 		{
 			foreach (var child in document.ChildNodes)
 				child.Accept(this);
-
-			return null;
 		}
 
-		public override Expression Visit(Element element)
+		public override void Visit(Element element)
 		{
 			var tagResult = _extensions.TagHelper.FindByName(element);
 			if (tagResult != null)
 			{
-				tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
-				return null;
+				tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression, _exBuilder));
+				return;
 			}
 
 			var staticAttributeNodes = element.Attributes.Where(e => e.IsFixed).ToList();
@@ -65,83 +63,72 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				child.Accept(this);
 
 			_exBuilder.Add(_expressionBuilder.ElementClose(element.TagName));
-
-			return null;
 		}
 
-		public override Expression Visit(AttributeNode attributeNode)
+		public override void Visit(AttributeNode attributeNode)
 		{
 			_exBuilder.Add(_expressionBuilder.PropertyStart(attributeNode.Name));
 			attributeNode.Value.Accept(this);
 			_exBuilder.Add(_expressionBuilder.PropertyEnd());
-
-			return null;
 		}
 
-		public override Expression Visit(ConstantAttributeContent attributeContent)
+		public override void Visit(ConstantAttributeContent attributeContent)
 		{
 			_exBuilder.Add(_expressionBuilder.Value(Expression.Constant(attributeContent.Text)));
-			return null;
 		}
 
-		public override Expression Visit(AttributeContentStatement constantAttributeContent)
+		public override void Visit(AttributeContentStatement constantAttributeContent)
 		{
-			return HandleStatement(constantAttributeContent.Expression, constantAttributeContent.Children);
+			HandleStatement(constantAttributeContent.Expression, constantAttributeContent.Children);
 		}
 
-		public override Expression Visit(Statement statement)
+		public override void Visit(Statement statement)
 		{
 			var expression = statement.Expression;
-			return HandleStatement(expression, statement.ChildNodes);
+			HandleStatement(expression, statement.ChildNodes);
 		}
 
-		public override Expression Visit(UnconvertedExpression unconvertedExpression)
+		public override void Visit(UnconvertedExpression unconvertedExpression)
 		{
-			_exBuilder.Add(unconvertedExpression.Expression.Accept(this));
-			return null;
+			unconvertedExpression.Expression.Accept(this);
 		}
 
-		public override Expression Visit(CompositeAttributeContent compositeAttributeContent)
+		public override void Visit(CompositeAttributeContent compositeAttributeContent)
 		{
 			foreach (var part in compositeAttributeContent.ContentParts)
 				part.Accept(this);
-
-			return null;
 		}
 
-		public override Expression Visit(MemberExpression memberExpression)
+		public override void Visit(MemberExpression memberExpression)
 		{
-			return HandleCall(memberExpression);
+			HandleCall(memberExpression);
 		}
 
-		public override Expression Visit(ParentExpression parentExpression)
+		public override void Visit(ParentExpression parentExpression)
 		{
-			return HandleCall(parentExpression);
+			HandleCall(parentExpression);
 		}
 
-		public override Expression Visit(SelfExpression selfExpression)
+		public override void Visit(SelfExpression selfExpression)
 		{
-			return HandleCall(selfExpression);
+			HandleCall(selfExpression);
 		}
 
-		private Expression HandleCall(MustacheExpression memberExpression)
+		private void HandleCall(MustacheExpression memberExpression)
 		{
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
 			var binding = scope.RequiresString();
 
 			var expression = binding.Expression;
 			_exBuilder.Add(_expressionBuilder.Value(expression));
-
-			return null;
 		}
 
-		public override Expression Visit(TextNode textNode)
+		public override void Visit(TextNode textNode)
 		{
 			_exBuilder.Add(_expressionBuilder.Value(Expression.Constant(textNode.Text)));
-			return null;
 		}
 
-		private Expression HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
+		private void HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
 		{
 			var iterationExpression = expression as IterationExpression;
 			if (iterationExpression != null)
@@ -153,16 +140,16 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				Action<Expression> childrenAction = l =>
 				{
-					var child = ChangeContract(childScopeContract);
-					foreach (var child2 in childNodes)
-						child2.Accept(child);
+					var childVisitor = ChangeContract(childScopeContract);
+					foreach (var child in childNodes)
+						child.Accept(childVisitor);
 				};
 
 				var collection = binding.Expression;
 
 				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) childScopeContract.Expression);
 
-				return null;
+				return;
 			}
 
 			var conditionalExpression = expression as ConditionalExpression;
@@ -179,7 +166,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				};
 
 				_exBuilder.IfThen(testExpression, children);
-				return null;
+				return;
 			}
 
 			var callHelperExpression = expression as CallHelperExpression;
@@ -189,18 +176,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				if (result == null)
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-				result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression));
-				return null;
+				result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression, _exBuilder));
+				return;
 			}
 
-			var contentEmitter = expression.Accept(this);
-			if (contentEmitter != null)
-				return contentEmitter;
+			expression.Accept(this);
 
 			foreach (var child in childNodes)
 				child.Accept(this);
-
-			return null;
 		}
 
 		private static IDictionary<string, string> CreateDictionaryFromArguments(IEnumerable<HelperAttribute> attributes)
@@ -218,12 +201,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new EmitExpressionVisitor(_dataScopeContract, extensions, _renderingContextExpression, _exBuilder);
 		}
 
-		public Expression Visit(IEnumerable<Node> nodes)
+		public void Visit(IEnumerable<Node> nodes)
 		{
 			foreach (var node in nodes)
 				node.Accept(this);
-
-			return null;
 		}
 
 		private static IReadOnlyDictionary<string, string> CreateAttributeDictionary(IEnumerable<ElementPart> staticAttributeNodes)

@@ -42,13 +42,11 @@ namespace TerrificNet.Mvc.Core
 				_element = element;
 			}
 
-			public override Expression CreateExpression(HelperParameters helperParameters)
+			public override void CreateExpression(HelperParameters helperParameters)
 			{
-				var children = helperParameters.Visitor.Visit(_element.ChildNodes);
-
 				var subContract = _element.Accept(new FillDictionaryOutputVisitor(helperParameters.ScopeContract));
 
-				var helperBinderExtension = new BodyHelperBinder(children);
+				var helperBinderExtension = new BodyHelperBinder(helperParameters.Visitor, _element.ChildNodes);
 				var compilerExtensions = helperParameters.CompilerExtensions
 					.AddHelperBinder(helperBinderExtension);
 
@@ -56,24 +54,26 @@ namespace TerrificNet.Mvc.Core
 					.ChangeContract(subContract)
 					.ChangeExtensions(compilerExtensions);
 
-				return visitor.Visit(_document);
+				visitor.Visit(_document);
 			}
 		}
 
 		private class BodyHelperBinder : IHelperBinder
 		{
-			private readonly Expression _expression;
+			private readonly INodeCompilerVisitor _visitor;
+			private readonly IReadOnlyList<Node> _childNodes;
 
-			public BodyHelperBinder(Expression expression)
+			public BodyHelperBinder(INodeCompilerVisitor visitor, IReadOnlyList<Node> childNodes)
 			{
-				_expression = expression;
+				_visitor = visitor;
+				_childNodes = childNodes;
 			}
 
 			public HelperBinderResult FindByName(string helper, IDictionary<string, string> arguments)
 			{
 				if ("body".Equals(helper, StringComparison.OrdinalIgnoreCase))
 				{
-					return HelperBinderResult.Create(param => _expression);
+					return HelperBinderResult.Create(param => _visitor.Visit(_childNodes));
 				}
 
 				return null;
