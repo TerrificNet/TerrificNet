@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Formatting;
 
 namespace TerrificNet.Thtml.Test.Formatting
@@ -16,42 +17,45 @@ namespace TerrificNet.Thtml.Test.Formatting
 
 		public void ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
-			ExecuteExpression(_builder.ElementOpenStart(tagName, staticProperties));
+			ExecuteExpression(b => _builder.ElementOpenStart(b, tagName, staticProperties));
 		}
 
 		public void ElementOpenEnd()
 		{
-			ExecuteExpression(_builder.ElementOpenEnd());
+			ExecuteExpression(b => _builder.ElementOpenEnd(b));
 		}
 
 		public void ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
-			ExecuteExpression(_builder.ElementOpen(tagName, staticProperties));
+			ExecuteExpression(b => _builder.ElementOpen(b, tagName, staticProperties));
 		}
 
 		public void ElementClose(string tagName)
 		{
-			ExecuteExpression(_builder.ElementClose(tagName));
+			ExecuteExpression(b => _builder.ElementClose(b, tagName));
 		}
 
 		public void PropertyStart(string propertyName)
 		{
-			ExecuteExpression(_builder.PropertyStart(propertyName));
+			ExecuteExpression(b => _builder.PropertyStart(b, propertyName));
 		}
 
 		public void PropertyEnd()
 		{
-			ExecuteExpression(_builder.PropertyEnd());
+			ExecuteExpression(b => _builder.PropertyEnd(b));
 		}
 
 		public void Value(string value)
 		{
-			ExecuteExpression(_builder.Value(Expression.Constant(value)));
+			ExecuteExpression(b => _builder.Value(b, Expression.Constant(value)));
 		}
 
-		private static void ExecuteExpression(Expression expression)
+		private static void ExecuteExpression(Action<IExpressionBuilder> buildAction)
 		{
-			var func = Expression.Lambda<Action>(expression).Compile();
+			var builder = new ExpressionBuilder();
+			buildAction(builder);
+
+			var func = Expression.Lambda<Action>(builder.BuildExpression()).Compile();
 			func();
 		}
 	}

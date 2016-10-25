@@ -15,24 +15,26 @@ namespace TerrificNet.Thtml.Formatting.Text
 
 		public Expression InstanceExpression { get; }
 
-		public Expression ElementOpenStart(string tagName, IReadOnlyDictionary<string, string> staticProperties)
+		public void ElementOpenStart(IExpressionBuilder expressionBuilder, string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
 			if (staticProperties != null && staticProperties.Count > 0)
 			{
 				var stringBuilder = new StringBuilder();
 				AddStaticProperties(stringBuilder, tagName, staticProperties);
 
-				return ExpressionHelper.Write(InstanceExpression, stringBuilder.ToString());
+				expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, stringBuilder.ToString()));
+				return;
 			}
-			return ExpressionHelper.Write(InstanceExpression, $"<{tagName}");
+
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, $"<{tagName}"));
 		}
 
-		public Expression ElementOpenEnd()
+		public void ElementOpenEnd(IExpressionBuilder expressionBuilder)
 		{
-			return ExpressionHelper.Write(InstanceExpression, ">");
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, ">"));
 		}
 
-		public Expression ElementOpen(string tagName, IReadOnlyDictionary<string, string> staticProperties)
+		public void ElementOpen(IExpressionBuilder expressionBuilder, string tagName, IReadOnlyDictionary<string, string> staticProperties)
 		{
 			if (staticProperties != null && staticProperties.Count > 0)
 			{
@@ -40,9 +42,10 @@ namespace TerrificNet.Thtml.Formatting.Text
 				AddStaticProperties(stringBuilder, tagName, staticProperties);
 				stringBuilder.Append(">");
 
-				return ExpressionHelper.Write(InstanceExpression, stringBuilder.ToString());
+				expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, stringBuilder.ToString()));
+				return;
 			}
-			return ExpressionHelper.Write(InstanceExpression, $"<{tagName}>");
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, $"<{tagName}>"));
 		}
 
 		private static void AddStaticProperties(StringBuilder builder, string tagName, IReadOnlyDictionary<string, string> staticProperties)
@@ -51,24 +54,24 @@ namespace TerrificNet.Thtml.Formatting.Text
 			staticProperties.Aggregate(builder, (b, a) => b.Append(" ").Append(a.Key).Append("=\"").Append(a.Value).Append("\""));
 		}
 
-		public Expression ElementClose(string tagName)
+		public void ElementClose(IExpressionBuilder expressionBuilder, string tagName)
 		{
-			return ExpressionHelper.Write(InstanceExpression, $"</{tagName}>");
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, $"</{tagName}>"));
 		}
 
-		public Expression PropertyStart(string propertyName)
+		public void PropertyStart(IExpressionBuilder expressionBuilder, string propertyName)
 		{
-			return ExpressionHelper.Write(InstanceExpression, $" {propertyName}=\"");
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, $" {propertyName}=\""));
 		}
 
-		public Expression PropertyEnd()
+		public void PropertyEnd(IExpressionBuilder expressionBuilder)
 		{
-			return ExpressionHelper.Write(InstanceExpression, $"\"");
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, $"\""));
 		}
 
-		public Expression Value(Expression value)
+		public void Value(IExpressionBuilder expressionBuilder, Expression value)
 		{
-			return ExpressionHelper.Write(InstanceExpression, value);
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, value));
 		}
 	}
 }

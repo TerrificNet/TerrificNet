@@ -16,7 +16,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly IHelperBinder _helperBinder;
 		private readonly CompilerExtensions _extensions;
 		private readonly Expression _renderingContextExpression;
-		private readonly IOutputExpressionBuilder _expressionBuilder;
+		private readonly IOutputExpressionBuilder _formatter;
 		private readonly IExpressionBuilder _exBuilder;
 
 		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions, Expression renderingContextExpression, IExpressionBuilder expressionBuilder)
@@ -25,7 +25,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_extensions = extensions;
 			_renderingContextExpression = renderingContextExpression;
 			_helperBinder = _extensions.HelperBinder;
-			_expressionBuilder = _extensions.ExpressionBuilder;
+			_formatter = _extensions.ExpressionBuilder;
 			_exBuilder = expressionBuilder;
 		}
 
@@ -50,31 +50,31 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 			if (attributeList.Count > 0)
 			{
-				_exBuilder.Add(_expressionBuilder.ElementOpenStart(element.TagName, staticAttributeList));
+				_formatter.ElementOpenStart(_exBuilder, element.TagName, staticAttributeList);
 				foreach (var attr in element.Attributes)
 					attr.Accept(this);
 
-				_exBuilder.Add(_expressionBuilder.ElementOpenEnd());
+				_formatter.ElementOpenEnd(_exBuilder);
 			}
 			else
-				_exBuilder.Add(_expressionBuilder.ElementOpen(element.TagName, staticAttributeList));
+				_formatter.ElementOpen(_exBuilder, element.TagName, staticAttributeList);
 
 			foreach (var child in element.ChildNodes)
 				child.Accept(this);
 
-			_exBuilder.Add(_expressionBuilder.ElementClose(element.TagName));
+			_formatter.ElementClose(_exBuilder, element.TagName);
 		}
 
 		public override void Visit(AttributeNode attributeNode)
 		{
-			_exBuilder.Add(_expressionBuilder.PropertyStart(attributeNode.Name));
+			_formatter.PropertyStart(_exBuilder, attributeNode.Name);
 			attributeNode.Value.Accept(this);
-			_exBuilder.Add(_expressionBuilder.PropertyEnd());
+			_formatter.PropertyEnd(_exBuilder);
 		}
 
 		public override void Visit(ConstantAttributeContent attributeContent)
 		{
-			_exBuilder.Add(_expressionBuilder.Value(Expression.Constant(attributeContent.Text)));
+			_formatter.Value(_exBuilder, Expression.Constant(attributeContent.Text));
 		}
 
 		public override void Visit(AttributeContentStatement constantAttributeContent)
@@ -120,12 +120,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var binding = scope.RequiresString();
 
 			var expression = binding.Expression;
-			_exBuilder.Add(_expressionBuilder.Value(expression));
+			_formatter.Value(_exBuilder, expression);
 		}
 
 		public override void Visit(TextNode textNode)
 		{
-			_exBuilder.Add(_expressionBuilder.Value(Expression.Constant(textNode.Text)));
+			_formatter.Value(_exBuilder, Expression.Constant(textNode.Text));
 		}
 
 		private void HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
