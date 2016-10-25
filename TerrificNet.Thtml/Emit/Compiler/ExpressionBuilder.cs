@@ -14,6 +14,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (expression == null)
 				throw new ArgumentNullException(nameof(expression));
 
+			if (expression.Type != typeof(void) && expression.NodeType != ExpressionType.Assign)
+				throw new ArgumentException("Only void expressions are supported.", nameof(expression));
+
 			_expressions.Add(expression);
 		}
 

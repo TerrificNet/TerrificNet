@@ -3,11 +3,11 @@ using TerrificNet.Thtml.Rendering;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal class CompiledTemplate : IViewTemplate
+	internal class CompiledSyncTemplate : IViewTemplate
 	{
 		private readonly Action<object, IRenderingContext> _action;
 
-		public CompiledTemplate(Action<object, IRenderingContext> action)
+		public CompiledSyncTemplate(Action<object, IRenderingContext> action)
 		{
 			_action = action;
 		}

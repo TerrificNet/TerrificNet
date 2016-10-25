@@ -23,11 +23,27 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IViewTemplate Compile(IDataBinder dataBinder, IOutputExpressionBuilderFactory outputFactory)
 		{
+			var compilerResult = CreateCompilerResult(dataBinder, outputFactory, new ExpressionBuilder());
+
+			return CreateSyncTemplate(compilerResult);
+		}
+
+		public IAsyncViewTemplate CompileForAsync(IDataBinder dataBinder, IOutputExpressionBuilderFactory outputFactory)
+		{
+			var compilerResult = CreateCompilerResult(dataBinder, outputFactory, new AsyncExpressionBuilder());
+
+			return CreateAsyncTemplate(compilerResult);
+		}
+
+		private CompilerResult CreateCompilerResult(IDataBinder dataBinder, IOutputExpressionBuilderFactory outputFactory, IExpressionBuilder expressionBuilder)
+		{
 			var dataScopeContract = CreateDataScope(dataBinder);
 			var renderingContextExpression = Expression.Parameter(typeof(IRenderingContext));
 			var outputExpression = Expression.Property(renderingContextExpression, nameof(IRenderingContext.OutputBuilder));
 			var output = outputFactory.CreateExpressionBuilder(outputExpression);
-			return CreateTemplate(CreateExpression(dataScopeContract, _extensions.WithOutput(output), renderingContextExpression));
+			var compilerResult = CreateExpression(dataScopeContract, _extensions.WithOutput(output), renderingContextExpression, expressionBuilder);
+
+			return compilerResult;
 		}
 
 		private static DataScope CreateDataScope(IDataBinder dataBinder)
@@ -36,9 +52,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new DataScope(new DataScopeContract(BindingPathTemplate.Global), dataBinder, dataContextParameter);
 		}
 
-		private CompilerResult CreateExpression(IDataScopeContract dataScopeContract, CompilerExtensions compilerExtensions, ParameterExpression renderingContextExpression)
+		private CompilerResult CreateExpression(IDataScopeContract dataScopeContract, CompilerExtensions compilerExtensions, ParameterExpression renderingContextExpression, IExpressionBuilder expressionBuilder)
 		{
-			IExpressionBuilder expressionBuilder = new ExpressionBuilder();
 			var visitor = new EmitExpressionVisitor(dataScopeContract, compilerExtensions, renderingContextExpression, expressionBuilder);
 			visitor.Visit(_input);
 			var expression = expressionBuilder.BuildExpression();
@@ -50,11 +65,21 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new CompilerResult(bodyExpression, inputExpression, renderingContextExpression);
 		}
 
-		private static IViewTemplate CreateTemplate(CompilerResult result)
+		private static IViewTemplate CreateSyncTemplate(CompilerResult result)
 		{
 			var expression = Expression.Lambda(result.BodyExpression, result.InputExpression, result.RenderingContextExpression);
 
-			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(CompiledTemplate).GetTypeInfo().GetConstructors().First(), expression));
+			var creationExpression = Expression.Lambda<Func<IViewTemplate>>(Expression.New(typeof(CompiledSyncTemplate).GetTypeInfo().GetConstructors().First(), expression));
+			var action = creationExpression.Compile();
+
+			return action();
+		}
+
+		private IAsyncViewTemplate CreateAsyncTemplate(CompilerResult result)
+		{
+			var expression = Expression.Lambda(result.BodyExpression, result.InputExpression, result.RenderingContextExpression);
+
+			var creationExpression = Expression.Lambda<Func<IAsyncViewTemplate>>(Expression.New(typeof(CompiledAsyncTemplate).GetTypeInfo().GetConstructors().First(), expression));
 			var action = creationExpression.Compile();
 
 			return action();

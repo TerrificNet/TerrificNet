@@ -7,6 +7,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		void Add(Expression expression);
 
 		void DefineVariable(ParameterExpression expression);
+
 		Expression BuildExpression();
 	}
 }
