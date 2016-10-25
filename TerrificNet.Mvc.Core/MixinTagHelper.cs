@@ -42,7 +42,7 @@ namespace TerrificNet.Mvc.Core
 				_element = element;
 			}
 
-			public override void CreateExpression(HelperParameters helperParameters)
+			public override void Visit(HelperParameters helperParameters)
 			{
 				var subContract = _element.Accept(new FillDictionaryOutputVisitor(helperParameters.ScopeContract));
 

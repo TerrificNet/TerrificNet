@@ -44,7 +44,7 @@ namespace TerrificNet.Mvc.Core
 				ActionDescriptor = actionDescriptor;
 			}
 
-			public override void CreateExpression(HelperParameters helperParameters)
+			public override void Visit(HelperParameters helperParameters)
 			{
 				var viewResult = CreateViewResultExpression(helperParameters.RenderingContextExpression);
 				var ex = CreateExpressionFromViewResult(viewResult, helperParameters.RenderingContextExpression);

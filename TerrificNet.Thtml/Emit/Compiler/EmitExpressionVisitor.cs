@@ -40,7 +40,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var tagResult = _extensions.TagHelper.FindByName(element);
 			if (tagResult != null)
 			{
-				tagResult.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression, _exBuilder));
+				tagResult.Visit(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression, _exBuilder));
 				return;
 			}
 
@@ -176,7 +176,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				if (result == null)
 					throw new Exception($"Unknown helper with name {callHelperExpression.Name}.");
 
-				result.CreateExpression(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression, _exBuilder));
+				result.Visit(new HelperParameters(_dataScopeContract, this, _extensions, _renderingContextExpression, _exBuilder));
 				return;
 			}
 

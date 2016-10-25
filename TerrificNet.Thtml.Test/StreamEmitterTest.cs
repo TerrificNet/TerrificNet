@@ -139,7 +139,7 @@ namespace TerrificNet.Thtml.Test
 				};
 
 				var helperResult = new Mock<HelperBinderResult>();
-				helperResult.Setup(d => d.CreateExpression(It.IsAny<HelperParameters>()))
+				helperResult.Setup(d => d.Visit(It.IsAny<HelperParameters>()))
 					.Callback<HelperParameters>(handler => new TextNode("helper output").Accept(handler.Visitor));
 
 				var helper = new Mock<IHelperBinder>();

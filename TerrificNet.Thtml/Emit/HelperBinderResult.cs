@@ -4,7 +4,7 @@ namespace TerrificNet.Thtml.Emit
 {
 	public abstract class HelperBinderResult
 	{
-		public abstract void CreateExpression(HelperParameters helperParameters);
+		public abstract void Visit(HelperParameters helperParameters);
 
 		public static HelperBinderResult Create(Action<HelperParameters> action)
 		{
@@ -20,7 +20,7 @@ namespace TerrificNet.Thtml.Emit
 				_action = action;
 			}
 
-			public override void CreateExpression(HelperParameters helperParameters)
+			public override void Visit(HelperParameters helperParameters)
 			{
 				_action(helperParameters);
 			}
