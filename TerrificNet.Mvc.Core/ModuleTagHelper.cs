@@ -2,8 +2,10 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
@@ -47,27 +49,43 @@ namespace TerrificNet.Mvc.Core
 			public override void Visit(HelperParameters helperParameters)
 			{
 				var viewResult = CreateViewResultExpression(helperParameters.RenderingContextExpression);
-				var ex = CreateExpressionFromViewResult(viewResult, helperParameters.RenderingContextExpression);
+				var executionMethod = nameof(ExecuteResult);
+				if (helperParameters.CompilerExtensions.SupportAsync)
+					executionMethod = nameof(ExecuteResultAsync);
+
+				var ex = CreateExpressionFromViewResult(viewResult, helperParameters.RenderingContextExpression, executionMethod);
+
 				helperParameters.ExpressionBuilder.Add(ex);
 			}
 
-			internal Expression CreateExpressionFromViewResult(Expression actionResultExpression, Expression renderingContextExpression)
+			internal Expression CreateExpressionFromViewResult(Expression actionResultExpression, Expression renderingContextExpression, string executionMethod)
 			{
 				var viewResultExpression = Expression.ConvertChecked(actionResultExpression, typeof(ViewResult));
-				var methodInfo = typeof(ModuleTagHelperBinderResult).GetTypeInfo().GetMethod("ExecuteResult");
-				var convertedExpression = Expression.Call(methodInfo, viewResultExpression, renderingContextExpression, Expression.Constant(ActionDescriptor));
+				var methodInfo = typeof(ModuleTagHelperBinderResult).GetTypeInfo().GetMethod(executionMethod);
+				var callExpression = Expression.Call(methodInfo, viewResultExpression, renderingContextExpression, Expression.Constant(ActionDescriptor));
 
-				return convertedExpression;
+				return callExpression;
 			}
 
-			public static void ExecuteResult(ViewResult viewResult, IRenderingContext renderingContext, ControllerActionDescriptor controllerActionDescriptor)
+			public static void ExecuteResult(ViewResult viewResult, IRenderingContext renderingContext, ActionDescriptor controllerActionDescriptor)
+			{
+				var childRenderingContext = CreateRenderingContext(renderingContext, controllerActionDescriptor);
+				viewResult.ExecuteChildResultAsync(childRenderingContext).Wait();
+			}
+
+			public static Task ExecuteResultAsync(ViewResult viewResult, IRenderingContext renderingContext, ActionDescriptor controllerActionDescriptor)
+			{
+				var childRenderingContext = CreateRenderingContext(renderingContext, controllerActionDescriptor);
+				return viewResult.ExecuteChildResultAsync(childRenderingContext);
+			}
+
+			private static MvcRenderingContext CreateRenderingContext(IRenderingContext renderingContext, ActionDescriptor controllerActionDescriptor)
 			{
 				var mvcContext = (MvcRenderingContext) renderingContext;
 				var httpContext = mvcContext.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
 				var actionContext = new ActionContext(httpContext, new RouteData(), controllerActionDescriptor);
 				var childRenderingContext = new MvcRenderingContext(mvcContext.OutputBuilder, actionContext);
-
-				viewResult.ExecuteChildResultAsync(childRenderingContext).Wait();
+				return childRenderingContext;
 			}
 
 			internal Expression CreateViewResultExpression(Expression renderingContextExpression)

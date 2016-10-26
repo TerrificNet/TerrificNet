@@ -75,7 +75,7 @@ namespace TerrificNet.Mvc.Core.Test
 
 			var parameter = Expression.Parameter(typeof(IRenderingContext));
 
-			var result = underTest.CreateExpressionFromViewResult(inputExpression, parameter);
+			var result = underTest.CreateExpressionFromViewResult(inputExpression, parameter, nameof(ModuleTagHelper.ModuleTagHelperBinderResult.ExecuteResult));
 			Assert.NotNull(result);
 			Assert.Equal(typeof(void), result.Type);
 		}

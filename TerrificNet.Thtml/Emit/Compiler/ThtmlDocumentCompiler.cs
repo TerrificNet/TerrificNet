@@ -23,25 +23,29 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IViewTemplate Compile(IDataBinder dataBinder, IOutputExpressionBuilderFactory outputFactory)
 		{
-			var compilerResult = CreateCompilerResult(dataBinder, outputFactory, new ExpressionBuilder());
+			var compilerResult = CreateCompilerResult(dataBinder, outputFactory, new ExpressionBuilder(), false);
 
 			return CreateSyncTemplate(compilerResult);
 		}
 
 		public IAsyncViewTemplate CompileForAsync(IDataBinder dataBinder, IOutputExpressionBuilderFactory outputFactory)
 		{
-			var compilerResult = CreateCompilerResult(dataBinder, outputFactory, new AsyncExpressionBuilder());
+			var compilerResult = CreateCompilerResult(dataBinder, outputFactory, new AsyncExpressionBuilder(), true);
 
 			return CreateAsyncTemplate(compilerResult);
 		}
 
-		private CompilerResult CreateCompilerResult(IDataBinder dataBinder, IOutputExpressionBuilderFactory outputFactory, IExpressionBuilder expressionBuilder)
+		private CompilerResult CreateCompilerResult(IDataBinder dataBinder, IOutputExpressionBuilderFactory outputFactory, IExpressionBuilder expressionBuilder, bool supportAsync)
 		{
 			var dataScopeContract = CreateDataScope(dataBinder);
 			var renderingContextExpression = Expression.Parameter(typeof(IRenderingContext));
 			var outputExpression = Expression.Property(renderingContextExpression, nameof(IRenderingContext.OutputBuilder));
 			var output = outputFactory.CreateExpressionBuilder(outputExpression);
-			var compilerResult = CreateExpression(dataScopeContract, _extensions.WithOutput(output), renderingContextExpression, expressionBuilder);
+			var compilerExtensions = _extensions.WithOutput(output);
+			if (supportAsync)
+				compilerExtensions = compilerExtensions.WithAsyncSupport();
+
+			var compilerResult = CreateExpression(dataScopeContract, compilerExtensions, renderingContextExpression, expressionBuilder);
 
 			return compilerResult;
 		}
@@ -75,7 +79,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return action();
 		}
 
-		private IAsyncViewTemplate CreateAsyncTemplate(CompilerResult result)
+		private static IAsyncViewTemplate CreateAsyncTemplate(CompilerResult result)
 		{
 			var expression = Expression.Lambda(result.BodyExpression, result.InputExpression, result.RenderingContextExpression);
 

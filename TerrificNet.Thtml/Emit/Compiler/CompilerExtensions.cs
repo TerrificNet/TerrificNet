@@ -16,8 +16,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public static readonly CompilerExtensions Default = new CompilerExtensions();
 
+		public bool SupportAsync { get; private set; }
+
 		private CompilerExtensions()
 		{
+			SupportAsync = false;
 		}
 
 		private CompilerExtensions(AggregatedHelperBinder helperBinder, AggregatedTagHelper tagHelper, IOutputExpressionBuilder output)
@@ -25,6 +28,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_helperBinder = helperBinder;
 			_tagHelper = tagHelper;
 			ExpressionBuilder = output;
+		}
+
+		internal CompilerExtensions WithAsyncSupport()
+		{
+			return new CompilerExtensions(_helperBinder, _tagHelper, ExpressionBuilder) { SupportAsync = true };
 		}
 
 		public CompilerExtensions AddHelperBinder(IHelperBinder helperBinder)
