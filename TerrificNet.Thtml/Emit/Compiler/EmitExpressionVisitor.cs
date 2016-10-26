@@ -117,7 +117,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private void HandleCall(MustacheExpression memberExpression)
 		{
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
-			var binding = scope.RequiresString();
+			var binding = EnsureBinding(scope.RequiresString());
 
 			var expression = binding.Expression;
 			_formatter.Value(_exBuilder, expression);
@@ -136,7 +136,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var scope = ScopeEmitter.Bind(_dataScopeContract, iterationExpression.Expression);
 
 				IDataScopeContract childScopeContract;
-				var binding = scope.RequiresEnumerable(out childScopeContract);
+				var binding = EnsureBinding(scope.RequiresEnumerable(out childScopeContract));
 
 				Action<Expression> childrenAction = l =>
 				{
@@ -147,7 +147,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var collection = binding.Expression;
 
-				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) childScopeContract.Expression);
+				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) EnsureBinding(childScopeContract).Expression);
 
 				return;
 			}
@@ -156,7 +156,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (conditionalExpression != null)
 			{
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
-				var binding = scope.RequiresBoolean();
+				var binding = EnsureBinding(scope.RequiresBoolean());
 				var testExpression = binding.Expression;
 
 				Action children = () =>
@@ -219,5 +219,18 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 			return dict;
 		}
+
+		private IBindingWithExpression EnsureBinding(IBinding binding)
+		{
+			if (binding == null)
+				throw new ArgumentNullException(nameof(binding));
+
+			var exBinding = binding as IBindingWithExpression;
+			if (exBinding == null)
+				throw new NotSupportedException($"The binding with path '{binding.Path}' doesnt support bindings to server-side models.");
+
+			return exBinding;
+		}
+
 	}
 }

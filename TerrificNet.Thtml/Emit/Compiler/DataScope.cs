@@ -7,7 +7,7 @@ using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal class DataScope : IDataScopeContract
+	internal class DataScope : IDataScopeContract, IBindingWithExpression
 	{
 		private readonly IDataScopeContract _contract;
 		private readonly IDataBinder _dataBinder;
@@ -50,7 +50,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IDataScopeContract Parent => _parent;
 
-		private class BindingWrapper<T> : IBinding
+		private class BindingWrapper<T> : IBindingWithExpression
 		{
 			private readonly IBinding _adaptee;
 

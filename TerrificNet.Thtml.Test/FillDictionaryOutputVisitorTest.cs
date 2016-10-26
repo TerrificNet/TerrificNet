@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Binding;
+using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
@@ -31,8 +32,9 @@ namespace TerrificNet.Thtml.Test
 
 			var binding = propertyContract.RequiresString();
 			Assert.NotNull(binding);
+			var exBinding = Assert.IsAssignableFrom<IBindingWithExpression>(binding);
 
-			var constExpression = Assert.IsType<ConstantExpression>(binding.Expression);
+			var constExpression = Assert.IsType<ConstantExpression>(exBinding.Expression);
 			Assert.Equal("val1", constExpression.Value);
 		}
 
@@ -59,7 +61,10 @@ namespace TerrificNet.Thtml.Test
 			var contract = result.Property("entry1", SyntaxNodeStub.Node1);
 			Assert.NotNull(contract);
 			var binding = contract.RequiresString();
-			var memberExpression = Assert.IsAssignableFrom<MemberExpression>(binding.Expression);
+
+			var exBinding = Assert.IsAssignableFrom<IBindingWithExpression>(binding);
+
+			var memberExpression = Assert.IsAssignableFrom<MemberExpression>(exBinding.Expression);
 			Assert.Equal(parameter, memberExpression.Expression);
 			Assert.Equal("value", memberExpression.Member.Name);
 		}

@@ -8,7 +8,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	public class ConstantDataScopeContract : IDataScopeContract
 	{
 		private readonly object _value;
+
 		public BindingPathTemplate Path { get; }
+
 		public Expression Expression { get; }
 
 		public ConstantDataScopeContract(object value)
@@ -38,7 +40,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IDataScopeContract Parent { get; }
 
-		private class ConstantBinding : IBinding
+		private class ConstantBinding : IBindingWithExpression
 		{
 			public ConstantBinding(Expression expression)
 			{
@@ -46,6 +48,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			}
 
 			public BindingPathTemplate Path { get; }
+
 			public Expression Expression { get; }
 		}
 	}

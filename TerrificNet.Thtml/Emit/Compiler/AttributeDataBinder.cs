@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit.Schema;
@@ -17,11 +16,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		}
 
 		public BindingPathTemplate Path
-		{
-			get { throw new NotSupportedException(); }
-		}
-
-		public Expression Expression
 		{
 			get { throw new NotSupportedException(); }
 		}

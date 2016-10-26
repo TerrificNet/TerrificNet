@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit.Schema;
 
 namespace TerrificNet.Thtml.Emit
@@ -6,7 +5,5 @@ namespace TerrificNet.Thtml.Emit
 	public interface IBinding
 	{
 		BindingPathTemplate Path { get; }
-
-		Expression Expression { get; }
 	}
 }
