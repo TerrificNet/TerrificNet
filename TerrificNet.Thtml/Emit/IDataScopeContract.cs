@@ -7,9 +7,9 @@ namespace TerrificNet.Thtml.Emit
 	{
 		IDataScopeContract Property(string propertyName, SyntaxNode node);
 
-		IBinding<string> RequiresString();
-		IBinding<bool> RequiresBoolean();
-		IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract);
+		IBinding RequiresString();
+		IBinding RequiresBoolean();
+		IBinding RequiresEnumerable(out IDataScopeContract childScopeContract);
 
 		IDataScopeContract Parent { get; }
 	}

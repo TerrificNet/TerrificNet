@@ -28,17 +28,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return new DataScope(propertyContract, dataBinder, Expression, this);
 		}
 
-		public IBinding<string> RequiresString()
+		public IBinding RequiresString()
 		{
 			return new BindingWrapper<string>(_contract.RequiresString(), d => _dataBinder.BindString(d), this);
 		}
 
-		public IBinding<bool> RequiresBoolean()
+		public IBinding RequiresBoolean()
 		{
 			return new BindingWrapper<bool>(_contract.RequiresBoolean(), d => _dataBinder.BindBoolean(d), this);
 		}
 
-		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+		public IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
 			var childBinder = _dataBinder.Item();
 			IDataScopeContract childContract;
@@ -50,14 +50,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IDataScopeContract Parent => _parent;
 
-		private class BindingWrapper<T> : IBinding<T>
+		private class BindingWrapper<T> : IBinding
 		{
-			private readonly IBinding<T> _adaptee;
+			private readonly IBinding _adaptee;
 
-			public BindingWrapper(IBinding<T> adaptee, Func<Expression, Expression> createExpression, DataScope parent)
+			public BindingWrapper(IBinding adaptee, Func<Expression, Expression> createExpression, DataScope parent)
 			{
 				_adaptee = adaptee;
-				this.Expression = createExpression(parent.Expression);
+				Expression = createExpression(parent.Expression);
 			}
 
 			public BindingPathTemplate Path => _adaptee.Path;

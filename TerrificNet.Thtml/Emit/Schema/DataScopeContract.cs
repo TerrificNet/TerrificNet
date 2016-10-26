@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -37,17 +36,17 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return GetOrCreate(() => new ComplexDataScopeContract(this)).Property(propertyName, node);
 		}
 
-		public IBinding<string> RequiresString()
+		public IBinding RequiresString()
 		{
 			return GetOrCreate(() => new StringDataScopeContract(this)).RequiresString();
 		}
 
-		public IBinding<bool> RequiresBoolean()
+		public IBinding RequiresBoolean()
 		{
 			return GetOrCreate(() => new BooleanDataScopeContract(this)).RequiresBoolean();
 		}
 
-		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+		public IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
 			return GetOrCreate(() => new IterableDataScopeContract(this)).RequiresEnumerable(out childScopeContract);
 		}
@@ -76,17 +75,17 @@ namespace TerrificNet.Thtml.Emit.Schema
 				throw new DataContractException($"Can not access property {propertyName} on node {node} because {Name} doesn't support properties.", DataScopeContract.DependentNodes.ToArray());
 			}
 
-			public virtual IBinding<string> RequiresString()
+			public virtual IBinding RequiresString()
 			{
 				throw new DataContractException($"Can not access {DataScopeContract.Path} as string because {Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
 
-			public virtual IBinding<bool> RequiresBoolean()
+			public virtual IBinding RequiresBoolean()
 			{
 				throw new DataContractException($"The {DataScopeContract.Path} was already called without boolean check.", DataScopeContract.DependentNodes.ToArray());
 			}
 
-			public virtual IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public virtual IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				throw new DataContractException($"Can not access {DataScopeContract.Path} as iterable because {Name} doesn't support this conversion.", DataScopeContract.DependentNodes.ToArray());
 			}
@@ -117,10 +116,10 @@ namespace TerrificNet.Thtml.Emit.Schema
 				_childScopeContract = new DataScopeContract(dataScopeContract.Path.Item(), dataScopeContract, dataScopeContract._trainingCollection);
 			}
 
-			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public override IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				childScopeContract = _childScopeContract;
-				return new Binding<IEnumerable>(DataScopeContract.Path, DataScopeContract._trainingCollection);
+				return new Binding(DataScopeContract.Path, DataScopeContract._trainingCollection);
 			}
 
 			public override DataSchema GetSchema()
@@ -164,7 +163,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 				return scopeContract;
 			}
 
-			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public override IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				_strategy = new IterableDataScopeContract(DataScopeContract, _childScopes, _nullable);
 				return _strategy.RequiresEnumerable(out childScopeContract);
@@ -189,14 +188,14 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			protected override string Name => "String";
 
-			public override IBinding<string> RequiresString()
+			public override IBinding RequiresString()
 			{
-				return new Binding<string>(DataScopeContract.Path, DataScopeContract._trainingCollection);
+				return new Binding(DataScopeContract.Path, DataScopeContract._trainingCollection);
 			}
 
-			public override IBinding<bool> RequiresBoolean()
+			public override IBinding RequiresBoolean()
 			{
-				return new Binding<bool>(DataScopeContract.Path, DataScopeContract._trainingCollection);
+				return new Binding(DataScopeContract.Path, DataScopeContract._trainingCollection);
 			}
 
 			public override DataSchema GetSchema()
@@ -215,18 +214,18 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 			protected override string Name => "Boolean";
 
-			public override IBinding<bool> RequiresBoolean()
+			public override IBinding RequiresBoolean()
 			{
-				return new Binding<bool>(DataScopeContract.Path, DataScopeContract._trainingCollection);
+				return new Binding(DataScopeContract.Path, DataScopeContract._trainingCollection);
 			}
 
-			public override IBinding<string> RequiresString()
+			public override IBinding RequiresString()
 			{
 				_strategy = new StringDataScopeContract(DataScopeContract);
 				return _strategy.RequiresString();
 			}
 
-			public override IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+			public override IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 			{
 				_strategy = new IterableDataScopeContract(DataScopeContract, true);
 				return _strategy.RequiresEnumerable(out childScopeContract);
@@ -258,7 +257,7 @@ namespace TerrificNet.Thtml.Emit.Schema
 			return _trainingCollection.GetChangeOperations(oldPath, node, node);
 		}
 
-		internal class Binding<T> : IBinding<T>
+		internal class Binding : IBinding
 		{
 			internal readonly TrainingCollection _collection;
 			public BindingPathTemplate Path { get; }

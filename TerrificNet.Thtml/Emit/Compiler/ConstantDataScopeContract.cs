@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit.Schema;
 using TerrificNet.Thtml.Parsing;
@@ -22,24 +21,24 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			throw new NotSupportedException();
 		}
 
-		public IBinding<string> RequiresString()
+		public IBinding RequiresString()
 		{
-			return new ConstantBinding<string>(Expression.Constant(_value));
+			return new ConstantBinding(Expression.Constant(_value));
 		}
 
-		public IBinding<bool> RequiresBoolean()
+		public IBinding RequiresBoolean()
 		{
-			return new ConstantBinding<bool>(Expression.Constant(_value));
+			return new ConstantBinding(Expression.Constant(_value));
 		}
 
-		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+		public IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
 			throw new NotSupportedException();
 		}
 
 		public IDataScopeContract Parent { get; }
 
-		private class ConstantBinding<T> : IBinding<T>
+		private class ConstantBinding : IBinding
 		{
 			public ConstantBinding(Expression expression)
 			{

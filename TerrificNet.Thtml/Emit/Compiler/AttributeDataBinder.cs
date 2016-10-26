@@ -31,19 +31,20 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return _contracts[propertyName];
 		}
 
-		public IBinding<string> RequiresString()
+		public IBinding RequiresString()
 		{
-			throw new NotSupportedException();
+			return this;
 		}
 
-		public IBinding<bool> RequiresBoolean()
+		public IBinding RequiresBoolean()
 		{
-			throw new NotSupportedException();
+			return this;
 		}
 
-		public IBinding<IEnumerable> RequiresEnumerable(out IDataScopeContract childScopeContract)
+		public IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
 		{
-			throw new NotSupportedException();
+			childScopeContract = this;
+			return this;
 		}
 
 		public IDataScopeContract Parent

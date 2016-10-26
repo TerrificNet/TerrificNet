@@ -9,8 +9,4 @@ namespace TerrificNet.Thtml.Emit
 
 		Expression Expression { get; }
 	}
-
-	public interface IBinding<T> : IBinding
-	{
-	}
 }

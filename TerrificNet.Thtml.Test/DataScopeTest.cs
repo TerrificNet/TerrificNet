@@ -205,7 +205,7 @@ namespace TerrificNet.Thtml.Test
 			Assert.Equal(_underTest, childContract.Parent);
 		}
 
-		private static void AssertBindingPath<T>(IBinding<T> binding, BindingPathTemplate expected)
+		private static void AssertBindingPath(IBinding binding, BindingPathTemplate expected)
 		{
 			Assert.NotNull(binding);
 			Assert.Equal(expected.ToString(), binding.Path.ToString());
