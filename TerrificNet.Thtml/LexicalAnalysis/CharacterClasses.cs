@@ -27,6 +27,7 @@ namespace TerrificNet.Thtml.LexicalAnalysis
 				() => c == ':',
 				() => InRange(c, 'A', 'Z'),
 				() => c == '_',
+				() => c == '$',
 				() => InRange(c, 'a', 'z'),
 				() => InRange(c, (char) 0xC0, (char) 0xD6),
 				() => InRange(c, (char) 0xD8, (char) 0xF6),

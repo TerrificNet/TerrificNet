@@ -553,9 +553,35 @@ namespace TerrificNet.Thtml.Test
 									 a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
 										  b => TokenFactory.Expression(b,
 												TokenFactory.Parent,
-												c => TokenFactory.Expression(c, 
+												c => TokenFactory.Expression(c,
 													TokenFactory.Parent,
 													d => TokenFactory.Expression(d, "hallo"))
+									 )),
+									 TokenFactory.HandlebarsEnd,
+									 TokenFactory.HandlebarsEnd))
+				};
+
+				// Support $ as valid object name
+				yield return new object[]
+				{
+					"{{$scope}}",
+					TokenFactory.DocumentList(
+						i => TokenFactory.HandlebarsSimple(i, "$scope"))
+				};
+
+				yield return new object[]
+				{
+					"{{$scope.add}}",
+						  TokenFactory.DocumentList(
+								i => TokenFactory.Composite(i,
+									 TokenCategory.External,
+									 TokenFactory.HandlebarsStart,
+									 TokenFactory.HandlebarsStart,
+									 a => TokenFactory.Composite(a, TokenCategory.HandlebarsEvaluate,
+										  b => TokenFactory.Expression(b,
+												c => TokenFactory.Name("$scope", c),
+										  TokenFactory.Dot,
+										  c => TokenFactory.Expression(c, "add")
 									 )),
 									 TokenFactory.HandlebarsEnd,
 									 TokenFactory.HandlebarsEnd))
