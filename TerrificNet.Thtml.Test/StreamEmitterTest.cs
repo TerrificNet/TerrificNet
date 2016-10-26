@@ -210,6 +210,17 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
+				yield return new object[]
+				{
+					"ignores client scope access",
+					new Document(
+							new Element("div", new Statement(new MemberExpression("$scope", new MemberExpression("value"))))
+						),
+					new NullDataBinder(),
+					null,
+					"<div></div>",
+					new NullHelperBinder()
+				};
 			}
 		}
 	}
