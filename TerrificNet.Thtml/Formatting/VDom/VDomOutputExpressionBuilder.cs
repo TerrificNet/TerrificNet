@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
+using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.VDom;
 
@@ -68,7 +69,17 @@ namespace TerrificNet.Thtml.Formatting.VDom
 			expressionBuilder.Add(Expression.Call(InstanceExpression, method));
 		}
 
-		public void Value(IExpressionBuilder expressionBuilder, Expression value)
+		public void Value(IExpressionBuilder expressionBuilder, IBinding valueBinding)
+		{
+			Value(expressionBuilder, valueBinding.EnsureBinding().Expression);
+		}
+
+		public void Text(IExpressionBuilder expressionBuilder, string text)
+		{
+			Value(expressionBuilder, Expression.Constant(text));
+		}
+
+		private void Value(IExpressionBuilder expressionBuilder, Expression value)
 		{
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.Value(null));
 			expressionBuilder.Add(Expression.Call(InstanceExpression, method, value));

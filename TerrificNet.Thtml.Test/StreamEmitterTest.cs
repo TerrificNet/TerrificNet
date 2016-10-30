@@ -210,15 +210,16 @@ namespace TerrificNet.Thtml.Test
 					new NullHelperBinder()
 				};
 
+				var obj8 = new { value = "test" };
 				yield return new object[]
 				{
 					"ignores client scope access",
 					new Document(
-							new Element("div", new Statement(new MemberExpression("$scope", new MemberExpression("value"))))
+							new Element("div", new Statement(new MemberExpression("$scope", new MemberExpression("value"))), new Statement(new MemberExpression("test")))
 						),
-					new NullDataBinder(),
+					TypeDataBinder.BinderFromObject(obj8),
 					null,
-					"<div></div>",
+					"<div>test</div>",
 					new NullHelperBinder()
 				};
 			}

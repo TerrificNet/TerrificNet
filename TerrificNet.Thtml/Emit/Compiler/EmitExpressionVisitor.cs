@@ -74,7 +74,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override void Visit(ConstantAttributeContent attributeContent)
 		{
-			_formatter.Value(_exBuilder, Expression.Constant(attributeContent.Text));
+			_formatter.Text(_exBuilder, attributeContent.Text);
 		}
 
 		public override void Visit(AttributeContentStatement constantAttributeContent)
@@ -117,15 +117,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private void HandleCall(MustacheExpression memberExpression)
 		{
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
-			var binding = EnsureBinding(scope.RequiresString());
+			var binding = scope.RequiresString();
 
-			var expression = binding.Expression;
-			_formatter.Value(_exBuilder, expression);
+			_formatter.Value(_exBuilder, binding);
 		}
 
 		public override void Visit(TextNode textNode)
 		{
-			_formatter.Value(_exBuilder, Expression.Constant(textNode.Text));
+			_formatter.Text(_exBuilder, textNode.Text);
 		}
 
 		private void HandleStatement(MustacheExpression expression, IEnumerable<HtmlNode> childNodes)
@@ -136,7 +135,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var scope = ScopeEmitter.Bind(_dataScopeContract, iterationExpression.Expression);
 
 				IDataScopeContract childScopeContract;
-				var binding = EnsureBinding(scope.RequiresEnumerable(out childScopeContract));
+				var binding = scope.RequiresEnumerable(out childScopeContract).EnsureBinding();
 
 				Action<Expression> childrenAction = l =>
 				{
@@ -147,7 +146,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 				var collection = binding.Expression;
 
-				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) EnsureBinding(childScopeContract).Expression);
+				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) childScopeContract.EnsureBinding().Expression);
 
 				return;
 			}
@@ -156,7 +155,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (conditionalExpression != null)
 			{
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
-				var binding = EnsureBinding(scope.RequiresBoolean());
+				var binding = scope.RequiresBoolean().EnsureBinding();
 				var testExpression = binding.Expression;
 
 				Action children = () =>
@@ -219,18 +218,5 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 			return dict;
 		}
-
-		private IBindingWithExpression EnsureBinding(IBinding binding)
-		{
-			if (binding == null)
-				throw new ArgumentNullException(nameof(binding));
-
-			var exBinding = binding as IBindingWithExpression;
-			if (exBinding == null)
-				throw new NotSupportedException($"The binding with path '{binding.Path}' doesnt support bindings to server-side models.");
-
-			return exBinding;
-		}
-
 	}
 }

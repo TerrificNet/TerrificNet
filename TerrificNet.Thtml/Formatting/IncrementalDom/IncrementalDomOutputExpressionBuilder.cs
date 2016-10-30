@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Rendering;
 
@@ -74,7 +75,12 @@ namespace TerrificNet.Thtml.Formatting.IncrementalDom
 			expressionBuilder.Add(Expression.Call(InstanceExpression, methodInfo, propertyNameExpression, valueExpression));
 		}
 
-		public void Value(IExpressionBuilder expressionBuilder, Expression value)
+		public void Value(IExpressionBuilder expressionBuilder, IBinding valueBinding)
+		{
+			Value(expressionBuilder, valueBinding.EnsureBinding().Expression);
+		}
+
+		private void Value(IExpressionBuilder expressionBuilder, Expression value)
 		{
 			if (_propertyName != null)
 			{
@@ -84,6 +90,11 @@ namespace TerrificNet.Thtml.Formatting.IncrementalDom
 
 			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Text(null));
 			expressionBuilder.Add(Expression.Call(InstanceExpression, methodInfo, value));
+		}
+
+		public void Text(IExpressionBuilder expressionBuilder, string text)
+		{
+			Value(expressionBuilder, Expression.Constant(text));
 		}
 
 		public void ElementClose(IExpressionBuilder expressionBuilder, string tagName)

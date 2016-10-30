@@ -37,5 +37,17 @@ namespace TerrificNet.Thtml.Emit
 			var tBinding = binding as DataScopeContract.Binding;
 			tBinding?._collection.RemoveNode(tBinding.Path, operation);
 		}
+
+		public static IBindingWithExpression EnsureBinding(this IBinding binding)
+		{
+			if (binding == null)
+				throw new ArgumentNullException(nameof(binding));
+
+			var exBinding = binding as IBindingWithExpression;
+			if (exBinding == null)
+				throw new NotSupportedException($"The binding with path '{binding.Path}' doesn't support bindings to server-side models.");
+
+			return exBinding;
+		}
 	}
 }

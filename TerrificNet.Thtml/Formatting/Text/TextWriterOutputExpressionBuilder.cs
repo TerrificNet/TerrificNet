@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Formatting.Text
@@ -69,9 +70,19 @@ namespace TerrificNet.Thtml.Formatting.Text
 			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, $"\""));
 		}
 
-		public void Value(IExpressionBuilder expressionBuilder, Expression value)
+		public void Value(IExpressionBuilder expressionBuilder, IBinding valueBinding)
+		{
+			Value(expressionBuilder, valueBinding.EnsureBinding().Expression);
+		}
+
+		private void Value(IExpressionBuilder expressionBuilder, Expression value)
 		{
 			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, value));
+		}
+
+		public void Text(IExpressionBuilder expressionBuilder, string text)
+		{
+			Value(expressionBuilder, Expression.Constant(text));
 		}
 	}
 }

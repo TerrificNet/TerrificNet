@@ -8,7 +8,7 @@ namespace TerrificNet.Thtml.Test.Stubs
 	{
 		public IDataBinder Property(string propertyName)
 		{
-			return null;
+			return this;
 		}
 
 		public Expression BindString(Expression dataContext)

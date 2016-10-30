@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Linq.Expressions;
 using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Schema;
@@ -13,7 +12,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly IDataBinder _dataBinder;
 		private readonly DataScope _parent;
 
-		public DataScope(IDataScopeContract contract, IDataBinder dataBinder, Expression expression, DataScope parent = null)
+		public DataScope(IDataScopeContract contract, IDataBinder dataBinder, Expression expression)
+			: this(contract, dataBinder, expression, null)
+		{
+		}
+
+		private DataScope(IDataScopeContract contract, IDataBinder dataBinder, Expression expression, DataScope parent = null)
 		{
 			Expression = expression;
 			_parent = parent;
@@ -30,12 +34,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IBinding RequiresString()
 		{
-			return new BindingWrapper<string>(_contract.RequiresString(), d => _dataBinder.BindString(d), this);
+			return new BindingWrapper(_contract.RequiresString(), d => _dataBinder.BindString(d), this);
 		}
 
 		public IBinding RequiresBoolean()
 		{
-			return new BindingWrapper<bool>(_contract.RequiresBoolean(), d => _dataBinder.BindBoolean(d), this);
+			return new BindingWrapper(_contract.RequiresBoolean(), d => _dataBinder.BindBoolean(d), this);
 		}
 
 		public IBinding RequiresEnumerable(out IDataScopeContract childScopeContract)
@@ -45,12 +49,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var binding = _contract.RequiresEnumerable(out childContract);
 			childScopeContract = new DataScope(childContract, childBinder, Expression.Parameter(childBinder.ResultType), _parent);
 
-			return new BindingWrapper<IEnumerable>(binding, d => _dataBinder.BindEnumerable(d), this);
+			return new BindingWrapper(binding, d => _dataBinder.BindEnumerable(d), this);
 		}
 
 		public IDataScopeContract Parent => _parent;
 
-		private class BindingWrapper<T> : IBindingWithExpression
+		private class BindingWrapper : IBindingWithExpression
 		{
 			private readonly IBinding _adaptee;
 

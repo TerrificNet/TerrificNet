@@ -47,7 +47,7 @@ namespace TerrificNet.Thtml.Test.Formatting
 
 		public void Value(string value)
 		{
-			ExecuteExpression(b => _builder.Value(b, Expression.Constant(value)));
+			ExecuteExpression(b => _builder.Value(b, new ConstantBinding(value)));
 		}
 
 		private static void ExecuteExpression(Action<IExpressionBuilder> buildAction)
