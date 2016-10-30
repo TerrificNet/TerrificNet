@@ -72,7 +72,11 @@ namespace TerrificNet.Thtml.Formatting.Text
 
 		public void Value(IExpressionBuilder expressionBuilder, IBinding valueBinding)
 		{
-			Value(expressionBuilder, valueBinding.EnsureBinding().Expression);
+			Expression expression;
+			if (!valueBinding.TryGetExpression(out expression))
+				return;
+
+			Value(expressionBuilder, expression);
 		}
 
 		private void Value(IExpressionBuilder expressionBuilder, Expression value)

@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using TerrificNet.Thtml.Emit.Schema;
 
 namespace TerrificNet.Thtml.Emit
@@ -48,6 +49,21 @@ namespace TerrificNet.Thtml.Emit
 				throw new NotSupportedException($"The binding with path '{binding.Path}' doesn't support bindings to server-side models.");
 
 			return exBinding;
+		}
+
+		public static bool TryGetExpression(this IBinding binding, out Expression expression)
+		{
+			if (binding == null)
+				throw new ArgumentNullException(nameof(binding));
+
+			expression = null;
+
+			var exBinding = binding as IBindingWithExpression;
+			if (exBinding == null)
+				return false;
+
+			expression = exBinding.Expression;
+			return true;
 		}
 	}
 }
