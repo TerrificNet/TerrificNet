@@ -82,7 +82,7 @@ namespace TerrificNet.Mvc.Core
 			private static MvcRenderingContext CreateRenderingContext(IRenderingContext renderingContext, ActionDescriptor controllerActionDescriptor)
 			{
 				var mvcContext = (MvcRenderingContext) renderingContext;
-				var httpContext = mvcContext.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+				var httpContext = mvcContext.ActionContext.HttpContext;
 				var actionContext = new ActionContext(httpContext, new RouteData(), controllerActionDescriptor);
 				var childRenderingContext = new MvcRenderingContext(mvcContext.OutputBuilder, actionContext);
 				return childRenderingContext;
@@ -99,7 +99,7 @@ namespace TerrificNet.Mvc.Core
 			public static object Invoke(ControllerActionDescriptor actionDescriptor, IRenderingContext renderingContext)
 			{
 				var mvcRenderingContext = (MvcRenderingContext) renderingContext;
-				var httpContext = mvcRenderingContext.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+				var httpContext = mvcRenderingContext.ActionContext.HttpContext;
 				var controllerContext = new ControllerContext { ActionDescriptor = actionDescriptor, HttpContext = httpContext };
 				var controllerFactory = mvcRenderingContext.ServiceProvider.GetRequiredService<IControllerFactory>();
 				var controller = controllerFactory.CreateController(controllerContext);

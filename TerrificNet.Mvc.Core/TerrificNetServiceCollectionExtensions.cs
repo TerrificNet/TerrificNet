@@ -18,10 +18,7 @@ namespace TerrificNet.Mvc.Core
 				.AddTagHelper(new ModuleTagHelper(s.GetRequiredService<IActionDescriptorCollectionProvider>())));
 
 			services.AddSingleton(s => new CompilerService(s.GetRequiredService<CompilerExtensions>));
-			services.AddTransient<IOutputExpressionBuilderFactory>(p => OutputFactories.VTree);
-
-			// TODO: remove and replace with property HttpContext calls
-			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+			services.AddTransient<IOutputExpressionBuilderFactory>(p => OutputFactories.Text);
 		}
 	}
 }

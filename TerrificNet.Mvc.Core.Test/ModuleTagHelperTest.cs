@@ -1,26 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Moq;
-using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 using Xunit;
 using System.Reflection;
 using TerrificNet.Thtml.Rendering;
-using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Mvc.Core.Test
 {
 	public class ModuleTagHelperTest
 	{
-		private readonly IControllerFactory _controllerFactory;
-		private IActionDescriptorCollectionProvider _actionCollection;
-		private IHttpContextAccessor _accessor;
-		private ControllerActionDescriptor _controllerActionDescriptor;
+		private readonly IActionDescriptorCollectionProvider _actionCollection;
+		private readonly ControllerActionDescriptor _controllerActionDescriptor;
 
 		public ModuleTagHelperTest()
 		{
@@ -30,15 +25,11 @@ namespace TerrificNet.Mvc.Core.Test
 				ControllerName = "Test",
 				MethodInfo = typeof(TestController).GetTypeInfo().GetMethod("Index")
 			};
-			_controllerFactory = new Mock<IControllerFactory>().Object;
 
 			var mock = new Mock<IActionDescriptorCollectionProvider>();
 			mock.Setup(m => m.ActionDescriptors).Returns(new ActionDescriptorCollection(new List<ActionDescriptor> {_controllerActionDescriptor}, 1));
 
 			_actionCollection = mock.Object;
-			var accessorMock = new Mock<IHttpContextAccessor>();
-			accessorMock.Setup(a => a.HttpContext).Returns(new DefaultHttpContext());
-			_accessor = accessorMock.Object;
 		}
 
 		[Fact]

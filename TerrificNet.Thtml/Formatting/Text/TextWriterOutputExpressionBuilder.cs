@@ -67,7 +67,7 @@ namespace TerrificNet.Thtml.Formatting.Text
 
 		public void PropertyEnd(IExpressionBuilder expressionBuilder)
 		{
-			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, $"\""));
+			expressionBuilder.Add(ExpressionHelper.Write(InstanceExpression, "\""));
 		}
 
 		public void Value(IExpressionBuilder expressionBuilder, IBinding valueBinding)

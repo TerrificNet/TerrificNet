@@ -5,9 +5,8 @@ using TerrificNet.Thtml.Binding;
 using TerrificNet.Thtml.Emit.Compiler;
 using Microsoft.Extensions.DependencyInjection;
 using TerrificNet.Thtml.Formatting;
-using TerrificNet.Thtml.Formatting.VDom;
+using TerrificNet.Thtml.Formatting.Text;
 using TerrificNet.Thtml.Rendering;
-using TerrificNet.Thtml.VDom;
 
 namespace TerrificNet.Mvc.Core
 {
@@ -63,11 +62,7 @@ namespace TerrificNet.Mvc.Core
 		{
 			using (var writer = new StreamWriter(context.HttpContext.Response.Body))
 			{
-				var builder = new VDomBuilder();
-				await runnable.Execute(_model, new MvcRenderingContext(new VDomOutputBuilder(builder), context));
-				var vTree = builder.ToDom();
-
-				writer.Write(vTree.ToString());
+				await runnable.Execute(_model, new MvcRenderingContext(new TextWriterOutputBuilder(writer), context));
 			}
 		}
 	}
