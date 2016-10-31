@@ -17,9 +17,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly CompilerExtensions _extensions;
 		private readonly Expression _renderingContextExpression;
 		private readonly IOutputExpressionBuilder _formatter;
-		private readonly IExpressionBuilder _exBuilder;
+		private readonly IScopedExpressionBuilder _exBuilder;
 
-		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions, Expression renderingContextExpression, IExpressionBuilder expressionBuilder)
+		public EmitExpressionVisitor(IDataScopeContract dataScopeContract, CompilerExtensions extensions, Expression renderingContextExpression, IScopedExpressionBuilder expressionBuilder)
 		{
 			_dataScopeContract = dataScopeContract;
 			_extensions = extensions;
@@ -29,10 +29,19 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_exBuilder = expressionBuilder;
 		}
 
+		private void ReportBinding(IBinding binding)
+		{
+			_exBuilder.UseBinding(binding);
+		}
+
 		public override void Visit(Document document)
 		{
+			_exBuilder.Enter();
+
 			foreach (var child in document.ChildNodes)
 				child.Accept(this);
+
+			_exBuilder.Leave();
 		}
 
 		public override void Visit(Element element)
@@ -119,6 +128,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var scope = ScopeEmitter.Bind(_dataScopeContract, memberExpression);
 			var binding = scope.RequiresString();
 
+			ReportBinding(binding);
+
 			_formatter.Value(_exBuilder, binding);
 		}
 
@@ -133,9 +144,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (iterationExpression != null)
 			{
 				var scope = ScopeEmitter.Bind(_dataScopeContract, iterationExpression.Expression);
+				ReportBinding(scope);
 
 				IDataScopeContract childScopeContract;
 				var binding = scope.RequiresEnumerable(out childScopeContract).EnsureBinding();
+				ReportBinding(binding);
 
 				Action<Expression> childrenAction = l =>
 				{
@@ -145,8 +158,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				};
 
 				var collection = binding.Expression;
+				var childScopeBinding = childScopeContract.EnsureBinding();
+				ReportBinding(childScopeBinding);
 
-				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) childScopeContract.EnsureBinding().Expression);
+				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) childScopeBinding.Expression);
 
 				return;
 			}
@@ -156,6 +171,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			{
 				var scope = ScopeEmitter.Bind(_dataScopeContract, conditionalExpression.Expression);
 				var binding = scope.RequiresBoolean().EnsureBinding();
+				ReportBinding(binding);
+
 				var testExpression = binding.Expression;
 
 				Action children = () =>

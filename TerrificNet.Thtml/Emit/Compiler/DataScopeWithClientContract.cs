@@ -13,7 +13,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_contract = contract;
 			_clientScope = clientScope;
 
-			this.Path = BindingPathTemplate.Global;
+			Path = BindingPathTemplate.Global;
 		}
 
 		public BindingPathTemplate Path { get; }
