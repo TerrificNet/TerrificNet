@@ -88,5 +88,10 @@ namespace TerrificNet.Thtml.Formatting.Text
 		{
 			Value(expressionBuilder, Expression.Constant(text));
 		}
+
+		public bool SupportsBinding(IBinding binding)
+		{
+			return binding is IBindingWithExpression;
+		}
 	}
 }

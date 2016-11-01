@@ -10,11 +10,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public BindingPathTemplate Path { get; }
 
-		public bool IsSupported(RenderingScope server)
-		{
-			return true;
-		}
-
 		public ConstantDataScopeContract(object value)
 		{
 			_value = value;

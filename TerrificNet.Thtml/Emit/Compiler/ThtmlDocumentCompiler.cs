@@ -59,7 +59,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private CompilerResult CreateExpression(DataScope dataScopeContract, CompilerExtensions compilerExtensions, ParameterExpression renderingContextExpression, IExpressionBuilder expressionBuilder)
 		{
 			var clientScope = new DataScopeContract(BindingPathTemplate.Global.Property("$scope"));
-			var scopedExpressionBuilder = new ScopedExpressionBuilder(expressionBuilder);
+			var scopedExpressionBuilder = new ScopedExpressionBuilder(expressionBuilder, compilerExtensions.ExpressionBuilder);
 			var visitor = new EmitExpressionVisitor(new DataScopeWithClientContract(dataScopeContract, clientScope), compilerExtensions, renderingContextExpression, scopedExpressionBuilder);
 			visitor.Visit(_input);
 			var expression = scopedExpressionBuilder.BuildExpression();

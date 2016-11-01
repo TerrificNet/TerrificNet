@@ -83,6 +83,11 @@ namespace TerrificNet.Thtml.Formatting.VDom
 			Value(expressionBuilder, Expression.Constant(text));
 		}
 
+		public bool SupportsBinding(IBinding binding)
+		{
+			return binding is IBindingWithExpression;
+		}
+
 		private void Value(IExpressionBuilder expressionBuilder, Expression value)
 		{
 			var method = ExpressionHelper.GetMethodInfo<IVDomBuilder>(e => e.Value(null));

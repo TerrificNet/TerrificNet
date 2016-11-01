@@ -159,7 +159,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			if (iterationExpression != null)
 			{
 				var scope = ScopeEmitter.Bind(_dataScopeContract, iterationExpression.Expression);
-				ReportBinding(scope);
 
 				IDataScopeContract childScopeContract;
 				var binding = scope.RequiresEnumerable(out childScopeContract).EnsureBinding();

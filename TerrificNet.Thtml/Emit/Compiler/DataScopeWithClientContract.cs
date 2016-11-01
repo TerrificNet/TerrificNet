@@ -18,11 +18,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public BindingPathTemplate Path { get; }
 
-		public bool IsSupported(RenderingScope server)
-		{
-			return true;
-		}
-
 		public IDataScopeContract Property(string propertyName, SyntaxNode node)
 		{
 			if (propertyName == "$scope")

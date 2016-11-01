@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Parsing;
 
 namespace TerrificNet.Thtml.Emit.Schema
@@ -13,11 +12,6 @@ namespace TerrificNet.Thtml.Emit.Schema
 		private readonly TrainingCollection _trainingCollection;
 
 		public BindingPathTemplate Path { get; }
-
-		public bool IsSupported(RenderingScope server)
-		{
-			return false;
-		}
 
 		public DataScopeContract(BindingPathTemplate path) : this(path, null, new TrainingCollection())
 		{
@@ -99,11 +93,6 @@ namespace TerrificNet.Thtml.Emit.Schema
 			public abstract DataSchema GetSchema();
 
 			public BindingPathTemplate Path { get; }
-
-			public bool IsSupported(RenderingScope server)
-			{
-				return false;
-			}
 		}
 
 		private class IterableDataScopeContract : ComplexDataScopeContract
@@ -270,11 +259,6 @@ namespace TerrificNet.Thtml.Emit.Schema
 		{
 			internal readonly TrainingCollection _collection;
 			public BindingPathTemplate Path { get; }
-
-			public bool IsSupported(RenderingScope server)
-			{
-				return false;
-			}
 
 			internal Binding(BindingPathTemplate path, TrainingCollection collection)
 			{

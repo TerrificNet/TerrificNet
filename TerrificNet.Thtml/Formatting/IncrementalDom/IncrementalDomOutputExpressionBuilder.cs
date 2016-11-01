@@ -97,6 +97,11 @@ namespace TerrificNet.Thtml.Formatting.IncrementalDom
 			Value(expressionBuilder, Expression.Constant(text));
 		}
 
+		public bool SupportsBinding(IBinding binding)
+		{
+			return binding is IBindingWithExpression;
+		}
+
 		public void ElementClose(IExpressionBuilder expressionBuilder, string tagName)
 		{
 			var ex = Expression.Call(InstanceExpression, ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.ElementClose(null)), Expression.Constant(tagName));

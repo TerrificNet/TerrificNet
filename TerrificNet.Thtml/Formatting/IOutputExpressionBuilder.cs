@@ -4,7 +4,7 @@ using TerrificNet.Thtml.Emit.Compiler;
 
 namespace TerrificNet.Thtml.Formatting
 {
-	public interface IOutputExpressionBuilder
+	public interface IOutputExpressionBuilder : IBindingSupport
 	{
 		void ElementOpenStart(IExpressionBuilder expressionBuilder, string tagName, IReadOnlyDictionary<string, string> staticProperties);
 		void ElementOpenEnd(IExpressionBuilder expressionBuilder);
