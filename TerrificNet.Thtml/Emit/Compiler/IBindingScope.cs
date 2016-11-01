@@ -2,7 +2,7 @@
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal interface IBindingScope
+	public interface IBindingScope
 	{
 		IEnumerable<IBinding> GetBindings();
 

@@ -19,6 +19,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			get { throw new NotSupportedException(); }
 		}
 
+		public bool IsSupported(RenderingScope server)
+		{
+			return true;
+		}
+
 		public IDataScopeContract Property(string propertyName, SyntaxNode node)
 		{
 			return _contracts[propertyName];

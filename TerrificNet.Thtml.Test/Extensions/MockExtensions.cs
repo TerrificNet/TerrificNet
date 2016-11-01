@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Moq;
+using Moq.Language;
 
 namespace TerrificNet.Thtml.Test.Extensions
 {
@@ -18,6 +19,18 @@ namespace TerrificNet.Thtml.Test.Extensions
 			foreach (var expression in expressions)
 			{
 				mock.InSequence(sequence).Setup(expression);
+			}
+
+			return mock;
+		}
+
+		public static Mock<TMock> InSequence<TMock>(this Mock<TMock> mock, params Action<ISetupConditionResult<TMock>>[] expressions)
+			where TMock : class
+		{
+			var sequence = new MockSequence();
+			foreach (var expression in expressions)
+			{
+				expression(mock.InSequence(sequence));
 			}
 
 			return mock;

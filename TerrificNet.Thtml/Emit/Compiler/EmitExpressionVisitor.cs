@@ -36,6 +36,14 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override void Visit(Document document)
 		{
+			HandleChildNodes(document);
+		}
+
+		private void HandleChildNodes(Document document)
+		{
+			if (document.ChildNodes.Count == 0)
+				return;
+
 			_exBuilder.Enter();
 
 			foreach (var child in document.ChildNodes)
@@ -46,6 +54,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override void Visit(Element element)
 		{
+			_exBuilder.Enter();
+
 			var tagResult = _extensions.TagHelper.FindByName(element);
 			if (tagResult != null)
 			{
@@ -68,17 +78,22 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			else
 				_formatter.ElementOpen(_exBuilder, element.TagName, staticAttributeList);
 
-			foreach (var child in element.ChildNodes)
-				child.Accept(this);
+			HandleChildNodes(element);
 
 			_formatter.ElementClose(_exBuilder, element.TagName);
+
+			_exBuilder.Leave();
 		}
 
 		public override void Visit(AttributeNode attributeNode)
 		{
+			_exBuilder.Enter();
+
 			_formatter.PropertyStart(_exBuilder, attributeNode.Name);
 			attributeNode.Value.Accept(this);
 			_formatter.PropertyEnd(_exBuilder);
+
+			_exBuilder.Leave();
 		}
 
 		public override void Visit(ConstantAttributeContent attributeContent)
@@ -161,7 +176,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				var childScopeBinding = childScopeContract.EnsureBinding();
 				ReportBinding(childScopeBinding);
 
-				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression) childScopeBinding.Expression);
+				_exBuilder.Foreach(collection, childrenAction, (ParameterExpression)childScopeBinding.Expression);
 
 				return;
 			}

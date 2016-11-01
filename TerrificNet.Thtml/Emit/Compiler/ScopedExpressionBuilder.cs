@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace TerrificNet.Thtml.Emit.Compiler
 {
@@ -53,7 +54,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			return _expressionBuilder.BuildExpression();
 		}
 
-		private class BindingScope : IBindingScope
+		internal class BindingScope : IBindingScope
 		{
 			private readonly List<IBinding> _bindings = new List<IBinding>();
 
@@ -85,9 +86,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			{
 				if (_buildActions.Count > 0 && _bindings.Count > 0)
 				{
-					var testExpression = BuildRenderingExpression();
+					var param = Expression.Parameter(typeof(RenderingScope));
+					var testExpression = BuildRenderingExpression(param);
 
-					expressionBuilder.IfThen(testExpression, () => FlushExpressions(expressionBuilder));
+					expressionBuilder.IfThen(Expression.Invoke(testExpression, Expression.Constant(RenderingScope.Server)), () => FlushExpressions(expressionBuilder));
 				}
 				else
 				{
@@ -119,9 +121,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 				_buildActions.Add(e => e.DefineVariable(expression));
 			}
 
-			private static ConstantExpression BuildRenderingExpression()
+			public Expression<Func<RenderingScope, bool>> BuildRenderingExpression(ParameterExpression parameter)
 			{
-				return Expression.Constant(true);
+				Expression expression = Expression.Constant(true);
+				foreach (var binding in GetBindings())
+				{
+					var methodInfo = typeof(IBinding).GetTypeInfo().GetMethod(nameof(IBinding.IsSupported));
+					expression = Expression.And(expression,
+						Expression.Call(Expression.Constant(binding), methodInfo, parameter));
+				}
+
+				return Expression.Lambda<Func<RenderingScope, bool>>(expression, parameter);
 			}
 		}
 	}

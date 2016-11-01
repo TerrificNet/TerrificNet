@@ -219,9 +219,22 @@ namespace TerrificNet.Thtml.Test
 						),
 					TypeDataBinder.BinderFromObject(obj8),
 					obj8,
+					"<div></div>",
+					new NullHelperBinder()
+				};
+
+				yield return new object[]
+				{
+					"ignores unsupported client attribute",
+					new Document(
+							new Element("div", new [] { new AttributeNode("unsupported", new AttributeContentStatement(new MemberExpression("$scope", new MemberExpression("value")))) }, new Statement(new MemberExpression("test")))
+						),
+					TypeDataBinder.BinderFromObject(obj8),
+					obj8,
 					"<div>test</div>",
 					new NullHelperBinder()
 				};
+
 			}
 		}
 	}

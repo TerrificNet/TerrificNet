@@ -1,6 +1,6 @@
 ﻿namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal interface IScopedExpressionBuilder : IExpressionBuilder
+	public interface IScopedExpressionBuilder : IExpressionBuilder
 	{
 		void UseBinding(IBinding binding);
 		void Enter();

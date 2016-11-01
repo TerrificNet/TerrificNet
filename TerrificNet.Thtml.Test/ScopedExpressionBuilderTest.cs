@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Moq;
 using TerrificNet.Thtml.Emit;
@@ -64,9 +65,29 @@ namespace TerrificNet.Thtml.Test
 
 			Assert.NotEqual(resultInner, resultOuter);
 			Assert.Equal(resultInner.Parent, resultOuter);
-			Assert.Equal(resultInner, resultOuter.Children.First());
+			Assert.Equal(1, resultOuter.Children.Count);
+			Assert.Equal(resultInner, resultOuter.Children[0]);
 			Assert.Equal(1, resultInner.GetBindings().Count());
 			Assert.Equal(1, resultOuter.GetBindings().Count());
+		}
+
+		[Fact]
+		public void BindingScope_RenderingExpressionWithUnsupportedBinding_ReturnsFalse()
+		{
+			var binding1 = new Mock<IBinding>();
+			binding1.Setup(b => b.IsSupported(RenderingScope.Server)).Returns(false);
+			binding1.Setup(b => b.IsSupported(RenderingScope.Client)).Returns(true);
+
+			var underTest = new ScopedExpressionBuilder.BindingScope(null);
+			underTest.UseBinding(binding1.Object);
+
+			var parameter = Expression.Parameter(typeof(RenderingScope));
+			var result = underTest.BuildRenderingExpression(parameter);
+			Assert.NotNull(result);
+
+			var evalFunc = result.Compile();
+			Assert.Equal(false, evalFunc(RenderingScope.Server));
+			Assert.Equal(true, evalFunc(RenderingScope.Client));
 		}
 	}
 }

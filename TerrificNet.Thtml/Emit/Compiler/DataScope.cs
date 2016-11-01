@@ -66,10 +66,20 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 			public BindingPathTemplate Path => _adaptee.Path;
 
+			public bool IsSupported(RenderingScope server)
+			{
+				return true;
+			}
+
 			public Expression Expression { get; }
 		}
 
 		public BindingPathTemplate Path { get; }
+
+		public bool IsSupported(RenderingScope server)
+		{
+			return true;
+		}
 
 		public Expression Expression { get; }
 	}
