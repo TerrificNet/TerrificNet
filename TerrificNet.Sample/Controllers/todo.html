@@ -2,7 +2,7 @@
    <input type="text" /><button onclick="{{$scope.add}}">Add</button>
    <ul>
       {{#each this}}
-      <mixin:todo-item id="{{Id}}" done="{{IsDone}}">{{Description}}</mixin:todo-item>
+      <mixin:todo-item id="{{Id}}" done="{{IsDone}}" aftercomplete="{{../$scope.complete}}">{{Description}}</mixin:todo-item>
       {{/each}}
    </ul>
 </div>
