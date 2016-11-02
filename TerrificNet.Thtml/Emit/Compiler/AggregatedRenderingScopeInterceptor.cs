@@ -7,6 +7,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	internal class AggregatedRenderingScopeInterceptor : IRenderingScopeInterceptor
 	{
 		private readonly IList<IRenderingScopeInterceptor> _scopeInterceptors;
+		private Action<IRenderingScope, IExpressionBuilder, Action> _proceedingAction;
 
 		public AggregatedRenderingScopeInterceptor(IEnumerable<IRenderingScopeInterceptor> interceptors)
 		{
@@ -15,14 +16,17 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public void Intercept(IRenderingScope renderingScope, IExpressionBuilder expressionBuilder, Action action)
 		{
-			var finalAction = action;
-			foreach (var interceptor in _scopeInterceptors)
+			if (_proceedingAction == null)
 			{
-				var proceedingAction = finalAction;
-				finalAction = () => interceptor.Intercept(renderingScope, expressionBuilder, proceedingAction);
+				_proceedingAction = (r, i, a) => a();
+				foreach (var interceptor in _scopeInterceptors)
+				{
+					var proceedingAction = _proceedingAction;
+					_proceedingAction = (r, e, a) => interceptor.Intercept(r, e, () => proceedingAction(r, e, a));
+				}
 			}
 
-			finalAction();
+			_proceedingAction(renderingScope, expressionBuilder, action);
 		}
 	}
 }
