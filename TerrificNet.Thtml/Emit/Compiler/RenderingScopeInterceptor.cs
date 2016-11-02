@@ -1,6 +1,6 @@
 ﻿namespace TerrificNet.Thtml.Emit.Compiler
 {
-	internal class ScopeParameters
+	public class ScopeParameters
 	{
 		public ScopeParameters(IExpressionBuilder expressionBuilder, IRenderingScopeInterceptor interceptor)
 		{

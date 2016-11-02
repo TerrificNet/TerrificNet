@@ -11,5 +11,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		IReadOnlyList<IRenderingScope> Children { get; }
 
 		bool IsEmpty();
+
+		void Process(ScopeParameters scopeParameters);
 	}
 }
