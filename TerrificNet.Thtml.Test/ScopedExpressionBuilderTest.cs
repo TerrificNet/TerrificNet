@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Test
 			var inputExpression = Expression.Empty();
 
 			var expressionBuilder = new ExpressionBuilder();
-			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(new Mock<IBindingSupport>().Object));
+			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, new RequiredRenderingInterceptor());
 			scopeCondition.Enter();
 			scopeCondition.Add(inputExpression);
 			scopeCondition.Leave();
@@ -33,11 +33,8 @@ namespace TerrificNet.Thtml.Test
 			var expectedExpression = Expression.Empty();
 			var bindingMock = new Mock<IBinding>();
 
-			var mock = new Mock<IBindingSupport>();
-			mock.Setup(m => m.SupportsBinding(bindingMock.Object)).Returns(true);
-
 			var expressionBuilder = new ExpressionBuilder();
-			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(mock.Object));
+			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, new RequiredRenderingInterceptor());
 			scopeCondition.Enter();
 			scopeCondition.UseBinding(bindingMock.Object);
 			scopeCondition.Add(expectedExpression);
@@ -57,7 +54,7 @@ namespace TerrificNet.Thtml.Test
 			var bindingMock2 = new Mock<IBinding>();
 
 			var expressionBuilder = new ExpressionBuilder();
-			var underTest = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(new Mock<IBindingSupport>().Object));
+			var underTest = new ScopedExpressionBuilder(expressionBuilder, new RequiredRenderingInterceptor());
 			underTest.Enter();
 			underTest.UseBinding(bindingMock.Object);
 			underTest.Enter();
@@ -96,7 +93,7 @@ namespace TerrificNet.Thtml.Test
 
 			scope.AddExpression(expression2);
 
-			var scopeParameters = new ScopeParameters(expressionBuilder, new DefaultRenderingScopeInterceptor(mock.Object));
+			var scopeParameters = new ScopeParameters(expressionBuilder, new OnlySupportedBindingScopeInterceptor(mock.Object));
 			scope.Process(scopeParameters);
 
 			var result = expressionBuilder.BuildExpression();

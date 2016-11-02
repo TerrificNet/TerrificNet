@@ -61,7 +61,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var clientScope = new DataScopeContract(BindingPathTemplate.Global.Property("$scope"));
 			IScopedExpressionBuilder scopedExpressionBuilder;
 			if (compilerExtensions.SkipUnsupportedBindings)
-				scopedExpressionBuilder = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(compilerExtensions.ExpressionBuilder));
+				scopedExpressionBuilder = new ScopedExpressionBuilder(expressionBuilder, new AggregatedRenderingScopeInterceptor(new IRenderingScopeInterceptor[] { new OnlySupportedBindingScopeInterceptor(compilerExtensions.ExpressionBuilder), new RequiredRenderingInterceptor() }));
 			else
 				scopedExpressionBuilder = new EmptyScopedExpressionBuilder(expressionBuilder, compilerExtensions.ExpressionBuilder);
 
