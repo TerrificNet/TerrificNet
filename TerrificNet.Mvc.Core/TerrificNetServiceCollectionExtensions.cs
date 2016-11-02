@@ -12,7 +12,7 @@ namespace TerrificNet.Mvc.Core
 		public static void AddTerrificNet(this IServiceCollection services)
 		{
 			services.AddSingleton<IViewDiscovery>(new ViewDiscovery(Directory.GetCurrentDirectory()));
-			services.AddSingleton(s => CompilerExtensions.Default
+			services.AddSingleton(s => CompilerExtensions.Default.WithBindingOptions(true)
 				.AddHelperBinder(new SimpleHelperBinder())
 				.AddTagHelper(new MixinTagHelper(s.GetRequiredService<CompilerService>(), s.GetRequiredService<IViewDiscovery>()))
 				.AddTagHelper(new ModuleTagHelper(s.GetRequiredService<IActionDescriptorCollectionProvider>())));

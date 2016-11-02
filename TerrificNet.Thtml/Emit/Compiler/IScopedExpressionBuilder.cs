@@ -4,6 +4,6 @@
 	{
 		void UseBinding(IBinding binding);
 		void Enter();
-		IBindingScope Leave();
+		IRenderingScope Leave();
 	}
 }

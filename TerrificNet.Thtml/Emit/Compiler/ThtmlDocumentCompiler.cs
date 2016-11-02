@@ -59,7 +59,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private CompilerResult CreateExpression(DataScope dataScopeContract, CompilerExtensions compilerExtensions, ParameterExpression renderingContextExpression, IExpressionBuilder expressionBuilder)
 		{
 			var clientScope = new DataScopeContract(BindingPathTemplate.Global.Property("$scope"));
-			var scopedExpressionBuilder = new ScopedExpressionBuilder(expressionBuilder, compilerExtensions.ExpressionBuilder);
+			IScopedExpressionBuilder scopedExpressionBuilder;
+			if (compilerExtensions.SkipUnsupportedBindings)
+				scopedExpressionBuilder = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(compilerExtensions.ExpressionBuilder));
+			else
+				scopedExpressionBuilder = new EmptyScopedExpressionBuilder(expressionBuilder, compilerExtensions.ExpressionBuilder);
+
 			var visitor = new EmitExpressionVisitor(new DataScopeWithClientContract(dataScopeContract, clientScope), compilerExtensions, renderingContextExpression, scopedExpressionBuilder);
 			visitor.Visit(_input);
 			var expression = scopedExpressionBuilder.BuildExpression();
@@ -89,6 +94,48 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var action = creationExpression.Compile();
 
 			return action();
+		}
+	}
+
+	internal class EmptyScopedExpressionBuilder : IScopedExpressionBuilder
+	{
+		private readonly IExpressionBuilder _expressionBuilder;
+		private readonly IBindingSupport _bindingSupport;
+
+		public EmptyScopedExpressionBuilder(IExpressionBuilder expressionBuilder, IBindingSupport bindingSupport)
+		{
+			_expressionBuilder = expressionBuilder;
+			_bindingSupport = bindingSupport;
+		}
+
+		public void Add(Expression expression)
+		{
+			_expressionBuilder.Add(expression);
+		}
+
+		public void DefineVariable(ParameterExpression expression)
+		{
+			_expressionBuilder.DefineVariable(expression);
+		}
+
+		public Expression BuildExpression()
+		{
+			return _expressionBuilder.BuildExpression();
+		}
+
+		public void UseBinding(IBinding binding)
+		{
+			if (!_bindingSupport.SupportsBinding(binding))
+				throw new NotSupportedException($"The given binding with path '{binding.Path}' isn't supported.");
+		}
+
+		public void Enter()
+		{
+		}
+
+		public IRenderingScope Leave()
+		{
+			return null;
 		}
 	}
 }

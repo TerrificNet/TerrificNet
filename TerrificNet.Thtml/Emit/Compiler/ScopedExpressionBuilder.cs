@@ -6,18 +6,18 @@ namespace TerrificNet.Thtml.Emit.Compiler
 	internal class ScopedExpressionBuilder : IScopedExpressionBuilder
 	{
 		private readonly IExpressionBuilder _expressionBuilder;
-		private readonly IBindingSupport _bindingSupport;
 
-		private readonly Stack<BindingScope> _scopes = new Stack<BindingScope>();
+		private readonly Stack<RenderingScope> _scopes = new Stack<RenderingScope>();
+		private readonly IRenderingScopeInterceptor _scopeInterceptor;
 
-		public ScopedExpressionBuilder(IExpressionBuilder expressionBuilder, IBindingSupport bindingSupport)
+		public ScopedExpressionBuilder(IExpressionBuilder expressionBuilder, IRenderingScopeInterceptor interceptor)
 		{
 			_expressionBuilder = expressionBuilder;
-			_bindingSupport = bindingSupport;
-			_scopes.Push(new BindingScope(null));
+			_scopes.Push(new RenderingScope(null));
+			_scopeInterceptor = interceptor;
 		}
 
-		private BindingScope CurrentScope => _scopes.Peek();
+		private RenderingScope CurrentScope => _scopes.Peek();
 
 		public void UseBinding(IBinding binding)
 		{
@@ -30,7 +30,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			_scopes.Push(bindingScope);
 		}
 
-		public IBindingScope Leave()
+		public IRenderingScope Leave()
 		{
 			var currentScope = CurrentScope;
 
@@ -50,7 +50,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public Expression BuildExpression()
 		{
-			CurrentScope.BuildExpressions(_expressionBuilder, _bindingSupport);
+			var renderingScope = CurrentScope;
+			var scopeParameters = new ScopeParameters(_expressionBuilder, _scopeInterceptor);
+			renderingScope.Process(scopeParameters);
 			return _expressionBuilder.BuildExpression();
 		}
 	}

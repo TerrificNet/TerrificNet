@@ -16,11 +16,11 @@ namespace TerrificNet.Thtml.Test
 {
 	public class EmitExpressionVisitorTest
 	{
-		private readonly IBindingScope _bindingScope;
+		private readonly IRenderingScope _renderingScope;
 
 		public EmitExpressionVisitorTest()
 		{
-			_bindingScope = new Mock<IBindingScope>().Object;
+			_renderingScope = new Mock<IRenderingScope>().Object;
 		}
 
 		[Fact]
@@ -29,8 +29,8 @@ namespace TerrificNet.Thtml.Test
 			TestSequence(new Document(new Element("div")), 
 				a => a.Setup(s => s.Enter()), 
 				a => a.Setup(s => s.Enter()), 
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope), 
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope));
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope), 
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope));
 		}
 
 		[Fact]
@@ -41,9 +41,9 @@ namespace TerrificNet.Thtml.Test
 				a => a.Setup(s => s.Enter()),
 				a => a.Setup(s => s.Enter()),
 				a => a.Setup(s => s.UseBinding(It.IsAny<IBinding>())),
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope),
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope),
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope));
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope),
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope),
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope));
 		}
 
 		[Fact]
@@ -55,10 +55,10 @@ namespace TerrificNet.Thtml.Test
 				a => a.Setup(s => s.Enter()),
 				a => a.Setup(s => s.UseBinding(It.IsAny<IBinding>())),
 				a => a.Setup(s => s.Enter()),
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope),
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope),
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope),
-				a => a.Setup(s => s.Leave()).Returns(_bindingScope));
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope),
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope),
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope),
+				a => a.Setup(s => s.Leave()).Returns(_renderingScope));
 		}
 
 		private static void TestSequence(Document input, params Action<ISetupConditionResult<IScopedExpressionBuilder>>[] sequence)

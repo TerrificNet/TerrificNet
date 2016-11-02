@@ -18,6 +18,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public bool SupportAsync { get; private set; }
 
+		public bool SkipUnsupportedBindings { get; private set; }
+
 		private CompilerExtensions()
 		{
 			SupportAsync = false;
@@ -32,22 +34,27 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		internal CompilerExtensions WithAsyncSupport()
 		{
-			return new CompilerExtensions(_helperBinder, _tagHelper, ExpressionBuilder) { SupportAsync = true };
+			return new CompilerExtensions(_helperBinder, _tagHelper, ExpressionBuilder) { SupportAsync = true, SkipUnsupportedBindings = SkipUnsupportedBindings };
+		}
+
+		public CompilerExtensions WithBindingOptions(bool skipUnsupportedBindings)
+		{
+			return new CompilerExtensions(_helperBinder, _tagHelper, ExpressionBuilder) { SupportAsync = SupportAsync, SkipUnsupportedBindings = skipUnsupportedBindings };
 		}
 
 		public CompilerExtensions AddHelperBinder(IHelperBinder helperBinder)
 		{
-			return new CompilerExtensions(_helperBinder.AddBinder(helperBinder), _tagHelper, ExpressionBuilder);
+			return new CompilerExtensions(_helperBinder.AddBinder(helperBinder), _tagHelper, ExpressionBuilder) { SupportAsync = SupportAsync, SkipUnsupportedBindings = SkipUnsupportedBindings };
 		}
 
 		public CompilerExtensions WithOutput(IOutputExpressionBuilder output)
 		{
-			return new CompilerExtensions(_helperBinder, _tagHelper, output);
+			return new CompilerExtensions(_helperBinder, _tagHelper, output) { SupportAsync = SupportAsync, SkipUnsupportedBindings = SkipUnsupportedBindings }; ;
 		}
 
 		public CompilerExtensions AddTagHelper(ITagHelper tagHelper)
 		{
-			return new CompilerExtensions(_helperBinder, _tagHelper.AddHelper(tagHelper), ExpressionBuilder);
+			return new CompilerExtensions(_helperBinder, _tagHelper.AddHelper(tagHelper), ExpressionBuilder) { SupportAsync = SupportAsync, SkipUnsupportedBindings = SkipUnsupportedBindings }; ;
 		}
 	}
 }

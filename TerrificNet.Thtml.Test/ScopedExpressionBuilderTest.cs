@@ -15,7 +15,7 @@ namespace TerrificNet.Thtml.Test
 			var inputExpression = Expression.Empty();
 
 			var expressionBuilder = new ExpressionBuilder();
-			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, new Mock<IBindingSupport>().Object);
+			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(new Mock<IBindingSupport>().Object));
 			scopeCondition.Enter();
 			scopeCondition.Add(inputExpression);
 			scopeCondition.Leave();
@@ -37,7 +37,7 @@ namespace TerrificNet.Thtml.Test
 			mock.Setup(m => m.SupportsBinding(bindingMock.Object)).Returns(true);
 
 			var expressionBuilder = new ExpressionBuilder();
-			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, mock.Object);
+			var scopeCondition = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(mock.Object));
 			scopeCondition.Enter();
 			scopeCondition.UseBinding(bindingMock.Object);
 			scopeCondition.Add(expectedExpression);
@@ -57,7 +57,7 @@ namespace TerrificNet.Thtml.Test
 			var bindingMock2 = new Mock<IBinding>();
 
 			var expressionBuilder = new ExpressionBuilder();
-			var underTest = new ScopedExpressionBuilder(expressionBuilder, new Mock<IBindingSupport>().Object);
+			var underTest = new ScopedExpressionBuilder(expressionBuilder, new DefaultRenderingScopeInterceptor(new Mock<IBindingSupport>().Object));
 			underTest.Enter();
 			underTest.UseBinding(bindingMock.Object);
 			underTest.Enter();
@@ -87,7 +87,7 @@ namespace TerrificNet.Thtml.Test
 
 			var expressionBuilder = new ExpressionBuilder();
 
-			var scope = new BindingScope(null);
+			var scope = new RenderingScope(null);
 			scope.AddExpression(expression1);
 			var childScope = scope.CreateChildScope();
 			
@@ -96,31 +96,14 @@ namespace TerrificNet.Thtml.Test
 
 			scope.AddExpression(expression2);
 
-			scope.BuildExpressions(expressionBuilder, mock.Object);
+			var scopeParameters = new ScopeParameters(expressionBuilder, new DefaultRenderingScopeInterceptor(mock.Object));
+			scope.Process(scopeParameters);
 
 			var result = expressionBuilder.BuildExpression();
 			Assert.NotNull(result);
 			var blockExpression = Assert.IsAssignableFrom<BlockExpression>(result);
 			Assert.Equal(expression1, blockExpression.Expressions[0]);
 			Assert.Equal(expression2, blockExpression.Expressions[1]);
-		}
-
-		[Fact]
-		public void BindingScope_RenderingExpressionWithUnsupportedBinding_ReturnsFalse()
-		{
-			var binding1 = new Mock<IBinding>().Object;
-
-			var output = new Mock<IBindingSupport>();
-			output.Setup(b => b.SupportsBinding(binding1)).Returns(false);
-
-			var output2 = new Mock<IBindingSupport>();
-			output2.Setup(b => b.SupportsBinding(binding1)).Returns(true);
-
-			var underTest = new BindingScope(null);
-			underTest.UseBinding(binding1);
-
-			Assert.Equal(false, underTest.IsSupported(output.Object));
-			Assert.Equal(true, underTest.IsSupported(output2.Object));
 		}
 	}
 }
