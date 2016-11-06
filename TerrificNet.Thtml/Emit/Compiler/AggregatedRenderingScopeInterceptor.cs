@@ -9,6 +9,11 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		private readonly IList<IRenderingScopeInterceptor> _scopeInterceptors;
 		private Action<IRenderingScope, IExpressionBuilder, Action> _proceedingAction;
 
+		public AggregatedRenderingScopeInterceptor(params IRenderingScopeInterceptor[] interceptors)
+			: this((IEnumerable<IRenderingScopeInterceptor>)interceptors)
+		{
+		}
+
 		public AggregatedRenderingScopeInterceptor(IEnumerable<IRenderingScopeInterceptor> interceptors)
 		{
 			_scopeInterceptors = interceptors.Reverse().ToList();

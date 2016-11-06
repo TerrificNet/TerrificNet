@@ -34,6 +34,9 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TerrificNet.ViewEngine.TemplateHandler", "TerrificNet.ViewEngine.TemplateHandler\TerrificNet.ViewEngine.TemplateHandler.xproj", "{B138AAEF-9683-405E-9670-DF3013C890AB}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
