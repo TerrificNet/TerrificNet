@@ -93,8 +93,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var asyncStateMachineExpression = Expression.New(
 				typeof(AsyncViewStateMachine).GetTypeInfo().GetConstructors().First(), stateObjExpression, actionBody);
 
-			var start = Expression.Call(asyncStateMachineExpression, typeof(AsyncViewStateMachine).GetTypeInfo().GetMethod("Start"),
+			var start = Expression.Call(asyncStateMachineExpression, typeof(AsyncViewStateMachine).GetTypeInfo().GetMethod(nameof(AsyncViewStateMachine.Start)),
 				Expression.Constant(new CancellationToken()));
+
 			return start;
 		}
 

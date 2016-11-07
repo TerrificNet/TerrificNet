@@ -84,9 +84,9 @@ namespace TerrificNet.Thtml.Test
 
 			var expressionBuilder = new ExpressionBuilder();
 
-			var scope = new RenderingScope(null);
+			var scope = new RenderingScope(null, null);
 			scope.AddExpression(expression1);
-			var childScope = scope.CreateChildScope();
+			var childScope = scope.CreateChildScope(null);
 			
 			childScope.AddExpression(expressionInUnsupportedScope);
 			childScope.UseBinding(unsupportedBinding);

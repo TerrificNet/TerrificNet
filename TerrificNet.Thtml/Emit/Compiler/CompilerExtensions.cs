@@ -49,12 +49,12 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public CompilerExtensions WithOutput(IOutputExpressionBuilder output)
 		{
-			return new CompilerExtensions(_helperBinder, _tagHelper, output) { SupportAsync = SupportAsync, SkipUnsupportedBindings = SkipUnsupportedBindings }; ;
+			return new CompilerExtensions(_helperBinder, _tagHelper, output) { SupportAsync = SupportAsync, SkipUnsupportedBindings = SkipUnsupportedBindings };
 		}
 
 		public CompilerExtensions AddTagHelper(ITagHelper tagHelper)
 		{
-			return new CompilerExtensions(_helperBinder, _tagHelper.AddHelper(tagHelper), ExpressionBuilder) { SupportAsync = SupportAsync, SkipUnsupportedBindings = SkipUnsupportedBindings }; ;
+			return new CompilerExtensions(_helperBinder, _tagHelper.AddHelper(tagHelper), ExpressionBuilder) { SupportAsync = SupportAsync, SkipUnsupportedBindings = SkipUnsupportedBindings };
 		}
 	}
 }

@@ -29,7 +29,7 @@ namespace TerrificNet.Thtml.Test
 		[Fact]
 		public void FallbackRenderingScopeInterceptor_NoUnsupportedBinding_UsesDefaultOutput()
 		{
-			var scope = new RenderingScope(null);
+			var scope = new RenderingScope(null, null);
 			scope.UseBinding(_supportedBinding);
 			scope.AddExpression(_expression1);
 
@@ -46,7 +46,7 @@ namespace TerrificNet.Thtml.Test
 		[Fact]
 		public void FallbackRenderingScopeInterceptor_UnsupportedBinding_UseFallbackOutput()
 		{
-			var scope = new RenderingScope(null);
+			var scope = new RenderingScope(null, null);
 			scope.UseBinding(_unsupportedBinding);
 			scope.AddExpression(_expression1);
 

@@ -21,7 +21,9 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IDataScopeContract Property(string propertyName, SyntaxNode node)
 		{
-			return _contracts[propertyName];
+			IDataScopeContract result;
+			_contracts.TryGetValue(propertyName, out result);
+			return result;
 		}
 
 		public IBinding RequiresString()

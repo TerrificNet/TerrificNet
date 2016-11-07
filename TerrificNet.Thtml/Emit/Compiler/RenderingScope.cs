@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace TerrificNet.Thtml.Emit.Compiler
@@ -13,9 +12,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		private readonly List<Action<ScopeParameters>> _buildActions = new List<Action<ScopeParameters>>();
 
-		public RenderingScope(IRenderingScope parent)
+		public RenderingScope(IRenderingScope parent, IBinding id)
 		{
 			Parent = parent;
+			Id = id;
 		}
 
 		public IEnumerable<IBinding> GetBindings()
@@ -25,11 +25,13 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public IRenderingScope Parent { get; }
 
+		public IBinding Id { get; }
+
 		public IReadOnlyList<IRenderingScope> Children => _childScopes;
 
-		public RenderingScope CreateChildScope()
+		public RenderingScope CreateChildScope(IBinding idBinding)
 		{
-			var bindingScope = new RenderingScope(this);
+			var bindingScope = new RenderingScope(this, idBinding);
 			_childScopes.Add(bindingScope);
 			_buildActions.Add(p => bindingScope.Process(p));
 

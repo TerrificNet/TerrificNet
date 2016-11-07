@@ -39,6 +39,10 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		{
 		}
 
+		public void Enter(IBinding id)
+		{
+		}
+
 		public IRenderingScope Leave()
 		{
 			return null;

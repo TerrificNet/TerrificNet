@@ -8,6 +8,8 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		IRenderingScope Parent { get; }
 
+		IBinding Id { get; }
+
 		IReadOnlyList<IRenderingScope> Children { get; }
 
 		bool IsEmpty();

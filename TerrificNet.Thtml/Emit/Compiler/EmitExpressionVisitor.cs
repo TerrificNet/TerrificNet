@@ -54,8 +54,6 @@ namespace TerrificNet.Thtml.Emit.Compiler
 
 		public override void Visit(Element element)
 		{
-			_exBuilder.Enter();
-
 			var tagResult = _extensions.TagHelper.FindByName(element);
 			if (tagResult != null)
 			{
@@ -66,6 +64,27 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			var staticAttributeNodes = element.Attributes.Where(e => e.IsFixed).ToList();
 			var staticAttributeList = CreateAttributeDictionary(staticAttributeNodes);
 			var attributeList = element.Attributes.Except(staticAttributeNodes).ToList();
+
+			IBinding id = null;
+			string constantValue;
+			if (staticAttributeList.TryGetValue("id", out constantValue))
+			{
+				id = new ConstantBinding(constantValue);
+			}
+			else
+			{
+				var idNode = attributeList.OfType<AttributeNode>().FirstOrDefault(a => a.Name == "id");
+				var attributeContent = idNode?.Value as AttributeContentStatement;
+				if (attributeContent != null)
+				{
+					id = ScopeEmitter.Bind(_dataScopeContract, attributeContent.Expression).RequiresString();
+				}
+			}
+
+			if (id != null)
+				_exBuilder.Enter(id);
+			else
+				_exBuilder.Enter();
 
 			if (attributeList.Count > 0)
 			{

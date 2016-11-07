@@ -13,7 +13,7 @@ namespace TerrificNet.Thtml.Emit.Compiler
 		public ScopedExpressionBuilder(IExpressionBuilder expressionBuilder, IRenderingScopeInterceptor interceptor)
 		{
 			_expressionBuilder = expressionBuilder;
-			_scopes.Push(new RenderingScope(null));
+			_scopes.Push(new RenderingScope(null, null));
 			_scopeInterceptor = interceptor;
 		}
 
@@ -24,10 +24,15 @@ namespace TerrificNet.Thtml.Emit.Compiler
 			CurrentScope.UseBinding(binding);
 		}
 
+		public void Enter(IBinding id)
+		{
+			var bindingScope = CurrentScope.CreateChildScope(id);
+			_scopes.Push(bindingScope);
+		}
+
 		public void Enter()
 		{
-			var bindingScope = CurrentScope.CreateChildScope();
-			_scopes.Push(bindingScope);
+			Enter(null);
 		}
 
 		public IRenderingScope Leave()
