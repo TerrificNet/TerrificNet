@@ -8,7 +8,9 @@ namespace TerrificNet.Thtml.Rendering
 		void ElementOpen(string tagName, string key, IReadOnlyDictionary<string, string> staticPropertyValuePairs, IReadOnlyDictionary<string, string> propertyValuePairs);
 		void ElementOpenStart(string tagName, string key, IReadOnlyDictionary<string, string> staticPropertyValuePairs, IReadOnlyDictionary<string, string> propertyValuePairs);
 		void Attr(string name, string value);
+		void Attr(string name, ClientString value);
 		void Text(string content);
+		void Text(ClientString content);
 		void ElementOpenEnd();
 		void ElementClose(string tagName);
 	}

@@ -7,6 +7,7 @@ using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
 using TerrificNet.Thtml.Formatting;
 using TerrificNet.Thtml.Formatting.IncrementalDom;
+using TerrificNet.Thtml.Formatting.Text;
 using TerrificNet.Thtml.Formatting.VDom;
 using TerrificNet.Thtml.LexicalAnalysis;
 using TerrificNet.Thtml.Parsing;
@@ -58,6 +59,21 @@ namespace TerrificNet.Client.test
 			return builder.ToString();
 		}
 
+		[HttpPost("text")]
+		public string GetText([FromQuery] string template, [FromBody] JToken obj)
+		{
+			var compiler = CreateCompiler(new NullHelperBinder(), template);
+			var emitter = compiler.Compile(new DynamicDataBinder(), OutputFactories.Text);
+
+			var builder = new StringBuilder();
+			using (var writer = new StringWriter(builder))
+			{
+				emitter.Execute(obj, new RenderingContext(new TextWriterOutputBuilder(writer)));
+			}
+
+			return builder.ToString();
+		}
+
 		private static IViewTemplate CreateEmitter(IDataBinder dataBinder, IHelperBinder helperBinder, string path)
 		{
 			var compiler = CreateCompiler(helperBinder, path);
@@ -76,7 +92,7 @@ namespace TerrificNet.Client.test
 			var tokens = lexer.Tokenize(template);
 			var parser = new Parser(new HandlebarsParser());
 			var ast = parser.Parse(tokens);
-			var compiler = new ThtmlDocumentCompiler(ast, CompilerExtensions.Default.AddHelperBinder(helperBinder));
+			var compiler = new ThtmlDocumentCompiler(ast, CompilerExtensions.Default.AddHelperBinder(helperBinder).WithBindingOptions(true));
 			return compiler;
 		}
 	}

@@ -48,7 +48,7 @@ namespace TerrificNet.Thtml.Test
 		[Fact]
 		public void IncrementalDom_SingleElementWithStaticAttributes_CallsOpenElementStartAndCloseElement()
 		{
-			var document = new Document(new Element("div", new [] { new AttributeNode("test", new ConstantAttributeContent("blau")) }));
+			var document = new Document(new Element("div", new[] { new AttributeNode("test", new ConstantAttributeContent("blau")) }));
 			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
 			{
 				s => s.ElementOpen("div", null, new Dictionary<string, string> { { "test", "blau" }}, null),
@@ -77,6 +77,22 @@ namespace TerrificNet.Thtml.Test
 		}
 
 		[Fact]
+		public void IncrementalDom_SingleElementWithClientAttributes_CallsOpenElementStartAndCloseElementWithClientString()
+		{
+			var document = new Document(new Element("div", new[] { new AttributeNode("test", new AttributeContentStatement(new Parsing.Handlebars.MemberExpression("$scope"))) }));
+			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
+			{
+				s => s.ElementOpenStart("div", null, It.IsAny<Dictionary<string, string>>(), null),
+				s => s.Attr("test", new ClientString("$scope")),
+				s => s.ElementOpenEnd(),
+				s => s.ElementClose("div")
+			};
+
+			Test(document, expectedCalls, null);
+		}
+
+
+		[Fact]
 		public void IncrementalDom_SingleTextNode_CallsTextNode()
 		{
 			var document = new Document(new TextNode("hallo"));
@@ -92,7 +108,7 @@ namespace TerrificNet.Thtml.Test
 		[Fact]
 		public void IncrementalDom_SingleCallExpression_CallsTextNode()
 		{
-			var data = new { value = "hallo"};
+			var data = new { value = "hallo" };
 			var document = new Document(new Statement(new Parsing.Handlebars.MemberExpression("value")));
 			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
 			{
@@ -102,17 +118,31 @@ namespace TerrificNet.Thtml.Test
 			Test(document, expectedCalls, data);
 		}
 
+		[Fact]
+		public void IncrementalDom_SingleCallWithClientScope_CallsTextNodeWithClientString()
+		{
+			var document = new Document(new Statement(new Parsing.Handlebars.MemberExpression("$scope")));
+			var expectedCalls = new List<Expression<Action<IIncrementalDomRenderer>>>
+			{
+				s => s.Text(new ClientString("$scope"))
+			};
+
+			Test(document, expectedCalls, null);
+		}
+
 		private static void Test(Document document, IEnumerable<Expression<Action<IIncrementalDomRenderer>>> expressions, object data)
 		{
 			var compiler = new ThtmlDocumentCompiler(document, CompilerExtensions.Default);
 			var renderer = compiler.Compile(new DynamicDataBinder(), OutputFactories.IncrementalDomScript);
 
-			var mock = new Mock<IIncrementalDomRenderer>(MockBehavior.Strict);
-			mock.InSequence(expressions);
+			var mock = new Mock<IIncrementalDomRenderer>(MockBehavior.Default);
 
 			renderer.Execute(data, new RenderingContext(new IncrementalDomOutputBuilder(mock.Object)));
 
-			mock.VerifyAll();
+			foreach (var ex in expressions)
+			{
+				mock.Verify(ex);
+			}
 		}
 	}
 }

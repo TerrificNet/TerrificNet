@@ -62,14 +62,27 @@ namespace TerrificNet.Thtml.Emit.Schema
 
 		public override string ToString()
 		{
+			var segments = GetSegments(false);
+			return string.Join("/", segments.Where(s => s != null).ToArray());
+		}
+
+		private List<string> GetSegments(bool isPath)
+		{
 			var item = this;
 			var segments = new List<string>();
 			do
 			{
+				if (isPath && item is ItemPathTemplate)
+					throw new NotSupportedException("The path template contains an item segment.");
+
 				segments.Insert(0, item.Segment);
 			} while ((item = item._parent) != null);
+			return segments;
+		}
 
-			return string.Join("/", segments.Where(s => s != null).ToArray());
+		public BindingPath GetPath()
+		{
+			return new BindingPath(GetSegments(true).Where(s => s != null));
 		}
 
 		private class PropertyPathTemplate : BindingPathTemplate

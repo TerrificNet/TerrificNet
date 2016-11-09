@@ -37,21 +37,58 @@ namespace TerrificNet.Thtml.Rendering
 
 		public void Attr(string name, string value)
 		{
+			AttrStart(name);
+			_output.Write("\"");
+			WriteEncoded(value);
+			_output.Write("\"");
+			AttrEnd();
+		}
+
+		public void Attr(string name, ClientString value)
+		{
+			AttrStart(name);
+			_output.Write(value.Content);
+			AttrEnd();
+		}
+
+		private void AttrEnd()
+		{
+			_output.Write(");");
+		}
+
+		private void AttrStart(string name)
+		{
 			_output.Write(_mapping.Attr);
 			_output.Write("(\"");
 			_output.Write(name);
-			_output.Write("\",\"");
-			WriteEncoded(value);
-			_output.Write("\"");
-			_output.Write(");");
+			_output.Write("\",");
 		}
 
 		public void Text(string content)
 		{
-			_output.Write(_mapping.Text);
-			_output.Write("(\"");
+			TextStart();
+			_output.Write("\"");
 			WriteEncoded(content);
-			_output.Write("\");");
+			_output.Write("\"");
+			TextEnd();
+		}
+
+		public void Text(ClientString content)
+		{
+			TextStart();
+			_output.Write(content.Content);
+			TextEnd();
+		}
+
+		private void TextEnd()
+		{
+			_output.Write(");");
+		}
+
+		private void TextStart()
+		{
+			_output.Write(_mapping.Text);
+			_output.Write("(");
 		}
 
 		private void WriteEncoded(string content)

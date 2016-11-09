@@ -11,13 +11,24 @@ export class IncrementalView {
       idom.patch(this.rootElement, () => this.render(data));
    }
 
-   executeFunc(renderFunc: (o: Function, c: Function, t: Function, v: Function, e: Function, s: Function, a: Function) => void): void {
-      idom.patch(this.rootElement, () => renderFunc(idom.elementOpen, idom.elementClose, idom.text, idom.elementVoid, idom.elementOpenEnd, idom.elementOpenStart, idom.attr));
+   executeFunc(renderFunc: (o: Function, c: Function, t: Function, v: Function, e: Function, s: Function, a: Function, $scope: any) => void, scope: any = null): void {
+      idom.patch(this.rootElement,
+         () => 
+            renderFunc(idom.elementOpen,
+               idom.elementClose,
+               idom.text,
+               idom.elementVoid,
+               idom.elementOpenEnd,
+               idom.elementOpenStart,
+               idom.attr,
+               scope
+            )
+      );
    }
 
-   executeFuncFromTemplate(template: string): any {
-      const render = new Function(`return function(o, c, t, v, e, s, a) { ${template} }`)();
-      this.executeFunc(render);
+   executeFuncFromTemplate(template: string, scope: any = null): any {
+      const render = new Function(`return function(o, c, t, v, e, s, a, $scope) { ${template} }`)();
+      this.executeFunc(render, scope);
    }
 
    private render(data: any): void {

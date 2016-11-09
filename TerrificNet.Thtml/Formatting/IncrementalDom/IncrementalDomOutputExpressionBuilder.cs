@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using TerrificNet.Thtml.Emit;
 using TerrificNet.Thtml.Emit.Compiler;
@@ -49,7 +50,6 @@ namespace TerrificNet.Thtml.Formatting.IncrementalDom
 		{
 			var propertyNameExpression = Expression.Constant(_propertyName);
 
-			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Attr(null, null));
 			Expression valueExpression;
 			if (_propertyValueExpressions.Count == 1)
 				valueExpression = _propertyValueExpressions[0];
@@ -72,12 +72,24 @@ namespace TerrificNet.Thtml.Formatting.IncrementalDom
 			_propertyName = null;
 			_propertyValueExpressions.Clear();
 
+			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Attr(null, (string)null));
+			if (valueExpression.Type == typeof(ClientString))
+				methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Attr(null, (ClientString)null));
+
 			expressionBuilder.Add(Expression.Call(InstanceExpression, methodInfo, propertyNameExpression, valueExpression));
 		}
 
 		public void Value(IExpressionBuilder expressionBuilder, IBinding valueBinding)
 		{
-			Value(expressionBuilder, valueBinding.EnsureBinding().Expression);
+			var exBinding = valueBinding as IBindingWithExpression;
+			if (exBinding != null)
+			{
+				Value(expressionBuilder, valueBinding.EnsureBinding().Expression);
+				return;
+			}
+
+			var path = valueBinding.Path.GetPath().ToString();
+			ValueClient(expressionBuilder, Expression.Constant(new ClientString(path)));
 		}
 
 		private void Value(IExpressionBuilder expressionBuilder, Expression value)
@@ -88,7 +100,19 @@ namespace TerrificNet.Thtml.Formatting.IncrementalDom
 				return;
 			}
 
-			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Text(null));
+			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Text((string)null));
+			expressionBuilder.Add(Expression.Call(InstanceExpression, methodInfo, value));
+		}
+
+		private void ValueClient(IExpressionBuilder expressionBuilder, Expression value)
+		{
+			if (_propertyName != null)
+			{
+				_propertyValueExpressions.Add(value);
+				return;
+			}
+
+			var methodInfo = ExpressionHelper.GetMethodInfo<IIncrementalDomRenderer>(r => r.Text((ClientString)null));
 			expressionBuilder.Add(Expression.Call(InstanceExpression, methodInfo, value));
 		}
 
@@ -99,7 +123,7 @@ namespace TerrificNet.Thtml.Formatting.IncrementalDom
 
 		public bool SupportsBinding(IBinding binding)
 		{
-			return binding is IBindingWithExpression;
+			return binding != null;
 		}
 
 		public void ElementClose(IExpressionBuilder expressionBuilder, string tagName)
